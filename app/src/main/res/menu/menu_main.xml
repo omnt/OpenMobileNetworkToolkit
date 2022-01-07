@@ -1,0 +1,32 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~ SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+  ~
+  ~ SPDX-License-Identifier: apache2
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
+    <item
+        android:id="@+id/AndroidTesting"
+        android:title="@string/action_android" />
+    <item
+        android:id="@+id/SonyService"
+        android:title="@string/action_sony" />
+    <item
+        android:id="@+id/MediatekIMS"
+        android:orderInCategory="100"
+        android:title="@string/action_mediatek"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/HuaweiProjektMenu"
+        android:title="@string/action_huawei" />
+    <item
+        android:id="@+id/SamsungIMS"
+        android:title="@string/action_samsung" />
+    <item
+        android:id="@+id/about"
+        android:title="@string/about" />
+</menu>

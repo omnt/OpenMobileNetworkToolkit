@@ -1,0 +1,25 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~ SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+  ~
+  ~ SPDX-License-Identifier: apache2
+  -->
+
+<resources>
+    <string name="app_name">OpenMobileNetworkToolkit</string>
+    <string name="action_android">Android Testing</string>
+    <string name="action_samsung">Samsung IMS</string>
+    <string name="action_sony">Sony Service</string>
+    <string name="action_huawei">Huawei Project</string>
+    <string name="action_mediatek">Mediatek IMS</string>
+    <string name="appinfo">This app is provided by Fraunhofer FOKUS. \n This software is Licencensed on Apache 2.0. \n</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">OpenMobileNetworkToolkit</string>
+    <string name="second_fragment_label">about</string>
+    <string name="home">home</string>
+    <string name="about">about</string>
+    <string name="previous">Previous</string>
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="service_name" />
+</resources>
