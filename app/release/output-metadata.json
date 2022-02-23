@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "de.fraunhofer.fokus.phoenixcarriersettings",
+  "applicationId": "de.fraunhofer.fokus.OpenMobileNetworkToolkitcarriersettings",
   "variantName": "release",
   "elements": [
     {

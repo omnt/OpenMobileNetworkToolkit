@@ -18,7 +18,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
     private static final String TAG = "OpenMobileNetworkToolkit";
 
     public OpenMobileNetworkToolkit() {
-        Log.d(TAG, "Phoenix Carrier Config Service created");
+        Log.d(TAG, "OpenMobileNetworkToolkit Carrier Config Service created");
     }
 
     @Override

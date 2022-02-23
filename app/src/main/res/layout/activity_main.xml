@@ -16,14 +16,14 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.PhoenixCarrierSettings.AppBarOverlay">
+        android:theme="@style/Theme.OpenMobileNetworkToolkitCarrierSettings.AppBarOverlay">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.PhoenixCarrierSettings.PopupOverlay" />
+            app:popupTheme="@style/Theme.OpenMobileNetworkToolkitCarrierSettings.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

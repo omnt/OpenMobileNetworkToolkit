@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private PersistableBundle cc;
     public TelephonyManager tm;
     public boolean cp = false;
-    private static final String TAG = "PhoenixCarrierConfig";
+    private static final String TAG = "OpenMobileNetworkToolkit";
 
     //@SuppressLint("MissingPermission")
     @Override
