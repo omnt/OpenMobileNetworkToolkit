@@ -44,7 +44,7 @@ before_script:
   - pushd $ANDROID_HOME
   - unzip -d cmdline-tools cmdline-tools.zip
   - popd
-  - export PATH=$PATH:${ANDROID_HOME}/cmdline-tools/tools/bin/
+  - export PATH=$PATH:${ANDROID_HOME}/cmdline-tools/cmdline-tools/bin/
 
   # Nothing fancy here, just checking sdkManager version
   - sdkmanager --version
