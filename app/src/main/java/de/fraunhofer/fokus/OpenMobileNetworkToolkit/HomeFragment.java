@@ -9,6 +9,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
@@ -50,6 +52,7 @@ public class HomeFragment extends Fragment {
     }
 
     //@SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MainActivity ma = (MainActivity) getActivity();
@@ -67,10 +70,13 @@ public class HomeFragment extends Fragment {
                 tmp += plnm + " ";
             }
             //java.util.List<String> blank = new List<String>();
-            tm.setForbiddenPlmns(new ArrayList<String>());
-            tm.setNetworkSelectionModeManual("00101", true, AccessNetworkConstants.AccessNetworkType.NGRAN);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                tm.setForbiddenPlmns(new ArrayList<String>());
+                tm.setNetworkSelectionModeManual("00101", true, AccessNetworkConstants.AccessNetworkType.NGRAN);
+
+            }
             props.add("Forbidden PLMS: " + tmp);
-            if (sdk_version >= Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 props.add("SubscriptionId: " + tm.getSubscriptionId());
             }
             props.add("DataNetworkType: " + tm.getDataNetworkType());
