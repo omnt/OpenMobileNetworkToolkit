@@ -88,7 +88,7 @@ assembleRelease:
     -Pandroid.injected.signing.store.password=$KEYSTORE_PW
     -Pandroid.injected.signing.key.alias=$KEY_ALIAS
     -Pandroid.injected.signing.key.password=$KEY_PW
-  - 'curl --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/release/app-release.apk "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/OpenMobileNetworkToolkit.apk"'
+  - 'curl --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/release/app-release.apk "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/OpenMobileNetworkToolkit/OpenMobileNetworkToolkit.apk"'
   artifacts:
     paths:
     - app/build/outputs/apk/release
