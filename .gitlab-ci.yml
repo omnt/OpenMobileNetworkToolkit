@@ -49,6 +49,11 @@ before_script:
   # Not necessary, but just for surity
   - chmod +x ./gradlew
 
+stages: 
+  - build
+  - test
+  - release
+
 # Basic android and gradle stuff
 # Check linting
 lintDebug:
