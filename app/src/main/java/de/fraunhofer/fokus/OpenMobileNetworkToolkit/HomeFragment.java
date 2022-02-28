@@ -75,7 +75,7 @@ public class HomeFragment extends Fragment {
                 tm.setNetworkSelectionModeManual("00101", true, AccessNetworkConstants.AccessNetworkType.NGRAN);
 
             }
-            props.add("Forbidden PLMS: " + tmp);
+            props.add("Forbidden PLMNs: " + tmp);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 props.add("SubscriptionId: " + tm.getSubscriptionId());
             }
