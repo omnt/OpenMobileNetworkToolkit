@@ -1,4 +1,4 @@
-image: openjdk:11-jdk
+image: dockerhub.fokus.fraunhofer.de:5000/ngni/gitlab-ci-android/builder:20.04
 
 variables:
 
