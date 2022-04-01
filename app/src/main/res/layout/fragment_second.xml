@@ -16,8 +16,10 @@
 
     <TextView
         android:id="@+id/textview_second"
-        android:layout_width="360dp"
-        android:layout_height="705dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="26dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
