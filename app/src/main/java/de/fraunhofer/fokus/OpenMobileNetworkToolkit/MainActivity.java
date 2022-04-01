@@ -9,14 +9,18 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.PersistableBundle;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
+import android.telephony.data.NetworkSliceInfo;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
@@ -31,15 +35,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     public CarrierConfigManager ccm;
     private PersistableBundle cc;
+    private ConnectivityManager cm;
     public TelephonyManager tm;
     public boolean cp = false;
     private static final String TAG = "OpenMobileNetworkToolkit";
+
 
     //@SuppressLint("MissingPermission")
     @Override
@@ -48,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         //cc = ccm.getConfig();
         tm = (TelephonyManager) getSystemService(this.TELEPHONY_SERVICE);
         ccm = (CarrierConfigManager) getSystemService(this.CARRIER_CONFIG_SERVICE);
+
         cp = HasCarrierPermissions();
         // check permissions
 //        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {

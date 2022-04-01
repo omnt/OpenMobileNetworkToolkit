@@ -15,13 +15,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
+import android.telephony.data.NetworkSliceInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 

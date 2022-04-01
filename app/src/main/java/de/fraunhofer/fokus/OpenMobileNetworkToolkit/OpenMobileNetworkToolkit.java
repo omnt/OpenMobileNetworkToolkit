@@ -7,6 +7,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+
 import android.os.PersistableBundle;
 import android.os.Build;
 import android.service.carrier.CarrierIdentifier;
@@ -26,6 +27,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         int sdk_version = Build.VERSION.SDK_INT;
         Log.i(TAG, "CarrierIdentifier id " + id.toString());
         PersistableBundle configForSubId = new PersistableBundle();
+        PersistableBundle configForSlicing = new PersistableBundle();
 
         // handle things that need newer API versions
         if (sdk_version >= Build.VERSION_CODES.O_MR1) {
@@ -47,6 +49,9 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putStringArray(CarrierConfigManager.KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY, new String[]{""});
             configForSubId.putStringArray(CarrierConfigManager.KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY, new String[]{""});
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL, true);
+
+
+
         } else {
             Log.d(TAG, " not available with below api level 30");
         }
