@@ -27,7 +27,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         int sdk_version = Build.VERSION.SDK_INT;
         Log.i(TAG, "CarrierIdentifier id " + id.toString());
         PersistableBundle configForSubId = new PersistableBundle();
-        PersistableBundle configForSlicing = new PersistableBundle();
+
 
         // handle things that need newer API versions
         if (sdk_version >= Build.VERSION_CODES.O_MR1) {
