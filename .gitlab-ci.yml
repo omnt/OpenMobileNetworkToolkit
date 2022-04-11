@@ -80,6 +80,9 @@ debugTests:
     - ./gradlew -Pci --console=plain :app:testDebug
 
 assembleRelease:
+  variables:
+    VERSION: "0.1"
+    PACKAGENAME: "OpenMobileNetworkToolkit.${CI_COMMIT_REF_SLUG}"
   stage: release
   script:
   - echo $KEYSTORE | base64 -d > my.keystore
@@ -88,7 +91,7 @@ assembleRelease:
     -Pandroid.injected.signing.store.password=$KEYSTORE_PW
     -Pandroid.injected.signing.key.alias=$KEY_ALIAS
     -Pandroid.injected.signing.key.password=$KEY_PW
-  - 'curl --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/release/app-release.apk "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/OpenMobileNetworkToolkit/0.1/OpenMobileNetworkToolkit.apk"'
+  - 'curl --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/release/app-release.apk "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/OpenMobileNetworkToolkit.apk"'
   artifacts:
     paths:
     - app/build/outputs/apk/release
