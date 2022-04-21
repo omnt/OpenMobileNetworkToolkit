@@ -63,7 +63,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL, false);
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_ENABLE_2G, false);
             configForSubId.putBoolean(CarrierConfigManager.KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL, true);
-            configForSubId.putInt(String.valueOf(NetworkSliceInfo.SLICE_SERVICE_TYPE_EMBB), 1);
+
 
         } else {
             Log.d(TAG, "KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY is not available with below api level 31");
