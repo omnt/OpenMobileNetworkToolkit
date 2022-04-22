@@ -91,6 +91,11 @@ public class NetworkSlice extends TelephonyManager {
         urspRule.getTrafficDescriptors();
 
         return null; //replace with network slice info
+
+        //Wireshark Radio observe
+        //Ask for Network Slices on Core
+        //Wireshark N5
+
     }
 
 
