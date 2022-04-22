@@ -30,12 +30,12 @@ import java.util.List;
 import java.util.Objects;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
-public class NetworkSlice extends TelephonyManager {
+public class NetworkSlice {
     private static final String TAG = "NetworkSlicing";
     private String dnn;
 
-    public NetworkSlice(){
-        super();
+   /* public NetworkSlice(){
+        //super();
         NetworkSliceInfo sliceURLLC = new NetworkSliceInfo.Builder()
                 .setSliceServiceType(SLICE_SERVICE_TYPE_URLLC)
                 .setStatus(SLICE_STATUS_DEFAULT_CONFIGURED)
@@ -61,9 +61,7 @@ public class NetworkSlice extends TelephonyManager {
         //Slice Manager
 
 
-
-
-        //Network Slice configuration
+       //Network Slice configuration
         NetworkSlicingConfig slicingConfig = new NetworkSlicingConfig();
         slicingConfig.getSliceInfo();
         slicingConfig.getUrspRules();
@@ -96,7 +94,7 @@ public class NetworkSlice extends TelephonyManager {
         //Ask for Network Slices on Core
         //Wireshark N5
 
-    }
+    }*/
 
 
 }
