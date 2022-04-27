@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
+import android.telephony.data.NetworkSlicingConfig;
 import android.telephony.data.TrafficDescriptor;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,12 +61,14 @@ public class HomeFragment extends Fragment {
         setHasCarrierPrivilages(ma.HasCarrierPermissions());
         TelephonyManager tm = ma.tm;
 
-        TrafficDescriptor trafficDescriptor = new TrafficDescriptor.Builder()
+
+
+        /*TrafficDescriptor trafficDescriptor = new TrafficDescriptor.Builder()
                 .build();
         String osAppID = (trafficDescriptor.getOsAppId()).toString();
         String dataNetworkName = (trafficDescriptor.getDataNetworkName());
         props.add("OSiD: " +trafficDescriptor.getOsAppId());
-        props.add("DNN ID: " +trafficDescriptor.getDataNetworkName());
+        props.add("DNN ID: " +trafficDescriptor.getDataNetworkName());*/
 
         ArrayList<String> props = new ArrayList<String>();
         if (HasCarrierPrivilages) {
