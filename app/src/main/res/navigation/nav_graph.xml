@@ -14,9 +14,9 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.HomeFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SliceFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/home_fragment">
+        tools:layout="@layout/slice_fragment">
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
