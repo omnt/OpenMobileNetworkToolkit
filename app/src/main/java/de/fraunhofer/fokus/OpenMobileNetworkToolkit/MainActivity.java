@@ -120,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
             NavController navController = Navigation.findNavController(this, R.id.about_fragment);
             navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
         }
+         else if (id == R.id.slicing){
+           Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
+         }
         return super.onOptionsItemSelected(item);
     }
 
