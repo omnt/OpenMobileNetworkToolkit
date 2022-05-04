@@ -16,11 +16,15 @@
         android:id="@+id/FirstFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SliceFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/slice_fragment">
+        tools:layout="@layout/fragment_slice">
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_SliceFragment"
+            app:destination="@+id/slice_fragment" />
+
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -31,5 +35,12 @@
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/slice_fragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.HomeFragment"
+        android:label="slice_fragment"
+        tools:layout="@layout/home_fragment">
+
     </fragment>
 </navigation>
