@@ -5,6 +5,7 @@ import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPO
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -12,9 +13,11 @@ import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
 import android.telephony.data.TrafficDescriptor;
 import android.telephony.data.UrspRule;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +29,7 @@ import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBinding;
 
-public class SliceFragment extends Fragment {
+public class SliceFragment extends Fragment implements View.OnClickListener{
 
     private static final String TAG = "NetworkSlicing";
     private String dnn;
@@ -34,6 +37,7 @@ public class SliceFragment extends Fragment {
     private boolean HasCarrierPrivilages;
     private int sdk_version;
     public ConnectivityManager connectivityManager;
+    public Button callback;
 
     public void setHasCarrierPrivilages(boolean privilages) {
         HasCarrierPrivilages = privilages;
@@ -47,8 +51,17 @@ public class SliceFragment extends Fragment {
 
         binding = FragmentSliceBinding.inflate(inflater, container, false);
         sdk_version = Build.VERSION.SDK_INT;
+        callback = (Button) inflater.inflate(R.layout.fragment_slice, container, false).findViewById(R.id.btn_callback);
+        callback.setOnClickListener(this);
         return binding.getRoot();
 
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        Toast.makeText(getActivity(), "Click here", Toast.LENGTH_SHORT).show();
+        Log.d("Slice Fragment","Click");
     }
 
     //@SuppressLint("MissingPermission")
@@ -58,9 +71,17 @@ public class SliceFragment extends Fragment {
         MainActivity ma = (MainActivity) getActivity();
         setHasCarrierPrivilages(ma.HasCarrierPermissions());
         TelephonyManager tm = ma.tm;
-        connectivityManager = (ConnectivityManager)
-                getContext().getSystemService(getContext().CONNECTIVITY_SERVICE);
-        Network currentNetwork = connectivityManager.getActiveNetworkInfo();
+
+       /*connectivityManager = (ConnectivityManager)
+                getContext().getSystemService(getContext().CONNECTIVITY_SERVICE);*/
+
+        NetworkCallback networkCallback = new NetworkCallback(getActivity().getApplicationContext());
+        networkCallback.setHasCarrierPrivilages(true);
+
+
+
+
+        //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
         /*NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
         LinkProperties linkProperties = connectivityManager.getLinkProperties(currentNetwork);*/
 
@@ -81,7 +102,8 @@ public class SliceFragment extends Fragment {
 
         sliceCreate emb = new sliceCreate(NetworkSliceInfo.SLICE_SERVICE_TYPE_EMBB, NetworkSliceInfo.SLICE_DIFFERENTIATOR_NO_SLICE);
         trafficDescriptor descriptor = new trafficDescriptor();
-
+        networkCallback.requestNetworkCallback();
+        networkCallback.registerNetworkCallback();
 
         PersistableBundle configForSubId = new PersistableBundle();
         PackageManager pm = getContext().getPackageManager();
@@ -94,6 +116,9 @@ public class SliceFragment extends Fragment {
             Toast.makeText(getActivity(), "Has Carrier Privilages", Toast.LENGTH_SHORT).show();
             if (feature_telephony) {
                 Toast.makeText(getActivity(), "Has telephony", Toast.LENGTH_SHORT).show();
+                if(connectivityManager!=null){
+                    Toast.makeText(getActivity(), "Connectivity Manager exist", Toast.LENGTH_SHORT).show();
+                }
             }
             props.add("Carrier Permissions: " + HasCarrierPrivilages);
             props.add("Feature Telephony: " + feature_telephony);
@@ -111,7 +136,10 @@ public class SliceFragment extends Fragment {
             props.add("Sim Operator Name: "+ tm.getSimOperatorName());
             props.add("Network Specifier: " +tm.getNetworkSpecifier());
             props.add("Data State: " +tm.getDataState());
-            props.add("Default Network Active:" + connectivityManager.isDefaultNetworkActive());
+           // props.add("Default Network Active:" + connectivityManager.isDefaultNetworkActive());
+
+            props.add("Network status: " + GlobalVars.isNetworkConnected);
+            props.add("Network counter: " + GlobalVars.counter);
 
             //props.add("All Cell Info: \n"+tm.getAllCellInfo()) ;
             //props.add("Signal Strength: \n" +tm.getSignalStrength());
@@ -127,6 +155,7 @@ public class SliceFragment extends Fragment {
             TextView tv = new TextView(getContext());
             tv.setText("This app only works with Carrier Privilages. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
             binding.sliceInfo.addView(tv);
+
         }
 
 
