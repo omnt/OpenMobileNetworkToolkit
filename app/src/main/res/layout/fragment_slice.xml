@@ -10,8 +10,8 @@
 
     <ScrollView
         android:id="@+id/sliceInfoBox"
-        android:layout_width="391dp"
-        android:layout_height="708dp"
+        android:layout_width="362dp"
+        android:layout_height="545dp"
         android:scrollbarStyle="outsideInset"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,5 +24,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
     </ScrollView>
+
+    <Button
+        android:id="@+id/btn_callback"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Callback"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sliceInfoBox" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
