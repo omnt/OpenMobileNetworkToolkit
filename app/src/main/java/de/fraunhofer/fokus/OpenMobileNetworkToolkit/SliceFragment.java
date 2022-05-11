@@ -12,7 +12,6 @@ import android.os.PersistableBundle;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
 import android.telephony.data.TrafficDescriptor;
-import android.telephony.data.UrspRule;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,19 +24,18 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBinding;
 
-public class SliceFragment extends Fragment implements View.OnClickListener{
+public class SliceFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "NetworkSlicing";
+    public ConnectivityManager connectivityManager;
+    public Button callback;
     private String dnn;
     private FragmentSliceBinding binding;
     private boolean HasCarrierPrivilages;
     private int sdk_version;
-    public ConnectivityManager connectivityManager;
-    public Button callback;
 
     public void setHasCarrierPrivilages(boolean privilages) {
         HasCarrierPrivilages = privilages;
@@ -61,7 +59,7 @@ public class SliceFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         Toast.makeText(getActivity(), "Click here", Toast.LENGTH_SHORT).show();
-        Log.d("Slice Fragment","Click");
+        Log.d("Slice Fragment", "Click");
     }
 
     //@SuppressLint("MissingPermission")
@@ -75,19 +73,14 @@ public class SliceFragment extends Fragment implements View.OnClickListener{
        /*connectivityManager = (ConnectivityManager)
                 getContext().getSystemService(getContext().CONNECTIVITY_SERVICE);*/
 
-        NetworkCallback networkCallback = new NetworkCallback(getActivity().getApplicationContext());
-        networkCallback.setHasCarrierPrivilages(true);
-
-
-
-
-        //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
-        /*NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
-        LinkProperties linkProperties = connectivityManager.getLinkProperties(currentNetwork);*/
-
 
         /*** Network/Network Capabilities/Link Properties ***/
         /* A Callback is needed to get the result of the mentioned values */
+        NetworkCallback networkCallback = new NetworkCallback(getActivity().getApplicationContext());
+        networkCallback.setHasCarrierPrivilages(true);
+        //networkCallback.registerDefaultNetworkCallback();
+        //networkCallback.requestNetworkCallback();
+        networkCallback.registerNetworkCallback();
 
         byte[] osAppId = null;
 
@@ -102,44 +95,52 @@ public class SliceFragment extends Fragment implements View.OnClickListener{
 
         sliceCreate emb = new sliceCreate(NetworkSliceInfo.SLICE_SERVICE_TYPE_EMBB, NetworkSliceInfo.SLICE_DIFFERENTIATOR_NO_SLICE);
         trafficDescriptor descriptor = new trafficDescriptor();
-        networkCallback.requestNetworkCallback();
-        networkCallback.registerNetworkCallback();
+
 
         PersistableBundle configForSubId = new PersistableBundle();
         PackageManager pm = getContext().getPackageManager();
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         boolean feature_slicing = pm.hasSystemFeature(CAPABILITY_SLICING_CONFIG_SUPPORTED);
 
+        //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
+        /*NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
+        LinkProperties linkProperties = connectivityManager.getLinkProperties(currentNetwork);*/
 
         ArrayList<String> props = new ArrayList<String>();
         if (HasCarrierPrivilages) {
             Toast.makeText(getActivity(), "Has Carrier Privilages", Toast.LENGTH_SHORT).show();
             if (feature_telephony) {
                 Toast.makeText(getActivity(), "Has telephony", Toast.LENGTH_SHORT).show();
-                if(connectivityManager!=null){
-                    Toast.makeText(getActivity(), "Connectivity Manager exist", Toast.LENGTH_SHORT).show();
-                }
             }
             props.add("Carrier Permissions: " + HasCarrierPrivilages);
             props.add("Feature Telephony: " + feature_telephony);
             props.add("IMEI: " + tm.getImei());
             props.add("SimSerial: " + tm.getSimSerialNumber());
             props.add("SubscriberId: " + tm.getSubscriberId());
-            props.add("Slicing Config: " +feature_slicing); //for now false
+            props.add("Slicing Config: " + feature_slicing); //for now false
             props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
-            props.add("phone type: " +tm.getPhoneType());
+            props.add("phone type: " + tm.getPhoneType());
             //props.add("OSiD: " +trafficDescriptor.getOsAppId()); //OSiD when set receive and show here
             //props.add("DNN ID: " +trafficDescriptor.getDataNetworkName()); //DNN when received show here
             //props.add("Route Selection Mode: "+ RouteSelectionDescriptor.ROUTE_SSC_MODE_2);
             props.add("Supported Modem Count: " + tm.getSupportedModemCount());
-            props.add("Network Operator: "+ tm.getNetworkOperatorName());
-            props.add("Sim Operator Name: "+ tm.getSimOperatorName());
-            props.add("Network Specifier: " +tm.getNetworkSpecifier());
-            props.add("Data State: " +tm.getDataState());
-           // props.add("Default Network Active:" + connectivityManager.isDefaultNetworkActive());
+            props.add("Network Operator: " + tm.getNetworkOperatorName());
+            props.add("Sim Operator Name: " + tm.getSimOperatorName());
+            props.add("Network Specifier: " + tm.getNetworkSpecifier());
+            props.add("Data State: " + tm.getDataState());
 
+            props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
+            props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
             props.add("Network status: " + GlobalVars.isNetworkConnected);
             props.add("Network counter: " + GlobalVars.counter);
+            props.add("Default DNS: " + NetworkCallback.getDefaultDNS(getContext()));
+            props.add("Enterprise Capability: " +NetworkCallback.getEnterprise(getContext()));
+            props.add("Validated Capability: " +NetworkCallback.getValidity(getContext()));
+            props.add("Internet Capability: " +NetworkCallback.getInternet(getContext()));
+
+
+
+            //props.add("log" + networkCallback.sliceFragment.connectivityManager.isDefaultNetworkActive());
 
             //props.add("All Cell Info: \n"+tm.getAllCellInfo()) ;
             //props.add("Signal Strength: \n" +tm.getSignalStrength());
@@ -159,31 +160,24 @@ public class SliceFragment extends Fragment implements View.OnClickListener{
         }
 
 
-        }
+    }
+
     @Override
-    public void onDestroyView () {
+    public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
 
 
-    public class sliceCreate{
-        public int getMappedHplmnSliceServiceType(){
-            return 0;
-        }
-
-        public int getMmappedHplmnSliceDifferentiator(){
-            return 0;
-        }
-
-        public sliceCreate(int serviceType, int sliceDiff){
+    public class sliceCreate {
+        public sliceCreate(int serviceType, int sliceDiff) {
             NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
                     .setSliceServiceType(serviceType)
                     .setSliceDifferentiator(sliceDiff)
                     .build();
         }
 
-        public sliceCreate(int serviceType, int sliceDiff, int status){
+        public sliceCreate(int serviceType, int sliceDiff, int status) {
             NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
                     .setSliceServiceType(serviceType)
                     .setSliceDifferentiator(sliceDiff)
@@ -191,23 +185,31 @@ public class SliceFragment extends Fragment implements View.OnClickListener{
                     .build();
         }
 
-       public void sliceCreateMapped(int serviceType, int sliceDiff){
-           NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                   .setMappedHplmnSliceServiceType(serviceType)
-                   .setMappedHplmnSliceDifferentiator(sliceDiff)
-                   .build();
-       }
+        public int getMappedHplmnSliceServiceType() {
+            return 0;
+        }
+
+        public int getMmappedHplmnSliceDifferentiator() {
+            return 0;
+        }
+
+        public void sliceCreateMapped(int serviceType, int sliceDiff) {
+            NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
+                    .setMappedHplmnSliceServiceType(serviceType)
+                    .setMappedHplmnSliceDifferentiator(sliceDiff)
+                    .build();
+        }
     }
 
-    public class trafficDescriptor{
+    public class trafficDescriptor {
 
-        trafficDescriptor(){
+        trafficDescriptor() {
             TrafficDescriptor response = new TrafficDescriptor.Builder()
                     .setDataNetworkName("")
                     .build();
         }
 
-        trafficDescriptor(String dnn, byte[] osAppID){
+        trafficDescriptor(String dnn, byte[] osAppID) {
             TrafficDescriptor response = new TrafficDescriptor.Builder()
                     .setDataNetworkName(dnn)
                     .setOsAppId(osAppID)
