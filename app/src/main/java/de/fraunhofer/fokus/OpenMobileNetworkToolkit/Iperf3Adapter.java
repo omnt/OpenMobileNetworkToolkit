@@ -13,13 +13,15 @@ import java.io.IOException;
 
 public class Iperf3Adapter {
     private DataInputStream outputStream;
+
+
+    private String convertStreamToString(java.io.InputStream is) {
+        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+        return s.hasNext() ? s.next() : "";
+    }
+
     public String getOutputString(){
-        try {
-            return this.outputStream.readUTF();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
+        return convertStreamToString(this.outputStream);
     }
     public int startProcess(String command){
         try {
