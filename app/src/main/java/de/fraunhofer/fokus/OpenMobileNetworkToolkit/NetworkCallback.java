@@ -40,7 +40,7 @@ public class NetworkCallback {
             List<InetAddress> dns = linkProperties.getDnsServers();
             if (dns != null)
                 for (InetAddress d : linkProperties.getDnsServers()) {
-                    Log.d(TAG, "DNS from LinkProperties: " + d.getHostAddress());
+                    SRLog.d(TAG, "DNS from LinkProperties: " + d.getHostAddress());
                     listDns.add(d.getHostAddress().split("%")[0]);
                 }
         } else {
