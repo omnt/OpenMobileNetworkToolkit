@@ -3,9 +3,9 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -60,6 +60,7 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         Toast.makeText(getActivity(), "Click here", Toast.LENGTH_SHORT).show();
         Log.d("Slice Fragment", "Click");
+
     }
 
     //@SuppressLint("MissingPermission")
@@ -101,6 +102,7 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
         PackageManager pm = getContext().getPackageManager();
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         boolean feature_slicing = pm.hasSystemFeature(CAPABILITY_SLICING_CONFIG_SUPPORTED);
+        boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
 
         //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
         /*NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
@@ -117,9 +119,12 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
             props.add("IMEI: " + tm.getImei());
             props.add("SimSerial: " + tm.getSimSerialNumber());
             props.add("SubscriberId: " + tm.getSubscriberId());
+
             props.add("Slicing Config: " + feature_slicing); //for now false
             props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
             props.add("phone type: " + tm.getPhoneType());
+            props.add("Work Profile: " + work_profile);
+
             //props.add("OSiD: " +trafficDescriptor.getOsAppId()); //OSiD when set receive and show here
             //props.add("DNN ID: " +trafficDescriptor.getDataNetworkName()); //DNN when received show here
             //props.add("Route Selection Mode: "+ RouteSelectionDescriptor.ROUTE_SSC_MODE_2);
@@ -129,6 +134,7 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
             props.add("Network Specifier: " + tm.getNetworkSpecifier());
             props.add("Data State: " + tm.getDataState());
 
+
             props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
             props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
             props.add("Network status: " + GlobalVars.isNetworkConnected);
@@ -137,9 +143,7 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
             props.add("Enterprise Capability: " +NetworkCallback.getEnterprise(getContext()));
             props.add("Validated Capability: " +NetworkCallback.getValidity(getContext()));
             props.add("Internet Capability: " +NetworkCallback.getInternet(getContext()));
-
-
-
+            
             //props.add("log" + networkCallback.sliceFragment.connectivityManager.isDefaultNetworkActive());
 
             //props.add("All Cell Info: \n"+tm.getAllCellInfo()) ;
