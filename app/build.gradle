@@ -9,6 +9,10 @@ plugins {
     id 'com.android.application'
 }
 
+ext {
+    includes = '/usr/include'
+}
+
 android {
     compileSdk 32
 
@@ -20,6 +24,11 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
     }
 
     buildTypes {
@@ -36,6 +45,13 @@ android {
         viewBinding true
     }
     buildToolsVersion '32.1.0-rc1'
+    ndkVersion "24.0.8215888"
+
+    externalNativeBuild {
+        ndkBuild {
+            path "src/jni/Android.mk"
+        }
+    }
 }
 
 dependencies {

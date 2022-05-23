@@ -21,6 +21,10 @@
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_iperf3Fragment"
+            app:destination="@id/iperf3Fragment" />
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -31,5 +35,12 @@
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/iperf3Fragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3Adapter"
+        android:label="@string/action_iperf3"
+        tools:layout="@layout/iperf3_fragment">
     </fragment>
 </navigation>

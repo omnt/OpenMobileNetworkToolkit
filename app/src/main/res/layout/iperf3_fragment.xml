@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-FileCopyrightText: 2022 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~ SPDX-FileCopyrightText: 2022 Fraunhofer FOKUS
+  ~
+  ~ SPDX-License-Identifier: apache2
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/iperf3"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Iperf3Adapter">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/iperf3command"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:hint="@string/about" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/iperf3commandButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text button"
+        tools:layout_editor_absoluteX="130dp"
+        tools:layout_editor_absoluteY="106dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -27,6 +27,9 @@
         android:id="@+id/SamsungIMS"
         android:title="@string/action_samsung" />
     <item
+        android:id="@+id/iperf3"
+        android:title="@string/action_iperf3" />
+    <item
         android:id="@+id/about"
         android:title="@string/about" />
 </menu>
