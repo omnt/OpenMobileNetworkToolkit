@@ -8,8 +8,11 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -17,13 +20,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.OutcomeReceiver;
 import android.os.PersistableBundle;
+import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
+import android.telephony.data.NetworkSlicingConfig;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -46,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     public TelephonyManager tm;
     public boolean cp = false;
     private static final String TAG = "OpenMobileNetworkToolkit";
+    public final static int Overlay_REQUEST_CODE = 251;
+
 
 
     //@SuppressLint("MissingPermission")
@@ -58,14 +67,20 @@ public class MainActivity extends AppCompatActivity {
 
         cp = HasCarrierPermissions();
         // check permissions
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-//            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
-//            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_PHONE_STATE}, 1);
-//        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_PHONE_STATE}, 1);
+        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
+        if(ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Requesting Privillaged Phone State");
+                ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"},123);
+        }
+
+
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -82,8 +97,23 @@ public class MainActivity extends AppCompatActivity {
 //        });
         //FragmentManager fm = getSupportFragmentManager();
         //HomeFragment f = (HomeFragment) fm.findFragmentById(R.id.home_fragment);
-
         //f.setHasCarrierPrivilages(cp)
+
+
+        // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
+
+       /* if(cp) {
+            tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                @Override
+                public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
+                    Log.d(TAG, "SLICING CONFIG RESULT OK");
+                }
+
+            });
+        } else {
+            Log.d(TAG, "GET NETWORK SLICING FAILED!");
+            Toast.makeText(getApplicationContext(),"GET NETWORK SLICING FAILED!", Toast.LENGTH_SHORT).show();
+        }*/
 
     }
 
@@ -121,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
         }
          else if (id == R.id.slicing){
-           Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
+           //Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
+           //openFloatingWindow();
+            checkDrawOverlayPermission(this);
          }
         return super.onOptionsItemSelected(item);
     }
@@ -161,6 +193,31 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean HasCarrierPermissions() {
         return tm.hasCarrierPrivileges();
+    }
+
+
+
+    public void checkDrawOverlayPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                if (null != activity) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                    activity.startActivityForResult(intent, Overlay_REQUEST_CODE);
+                } else {
+                    Toast.makeText(this, "Please grant \"Draw over other apps\" permission under application settings", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                openFloatingWindow();
+            }
+        } else {
+            openFloatingWindow();
+        }
+    }
+
+    private void openFloatingWindow() {
+        Intent intent = new Intent(getApplicationContext(), DebuggerService.class);
+        getApplicationContext().stopService(intent);
+        ContextCompat.startForegroundService(getApplicationContext(), intent);
     }
 
 }

@@ -142,18 +142,18 @@ public class NetworkCallback {
                 public void onAvailable(Network network) {
                     super.onAvailable(network);
                     GlobalVars.isNetworkConnected = true;
-                    Log.d(TAG, "onAvailable");
+                    SRLog.d(TAG, "onAvailable");
                 }
 
                 @Override
                 public void onUnavailable() {
                     super.onUnavailable();
-                    Log.d(TAG, "onUnavailable");
+                    SRLog.d(TAG, "onUnavailable");
 
                 }
             });
         } catch (Exception e) {
-            Log.d("Network Callback: Exception in requestNetworkCallback", "Catch exception RequestCallback");
+            SRLog.d("Network Callback: Exception in requestNetworkCallback", "Catch exception RequestCallback");
             GlobalVars.isNetworkConnected = false;
         }
     }
@@ -245,15 +245,15 @@ public class NetworkCallback {
             //Inet4Address inet4Address = linkProperties.getDhcpServerAddress();
 
 
-            Log.d(TAG, "Validated Capabilities:" + validated_capability);
-            Log.d(TAG, "Internet Capabilities:" + internet_capability);
-            Log.d(TAG, "Enterprise Capabilities:" + enterprise_capability);
-            Log.d(TAG, "Interface Name: " + interfaceName);
+            SRLog.d(TAG, "Validated Capabilities:" + validated_capability);
+            SRLog.d(TAG, "Internet Capabilities:" + internet_capability);
+            SRLog.d(TAG, "Enterprise Capabilities:" + enterprise_capability);
+            SRLog.d(TAG, "Interface Name: " + interfaceName);
             //Log.d(TAG, "INET4Address: "+ inet4Address.toString());
-            Log.d(TAG, "LINK PROPERTIES: " + linkProperties);
-            Log.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
-            Log.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
-            Log.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
+            SRLog.d(TAG, "LINK PROPERTIES: " + linkProperties);
+            SRLog.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
+            SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            SRLog.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
 
 
             NetworkRequest.Builder builder = new NetworkRequest.Builder();
