@@ -10,10 +10,9 @@
 
     <ScrollView
         android:id="@+id/sliceInfoBox"
-        android:layout_width="362dp"
-        android:layout_height="545dp"
+        android:layout_width="363dp"
+        android:layout_height="546dp"
         android:scrollbarStyle="outsideInset"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -25,13 +24,28 @@
             android:orientation="vertical" />
     </ScrollView>
 
-    <Button
-        android:id="@+id/btn_callback"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Callback"
+    <ScrollView
+        android:id="@+id/debugging_box"
+        android:layout_width="363dp"
+        android:layout_height="183dp"
+        android:scrollbarStyle="outsideInset"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sliceInfoBox" />
+        app:layout_constraintTop_toBottomOf="@+id/sliceInfoBox"
+        app:layout_constraintVertical_bias="0.0">
+
+
+        <TextView
+            android:id="@+id/debugger_output"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:orientation="vertical"
+            android:paddingLeft="12dp"
+            android:paddingTop="12dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="12dp" />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

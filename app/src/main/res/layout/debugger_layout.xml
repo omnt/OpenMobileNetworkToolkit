@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:background="@color/debug_darkDebugBg"
     android:orientation="horizontal"
-    tools:ignore="RtlHardcoded">
+    tools:ignore=".DebuggerService">
 
 
     <LinearLayout
