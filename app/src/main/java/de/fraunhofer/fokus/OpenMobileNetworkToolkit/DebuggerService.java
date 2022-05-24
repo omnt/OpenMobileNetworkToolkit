@@ -282,9 +282,9 @@ public class DebuggerService extends Service {
         return ss;
     }
 
-    public static void setDebugText(String msg, int textColor) {
+    /*public static void setDebugText(String msg, int textColor) {
         if (null != getContext()) getContext().addTextViewToLayout(msg, textColor);
-    }
+    }*/
 
 
     public static void stop() {

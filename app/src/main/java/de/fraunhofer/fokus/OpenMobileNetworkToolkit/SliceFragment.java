@@ -3,7 +3,8 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.app.slice.Slice;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
@@ -12,30 +13,42 @@ import android.os.PersistableBundle;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
 import android.telephony.data.TrafficDescriptor;
-import android.util.Log;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBinding;
 
-public class SliceFragment extends Fragment implements View.OnClickListener {
+public class SliceFragment extends Fragment {
 
     private static final String TAG = "NetworkSlicing";
+    private static Context context;
     public ConnectivityManager connectivityManager;
-    public Button callback;
+    //public Button callback;
     private String dnn;
     private FragmentSliceBinding binding;
     private boolean HasCarrierPrivilages;
     private int sdk_version;
+    private TextView textView;
+    private CharSequence msg = "";
+    private Spanned spanColor;
+
 
     public void setHasCarrierPrivilages(boolean privilages) {
         HasCarrierPrivilages = privilages;
@@ -46,22 +59,21 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-
         binding = FragmentSliceBinding.inflate(inflater, container, false);
         sdk_version = Build.VERSION.SDK_INT;
-        callback = (Button) inflater.inflate(R.layout.fragment_slice, container, false).findViewById(R.id.btn_callback);
-        callback.setOnClickListener(this);
+       /* callback = (Button) inflater.inflate(R.layout.fragment_slice, container, false).findViewById(R.id.btn_callback);
+        callback.setOnClickListener(this);*/
         return binding.getRoot();
 
     }
 
 
-    @Override
+    /*@Override
     public void onClick(View v) {
         Toast.makeText(getActivity(), "Click here", Toast.LENGTH_SHORT).show();
         Log.d("Slice Fragment", "Click");
 
-    }
+    }*/
 
     //@SuppressLint("MissingPermission")
     @SuppressLint("MissingPermission")
@@ -82,6 +94,7 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
         //networkCallback.registerDefaultNetworkCallback();
         //networkCallback.requestNetworkCallback();
         networkCallback.registerNetworkCallback();
+
 
         byte[] osAppId = null;
 
@@ -133,7 +146,9 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
             props.add("Sim Operator Name: " + tm.getSimOperatorName());
             props.add("Network Specifier: " + tm.getNetworkSpecifier());
             props.add("Data State: " + tm.getDataState());
-
+            props.add("Manual PLMN Selection: "+tm.getManualNetworkSelectionPlmn());
+            props.add("NAI: "+ tm.getNai());
+            props.add("preferred opportunistic data subscription Id: " +tm.getPreferredOpportunisticDataSubscription());
 
             props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
             props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
@@ -143,7 +158,7 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
             props.add("Enterprise Capability: " +NetworkCallback.getEnterprise(getContext()));
             props.add("Validated Capability: " +NetworkCallback.getValidity(getContext()));
             props.add("Internet Capability: " +NetworkCallback.getInternet(getContext()));
-            
+
             //props.add("log" + networkCallback.sliceFragment.connectivityManager.isDefaultNetworkActive());
 
             //props.add("All Cell Info: \n"+tm.getAllCellInfo()) ;
@@ -163,8 +178,59 @@ public class SliceFragment extends Fragment implements View.OnClickListener {
 
         }
 
+     /*   if (HasCarrierPrivilages) {
+            Toast.makeText(getActivity(), "Has Carrier Privilages", Toast.LENGTH_SHORT).show();
+            if (feature_telephony) {
+                Toast.makeText(getActivity(), "Has telephony", Toast.LENGTH_SHORT).show();
+        ArrayList<String> props2 = new ArrayList<String>();
+
+
+        for(String prop2: props2) {
+            TextView debugger_output = new TextView(getContext());
+            debugger_output.setText(prop2);
+            binding.debugInfo.addView(debugger_output);
+        }
+            }
+        } else {
+            TextView debbugger_output = new TextView(getContext());
+            debbugger_output.setText("Debbuger not working yet.");
+            binding.debugInfo.addView(debbugger_output);
+        }*/
 
     }
+
+    /**
+     * Don't Change the order of this method code lines.
+     */
+    private void addTextViewToLayout(String text, int textColor) {
+        spanColor = setSpanColor(text, ContextCompat.getColor(getContext(), textColor));
+        msg = TextUtils.concat(msg, "\n\n", spanColor);
+        if (null == textView) {
+            TextView debbugger_output = new TextView(getContext());
+            textView = binding.debuggerOutput;
+            textView.setGravity(Gravity.LEFT);
+        }
+        textView.setText(msg);
+
+
+    }
+
+    private Spanned setSpanColor(String s, int color) {
+        SpannableString ss = new SpannableString(s);
+        ss.setSpan(new ForegroundColorSpan(color), 0, s.length(), 0);
+        return ss;
+    }
+
+    public static void setDebugText(String msg, int textColor) {
+        if (context != null)
+          addTextViewToLayout(msg, textColor);
+    }
+
+
+    // TODO Commented for later use, for stopping the debug log, uncomment if required
+    /*public static void stop() {
+        if (null != context.getApplicationContext()) context.getApplicationContext().stopSelf();
+    }*/
 
     @Override
     public void onDestroyView() {
