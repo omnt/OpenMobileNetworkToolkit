@@ -20,9 +20,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 public class Iperf3Adapter extends Fragment {
-    static {
-        System.loadLibrary("iperf-3-10-1");
-    }
+
 
     public Iperf3Adapter(){
         super(R.layout.iperf3_fragment);

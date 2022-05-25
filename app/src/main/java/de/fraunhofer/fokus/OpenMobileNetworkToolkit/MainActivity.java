@@ -32,6 +32,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBind
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        View view = findViewById(R.id.fragmentContainerView);
         if (id == R.id.MediatekIMS) {
             if (cp) {
                 tm.sendDialerSpecialCode("3646633");
@@ -113,11 +115,7 @@ public class MainActivity extends AppCompatActivity {
         }else if (id == R.id.HuaweiProjektMenu) {
             tm.sendDialerSpecialCode("2846579");
         }else if (id == R.id.iperf3) {
-            Fragment fragment = new Iperf3Adapter();
-            FragmentManager supportFragmentManager = fragment.getChildFragmentManager();
-
-            supportFragmentManager.beginTransaction().replace(R.id.iperf3Fragment, fragment).commit();
-
+            Navigation.findNavController(view).navigate(R.id.action_FirstFragment_to_iperf3Fragment);
         } else if (id == R.id.about) {
             NavController navController = Navigation.findNavController(this, R.id.about_fragment);
             navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
