@@ -32,4 +32,7 @@
     <item
         android:id="@+id/slicing"
         android:title="@string/slicing" />
+    <item
+        android:id="@+id/logger"
+        android:title="@string/Log" />
 </menu>
