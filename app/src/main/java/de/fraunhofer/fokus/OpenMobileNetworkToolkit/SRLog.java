@@ -5,7 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.SliceFragment.setDebugText;
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.DebuggerService.setDebugText;
 
 
 @SuppressWarnings({"unused"})

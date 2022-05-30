@@ -13,6 +13,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,6 +49,7 @@ public class DebuggerService extends Service {
     private AppCompatImageView btnClose;
     private AppCompatImageView btnReset;
     private CharSequence msg = "";
+    private String message;
     private Spanned spanColor;
 
     int paramWidth;
@@ -258,7 +260,7 @@ public class DebuggerService extends Service {
     /**
      * Don't Change the order of this method code lines.
      */
-    private void addTextViewToLayout(String text, int textColor) {
+    /*private void addTextViewToLayout(String text, int textColor) {
         spanColor = setSpanColor(text, ContextCompat.getColor(this, textColor));
         msg = TextUtils.concat(msg, "\n\n", spanColor);
         if (null == textView) {
@@ -274,17 +276,50 @@ public class DebuggerService extends Service {
             });
         }
         mWindowManager.updateViewLayout(mView, mWindowsParams);
+    }*/
+
+   /* private Spanned setSpanColor(String s, int color) {
+        SpannableString ss = new SpannableString(s);
+        ss.setSpan(new ForegroundColorSpan(color), 0, s.length(), 0);
+        return ss;
+    }*/
+
+    /*public static void setDebugText(String msg, int textColor) {
+        if (null != getContext()) getContext().addTextViewToLayout(msg, textColor);
+    }*/
+
+    /**
+     * Don't Change the order of this method code lines.
+     */
+    private void addTextViewToLayout(String text, int textColor) {
+        spanColor = setSpanColor(text, ContextCompat.getColor(getContext(), textColor));
+        msg = TextUtils.concat(msg, "\n\n", spanColor);
+        if (null == textView) {
+            TextView debbugger_output = new TextView(getContext());
+            textView = getContext().textView;
+            textView.setGravity(Gravity.LEFT);
+        }
+        textView.setText(msg);
+
+
     }
 
-    private Spanned setSpanColor(String s, int color) {
+    private static Spanned setSpanColor(String s, int color) {
         SpannableString ss = new SpannableString(s);
         ss.setSpan(new ForegroundColorSpan(color), 0, s.length(), 0);
         return ss;
     }
 
-    /*public static void setDebugText(String msg, int textColor) {
+    public static void setDebugText(String msg, int textColor) {
         if (null != getContext()) getContext().addTextViewToLayout(msg, textColor);
-    }*/
+        //Log.d(TAG, "NOTHING!!");
+    }
+
+    public String getDebugText(String msg){
+        if( null != getContext())
+            message = msg;
+        return msg;
+    }
 
 
     public static void stop() {
