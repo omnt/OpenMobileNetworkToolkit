@@ -51,9 +51,13 @@ public class MainActivity extends AppCompatActivity {
     private PersistableBundle cc;
     private ConnectivityManager cm;
     public TelephonyManager tm;
+    private PackageManager pm;
+
     public boolean cp = false;
+    public boolean ts = false;
     private static final String TAG = "OpenMobileNetworkToolkit";
     public final static int Overlay_REQUEST_CODE = 251;
+
 
 
 
@@ -65,7 +69,13 @@ public class MainActivity extends AppCompatActivity {
         tm = (TelephonyManager) getSystemService(this.TELEPHONY_SERVICE);
         ccm = (CarrierConfigManager) getSystemService(this.CARRIER_CONFIG_SERVICE);
 
+        //FEATURE_TELEPHONY_SUBSCRIPTION
+        tm = (TelephonyManager) getSystemService(this.TELEPHONY_SUBSCRIPTION_SERVICE);
+
+        //
+
         cp = HasCarrierPermissions();
+        ts = HasCarrierPermissions();
         // check permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
@@ -102,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
 
-       /* if(cp) {
+        if(cp) {
+
             tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
                 @Override
                 public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
@@ -113,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "GET NETWORK SLICING FAILED!");
             Toast.makeText(getApplicationContext(),"GET NETWORK SLICING FAILED!", Toast.LENGTH_SHORT).show();
-        }*/
+        }
 
     }
 
@@ -194,6 +205,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean HasCarrierPermissions() {
         return tm.hasCarrierPrivileges();
     }
+
+    /*public boolean HasTelephonySubscription() {
+        return tm.hasSystemFeature(FEATURE_TELEPHONY_SUBSCRIPTION);
+    }*/
 
 
 

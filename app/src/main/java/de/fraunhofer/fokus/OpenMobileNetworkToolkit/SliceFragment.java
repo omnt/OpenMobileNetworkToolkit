@@ -17,6 +17,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -34,6 +36,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBinding;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.RecyclerViewHolder;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Adapter.RandomNumListAdapter;
 
 public class SliceFragment extends Fragment {
 
@@ -47,7 +51,8 @@ public class SliceFragment extends Fragment {
     private int sdk_version;
     private TextView textView;
     private CharSequence msg = "";
-    private Spanned spanColor;
+    public Spanned spanColor;
+    //private RecyclerView recyclerView;
 
 
     public void setHasCarrierPrivilages(boolean privilages) {
@@ -61,21 +66,22 @@ public class SliceFragment extends Fragment {
     ) {
         binding = FragmentSliceBinding.inflate(inflater, container, false);
         sdk_version = Build.VERSION.SDK_INT;
-       /* callback = (Button) inflater.inflate(R.layout.fragment_slice, container, false).findViewById(R.id.btn_callback);
-        callback.setOnClickListener(this);*/
-        return binding.getRoot();
+        // Add the following lines to create RecyclerView
 
+
+        // 1. get a reference to recyclerView
+        //RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.debug_Recycler);
+
+        // 2. set layoutManger
+        //recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //recyclerView.setHasFixedSize(true);
+
+        // 3. set adapter
+        //recyclerView.setAdapter(new RandomNumListAdapter(1234));
+
+        return binding.getRoot();
     }
 
-
-    /*@Override
-    public void onClick(View v) {
-        Toast.makeText(getActivity(), "Click here", Toast.LENGTH_SHORT).show();
-        Log.d("Slice Fragment", "Click");
-
-    }*/
-
-    //@SuppressLint("MissingPermission")
     @SuppressLint("MissingPermission")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -94,8 +100,6 @@ public class SliceFragment extends Fragment {
         //networkCallback.registerDefaultNetworkCallback();
         //networkCallback.requestNetworkCallback();
         networkCallback.registerNetworkCallback();
-
-
         byte[] osAppId = null;
 
         //NetworkSliceInfo sliceInfo =  new Build()
@@ -115,6 +119,7 @@ public class SliceFragment extends Fragment {
         PackageManager pm = getContext().getPackageManager();
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         boolean feature_slicing = pm.hasSystemFeature(CAPABILITY_SLICING_CONFIG_SUPPORTED);
+        //boolean feature_privilage_phone_State = pm.hasSystemFeature();
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
 
         //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
@@ -178,31 +183,12 @@ public class SliceFragment extends Fragment {
 
         }
 
-     /*   if (HasCarrierPrivilages) {
-            Toast.makeText(getActivity(), "Has Carrier Privilages", Toast.LENGTH_SHORT).show();
-            if (feature_telephony) {
-                Toast.makeText(getActivity(), "Has telephony", Toast.LENGTH_SHORT).show();
-        ArrayList<String> props2 = new ArrayList<String>();
-
-
-        for(String prop2: props2) {
-            TextView debugger_output = new TextView(getContext());
-            debugger_output.setText(prop2);
-            binding.debugInfo.addView(debugger_output);
-        }
-            }
-        } else {
-            TextView debbugger_output = new TextView(getContext());
-            debbugger_output.setText("Debbuger not working yet.");
-            binding.debugInfo.addView(debbugger_output);
-        }*/
-
     }
 
     /**
      * Don't Change the order of this method code lines.
      */
-    private void addTextViewToLayout(String text, int textColor) {
+    /*private void addTextViewToLayout(String text, int textColor) {
         spanColor = setSpanColor(text, ContextCompat.getColor(getContext(), textColor));
         msg = TextUtils.concat(msg, "\n\n", spanColor);
         if (null == textView) {
@@ -211,11 +197,9 @@ public class SliceFragment extends Fragment {
             textView.setGravity(Gravity.LEFT);
         }
         textView.setText(msg);
-
-
     }
 
-    private Spanned setSpanColor(String s, int color) {
+    private static Spanned setSpanColor(String s, int color) {
         SpannableString ss = new SpannableString(s);
         ss.setSpan(new ForegroundColorSpan(color), 0, s.length(), 0);
         return ss;
@@ -223,9 +207,9 @@ public class SliceFragment extends Fragment {
 
     public static void setDebugText(String msg, int textColor) {
         if (context != null)
-          addTextViewToLayout(msg, textColor);
-    }
-
+            addTextViewToLayout(msg, textColor);
+        Log.d(TAG, "NOTHING!!");
+    }*/
 
     // TODO Commented for later use, for stopping the debug log, uncomment if required
     /*public static void stop() {
