@@ -41,12 +41,10 @@ public class Iperf3Adapter extends Fragment {
     // Any view setup should occur here.  E.g., view lookups and attaching view listeners.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        // Setup any handles to view objects here
-        // EditText etFoo = (EditText) view.findViewById(R.id.etFoo);
         Button button = (Button) view.findViewById(R.id.iperf3commandButton);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                EditText inputIperf = (EditText) v.findViewById(R.id.iperf3command);
+                EditText inputIperf = (EditText) view.findViewById(R.id.iperf3command);
                 String inputText = inputIperf.getText().toString();
                 System.out.println(inputText);
             }
