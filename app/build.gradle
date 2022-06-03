@@ -15,7 +15,14 @@ ext {
 
 android {
     compileSdk 32
+    ndkVersion = "24.0.8215888"
+    ndkPath = "/opt/OpenMobileNetworkToolkit/ndk/24.0.8215888"
 
+    externalNativeBuild {
+        ndkBuild {
+            path "src/main/jni/Android.mk"
+        }
+    }
     defaultConfig {
         applicationId "de.fraunhofer.fokus.OpenMobileNetworkToolkit"
         minSdk 29
@@ -24,11 +31,6 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags ''
-            }
-        }
     }
 
     buildTypes {
@@ -45,14 +47,8 @@ android {
         viewBinding true
     }
     buildToolsVersion '32.1.0-rc1'
-    ndkVersion "24.0.8215888"
-
-    externalNativeBuild {
-        ndkBuild {
-            path "src/jni/Android.mk"
-        }
-    }
 }
+
 
 dependencies {
 

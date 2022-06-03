@@ -7,12 +7,12 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 
 import androidx.fragment.app.Fragment;
 
@@ -21,11 +21,15 @@ import java.io.IOException;
 
 public class Iperf3Adapter extends Fragment {
 
+    static{
+        System.loadLibrary("iperf3.10.1");
+    }
+    private static final String TAG = "iperf3Adapter";
 
     public Iperf3Adapter(){
         super(R.layout.iperf3_fragment);
     }
-    private DataInputStream outputStream;
+    private DataInputStream inputStream;
 
     private String convertStreamToString(java.io.InputStream is) {
         java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
@@ -45,21 +49,22 @@ public class Iperf3Adapter extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 EditText inputIperf = (EditText) view.findViewById(R.id.iperf3command);
+                Log.i(TAG, "onClick: button clicked");
                 String inputText = inputIperf.getText().toString();
-                System.out.println(inputText);
+                Log.d(TAG, "onClick: command exec: "+startProcess(inputText));
+                Log.d(TAG, "onClick: Output: "+getOutputString());
             }
         });
     }
 
 
     public String getOutputString(){
-        return convertStreamToString(this.outputStream);
+        return convertStreamToString(this.inputStream);
     }
     public int startProcess(String command){
         try {
             Process p = Runtime.getRuntime().exec(command);
-            this.outputStream = new DataInputStream(p.getInputStream());
-            System.out.println(this.outputStream);
+            this.inputStream = new DataInputStream(p.getErrorStream());
             return p.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
