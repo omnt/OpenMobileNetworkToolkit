@@ -7,6 +7,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
+import android.telephony.ServiceState;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -36,13 +37,15 @@ public class NetworkCallback {
 
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             Network network = connectivityManager.getActiveNetwork();
-            LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
-            List<InetAddress> dns = linkProperties.getDnsServers();
-            if (dns != null)
-                for (InetAddress d : linkProperties.getDnsServers()) {
-                    SRLog.d(TAG, "DNS from LinkProperties: " + d.getHostAddress());
-                    listDns.add(d.getHostAddress().split("%")[0]);
-                }
+            if(network != null) {
+                LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
+                List<InetAddress> dns = linkProperties.getDnsServers();
+                if (dns != null)
+                    for (InetAddress d : linkProperties.getDnsServers()) {
+                        SRLog.d(TAG, "DNS from LinkProperties: " + d.getHostAddress());
+                        listDns.add(d.getHostAddress().split("%")[0]);
+                    }
+            }
         } else {
             Log.d(TAG, "Context not found!");
         }
@@ -63,52 +66,76 @@ public class NetworkCallback {
 
     public static String getInterfaceName(Context context) {
 
+        String interfaceName;
         if (context != null) {
             Context context1 = context;
         }
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = connectivityManager.getActiveNetwork();
-        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-        LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
-        String interfaceName = linkProperties.getInterfaceName();
+
+        if(network != null) {
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+            LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
+            interfaceName = linkProperties.getInterfaceName();
+        } else {
+            interfaceName = "null";
+        }
+
         return interfaceName;
     }
 
     public static Boolean getEnterprise(Context context) {
 
+        Boolean enterprise = false;
         if (context != null) {
             Context context1 = context;
         }
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             Network network = connectivityManager.getActiveNetwork();
-            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-            Boolean enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
+            if(network != null) {
+                NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+                if (networkCapabilities != null) {
+                    enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
+                }
+            }
         return enterprise;
     }
 
     public static Boolean getValidity(Context context) {
 
+        Boolean validated = false;
         if (context != null) {
             Context context1 = context;
         }
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = connectivityManager.getActiveNetwork();
-        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-        Boolean validated = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        if(network != null) {
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+            if(networkCapabilities != null) {
+                validated = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+            }
+        }
         return validated;
     }
 
     public static Boolean getInternet(Context context) {
 
+        Boolean internetCapability = false;
         if (context != null) {
             Context context1 = context;
         }
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = connectivityManager.getActiveNetwork();
-        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-        Boolean internetCapability = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        if(network != null) {
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+            if(networkCapabilities != null) {
+                internetCapability = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+            }
+        }
         return internetCapability;
     }
+
+
 
 
 
@@ -127,7 +154,6 @@ public class NetworkCallback {
             Network network = connectivityManager.getActiveNetwork();
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-
 
             if (connectivityManager.isDefaultNetworkActive()) {
                 Toast.makeText(context.getApplicationContext(), "Network:" + network, Toast.LENGTH_SHORT).show();
