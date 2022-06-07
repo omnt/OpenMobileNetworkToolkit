@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.slice.Slice;
 import android.content.Context;
@@ -33,6 +34,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.lang.ref.WeakReference;
+import java.security.Permission;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBinding;
@@ -100,6 +102,7 @@ public class SliceFragment extends Fragment {
         //networkCallback.registerDefaultNetworkCallback();
         //networkCallback.requestNetworkCallback();
         networkCallback.registerNetworkCallback();
+
         byte[] osAppId = null;
 
         //NetworkSliceInfo sliceInfo =  new Build()
@@ -119,7 +122,8 @@ public class SliceFragment extends Fragment {
         PackageManager pm = getContext().getPackageManager();
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         boolean feature_slicing = pm.hasSystemFeature(CAPABILITY_SLICING_CONFIG_SUPPORTED);
-        //boolean feature_privilage_phone_State = pm.hasSystemFeature();
+        boolean feature_phone_state = pm.hasSystemFeature(Manifest.permission.READ_PHONE_STATE);
+        //boolean feature_privilage_phone_State = pm.hasSystemFeature;
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
 
         //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
@@ -134,6 +138,8 @@ public class SliceFragment extends Fragment {
             }
             props.add("Carrier Permissions: " + HasCarrierPrivilages);
             props.add("Feature Telephony: " + feature_telephony);
+            props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
+            props.add("READ_PHONE_STATE: "+ feature_phone_state);
             props.add("IMEI: " + tm.getImei());
             props.add("SimSerial: " + tm.getSimSerialNumber());
             props.add("SubscriberId: " + tm.getSubscriberId());
@@ -142,6 +148,8 @@ public class SliceFragment extends Fragment {
             props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
             props.add("phone type: " + tm.getPhoneType());
             props.add("Work Profile: " + work_profile);
+
+            //props.add("Service State" + tm.getServiceState()); /* Service State Received, but blocked for now */
 
             //props.add("OSiD: " +trafficDescriptor.getOsAppId()); //OSiD when set receive and show here
             //props.add("DNN ID: " +trafficDescriptor.getDataNetworkName()); //DNN when received show here
@@ -157,7 +165,6 @@ public class SliceFragment extends Fragment {
 
             props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
             props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
-            props.add("Network status: " + GlobalVars.isNetworkConnected);
             props.add("Network counter: " + GlobalVars.counter);
             props.add("Default DNS: " + NetworkCallback.getDefaultDNS(getContext()));
             props.add("Enterprise Capability: " +NetworkCallback.getEnterprise(getContext()));
