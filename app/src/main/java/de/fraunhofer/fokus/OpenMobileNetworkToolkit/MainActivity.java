@@ -51,13 +51,13 @@ public class MainActivity extends AppCompatActivity {
     private PersistableBundle cc;
     private ConnectivityManager cm;
     public TelephonyManager tm;
-    private PackageManager pm;
+    public PackageManager pm;
 
     public boolean cp = false;
     public boolean ts = false;
     private static final String TAG = "OpenMobileNetworkToolkit";
     public final static int Overlay_REQUEST_CODE = 251;
-
+    private final int REQUEST_READ_PHONE_STATE=1;
 
 
 
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         ccm = (CarrierConfigManager) getSystemService(this.CARRIER_CONFIG_SERVICE);
 
         //FEATURE_TELEPHONY_SUBSCRIPTION
-        tm = (TelephonyManager) getSystemService(this.TELEPHONY_SUBSCRIPTION_SERVICE);
+       /* tm = (TelephonyManager) getSystemService(this.TELEPHONY_SUBSCRIPTION_SERVICE);*/
 
         //
 
@@ -112,7 +112,30 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
 
-        if(cp) {
+
+        //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+            tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                @Override
+                public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
+                    Log.d(TAG, "SLICING CONFIG RESULT OK");
+                }
+
+                @Override
+                public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                    OutcomeReceiver.super.onError(error);
+                    Log.d(TAG, "SLICING CONFIG ERROR!!");
+                }
+
+            });
+        } else {
+            Log.d(TAG, "CARRIER PERMISSION UNAVAILABLE TO SLICING!");
+            //Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
+        }
+
+        /*if(cp) {
 
             tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
                 @Override
@@ -120,11 +143,17 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "SLICING CONFIG RESULT OK");
                 }
 
+                @Override
+                public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                    OutcomeReceiver.super.onError(error);
+                    Log.d(TAG, "SLICING CONFIG ERROR!!");
+                }
+
             });
         } else {
-            Log.d(TAG, "GET NETWORK SLICING FAILED!");
-            Toast.makeText(getApplicationContext(),"GET NETWORK SLICING FAILED!", Toast.LENGTH_SHORT).show();
-        }
+            Log.d(TAG, "CARRIER PERMISSION UNAVAIL7ABLE TO SLICING!");
+            Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
+        }*/
 
     }
 
@@ -182,16 +211,20 @@ public class MainActivity extends AppCompatActivity {
         switch (i) {
             case 1: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
+                    SRLog.d(TAG,"Could not get READ_PHONE_STATE permission");
                     Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
 
                 } else {
+                    SRLog.d(TAG,"Got READ_PHONE_STATE_PERMISSIONS");
                     Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG).show();
                 }
             }
             case 2: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
+                    SRLog.d(TAG,"Could not get LOCATION permission");
                     Toast.makeText(this, "Could not get LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
+                    SRLog.d(TAG,"Got LOCATION permission");
                     Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
             }
