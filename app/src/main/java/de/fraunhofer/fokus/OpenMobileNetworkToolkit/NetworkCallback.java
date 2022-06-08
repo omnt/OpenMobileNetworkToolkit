@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import android.app.slice.Slice;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
@@ -8,6 +9,11 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.telephony.ServiceState;
+import android.telephony.data.NetworkSliceInfo;
+import android.telephony.data.NetworkSlicingConfig;
+import android.telephony.data.RouteSelectionDescriptor;
+import android.telephony.data.TrafficDescriptor;
+import android.telephony.data.UrspRule;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -37,7 +43,7 @@ public class NetworkCallback {
 
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             Network network = connectivityManager.getActiveNetwork();
-            if(network != null) {
+            if (network != null) {
                 LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
                 List<InetAddress> dns = linkProperties.getDnsServers();
                 if (dns != null)
@@ -73,7 +79,7 @@ public class NetworkCallback {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = connectivityManager.getActiveNetwork();
 
-        if(network != null) {
+        if (network != null) {
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
             LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
             interfaceName = linkProperties.getInterfaceName();
@@ -90,15 +96,98 @@ public class NetworkCallback {
         if (context != null) {
             Context context1 = context;
         }
-            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            Network network = connectivityManager.getActiveNetwork();
-            if(network != null) {
-                NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-                if (networkCapabilities != null) {
-                    enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
-                }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+        if (network != null) {
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+            if (networkCapabilities != null) {
+                enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
             }
+        }
         return enterprise;
+    }
+
+    public static void getNetworkSlicingConfig(Context context){
+        List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
+        List<UrspRule> urspRuleList = new ArrayList<>();
+
+        if (context != null) {
+            Context context1 = context;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+
+        /* TODO Get Network Slicing config from network */
+        NetworkSlicingConfig networkSlicingConfig = null;
+
+        if(networkSlicingConfig != null){
+            /* TODO: Get Slice Info lists, urspList from Network */
+            sliceInfoList = networkSlicingConfig.getSliceInfo();
+            urspRuleList = networkSlicingConfig.getUrspRules();
+        }
+    }
+
+    public static void getRouteSelectionDescriptor(Context context){
+
+        List<String> dataNetworkName = new ArrayList<>();
+        List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
+        if (context != null) {
+            Context context1 = context;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+
+        /* TODO Get Route Selection Descriptor from network */
+        RouteSelectionDescriptor routeSelectionDescriptor = null;
+        if(routeSelectionDescriptor != null){
+
+            /* TODO: Get DNN, Slice Info lists, session type, ssc mode */
+            dataNetworkName = routeSelectionDescriptor.getDataNetworkName();
+            sliceInfoList = routeSelectionDescriptor.getSliceInfo();
+            int sessionType = routeSelectionDescriptor.getSessionType();
+            int sscMode = routeSelectionDescriptor.getSscMode();
+        }
+
+    }
+
+    public static void getTrafficDescriptor(Context context) {
+        String dataNetworkName = null;
+        byte[] osAppId = null;
+
+        if (context != null) {
+            Context context1 = context;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+
+        /* TODO: Get TrafficDescriptor from network */
+        TrafficDescriptor trafficDescriptor = null;
+        if(trafficDescriptor != null) {
+            /* TODO: Get DNN and osAppID from TrafficDescriptor */
+            dataNetworkName = trafficDescriptor.getDataNetworkName();
+            osAppId = trafficDescriptor.getOsAppId();
+        }
+    }
+
+    public static void getURSPrules(Context context){
+        List<RouteSelectionDescriptor> routeSelectionDescriptor = new ArrayList<>();
+        List<TrafficDescriptor> trafficDescriptor = new ArrayList<>();
+
+        if (context != null) {
+            Context context1 = context;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+
+        /* TODO: Get URSP rules from network */
+        UrspRule urspRule = null;
+        if( urspRule != null) {
+            /* TODO: Get routeSelection and trafficDescriptor from URSP rules */
+            routeSelectionDescriptor =
+                    urspRule.getRouteSelectionDescriptor();
+            trafficDescriptor =
+                    urspRule.getTrafficDescriptors();
+        }
     }
 
     public static Boolean getValidity(Context context) {
@@ -136,8 +225,20 @@ public class NetworkCallback {
     }
 
 
+    //TrafficDescriptor
+    public String getDataNetworkNameTrafficDescriptor(Context context){
 
-
+        String dataNetworkName = null;
+        if (context != null) {
+            Context context1 = context;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+        if(network != null) {
+            SRLog.d(TAG,"Network exists here!!!");
+        }
+        return dataNetworkName;
+    }
 
     public void setHasCarrierPrivilages(boolean privilages) {
         HasCarrierPrivilages = privilages;
@@ -247,7 +348,7 @@ public class NetworkCallback {
         }
     }
 
-    void registerNetworkCallback() {
+    public void registerNetworkCallback() {
         try {
             ConnectivityManager connectivityManager = sliceFragment.connectivityManager;
             connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
