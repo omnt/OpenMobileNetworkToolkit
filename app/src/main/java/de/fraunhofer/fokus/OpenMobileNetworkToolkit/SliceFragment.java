@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
+import android.telephony.data.RouteSelectionDescriptor;
 import android.telephony.data.TrafficDescriptor;
+import android.telephony.data.UrspRule;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -36,6 +38,7 @@ import androidx.fragment.app.Fragment;
 import java.lang.ref.WeakReference;
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBinding;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.RecyclerViewHolder;
@@ -114,8 +117,8 @@ public class SliceFragment extends Fragment {
         int down_speed = caps.getLinkUpstreamBandwidthKbps();*/
         //boolean slicing_capability = caps.hasCapability(CAPABILITY_SLICING_CONFIG_SUPPORTED);
 
-        sliceCreate emb = new sliceCreate(NetworkSliceInfo.SLICE_SERVICE_TYPE_EMBB, NetworkSliceInfo.SLICE_DIFFERENTIATOR_NO_SLICE);
-        trafficDescriptor descriptor = new trafficDescriptor();
+        //sliceCreate emb = new sliceCreate(1,-1,0);
+        //trafficDescriptor descriptor = new trafficDescriptor();
 
 
         PersistableBundle configForSubId = new PersistableBundle();
@@ -231,6 +234,7 @@ public class SliceFragment extends Fragment {
 
 
     public class sliceCreate {
+
         public sliceCreate(int serviceType, int sliceDiff) {
             NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
                     .setSliceServiceType(serviceType)
@@ -277,6 +281,7 @@ public class SliceFragment extends Fragment {
                     .build();
         }
     }
+
 }
    /* public NetworkSlice(){
         //super();
