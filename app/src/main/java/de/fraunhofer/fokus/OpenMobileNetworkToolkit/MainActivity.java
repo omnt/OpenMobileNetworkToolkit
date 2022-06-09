@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
             });
         } else {
-            Log.d(TAG, "CARRIER PERMISSION UNAVAILABLE TO SLICING!");
+            Log.d(TAG, "READ_PHONE_STATE PERMISSION UNAVAILABLE TO SLICING!");
             //Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
         }
 
