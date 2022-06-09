@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.app.slice.Slice;
 import android.content.Context;
+import android.hardware.camera2.params.Capability;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
@@ -90,7 +91,7 @@ public class NetworkCallback {
         return interfaceName;
     }
 
-    public static Boolean getEnterprise(Context context) {
+    public static Boolean getNetworkCapabilities(Context context) {
 
         Boolean enterprise = false;
         if (context != null) {
@@ -102,9 +103,37 @@ public class NetworkCallback {
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
             if (networkCapabilities != null) {
                 enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
+                if(enterprise = true) {
+                    SRLog.d(TAG,"Enterprise Capabilities available for Network!");
+                }
             }
         }
         return enterprise;
+    }
+
+    public static List<String> getEnterprise(Context context) {
+        List<String> listCapability = new ArrayList<>();
+        int capability[] = null;
+        Boolean enterprise = false;
+        if (context != null) {
+            Context context1 = context;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+        if (network != null) {
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+            if (networkCapabilities != null) {
+                capability = networkCapabilities.getCapabilities();
+                if (capability != null)
+                    for (int i= 0; i < capability.length; i++) {
+                        SRLog.d(TAG, "Capability from Network: " + capability[i]);
+                        String cap = capability.toString();
+                        listCapability.add(cap);
+                    }
+                //enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
+            }
+        }
+        return listCapability;
     }
 
     public static void getNetworkSlicingConfig(Context context){
@@ -117,7 +146,10 @@ public class NetworkCallback {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = connectivityManager.getActiveNetwork();
 
+        NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+        LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
         /* TODO Get Network Slicing config from network */
+
         NetworkSlicingConfig networkSlicingConfig = null;
 
         if(networkSlicingConfig != null){
@@ -224,7 +256,6 @@ public class NetworkCallback {
         return internetCapability;
     }
 
-
     //TrafficDescriptor
     public String getDataNetworkNameTrafficDescriptor(Context context){
 
@@ -260,7 +291,8 @@ public class NetworkCallback {
                 Toast.makeText(context.getApplicationContext(), "Network:" + network, Toast.LENGTH_SHORT).show();
 
             }
-            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            NetworkRequest.Builder builder = new NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
 
             assert connectivityManager != null;
 
@@ -357,12 +389,15 @@ public class NetworkCallback {
                 Toast.makeText(context.getApplicationContext(), "Connectivity Manager does not exist: " + connectivityManager, Toast.LENGTH_SHORT).show();
             }
 
-
+            NetworkRequest.Builder builder = new NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE)
+                    .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR);
             Network network = connectivityManager.getActiveNetwork();
             LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
 
+            //Toast.makeText(context.getApplicationContext(), "INET4Address: "+ inet4Address,Toast.LENGTH_SHORT).show();
 
             boolean validated_capability = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
             boolean internet_capability = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
@@ -382,9 +417,6 @@ public class NetworkCallback {
             SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
             SRLog.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
 
-
-            NetworkRequest.Builder builder = new NetworkRequest.Builder();
-            //Toast.makeText(context.getApplicationContext(), "INET4Address: "+ inet4Address,Toast.LENGTH_SHORT).show();
 
             assert connectivityManager != null;
 
