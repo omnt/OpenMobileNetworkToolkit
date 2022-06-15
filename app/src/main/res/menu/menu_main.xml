@@ -13,6 +13,9 @@
         android:id="@+id/AndroidTesting"
         android:title="@string/action_android" />
     <item
+        android:id="@+id/NokiaTesting"
+        android:title="@string/action_nokia" />
+    <item
         android:id="@+id/SonyService"
         android:title="@string/action_sony" />
     <item

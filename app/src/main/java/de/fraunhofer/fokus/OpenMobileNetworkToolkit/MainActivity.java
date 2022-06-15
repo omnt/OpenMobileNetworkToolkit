@@ -8,6 +8,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -46,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //cc = ccm.getConfig();
-        tm = (TelephonyManager) getSystemService(this.TELEPHONY_SERVICE);
-        ccm = (CarrierConfigManager) getSystemService(this.CARRIER_CONFIG_SERVICE);
+        tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        ccm = (CarrierConfigManager) getSystemService(CARRIER_CONFIG_SERVICE);
         cp = HasCarrierPermissions();
         // check permissions
 //        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -108,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             tm.sendDialerSpecialCode("7378423");
         }else if (id == R.id.HuaweiProjektMenu) {
             tm.sendDialerSpecialCode("2846579");
+        }else if (id == R.id.NokiaTesting) {
+            tm.sendDialerSpecialCode("3646633");
         } else if (id == R.id.about) {
             NavController navController = Navigation.findNavController(this, R.id.about_fragment);
             navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
