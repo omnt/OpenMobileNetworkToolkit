@@ -10,30 +10,26 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.PersistableBundle;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
 
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
@@ -77,8 +72,15 @@ public class MainActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 //            }
 //        });
-        //FragmentManager fm = getSupportFragmentManager();
-        //HomeFragment f = (HomeFragment) fm.findFragmentById(R.id.home_fragment);
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = (Fragment) fm.findFragmentById(R.id.home_fragment);
+
+        if(fragment == null) {
+            fragment = new HomeFragment();
+            fm.beginTransaction()
+                    .add(R.id.home_fragment, fragment)
+                    .commit();
+        }
 
         //f.setHasCarrierPrivilages(cp)
 
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         }else if (id == R.id.HuaweiProjektMenu) {
             tm.sendDialerSpecialCode("2846579");
         }else if (id == R.id.iperf3) {
-            Navigation.findNavController(view).navigate(R.id.action_FirstFragment_to_iperf3Fragment);
+            Navigation.findNavController(view).navigate(R.id.action_FirstFragment_to_iperf3Activity);
         } else if (id == R.id.about) {
             NavController navController = Navigation.findNavController(this, R.id.about_fragment);
             navController.navigate(R.id.action_FirstFragment_to_SecondFragment);

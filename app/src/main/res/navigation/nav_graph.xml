@@ -22,8 +22,9 @@
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
         <action
-            android:id="@+id/action_FirstFragment_to_iperf3Fragment"
-            app:destination="@id/iperf3Fragment" />
+            android:id="@+id/action_FirstFragment_to_iperf3Activity"
+            app:destination="@id/iperf3Activity" />
+
 
     </fragment>
     <fragment
@@ -36,14 +37,10 @@
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
+    <activity
+        android:id="@+id/iperf3Activity"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3Activity"
+        android:label="activity_iperf3"
+        tools:layout="@layout/activity_iperf3"/>
 
-    <fragment
-        android:id="@+id/iperf3Fragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3Adapter"
-        android:label="@string/action_iperf3"
-        tools:layout="@layout/iperf3_fragment">
-        <action
-            android:id="@+id/action_iperf3Fragment_to_FirstFragment2"
-            app:destination="@id/FirstFragment" />
-    </fragment>
 </navigation>

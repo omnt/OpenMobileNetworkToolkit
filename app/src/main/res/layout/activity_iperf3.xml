@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Iperf3Activity">
+
+    <EditText
+        android:id="@+id/iperf3command"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="656dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="@string/iperf_command"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <requestFocus />
+
+    <Button
+        android:id="@+id/iperf3commandButton"
+        android:layout_width="92dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="280dp"
+        android:text="@string/execute_iperf_command"
+        app:layout_constraintBaseline_toBaselineOf="@+id/iperf3command"
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="sendMessage"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
