@@ -25,6 +25,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.motion.utils.ViewSpline;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -46,7 +48,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Adapter.RandomNumListAdapter
 
 public class SliceFragment extends Fragment {
 
-    private static final String TAG = "NetworkSlicing";
+    private static final String TAG = "SliceFragment";
     private static Context context;
     public ConnectivityManager connectivityManager;
     //public Button callback;
@@ -58,7 +60,7 @@ public class SliceFragment extends Fragment {
     private CharSequence msg = "";
     public Spanned spanColor;
     //private RecyclerView recyclerView;
-
+    private Button apn;
 
     public void setHasCarrierPrivilages(boolean privilages) {
         HasCarrierPrivilages = privilages;
@@ -71,6 +73,7 @@ public class SliceFragment extends Fragment {
     ) {
         binding = FragmentSliceBinding.inflate(inflater, container, false);
         sdk_version = Build.VERSION.SDK_INT;
+        apn = (Button) binding.button;
         // Add the following lines to create RecyclerView
 
 
@@ -143,11 +146,13 @@ public class SliceFragment extends Fragment {
             props.add("Feature Telephony: " + feature_telephony);
             props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
             props.add("READ_PHONE_STATE: "+ feature_phone_state);
+            props.add("Device Software Version: " + tm.getDeviceSoftwareVersion());
             props.add("IMEI: " + tm.getImei());
             props.add("SimSerial: " + tm.getSimSerialNumber());
             props.add("SubscriberId: " + tm.getSubscriberId());
+            props.add("Carrier ID from SIMmmcmnc: " +tm.getCarrierIdFromSimMccMnc());
 
-            props.add("Slicing Config: " + feature_slicing); //for now false
+            props.add("Feature Slicing on Package Manager: " + feature_slicing); //for now false
             props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
             props.add("phone type: " + tm.getPhoneType());
             props.add("Work Profile: " + work_profile);
@@ -163,16 +168,29 @@ public class SliceFragment extends Fragment {
             props.add("Network Specifier: " + tm.getNetworkSpecifier());
             props.add("Data State: " + tm.getDataState());
             props.add("Manual PLMN Selection: "+tm.getManualNetworkSelectionPlmn());
-            props.add("NAI: "+ tm.getNai());
+            props.add("Network Access Identifier: "+ tm.getNai());
             props.add("preferred opportunistic data subscription Id: " +tm.getPreferredOpportunisticDataSubscription());
+            props.add("Radio Interface Capability Slicing Config: " +tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
 
             props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
             props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
             props.add("Network counter: " + GlobalVars.counter);
             props.add("Default DNS: " + NetworkCallback.getDefaultDNS(getContext()));
-            props.add("Enterprise Capability: " +NetworkCallback.getEnterprise(getContext()));
+            //props.add("Capability List:" + NetworkCallback.getNetworkCapabilitylist(getContext()));
+            props.add("Enterprise Capability: " +NetworkCallback.getEnterpriseCapability(getContext()));
             props.add("Validated Capability: " +NetworkCallback.getValidity(getContext()));
             props.add("Internet Capability: " +NetworkCallback.getInternet(getContext()));
+            props.add("IMS Capability: " +NetworkCallback.getIMS(getContext()));
+            props.add("Capabilities: " +NetworkCallback.getNetworkCapabilitylist(getContext()));
+            /* TODO Fix the getConfigurationTM */
+            props.add("TM Slice: " +NetworkCallback.getConfigurationTM(getContext()));
+            props.add("Slice Info: " +NetworkCallback.getNetworkSlicingInfo(getContext()));
+            props.add("Slice Config: " +NetworkCallback.getNetworkSlicingConfig(getContext()));
+            props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
+            props.add("Traffic Descriptor: " +NetworkCallback.getTrafficDescriptor(getContext()));
+            props.add("Service State: " +NetworkCallback.getNetworkRegistrationInfo(getContext()));
+
+
 
             //props.add("log" + networkCallback.sliceFragment.connectivityManager.isDefaultNetworkActive());
 

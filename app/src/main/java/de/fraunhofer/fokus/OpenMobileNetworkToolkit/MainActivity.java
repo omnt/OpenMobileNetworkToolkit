@@ -11,6 +11,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.params.Capability;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.OutcomeReceiver;
@@ -27,6 +29,7 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
 import android.telephony.data.NetworkSlicingConfig;
+import android.telephony.data.UrspRule;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean cp = false;
     public boolean ts = false;
-    private static final String TAG = "OpenMobileNetworkToolkit";
+    private static final String TAG = "MainActivity";
     public final static int Overlay_REQUEST_CODE = 251;
     private final int REQUEST_READ_PHONE_STATE=1;
 
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
-        if(ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") != PackageManager.PERMISSION_GRANTED) {
+        if(ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
                 Log.d(TAG, "Requesting Privillaged Phone State");
                 ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"},123);
         }
@@ -115,23 +118,28 @@ public class MainActivity extends AppCompatActivity {
 
         //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+            SRLog.d(TAG,"Requesting permission for phone_state");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+            SRLog.d(TAG,"permission for phone_state acquired");
+
+
             tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
                 @Override
                 public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
-                    Log.d(TAG, "SLICING CONFIG RESULT OK");
+                    SRLog.d(TAG, "SLICING CONFIG RESULT OK");
+                    NetworkSlicingConfig networkSlicingConfig1 = networkSlicingConfig;
                 }
 
                 @Override
                 public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
                     OutcomeReceiver.super.onError(error);
-                    Log.d(TAG, "SLICING CONFIG ERROR!!");
+                    SRLog.d(TAG, "SLICING CONFIG ERROR!!");
                 }
 
             });
         } else {
-            Log.d(TAG, "READ_PHONE_STATE PERMISSION UNAVAILABLE TO SLICING!");
+            SRLog.d(TAG, "READ_PHONE_STATE PERMISSION UNAVAILABLE TO SLICING!");
             //Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
         }
 
@@ -193,7 +201,8 @@ public class MainActivity extends AppCompatActivity {
          else if (id == R.id.slicing){
            //Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
            //openFloatingWindow();
-            checkDrawOverlayPermission(this);
+            Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
+            startActivity(intent);
          }
         return super.onOptionsItemSelected(item);
     }
