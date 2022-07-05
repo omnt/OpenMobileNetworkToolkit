@@ -22,8 +22,8 @@ android {
 
     defaultConfig {
         applicationId "de.fraunhofer.fokus.OpenMobileNetworkToolkit"
-        minSdk 29
-        targetSdk 31
+        minSdk 31
+        targetSdk 32
         versionCode 1
         versionName "1.0"
 
