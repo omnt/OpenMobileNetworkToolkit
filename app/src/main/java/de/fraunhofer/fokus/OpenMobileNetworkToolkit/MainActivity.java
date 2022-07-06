@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         if(ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
                 Log.d(TAG, "Requesting Privillaged Phone State");
                 ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"},123);
+                SRLog.d(TAG,"Requested! " +ActivityCompat.checkSelfPermission(getApplicationContext(),"android.permission.READ_PRIVILEGED_PHONE_STATE"));
+
         }
 
 
