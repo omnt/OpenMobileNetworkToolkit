@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.telephony.NetworkRegistrationInfo;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
 import android.telephony.data.RouteSelectionDescriptor;
@@ -167,7 +168,7 @@ public class SliceFragment extends Fragment {
             props.add("Sim Operator Name: " + tm.getSimOperatorName());
             props.add("Network Specifier: " + tm.getNetworkSpecifier());
             props.add("Data State: " + tm.getDataState());
-            props.add("Manual PLMN Selection: "+tm.getManualNetworkSelectionPlmn());
+            props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
             props.add("Network Access Identifier: "+ tm.getNai());
             props.add("preferred opportunistic data subscription Id: " +tm.getPreferredOpportunisticDataSubscription());
             props.add("Radio Interface Capability Slicing Config: " +tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
@@ -188,7 +189,7 @@ public class SliceFragment extends Fragment {
             props.add("Slice Config: " +NetworkCallback.getNetworkSlicingConfig(getContext()));
             props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
             props.add("Traffic Descriptor: " +NetworkCallback.getTrafficDescriptor(getContext()));
-            props.add("Service State: " +NetworkCallback.getNetworkRegistrationInfo(getContext()));
+            //props.add("Service State: " +NetworkCallback.getNetworkRegistrationInfo(getContext()));
 
 
 

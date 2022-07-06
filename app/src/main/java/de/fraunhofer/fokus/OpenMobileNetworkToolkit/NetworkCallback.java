@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -141,17 +142,26 @@ public class NetworkCallback {
             int networksubtype = networkInfo.getSubtype();
             String typename = networkInfo.getTypeName();
             String subtypename = networkInfo.getSubtypeName();
+            SRLog.d(TAG,"Network Type: "+networktype);
+            SRLog.d(TAG,"Network Type Sub: "+networksubtype);
+            SRLog.d(TAG,"Type Name "+typename);
+            SRLog.d(TAG,"Subtype Name "+subtypename);
 
 
-            NetworkRegistrationInfo networkRegistrationInfo = null;
-            if (networkRegistrationInfo != null) {
-               plmn = networkRegistrationInfo.getRegisteredPlmn();
-                SRLog.d(TAG, "PLMN: " + plmn);
-            } else {
-                SRLog.d(TAG, "PLMN unavailable");
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            ServiceState serviceState = tm.getServiceState();
+
+            List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
+            for(int i = 0 ; i < networkRegistrationInfoList.size(); i++){
+                NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
+                if (networkRegistrationInfo != null) {
+                    plmn = networkRegistrationInfo.getRegisteredPlmn();
+                    SRLog.d(TAG, "PLMN: " + plmn);
+                } else {
+                    SRLog.d(TAG, "PLMN unavailable");
+                }
             }
         }
-
         return plmn;
     }
 
@@ -253,7 +263,41 @@ public class NetworkCallback {
         return enterprise;
     }
 
-    //TODO COMPLETE THIS FOR RADIO INTERFACE
+    public static String getRegisterPLMNfromNetworkRegistrationInfo(Context context){
+        String regPLMN = null;
+        List<NetworkRegistrationInfo> networkRegistrationInfo = new ArrayList<>();
+        List<String> networkRegistrationInfoList = new ArrayList<>();
+        if (context != null) {
+            Context context1 = context;
+        }
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = connectivityManager.getActiveNetwork();
+        PackageManager pm = context.getPackageManager();
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        ServiceState serviceState = tm.getServiceState();
+        SRLog.d(TAG,"Service State: " + serviceState.getState());
+        if(serviceState.getState() == 1) {  //2 for DATA_CONNECTED 1 FOR DATA_CONNECTING
+            networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
+            if(networkRegistrationInfo != null){
+                for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
+                    SRLog.d(TAG, "Size of List :" + networkRegistrationInfoList.size());
+                    NetworkRegistrationInfo networkRegistrationInfo1 = networkRegistrationInfo.get(i);
+                    regPLMN = networkRegistrationInfo1.getRegisteredPlmn();
+                    SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfoList.toString());
+                    SRLog.d(TAG,"Registered PLMN" +regPLMN);
+                    }
+                }
+
+            } else {
+                SRLog.d(TAG, "Network Registration Info Unavailable! Check Network State");
+                regPLMN = "Could not recieve PLMN";
+            }
+        return regPLMN;
+        }
+
+
+
+    //TODO COMPLETE THIS FOR NETWORK REGISTRATION INFO
     public static boolean getNetworkRegistrationInfo(Context context){
         Boolean flag = false;
         List<NetworkRegistrationInfo> networkRegistrationInfo = new ArrayList<>();
@@ -267,7 +311,7 @@ public class NetworkCallback {
         TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         ServiceState serviceState = tm.getServiceState();
         SRLog.d(TAG,"Service State: " + serviceState.getState());
-        if(serviceState.getState() == 2) {
+        if(serviceState.getState() == 1) {  //2 for DATA_CONNECTED 1 FOR DATA_CONNECTING
             networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
             if(networkRegistrationInfo != null){
                 for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
@@ -276,8 +320,10 @@ public class NetworkCallback {
                     networkRegistrationInfoList.add(netwrokRegistrationInfoString);
                 }
             }
+            flag = true;
         } else {
             SRLog.d(TAG, "Network Registration Info Unavailable! Check Network State");
+            flag = false;
         }
 
         return flag;
@@ -332,9 +378,13 @@ public class NetworkCallback {
         return listCapability;
     }
 
-    public static boolean getNetworkSlicingInfo(Context context){
+
+    public static boolean getNetworkSlicingInfo(Context context) {
         List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
         List<UrspRule> urspRuleList = new ArrayList<>();
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        //boolean telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+
         boolean flag = false;
         if (context != null) {
             Context context1 = context;
@@ -346,28 +396,39 @@ public class NetworkCallback {
         LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
         /* TODO Get Network Slicing config from network */
 
-
-            NetworkSliceInfo networkSliceInfo = new NetworkSliceInfo.Builder()
-                    .build();
+        /* TODO Need to fix this */
 
 
-        if(networkSliceInfo != null) {
-            SRLog.d(TAG, "SLICE DIFFERENTIATOR: " + networkSliceInfo.getSliceDifferentiator());
-            SRLog.d(TAG, "MAPPED PLMN DIFFERENTIATOR: " + networkSliceInfo.getMappedHplmnSliceDifferentiator());
-            SRLog.d(TAG, "SLICE SERVICE TYPE: " + networkSliceInfo.getSliceServiceType());
-            SRLog.d(TAG, "MAPPED PLMN SERVICE TYPE: " + networkSliceInfo.getMappedHplmnSliceServiceType());
-            SRLog.d(TAG, "STATUS: " + networkSliceInfo.getStatus());
+        NetworkSlicingConfig networkSlicingConfig = new NetworkSlicingConfig();
 
-            NetworkSlicingConfig networkSlicingConfig = null;
-            if (networkSlicingConfig != null) {
-                /* TODO: Get Slice Info lists, urspList from Network */
-                sliceInfoList = networkSlicingConfig.getSliceInfo();
-                urspRuleList = networkSlicingConfig.getUrspRules();
+        sliceInfoList = networkSlicingConfig.getSliceInfo();
+        urspRuleList = networkSlicingConfig.getUrspRules();
+
+        sliceInfoList = networkSlicingConfig.getSliceInfo();
+
+        if (sliceInfoList != null) {
+            for (int i = 0; i < sliceInfoList.size(); i++) {
+                NetworkSliceInfo networkSliceInfo = sliceInfoList.get(i);
+            if (networkSliceInfo != null) {
+                SRLog.d(TAG, "SLICE DIFFERENTIATOR: " + networkSliceInfo.getSliceDifferentiator());
+                SRLog.d(TAG, "MAPPED PLMN DIFFERENTIATOR: " + networkSliceInfo.getMappedHplmnSliceDifferentiator());
+                SRLog.d(TAG, "SLICE SERVICE TYPE: " + networkSliceInfo.getSliceServiceType());
+                SRLog.d(TAG, "MAPPED PLMN SERVICE TYPE: " + networkSliceInfo.getMappedHplmnSliceServiceType());
+                SRLog.d(TAG, "STATUS: " + networkSliceInfo.getStatus());
+
+                //NetworkSlicingConfig networkSlicingConfig = null;
+                if (networkSlicingConfig != null) {
+                    /* TODO: Get Slice Info lists, urspList from Network */
+                    sliceInfoList = networkSlicingConfig.getSliceInfo();
+                    urspRuleList = networkSlicingConfig.getUrspRules();
+                }
+
+                flag = true;
             }
-
-            flag = true;
-        } else
+        }
+    }else
         {
+            SRLog.d(TAG,"Slicing Info not Received!!");
            flag = false;
         }
 
@@ -401,19 +462,27 @@ public class NetworkCallback {
    @RequiresPermission(value = "android.permission.READ_PRIVILEGED_PHONE_STATE")
    public static boolean getConfigurationTM(Context context) {
         PackageManager pm = context.getPackageManager();
-        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+
         boolean telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         MainActivity ma = new MainActivity();
+       TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+       tm.hasCarrierPrivileges();
         boolean flag = false;
         if (context != null) {
             Context context1 = context;
         ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = connectivityManager.getActiveNetwork();
+
+        /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+
         if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED) == false) { /* TODO Change to true for working */
             tm.getNetworkSlicingConfiguration(context.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
 
                 @Override
                 public void onResult(@NonNull NetworkSlicingConfig result) {
+                    NetworkSlicingConfig networkSlicingConfig = result;
+                    List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+                    List<NetworkSliceInfo> sliceInfoList = networkSlicingConfig.getSliceInfo();
                     SRLog.d(TAG, "Slice config works!!");
                 }
 
@@ -422,17 +491,17 @@ public class NetworkCallback {
                     OutcomeReceiver.super.onError(error);
                     SRLog.d(TAG, "Slice Config rejected!");
                 }
-
             });
+            flag = true;
 
         }
-            flag = true;
     }else {
             flag = false;
         }
         SRLog.d(TAG,"TM Config:" +flag);
         return flag;
     }
+
 
     public static boolean getNetworkSlicingConfig(Context context){
         List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
