@@ -8,12 +8,15 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 
+import android.Manifest;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.service.carrier.CarrierIdentifier;
 import android.service.carrier.CarrierService;
 import android.telephony.CarrierConfigManager;
 import android.util.Log;
+
+import java.security.Permission;
 
 public class OpenMobileNetworkToolkit extends CarrierService {
     private static final String TAG = "OpenMobileNetworkToolkit";
@@ -49,6 +52,8 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putStringArray(CarrierConfigManager.KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY, new String[]{""});
             configForSubId.putStringArray(CarrierConfigManager.KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY, new String[]{""});
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL, true);
+            configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
+            configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
 
 
         } else {
@@ -59,6 +64,8 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL, false);
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_ENABLE_2G, false);
             configForSubId.putBoolean(CarrierConfigManager.KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL, true);
+            configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
+            configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
 
 
         } else {
@@ -98,6 +105,8 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         configForSubId.putInt(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_MODE_INT, 1);
         configForSubId.putInt(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT, 1);
         configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL, true);
+        configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
+        configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
         //configForSubId.putBoolean(CarrierConfigManager., true);
         SRLog.d(TAG, "Carrier settings applied");
         return configForSubId;
