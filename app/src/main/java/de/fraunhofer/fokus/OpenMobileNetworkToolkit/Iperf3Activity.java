@@ -1,26 +1,35 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import android.os.Bundle;
+import android.system.ErrnoException;
+import android.system.Os;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.regex.*;
+
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 public class Iperf3Activity extends AppCompatActivity {
 
+
     private EditText iperf3CmdInput;
     private Button SendButton;
-    private DataInputStream inputStream;
 
-    static{
-        System.loadLibrary("iperf3.10.1");
-    }
     private static final String TAG = "iperf3Activity";
 
     @Override
@@ -36,36 +45,21 @@ public class Iperf3Activity extends AppCompatActivity {
 
     }
 
-    private String convertStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
-
-    public String getOutputString(){
-        return convertStreamToString(this.inputStream);
-    }
-
-    public int startProcess(String bin, String command){
-        try {
-            ProcessBuilder pb = new ProcessBuilder(bin, command);
-            Map<String, String> m = pb.environment();
-            m.put("TMPDIR", "/data/data/de.fraunhofer.fokus.OpenMobileNetworkToolkit/cache/iperf3.10.1");
-            Process p = pb.start();
-            this.inputStream = new DataInputStream(p.getErrorStream());
-            return p.waitFor();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return 1;
-        }
-    }
-
     public void sendMessage(View view) {
         Log.i(TAG, "onClick: button clicked");
         String inputText = iperf3CmdInput.getText().toString();
-        Log.i(TAG, "onClick: command:"+inputText);
-        Log.d(TAG, "onClick: iperf3 bin path "+getApplicationContext().getApplicationInfo().nativeLibraryDir);
-        Log.d(TAG, "onClick: command exec: "+startProcess(getApplicationContext().getApplicationInfo().nativeLibraryDir+"/iperf3.10.1.so", inputText));
-        Log.d(TAG, "onClick: Output: "+getOutputString());
+        String[] split = inputText.split(" ");
+        try {
+            Os.setenv("TMPDIR", String.valueOf(getCacheDir()), true);
+        } catch (ErrnoException e) {
+            e.printStackTrace();
+        }
 
+        Data.Builder iperf3Data = new Data.Builder();
+        iperf3Data.putStringArray("commands", split);
+        WorkRequest iperf3WR = new OneTimeWorkRequest.Builder(iperf3Worker.class).setInputData(iperf3Data.build()).build();
+        WorkManager iperf3WM =  WorkManager.getInstance(getApplicationContext());
+
+        iperf3WM.enqueue(iperf3WR);
     }
 }
