@@ -25,4 +25,17 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="service_name" />
+    <string name="iperf_logfilename">Logfile Name</string>
+    <string name="iperf_ip">IP</string>
+    <string name="iperf_client">Client</string>
+    <string name="iperf_port">Port</string>
+    <string name="iperf_bandwidth">Bandwidth</string>
+    <string name="iperf_reverse">Reverse</string>
+    <string name="iperf_duration">Duration</string>
+    <string name="iperf_interval">Interval</string>
+    <string name="iperf_bytes">Bytes</string>
+    <string name="iperf_bidir">BiDir</string>
+    <string name="iperf_json">JSON</string>
+    <string name="iperf_one_off">one-off</string>
+    <string name="iperf3_server_mode">Server Mode:</string>
 </resources>

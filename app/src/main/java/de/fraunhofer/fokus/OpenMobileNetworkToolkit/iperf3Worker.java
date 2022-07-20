@@ -25,6 +25,7 @@ public class iperf3Worker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        Log.d(TAG, "doWork: called!");
         iperf3Wrapper(cmd, getApplicationContext().getApplicationInfo().nativeLibraryDir);
         return Result.success();
     }
