@@ -9,6 +9,9 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.params.Capability;
@@ -120,30 +123,36 @@ public class MainActivity extends AppCompatActivity {
 
         //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+        /* TODO Clean this after slice config works */
+
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             SRLog.d(TAG,"Requesting permission for phone_state");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
             SRLog.d(TAG,"permission for phone_state acquired");
 
+            if(tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))
+            {
+                if(tm.hasCarrierPrivileges()) {
 
-            tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                @Override
-                public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
-                    SRLog.d(TAG, "SLICING CONFIG RESULT OK");
-                    NetworkSlicingConfig networkSlicingConfig1 = networkSlicingConfig;
+                    tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                        @Override
+                        public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
+                            SRLog.d(TAG, "SLICING CONFIG RESULT OK");
+                            NetworkSlicingConfig networkSlicingConfig1 = networkSlicingConfig;
+                        }
+
+                        @Override
+                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                            OutcomeReceiver.super.onError(error);
+                            SRLog.d(TAG, "SLICING CONFIG ERROR!!");
+                        }
+
+                    });
                 }
-
-                @Override
-                public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                    OutcomeReceiver.super.onError(error);
-                    SRLog.d(TAG, "SLICING CONFIG ERROR!!");
-                }
-
-            });
+            }
         } else {
             SRLog.d(TAG, "READ_PHONE_STATE PERMISSION UNAVAILABLE TO SLICING!");
-            //Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
-        }
+        }*/
 
         /*if(cp) {
 
@@ -173,6 +182,46 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         return true;
+    }
+
+
+    public String getString(Context context, String key,
+                                   String defaultValue) {
+        return context.getSharedPreferences("config", Context.MODE_PRIVATE)
+                .getString(key, defaultValue);
+    }
+
+    public ComponentName getComponentName(Context context) {
+        return new ComponentName(context.getApplicationContext(), NetworkCallback.class);
+    }
+
+    public boolean getOrganization(Context context){
+        boolean flag=false;
+
+        if (context != null) {
+            Context context1 = context;
+        }
+        DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        PackageManager pm = context.getPackageManager();
+        ComponentName componentName = getComponentName(context);
+
+        if(dpm != null) {
+            if(pm != null) {
+                SRLog.d(TAG,"isProfileOwnerApp:" + dpm.isProfileOwnerApp(context.getPackageName()));
+                SRLog.d(TAG,"isDeviceOwnerApp:"+dpm.isDeviceOwnerApp(context.getPackageName()));
+                SRLog.d(TAG,"Component Name: " + componentName);
+            }
+        }
+
+        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
+        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                getString(R.string.device_admin_description));
+        startActivity(intent);
+
+        SRLog.d(TAG,"Is admin active: "+ dpm.isAdminActive(componentName));
+
+        return flag;
     }
 
     @Override

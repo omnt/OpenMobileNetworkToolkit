@@ -1,7 +1,12 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import android.app.admin.DevicePolicyManager;
 import android.app.slice.Slice;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.FeatureInfo;
+import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.params.Capability;
 import android.net.ConnectivityManager;
@@ -10,6 +15,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
+import android.os.Build;
 import android.os.OutcomeReceiver;
 import android.os.Parcelable;
 import android.provider.Telephony;
@@ -26,6 +32,7 @@ import android.telephony.data.TrafficDescriptor;
 import android.telephony.data.UrspRule;
 import android.telephony.ims.RegistrationManager;
 import android.util.Log;
+import android.widget.TableRow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -73,8 +80,10 @@ public class NetworkCallback {
             Log.d(TAG, "Context not found!");
         }
 
+
         return listDns;
     }
+
 
     public static Network getCurrentNetwork(Context context) {
 
@@ -459,47 +468,128 @@ public class NetworkCallback {
         }
         return slicingConfig;
     }*/
+
+    public boolean getEnterpriseIdList(Context context){
+        boolean flag= false;
+        List<Integer> enterpriseIDList = new ArrayList<>();
+        int[] enterpriseID = null;
+
+        try {
+        if (context != null) {
+            Context context1 = context;
+        }
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network network = connectivityManager.getActiveNetwork();
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+
+            //enterpriseID = networkCapabilities.getEnterpriseIds();
+
+            if (enterpriseID != null) {
+                for (int i = 0; i < enterpriseID.length; i++) {
+                    int entID;
+                    entID = enterpriseID[i];
+                    SRLog.d(TAG, "Enterprise ID: " + entID);
+                    enterpriseIDList.add(entID);
+                    flag = true;
+                }
+            } else {
+                SRLog.d(TAG, "Enterprise ID not Found!");
+                flag = false;
+            }
+        } catch (Exception e){
+            SRLog.d(TAG,"Enterprise Function not found!! ");
+            flag = false;
+        }
+        return flag;
+    }
+
+    public static List<String> getFeatureList(Context context){
+        FeatureInfo[] feature = null;
+        FeatureInfo featureInfo = null;
+        List<String> featureString = new ArrayList<>();
+
+        PackageManager pm = context.getPackageManager();
+        MainActivity ma = new MainActivity();
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        if (context != null) {
+            Context context1 = context;
+        }
+
+        feature = pm.getSystemAvailableFeatures();
+
+        if(feature != null) {
+            for (int i = 0; i < feature.length; i++) {
+                featureInfo = feature[i];
+                SRLog.d(TAG,"Feature: " + feature.toString());
+                featureString.add(featureInfo.toString());
+            }
+
+        } else {
+            SRLog.d(TAG,"features not exist");
+        }
+        return featureString;
+    }
+
+
+
    @RequiresPermission(value = "android.permission.READ_PRIVILEGED_PHONE_STATE")
    public static boolean getConfigurationTM(Context context) {
         PackageManager pm = context.getPackageManager();
 
         boolean telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        boolean capability_slicing = pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED);
+
         MainActivity ma = new MainActivity();
-       TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-       tm.hasCarrierPrivileges();
+        SRLog.d(TAG,"CAPABILITY SLICING: " +capability_slicing);
+
+
+        /*SRLog.d(TAG, "Has carrier privilleges:" +tm.hasCarrierPrivileges());
+       SRLog.d(TAG, "PACKAGE MANAGER" +pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED));
+        SRLog.d(TAG, "Capability: "+tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED));*/
         boolean flag = false;
-        if (context != null) {
-            Context context1 = context;
-        ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
-        Network network = connectivityManager.getActiveNetwork();
 
-        /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+        try {
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (context != null) {
+                Context context1 = context;
+                ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                Network network = connectivityManager.getActiveNetwork();
 
-        if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED) == false) { /* TODO Change to true for working */
-            tm.getNetworkSlicingConfiguration(context.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+                if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
+                    //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
 
-                @Override
-                public void onResult(@NonNull NetworkSlicingConfig result) {
-                    NetworkSlicingConfig networkSlicingConfig = result;
-                    List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
-                    List<NetworkSliceInfo> sliceInfoList = networkSlicingConfig.getSliceInfo();
-                    SRLog.d(TAG, "Slice config works!!");
+                    tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                        @Override
+                        public void onResult(@NonNull NetworkSlicingConfig result) {
+                            NetworkSlicingConfig networkSlicingConfig = result;
+                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+                            List<NetworkSliceInfo> sliceInfoList = networkSlicingConfig.getSliceInfo();
+                            SRLog.d(TAG, "Slice config works!!");
+                        }
+
+                        @Override
+                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                            OutcomeReceiver.super.onError(error);
+                            SRLog.d(TAG, "Slice Config rejected!");
+                        }
+                    });
+                    flag = true;
                 }
+            }
 
-                @Override
-                public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                    OutcomeReceiver.super.onError(error);
-                    SRLog.d(TAG, "Slice Config rejected!");
-                }
-            });
-            flag = true;
-
-        }
-    }else {
+    else {
             flag = false;
         }
         SRLog.d(TAG,"TM Config:" +flag);
-        return flag;
+
+
+        } catch (Exception e){
+            SRLog.d(TAG, "Network slice configuration Failed!");
+            flag = false;
+        }
+
+       return flag;
     }
 
 
@@ -809,7 +899,23 @@ public class NetworkCallback {
                 Toast.makeText(context.getApplicationContext(), "Connectivity Manager does not exist: " + connectivityManager, Toast.LENGTH_SHORT).show();
             }
 
-            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            /* TODO Network Request used for requesting network with Enterprise Capability */
+            NetworkRequest.Builder builder = new NetworkRequest.Builder()
+                    .addCapability(29);
+
+            NetworkRequest.Builder builder1 = new NetworkRequest.Builder()
+                    .addCapability(5);
+
+
+            if(builder != null) {
+                SRLog.d(TAG, "Network Request: " + builder.addCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE));
+            }
+
+            if(builder1 != null) {
+                SRLog.d(TAG, "Network Request: " + builder1.addCapability(NetworkCapabilities.NET_CAPABILITY_CBS));
+            }
+
+
             Network network = connectivityManager.getActiveNetwork();
             LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -834,7 +940,6 @@ public class NetworkCallback {
             SRLog.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
             SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
             SRLog.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
-
 
             assert connectivityManager != null;
 
@@ -870,6 +975,7 @@ public class NetworkCallback {
                     SRLog.d(TAG, "onCapabilitiesChanged");
                     Toast.makeText(context.getApplicationContext(), "onCapability Changed", Toast.LENGTH_SHORT).show();
                     SRLog.d(TAG, " capabilities for the default network is " + networkCapabilities.toString());
+                    //SRLog.d(TAG, " Enterprise IDs: " + networkCapabilities.getEnterpriseIds().toString());
                     SRLog.d(TAG, " does it have validated network connection internet presence : "
                             + networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                             + " is it validated "

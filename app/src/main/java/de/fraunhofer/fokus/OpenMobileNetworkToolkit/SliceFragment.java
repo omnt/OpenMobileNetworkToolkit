@@ -4,6 +4,7 @@ import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPO
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.admin.DevicePolicyManager;
 import android.app.slice.Slice;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.os.UserHandle;
 import android.telephony.NetworkRegistrationInfo;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
@@ -108,6 +110,7 @@ public class SliceFragment extends Fragment {
         networkCallback.setHasCarrierPrivilages(true);
         //networkCallback.registerDefaultNetworkCallback();
         //networkCallback.requestNetworkCallback();
+        ma.getOrganization(getContext());
         networkCallback.registerNetworkCallback();
 
         byte[] osAppId = null;
@@ -129,8 +132,13 @@ public class SliceFragment extends Fragment {
         PackageManager pm = getContext().getPackageManager();
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         boolean feature_slicing = pm.hasSystemFeature(CAPABILITY_SLICING_CONFIG_SUPPORTED);
+        boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
         boolean feature_phone_state = pm.hasSystemFeature(Manifest.permission.READ_PHONE_STATE);
+
+        //TODO Use this for the identifation of user using the profile
+        //int user_id = UserHandle.getUserHandleForUid();
         //boolean feature_privilage_phone_State = pm.hasSystemFeature;
+
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
 
         //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
@@ -145,6 +153,11 @@ public class SliceFragment extends Fragment {
             }
             props.add("Carrier Permissions: " + HasCarrierPrivilages);
             props.add("Feature Telephony: " + feature_telephony);
+            props.add("Android SDK: " + Build.VERSION.SDK_INT);
+            props.add("Android Release: " + Build.VERSION.RELEASE);
+
+
+
             props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
             props.add("READ_PHONE_STATE: "+ feature_phone_state);
             props.add("Device Software Version: " + tm.getDeviceSoftwareVersion());
@@ -157,6 +170,7 @@ public class SliceFragment extends Fragment {
             props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
             props.add("phone type: " + tm.getPhoneType());
             props.add("Work Profile: " + work_profile);
+            props.add("Feature Admin: " + feature_admin);
 
             //props.add("Service State" + tm.getServiceState()); /* Service State Received, but blocked for now */
 
@@ -174,11 +188,20 @@ public class SliceFragment extends Fragment {
             props.add("Radio Interface Capability Slicing Config: " +tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
 
             props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
+
+            //TODO Identification of user
+            //props.add("User ID: " + )
+
             props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
             props.add("Network counter: " + GlobalVars.counter);
             props.add("Default DNS: " + NetworkCallback.getDefaultDNS(getContext()));
             //props.add("Capability List:" + NetworkCallback.getNetworkCapabilitylist(getContext()));
             props.add("Enterprise Capability: " +NetworkCallback.getEnterpriseCapability(getContext()));
+
+            //TODO GetEnterpriseID having problems //
+
+            //props.add("Enterprise ID : " + NetworkCallback.getEnterpriseIdList(getContext()));
+
             props.add("Validated Capability: " +NetworkCallback.getValidity(getContext()));
             props.add("Internet Capability: " +NetworkCallback.getInternet(getContext()));
             props.add("IMS Capability: " +NetworkCallback.getIMS(getContext()));
@@ -189,6 +212,7 @@ public class SliceFragment extends Fragment {
             props.add("Slice Config: " +NetworkCallback.getNetworkSlicingConfig(getContext()));
             props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
             props.add("Traffic Descriptor: " +NetworkCallback.getTrafficDescriptor(getContext()));
+            //props.add("Features: " +NetworkCallback.getFeatureList(getContext()));
             //props.add("Service State: " +NetworkCallback.getNetworkRegistrationInfo(getContext()));
 
 
