@@ -62,6 +62,21 @@ lintDebug:
   script:
     - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
 
+getIperf3:
+  variables: 
+    iperf3_excutable: "iperf3.11"
+  stage: build
+  script: 
+    - mkdir app/src/main/jniLibs/arm64-v8a
+    - mkdir app/src/main/jniLibs/armeabi-v7a
+    - mkdir app/src/main/jniLibs/x86
+    - mkdir app/src/main/jniLibs/x86_64
+    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}arm64-v8a/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/arm64-v8a'
+    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}armeabi-v7a/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/armeabi-v7a'
+    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}x86/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/x86'
+    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}x86_64/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/x86_64'
+    
+
 # Make Project
 assembleDebug:
   interruptible: true
