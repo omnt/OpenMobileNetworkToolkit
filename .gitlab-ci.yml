@@ -68,6 +68,7 @@ getIperf3:
     iperf3_source: "iperf-${iperf3_version}"
     iperf3_excutable: "iperf${iperf3_version}"
     PACKAGENAME: "iperf${iperf3_version}."
+    iperfProjID: "8919"
     VERSION: "0.0.1"
   stage: build
   script: 
@@ -75,10 +76,10 @@ getIperf3:
     - mkdir -p app/src/main/jniLibs/armeabi-v7a
     - mkdir -p app/src/main/jniLibs/x86
     - mkdir -p app/src/main/jniLibs/x86_64
-    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}arm64-v8a/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/arm64-v8a/${iperf3_excutable}.so'
-    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}armeabi-v7a/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/armeabi-v7a/${iperf3_excutable}.so'
-    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}x86/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/x86/${iperf3_excutable}.so'
-    - 'curl --fail --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}x86_64/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/x86_64/${iperf3_excutable}.so'
+    - 'curl --fail --silent --header "JOB-TOKEN: $getIperf3" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}arm64-v8a/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/arm64-v8a/${iperf3_excutable}.so'
+    - 'curl --fail --silent --header "JOB-TOKEN: $getIperf3" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}armeabi-v7a/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/armeabi-v7a/${iperf3_excutable}.so'
+    - 'curl --fail --silent --header "JOB-TOKEN: $getIperf3" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}x86/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/x86/${iperf3_excutable}.so'
+    - 'curl --fail --silent --header "JOB-TOKEN: $getIperf3" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}x86_64/${VERSION}/lib${iperf3_excutable}.so" --output app/src/main/jniLibs/x86_64/${iperf3_excutable}.so'
     
 
 # Make Project
