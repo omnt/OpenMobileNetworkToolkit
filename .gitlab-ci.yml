@@ -81,7 +81,7 @@ getIperf3:
     - 'curl --silent --fail --header "PRIVATE-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}arm64-v8a/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/arm64-v8a/${iperf3_excutable}.so'
     - 'curl --silent --fail --header "PRIVATE-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}armeabi-v7a/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/armeabi-v7a/${iperf3_excutable}.so'
     - 'curl --silent --fail --header "PRIVATE-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}x86/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/x86/${iperf3_excutable}.so'
-    - 'curl --silent --fail --header "JOB-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}x86_64/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/x86_64/${iperf3_excutable}.so'
+    - 'curl --silent --header "JOB-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}x86_64/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/x86_64/${iperf3_excutable}.so'
     
 
 # Make Project
