@@ -176,7 +176,20 @@
         android:layout_marginTop="44dp"
         android:layout_marginEnd="20dp"
         android:text="@string/iperf3_server_mode"
-        android:textSize="20dp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toStartOf="@+id/iperf3_client"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginBottom="36dp"
+        android:text="@string/iperf3_instances"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="showInstances"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

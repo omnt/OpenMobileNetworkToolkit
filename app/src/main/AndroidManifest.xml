@@ -25,6 +25,10 @@
         <activity
             android:name=".Iperf3Activity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".Iperf3ListActivity"
+            android:parentActivityName=".Iperf3Activity" />
+
 
         <service
             android:name=".OpenMobileNetworkToolkit"

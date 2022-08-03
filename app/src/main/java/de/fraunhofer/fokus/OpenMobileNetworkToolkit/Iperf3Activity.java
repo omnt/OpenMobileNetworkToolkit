@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.system.ErrnoException;
 import android.system.Os;
@@ -27,6 +28,10 @@ public class Iperf3Activity extends AppCompatActivity {
     private LinkedList<EditText> editTexts;
 
     private static final String TAG = "iperf3Activity";
+
+    private ThreadGroup iperf3TG;
+    private Iperf3OverView iperf3OverView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,19 +70,25 @@ public class Iperf3Activity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
+        this.iperf3OverView = new Iperf3OverView(this.iperf3TG);
         //cleanup maybe running workers
+
     }
 
 
-
+    public void showInstances(View view){
+        Intent intent = new Intent(Iperf3Activity.this, Iperf3ListActivity.class);
+        intent.putExtra("json", this.iperf3OverView.getRunnersAsString());
+        startActivity(intent);
+    }
 
     public void executeIperfCommand(View view) {
         String[] command =  parseInput().split(" ");
 
-        iperf3Runner iperf3R = new iperf3Runner(command, getApplicationContext());
+        iperf3Runner iperf3R = new iperf3Runner(command, getApplicationContext(), this.iperf3TG);
+        this.iperf3OverView.addRunner(iperf3R);
         iperf3R.start();
-        Log.d(TAG, "executeIperfCommand: "+ iperf3R.toString());
-        iperf3R.getIperf3TG().list();
         /*
         Data.Builder iperf3Data = new Data.Builder();
         iperf3Data.putStringArray("commands", command.split(" "));
