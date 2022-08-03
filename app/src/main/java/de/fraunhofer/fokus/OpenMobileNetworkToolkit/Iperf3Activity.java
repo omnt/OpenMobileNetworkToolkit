@@ -10,10 +10,7 @@ import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
+
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -62,30 +59,34 @@ public class Iperf3Activity extends AppCompatActivity {
         iperf3OneOff = v.findViewById(R.id.iperf3_one_off);
 
         iperf3Client = v.findViewById(R.id.iperf3_client);
-
-
-
-    }
-
-
-
-
-    public void executeIperfCommand(View view) {
-        String command =  parseInput();
-
         try {
             Os.setenv("TMPDIR", String.valueOf(getCacheDir()), true);
         } catch (ErrnoException e) {
             e.printStackTrace();
         }
 
+        //cleanup maybe running workers
+    }
+
+
+
+
+    public void executeIperfCommand(View view) {
+        String[] command =  parseInput().split(" ");
+
+        iperf3Runner iperf3R = new iperf3Runner(command, getApplicationContext());
+        iperf3R.start();
+        Log.d(TAG, "executeIperfCommand: "+ iperf3R.toString());
+        iperf3R.getIperf3TG().list();
+        /*
         Data.Builder iperf3Data = new Data.Builder();
         iperf3Data.putStringArray("commands", command.split(" "));
-        OneTimeWorkRequest iperf3WR = new OneTimeWorkRequest.Builder(iperf3Worker.class).setInputData(iperf3Data.build()).build();
+        OneTimeWorkRequest iperf3WR = new OneTimeWorkRequest.Builder(iperf3Worker.class).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).setInputData(iperf3Data.build()).build();
         WorkManager iperf3WM =  WorkManager.getInstance(getApplicationContext());
-        ExistingWorkPolicy iperf3EWP = ExistingWorkPolicy.REPLACE;
-        iperf3WM.enqueueUniqueWork("iperf3", iperf3EWP, iperf3WR);
-
+        Operation iperf33OP = iperf3WM.enqueueUniqueWork("iperf3"+this.run, ExistingWorkPolicy.KEEP, iperf3WR);
+        Log.d(TAG, "executeIperfCommand: "+iperf3WR.getId());
+        this.run++;
+    */
     }
 
     private String getKeyFromId(String s){
@@ -96,9 +97,6 @@ public class Iperf3Activity extends AppCompatActivity {
                 break;
             case "iperf3_ip":
                 key = "-c";
-                if(iperf3Client.isChecked()){
-                    key = "-s";
-                }
                 break;
             case "iperf3_port":
                 key = "-p";
@@ -134,6 +132,9 @@ public class Iperf3Activity extends AppCompatActivity {
                 }
                 stb.add(value);
             }
+        }
+        if(iperf3Client.isChecked()){
+            stb.add("-s");
         }
         if(iperf3BiDir.isChecked()){
             stb.add("--bidir");
