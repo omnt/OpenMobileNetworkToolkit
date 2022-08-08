@@ -31,7 +31,7 @@ public class Iperf3Activity extends AppCompatActivity {
 
     private ThreadGroup iperf3TG;
     private Iperf3OverView iperf3OverView;
-
+    private Iperf3DBHandler iperf3DBHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +72,8 @@ public class Iperf3Activity extends AppCompatActivity {
 
         this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
         this.iperf3OverView = new Iperf3OverView(this.iperf3TG);
+        this.iperf3DBHandler = Iperf3DBHandler.getInstance(getApplicationContext());
+
         //cleanup maybe running workers
 
     }
@@ -79,7 +81,7 @@ public class Iperf3Activity extends AppCompatActivity {
 
     public void showInstances(View view){
         Intent intent = new Intent(Iperf3Activity.this, Iperf3ListActivity.class);
-        intent.putExtra("json", this.iperf3OverView.getRunnersAsString());
+        intent.putExtra("json", this.iperf3OverView.getRunnersID());
         startActivity(intent);
     }
 
@@ -88,6 +90,7 @@ public class Iperf3Activity extends AppCompatActivity {
 
         iperf3Runner iperf3R = new iperf3Runner(command, getApplicationContext(), this.iperf3TG);
         this.iperf3OverView.addRunner(iperf3R);
+        this.iperf3DBHandler.addNewRunner(iperf3R.getId(), iperf3R.makeByte(iperf3R));
         iperf3R.start();
         /*
         Data.Builder iperf3Data = new Data.Builder();
