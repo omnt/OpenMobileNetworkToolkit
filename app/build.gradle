@@ -12,7 +12,7 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/Users/mohsinnisar/Downloads/phoenix-carrier-signing-key.jks')
+            storeFile file('OpenMobileNetworkToolkit-key.jks')
             storePassword 'phoenix2020'
             keyPassword 'phoenix2020'
             keyAlias 'key0'
@@ -45,6 +45,7 @@ android {
         viewBinding true
     }
     buildToolsVersion '32.1.0-rc1'
+    namespace 'de.fraunhofer.fokus.OpenMobileNetworkToolkit'
 }
 
 dependencies {

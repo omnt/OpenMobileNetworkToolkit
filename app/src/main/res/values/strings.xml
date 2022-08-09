@@ -10,6 +10,7 @@
     <string name="action_android">Android Testing</string>
     <string name="action_samsung">Samsung IMS</string>
     <string name="action_sony">Sony Service</string>
+    <string name="action_nokia">Nokia Service</string>
     <string name="action_huawei">Huawei Project</string>
     <string name="action_mediatek">Mediatek IMS</string>
     <string name="appinfo">This app is provided by Fraunhofer FOKUS. \n This software is Licencensed on Apache 2.0. \n</string>

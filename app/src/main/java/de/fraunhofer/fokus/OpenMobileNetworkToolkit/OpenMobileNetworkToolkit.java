@@ -31,7 +31,6 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         SRLog.i(TAG, "CarrierIdentifier id " + id.toString());
         PersistableBundle configForSubId = new PersistableBundle();
 
-
         // handle things that need newer API versions
         if (sdk_version >= Build.VERSION_CODES.O_MR1) {
             configForSubId.putBoolean(CarrierConfigManager.KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL, true);
@@ -66,8 +65,6 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL, true);
             configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
             configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
-
-
         } else {
             SRLog.d(TAG, "KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY is not available with below api level 31");
         }
