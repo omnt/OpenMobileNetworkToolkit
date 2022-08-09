@@ -4,52 +4,32 @@ import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPO
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.admin.DevicePolicyManager;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.os.UserHandle;
-import android.telephony.NetworkRegistrationInfo;
 import android.telephony.TelephonyManager;
-import android.telephony.data.NetworkSliceInfo;
-import android.telephony.data.RouteSelectionDescriptor;
 import android.telephony.data.TrafficDescriptor;
-import android.telephony.data.UrspRule;
-import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.motion.utils.ViewSpline;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import java.lang.ref.WeakReference;
-import java.security.Permission;
 import java.util.ArrayList;
-import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBinding;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.RecyclerViewHolder;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Adapter.RandomNumListAdapter;
 
-public class SliceFragment extends Fragment {
+public class SliceFragment extends Fragment{
 
     private static final String TAG = "SliceFragment";
     private static Context context;
@@ -63,7 +43,9 @@ public class SliceFragment extends Fragment {
     private CharSequence msg = "";
     public Spanned spanColor;
     //private RecyclerView recyclerView;
-    private Button apn;
+
+
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public void setHasCarrierPrivilages(boolean privilages) {
         HasCarrierPrivilages = privilages;
@@ -76,9 +58,24 @@ public class SliceFragment extends Fragment {
     ) {
         binding = FragmentSliceBinding.inflate(inflater, container, false);
         sdk_version = Build.VERSION.SDK_INT;
-        apn = (Button) binding.button;
-        // Add the following lines to create RecyclerView
+        //apn = (Button) binding.button;
+        swipeRefreshLayout = binding.getRoot();
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getActivity().recreate();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
+      /*  apn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(),"Button", Toast.LENGTH_SHORT).show();
+            }
+        });*/
+
+        // Add the following lines to create RecyclerView
 
         // 1. get a reference to recyclerView
         //RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.debug_Recycler);
@@ -92,6 +89,7 @@ public class SliceFragment extends Fragment {
 
         return binding.getRoot();
     }
+
 
     @SuppressLint("MissingPermission")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -167,7 +165,7 @@ public class SliceFragment extends Fragment {
             props.add("Carrier ID from SIMmmcmnc: " +tm.getCarrierIdFromSimMccMnc());
 
             props.add("Feature Slicing on Package Manager: " + feature_slicing); //for now false
-            props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
+            //props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
             props.add("phone type: " + tm.getPhoneType());
             props.add("Work Profile: " + work_profile);
             props.add("Feature Admin: " + feature_admin);
@@ -207,6 +205,7 @@ public class SliceFragment extends Fragment {
             props.add("IMS Capability: " +NetworkCallback.getIMS(getContext()));
             props.add("Capabilities: " +NetworkCallback.getNetworkCapabilitylist(getContext()));
             /* TODO Fix the getConfigurationTM */
+            props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(getContext()));
             props.add("TM Slice: " +NetworkCallback.getConfigurationTM(getContext()));
             props.add("Slice Info: " +NetworkCallback.getNetworkSlicingInfo(getContext()));
             props.add("Slice Config: " +NetworkCallback.getNetworkSlicingConfig(getContext()));
@@ -237,6 +236,8 @@ public class SliceFragment extends Fragment {
         }
 
     }
+
+
 
     /**
      * Don't Change the order of this method code lines.
@@ -276,38 +277,6 @@ public class SliceFragment extends Fragment {
     }
 
 
-    public class sliceCreate {
-
-        public sliceCreate(int serviceType, int sliceDiff) {
-            NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                    .setSliceServiceType(serviceType)
-                    .setSliceDifferentiator(sliceDiff)
-                    .build();
-        }
-
-        public sliceCreate(int serviceType, int sliceDiff, int status) {
-            NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                    .setSliceServiceType(serviceType)
-                    .setSliceDifferentiator(sliceDiff)
-                    .setStatus(status)
-                    .build();
-        }
-
-        public int getMappedHplmnSliceServiceType() {
-            return 0;
-        }
-
-        public int getMmappedHplmnSliceDifferentiator() {
-            return 0;
-        }
-
-        public void sliceCreateMapped(int serviceType, int sliceDiff) {
-            NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                    .setMappedHplmnSliceServiceType(serviceType)
-                    .setMappedHplmnSliceDifferentiator(sliceDiff)
-                    .build();
-        }
-    }
 
     public class trafficDescriptor {
 
