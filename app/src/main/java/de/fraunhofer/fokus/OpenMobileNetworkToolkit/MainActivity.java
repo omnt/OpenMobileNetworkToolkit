@@ -10,6 +10,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import android.Manifest;
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
+import android.app.slice.Slice;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,8 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.telephony.data.NetworkSliceInfo;
 import android.telephony.data.NetworkSlicingConfig;
+import android.telephony.data.RouteSelectionDescriptor;
+import android.telephony.data.TrafficDescriptor;
 import android.telephony.data.UrspRule;
 import android.util.Log;
 
@@ -47,6 +50,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBind
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -125,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* TODO Clean this after slice config works */
 
-        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+       /* if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             SRLog.d(TAG,"Requesting permission for phone_state");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
             SRLog.d(TAG,"permission for phone_state acquired");
@@ -139,6 +144,32 @@ public class MainActivity extends AppCompatActivity {
                         public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
                             SRLog.d(TAG, "SLICING CONFIG RESULT OK");
                             NetworkSlicingConfig networkSlicingConfig1 = networkSlicingConfig;
+                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+                            List<NetworkSliceInfo> sliceInfoList = networkSlicingConfig.getSliceInfo();
+                            SRLog.d(TAG, "Slice config works!!");
+                            SRLog.d(TAG, "URSP List: " +urspRuleList);
+                            SRLog.d(TAG, "sliceInfoList: " +sliceInfoList);
+                            SRLog.d(TAG,"URSP received: " +urspRuleList.size());
+                            for(int i = 0; i < urspRuleList.size(); i++){
+                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
+                                List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
+                                List<RouteSelectionDescriptor> routeSelectionDescriptorList = urspRule.getRouteSelectionDescriptor();
+                                TrafficDescriptor trafficDescriptor = trafficDescriptorList.get(i);
+                                RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorList.get(i);
+                                List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
+                                NetworkSliceInfo networkSliceInfo = networkSliceInfoList.get(i);
+
+
+                                SliceCreate sliceCreate = new SliceCreate();
+
+
+
+
+                                SRLog.d(TAG, "URSP" + urspRule);
+                                SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
+                                SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                            }
+
                         }
 
                         @Override
@@ -246,15 +277,21 @@ public class MainActivity extends AppCompatActivity {
         }else if (id == R.id.HuaweiProjektMenu) {
             tm.sendDialerSpecialCode("2846579");
         } else if (id == R.id.about) {
-            NavController navController = Navigation.findNavController(this, R.id.about_fragment);
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main); //TODO This layout does not exist
             navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
         }
-         else if (id == R.id.slicing){
+         else if (id == R.id.apn){
            //Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
            //openFloatingWindow();
             Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
             startActivity(intent);
          }
+         else if (id == R.id.slicingSetup){
+             //TODO Add slicing interface here
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+            navController.navigate(R.id.action_FirstFragment_to_SliceFragment);
+            //Toast.makeText(getApplicationContext(), "Add slciing setup here!", Toast.LENGTH_SHORT).show();
+        }
         return super.onOptionsItemSelected(item);
     }
 
