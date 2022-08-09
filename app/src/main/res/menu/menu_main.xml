@@ -30,9 +30,12 @@
         android:id="@+id/about"
         android:title="@string/about" />
     <item
-        android:id="@+id/slicing"
-        android:title="@string/slicing" />
+        android:id="@+id/apn"
+        android:title="@string/apn_settings" />
     <item
         android:id="@+id/logger"
         android:title="@string/Log" />
+    <item
+        android:id="@+id/slicingSetup"
+        android:title="@string/slicing_setup" />
 </menu>
