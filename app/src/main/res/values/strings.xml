@@ -25,4 +25,6 @@
     <string name="slicing">Slicing</string>
     <string name="Log">Debug Log</string>
     <string name="device_admin_description">I need your permission</string>
+    <string name="apn_settings">APN Settings</string>
+    <string name="slicing_setup">Slicing Setup</string>
 </resources>
