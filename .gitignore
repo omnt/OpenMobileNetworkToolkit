@@ -16,6 +16,9 @@
 # Java class files
 *.class
 
+# keystore files
+*.jks
+
 # Generated files
 bin/
 gen/
