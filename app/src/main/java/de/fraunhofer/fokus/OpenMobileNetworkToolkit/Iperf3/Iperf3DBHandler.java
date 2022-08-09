@@ -1,4 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -43,8 +43,11 @@ public class Iperf3DBHandler extends SQLiteOpenHelper {
     public void addNewRunner(String ID, byte[] bytes){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+
         values.put(ID_COL, ID);
         values.put(IPERF3_RUNNER_B, bytes);
+
+        db.execSQL("DELETE FROM " + TABLE_NAME+ " WHERE "+ID_COL+"='"+ID+"'");
         db.insert(TABLE_NAME, null, values);
     }
 

@@ -39,7 +39,7 @@
     </fragment>
     <activity
         android:id="@+id/iperf3Activity"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3Activity"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Activity"
         android:label="activity_iperf3"
         tools:layout="@layout/activity_iperf3"/>
 

@@ -23,11 +23,11 @@
         android:theme="@style/Theme.OpenMobileNetworkToolkitCarrierSettings">
 
         <activity
-            android:name=".Iperf3Activity"
+            android:name=".Iperf3.Iperf3Activity"
             android:parentActivityName=".MainActivity" />
         <activity
-            android:name=".Iperf3ListActivity"
-            android:parentActivityName=".Iperf3Activity" />
+            android:name=".Iperf3.Iperf3ListActivity"
+            android:parentActivityName=".Iperf3.Iperf3Activity" />
 
 
         <service

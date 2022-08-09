@@ -1,11 +1,9 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.util.Log;
 
-
 import androidx.annotation.NonNull;
-import androidx.room.Entity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,12 +16,13 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.UUID;
 
-import kotlin.jvm.Transient;
 
-public class iperf3Runner implements Serializable {
+public class Iperf3Runner implements Serializable {
     private String[] command;
     private String id;
     private String timestamp;
+    private String state;
+    private String logFilePath = null;
 
     private transient Context context;
     private transient ThreadGroup iperf3TG;
@@ -37,11 +36,20 @@ public class iperf3Runner implements Serializable {
     }
 
 
-    public iperf3Runner(String[] command, Context context, ThreadGroup iperf3TG) {
+    public String getState(){
+        return this.state;
+    }
+
+    public void checkState(){
+        this.state = this.iperf3Thread.getState().toString();
+    }
+
+    public Iperf3Runner(String[] command, Context context, ThreadGroup iperf3TG, String logFilePath) {
         super();
         this.iperf3TG = iperf3TG;
         this.command = command;
         this.context = context;
+        this.logFilePath = logFilePath;
         this.id = UUID.randomUUID().toString();
     }
 
@@ -50,6 +58,10 @@ public class iperf3Runner implements Serializable {
 
     public String getCommand() {
         return String.join(" ", command);
+    }
+
+    public String getLogFilePath(){
+        return this.logFilePath;
     }
 
     private Runnable createRunable() {
@@ -91,13 +103,13 @@ public class iperf3Runner implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof iperf3Runner)) return false;
-        iperf3Runner that = (iperf3Runner) o;
+        if (!(o instanceof Iperf3Runner)) return false;
+        Iperf3Runner that = (Iperf3Runner) o;
         return id.equals(that.id);
     }
 
 
-    public byte[] makeByte(iperf3Runner iperf3R) {
+    public byte[] makeByte(Iperf3Runner iperf3R) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream out;
         byte[] bytes = null;
@@ -118,11 +130,11 @@ public class iperf3Runner implements Serializable {
         return bytes;
     }
 
-    public iperf3Runner readBytes(byte[] data){
+    public Iperf3Runner readBytes(byte[] data){
         try {
             ByteArrayInputStream baip = new ByteArrayInputStream(data);
             ObjectInputStream ois = new ObjectInputStream(baip);
-            iperf3Runner iperf3R = (iperf3Runner) ois.readObject();
+            Iperf3Runner iperf3R = (Iperf3Runner) ois.readObject();
             return iperf3R;
         } catch (IOException | ClassNotFoundException e){
             e.printStackTrace();

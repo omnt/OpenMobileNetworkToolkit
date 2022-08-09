@@ -1,4 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,12 +10,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Activity extends AppCompatActivity {
     private CheckBox iperf3BiDir;
@@ -32,7 +34,7 @@ public class Iperf3Activity extends AppCompatActivity {
     private ThreadGroup iperf3TG;
     private Iperf3OverView iperf3OverView;
     private Iperf3DBHandler iperf3DBHandler;
-
+    private String logFilePath;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,36 +73,24 @@ public class Iperf3Activity extends AppCompatActivity {
         }
 
         this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
-        this.iperf3OverView = new Iperf3OverView(this.iperf3TG);
         this.iperf3DBHandler = Iperf3DBHandler.getInstance(getApplicationContext());
-
-        //cleanup maybe running workers
+        this.iperf3OverView = new Iperf3OverView(this.iperf3TG, this.iperf3DBHandler);
 
     }
 
 
     public void showInstances(View view){
         Intent intent = new Intent(Iperf3Activity.this, Iperf3ListActivity.class);
-        intent.putExtra("json", this.iperf3OverView.getRunnersID());
+        intent.putExtra("json", this.iperf3OverView.updateRunners());
         startActivity(intent);
     }
 
     public void executeIperfCommand(View view) {
         String[] command =  parseInput().split(" ");
 
-        iperf3Runner iperf3R = new iperf3Runner(command, getApplicationContext(), this.iperf3TG);
+        Iperf3Runner iperf3R = new Iperf3Runner(command, getApplicationContext(), this.iperf3TG, this.logFilePath);
         this.iperf3OverView.addRunner(iperf3R);
-        this.iperf3DBHandler.addNewRunner(iperf3R.getId(), iperf3R.makeByte(iperf3R));
         iperf3R.start();
-        /*
-        Data.Builder iperf3Data = new Data.Builder();
-        iperf3Data.putStringArray("commands", command.split(" "));
-        OneTimeWorkRequest iperf3WR = new OneTimeWorkRequest.Builder(iperf3Worker.class).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).setInputData(iperf3Data.build()).build();
-        WorkManager iperf3WM =  WorkManager.getInstance(getApplicationContext());
-        Operation iperf33OP = iperf3WM.enqueueUniqueWork("iperf3"+this.run, ExistingWorkPolicy.KEEP, iperf3WR);
-        Log.d(TAG, "executeIperfCommand: "+iperf3WR.getId());
-        this.run++;
-    */
     }
 
     private String getKeyFromId(String s){
@@ -143,6 +133,7 @@ public class Iperf3Activity extends AppCompatActivity {
                 if(key.equals("--logfile")){
                     Timestamp iperfTS = new Timestamp(System.currentTimeMillis());
                     value = getFilesDir() +"/"+value+iperfTS.toString().replace(" ", "_")+".log";
+                    this.logFilePath = value;
                 }
                 stb.add(value);
             }
@@ -168,35 +159,8 @@ public class Iperf3Activity extends AppCompatActivity {
         return joined;
     }
 
-
-/*
-    public void executeIperfCommand2(View view) {
-        Log.i(TAG, "onClick: button clicked");
-        //String inputText = iperf3CmdInput.getText().toString();
-        //String[] split = inputText.split(" ");
-        try {
-            Os.setenv("TMPDIR", String.valueOf(getCacheDir()), true);
-        } catch (ErrnoException e) {
-            e.printStackTrace();
-        }
-        Log.d(TAG, "executeIperfCommand: "+ getCacheDir());
-        List<String> cmdList = Arrays.asList(split);
-        if(cmdList.contains("--logfile")){
-            int idx = cmdList.indexOf("--logfile")+1;
-            String path = split[idx];
-            Timestamp iperfTS = new Timestamp(System.currentTimeMillis());
-            path = getFilesDir() +"/"+path+iperfTS.toString().replace(" ", "_")+".log";
-            split[idx] = path;
-        }
-
-
-        Data.Builder iperf3Data = new Data.Builder();
-        iperf3Data.putStringArray("commands", split);
-        OneTimeWorkRequest iperf3WR = new OneTimeWorkRequest.Builder(iperf3Worker.class).setInputData(iperf3Data.build()).build();
-        WorkManager iperf3WM =  WorkManager.getInstance(getApplicationContext());
-        ExistingWorkPolicy iperf3EWP = ExistingWorkPolicy.REPLACE;
-        iperf3WM.enqueueUniqueWork("iperf3", iperf3EWP, iperf3WR);
-
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
-*/
 }
