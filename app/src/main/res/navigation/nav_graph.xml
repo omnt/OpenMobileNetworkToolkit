@@ -38,9 +38,9 @@
     </fragment>
     <fragment
         android:id="@+id/slice_fragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.HomeFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SlicingSetup"
         android:label="slice_fragment"
-        tools:layout="@layout/home_fragment">
+        tools:layout="@layout/fragment_slicingsetup">
 
     </fragment>
 </navigation>
