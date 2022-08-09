@@ -104,7 +104,6 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL, true);
         configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
         configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
-        //configForSubId.putBoolean(CarrierConfigManager., true);
         SRLog.d(TAG, "Carrier settings applied");
         return configForSubId;
     }

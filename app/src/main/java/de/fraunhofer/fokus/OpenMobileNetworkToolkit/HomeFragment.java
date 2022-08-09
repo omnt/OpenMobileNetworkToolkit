@@ -118,7 +118,7 @@ public class HomeFragment extends Fragment {
             }
         } else {
             TextView tv = new TextView(getContext());
-            tv.setText("This app only works with Carrier Privilages. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
+            tv.setText("This app only works with Carrier Privileges. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
             binding.mainInfos.addView(tv);
         }
         //binding.buttonFirst.setOnClickListener(new View.OnClickListener() {

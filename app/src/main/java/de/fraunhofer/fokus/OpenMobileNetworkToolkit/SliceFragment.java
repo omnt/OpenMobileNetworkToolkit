@@ -32,7 +32,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSliceBin
 public class SliceFragment extends Fragment{
 
     private static final String TAG = "SliceFragment";
-    private static Context context;
+    private Context context;
     public ConnectivityManager connectivityManager;
     //public Button callback;
     private String dnn;
@@ -230,7 +230,7 @@ public class SliceFragment extends Fragment{
 
         } else {
             TextView tv = new TextView(getContext());
-            tv.setText("This app only works with Carrier Privilages. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
+            tv.setText("This app only works with Carrier Privileges. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
             binding.sliceInfo.addView(tv);
 
         }
