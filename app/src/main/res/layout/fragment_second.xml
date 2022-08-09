@@ -23,6 +23,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="@string/appinfo" />
+        tools:text="@string/appinfo"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
