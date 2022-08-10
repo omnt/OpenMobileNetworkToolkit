@@ -18,6 +18,10 @@ public class Iperf3OverView {
         return this.iperf3Runners.contains(iperf3R);
     }
 
+    public LinkedList<Iperf3Runner> getIperf3Runners() {
+        return iperf3Runners;
+    }
+
     public String[] updateRunners(){
         String[] runnersID = new String[getRunnerLength()];
         int i = 0;

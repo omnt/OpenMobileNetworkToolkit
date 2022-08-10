@@ -7,9 +7,14 @@ import androidx.annotation.NonNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -18,6 +23,7 @@ import java.util.UUID;
 
 
 public class Iperf3Runner implements Serializable {
+    private String logFileName;
     private String[] command;
     private String id;
     private String timestamp;
@@ -44,12 +50,13 @@ public class Iperf3Runner implements Serializable {
         this.state = this.iperf3Thread.getState().toString();
     }
 
-    public Iperf3Runner(String[] command, Context context, ThreadGroup iperf3TG, String logFilePath) {
+    public Iperf3Runner(String[] command, Context context, ThreadGroup iperf3TG, String logFilePath, String logFileName) {
         super();
         this.iperf3TG = iperf3TG;
         this.command = command;
         this.context = context;
         this.logFilePath = logFilePath;
+        this.logFileName = logFileName;
         this.id = UUID.randomUUID().toString();
     }
 
@@ -107,7 +114,6 @@ public class Iperf3Runner implements Serializable {
         Iperf3Runner that = (Iperf3Runner) o;
         return id.equals(that.id);
     }
-
 
     public byte[] makeByte(Iperf3Runner iperf3R) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
