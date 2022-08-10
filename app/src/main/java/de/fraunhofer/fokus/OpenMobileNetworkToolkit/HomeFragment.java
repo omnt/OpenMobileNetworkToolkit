@@ -13,12 +13,7 @@ import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
-import android.telephony.data.NetworkSliceInfo;
-import android.telephony.data.NetworkSlicingConfig;
-import android.telephony.data.TrafficDescriptor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,30 +33,28 @@ public class HomeFragment extends Fragment {
     private boolean HasCarrierPrivilages;
     private int sdk_version;
 
-    public void setHasCarrierPrivilages(boolean privilages) {
-        HasCarrierPrivilages = privilages;
+    public void setHasCarrierPrivileges(boolean privileges) {
+        HasCarrierPrivilages = privileges;
     }
 
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
-    ) {
-
+    )
+    {
         binding = HomeFragmentBinding.inflate(inflater, container, false);
         sdk_version = Build.VERSION.SDK_INT;
         return binding.getRoot();
-
     }
 
-    @SuppressLint({"HardwareIds","MissingPermission"})
+    //@SuppressLint({"HardwareIds"})
+    @SuppressLint({"MissingPermission", "HardwareIds"})
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MainActivity ma = (MainActivity) getActivity();
-        setHasCarrierPrivilages(ma.HasCarrierPermissions());
+        setHasCarrierPrivileges(ma.HasCarrierPermissions());
         TelephonyManager tm = ma.tm;
-
-
 
         /*TrafficDescriptor trafficDescriptor = new TrafficDescriptor.Builder()
                 .build();
@@ -71,17 +64,17 @@ public class HomeFragment extends Fragment {
         props.add("DNN ID: " +trafficDescriptor.getDataNetworkName());*/
 
         ArrayList<String> props = new ArrayList<String>();
-        if (HasCarrierPrivilages) {
-            props.add("Carrier Permissions: " + HasCarrierPrivilages);
+        props.add("Carrier Permissions: " + HasCarrierPrivilages);
+        props.add("Radio Version: " + Build.getRadioVersion());
+        props.add("SOC Manufacturer: " + Build.SOC_MANUFACTURER);
+        props.add("SOC Model: " + Build.SOC_MODEL);
+        props.add("DataState: " + tm.getDataState());
+        if (HasCarrierPrivilages) { // todo try root privileges or more fine granular permission
             props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
             props.add("Device SDK version: " + Build.VERSION.SDK_INT);
             props.add("IMEI: " + tm.getImei());
             props.add("SimSerial: " + tm.getSimSerialNumber());
             props.add("SubscriberId: " + tm.getSubscriberId());
-            props.add("Radio Version: " + Build.getRadioVersion());
-            props.add("SOC Manufacturer: " + Build.SOC_MANUFACTURER);
-            props.add("SOC Model: " + Build.SOC_MODEL);
-
             // todo move to config menu
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 tm.setForbiddenPlmns(new ArrayList<String>());
@@ -102,32 +95,17 @@ public class HomeFragment extends Fragment {
                 boolean sc = pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED);
                 props.add("Slicing Config supported: " + sc);
             }
-
             props.add("DataNetworkType: " + tm.getDataNetworkType());
-            props.add("DataState: " + tm.getDataState());
-            //java.util.List<android.telephony.CellInfo> cell_info = tm.getAllCellInfo();
             if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 props.add("Cell Information: " + tm.getAllCellInfo());
             }
-
             props.add("SignalStrength: " + tm.getSignalStrength());
-            for (String prop : props) {
-                TextView tv = new TextView(getContext());
-                tv.setText(prop);
-                binding.mainInfos.addView(tv);
-            }
-        } else {
+        }
+        for (String prop : props) {
             TextView tv = new TextView(getContext());
-            tv.setText("This app only works with Carrier Privileges. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
+            tv.setText(prop);
             binding.mainInfos.addView(tv);
         }
-        //binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //        NavHostFragment.findNavController(HomeFragment.this)
-        //                .navigate(R.id.action_FirstFragment_to_SecondFragment);
-        //    }
-        //});
     }
 
     @Override
@@ -135,5 +113,4 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
 }

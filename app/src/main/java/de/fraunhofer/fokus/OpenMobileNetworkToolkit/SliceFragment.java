@@ -95,148 +95,150 @@ public class SliceFragment extends Fragment{
     @RequiresApi(api = 33)
     @SuppressLint("MissingPermission")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        MainActivity ma = (MainActivity) getActivity();
-        setHasCarrierPrivilages(ma.HasCarrierPermissions());
-        TelephonyManager tm = ma.tm;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            super.onViewCreated(view, savedInstanceState);
+            MainActivity ma = (MainActivity) getActivity();
+            setHasCarrierPrivilages(ma.HasCarrierPermissions());
+            TelephonyManager tm = ma.tm;
 
-       /*connectivityManager = (ConnectivityManager)
-                getContext().getSystemService(getContext().CONNECTIVITY_SERVICE);*/
-
-
-        /*** Network/Network Capabilities/Link Properties ***/
-        /* A Callback is needed to get the result of the mentioned values */
-        NetworkCallback networkCallback = new NetworkCallback(getActivity().getApplicationContext());
-        networkCallback.setHasCarrierPrivilages(true);
-        //networkCallback.registerDefaultNetworkCallback();
-        //networkCallback.requestNetworkCallback();
-        ma.getOrganization(getContext());
-        networkCallback.registerNetworkCallback();
-
-        byte[] osAppId = null;
-
-        //NetworkSliceInfo sliceInfo =  new Build()
-       /* ConnectivityManager connectivityManager = getContext().getSystemService(ConnectivityManager.class);
-        Network currentNetwork = connectivityManager.getActiveNetwork();
-        NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
-        LinkProperties linkProperties = connectivityManager.getLinkProperties(currentNetwork);
-        int up_speed = caps.getLinkDownstreamBandwidthKbps();
-        int down_speed = caps.getLinkUpstreamBandwidthKbps();*/
-        //boolean slicing_capability = caps.hasCapability(CAPABILITY_SLICING_CONFIG_SUPPORTED);
-
-        //sliceCreate emb = new sliceCreate(1,-1,0);
-        //trafficDescriptor descriptor = new trafficDescriptor();
+           /*connectivityManager = (ConnectivityManager)
+                    getContext().getSystemService(getContext().CONNECTIVITY_SERVICE);*/
 
 
-        PersistableBundle configForSubId = new PersistableBundle();
-        PackageManager pm = getContext().getPackageManager();
-        boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
-        boolean feature_slicing = pm.hasSystemFeature(CAPABILITY_SLICING_CONFIG_SUPPORTED);
-        boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
-        boolean feature_phone_state = pm.hasSystemFeature(Manifest.permission.READ_PHONE_STATE);
+            /*** Network/Network Capabilities/Link Properties ***/
+            /* A Callback is needed to get the result of the mentioned values */
+            NetworkCallback networkCallback = new NetworkCallback(getActivity().getApplicationContext());
+            networkCallback.setHasCarrierPrivilages(true);
+            //networkCallback.registerDefaultNetworkCallback();
+            //networkCallback.requestNetworkCallback();
+            ma.getOrganization(getContext());
+            networkCallback.registerNetworkCallback();
 
-        //TODO Use this for the identifation of user using the profile
-        //int user_id = UserHandle.getUserHandleForUid();
-        //boolean feature_privilage_phone_State = pm.hasSystemFeature;
+            byte[] osAppId = null;
 
-        boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
+            //NetworkSliceInfo sliceInfo =  new Build()
+           /* ConnectivityManager connectivityManager = getContext().getSystemService(ConnectivityManager.class);
+            Network currentNetwork = connectivityManager.getActiveNetwork();
+            NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
+            LinkProperties linkProperties = connectivityManager.getLinkProperties(currentNetwork);
+            int up_speed = caps.getLinkDownstreamBandwidthKbps();
+            int down_speed = caps.getLinkUpstreamBandwidthKbps();*/
+            //boolean slicing_capability = caps.hasCapability(CAPABILITY_SLICING_CONFIG_SUPPORTED);
 
-        //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
-        /*NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
-        LinkProperties linkProperties = connectivityManager.getLinkProperties(currentNetwork);*/
-
-        ArrayList<String> props = new ArrayList<String>();
-        if (HasCarrierPrivilages) {
-            Toast.makeText(getActivity(), "Has Carrier Privilages", Toast.LENGTH_SHORT).show();
-            if (feature_telephony) {
-                Toast.makeText(getActivity(), "Has telephony", Toast.LENGTH_SHORT).show();
-            }
-            props.add("Carrier Permissions: " + HasCarrierPrivilages);
-            props.add("Feature Telephony: " + feature_telephony);
-            props.add("Android SDK: " + Build.VERSION.SDK_INT);
-            props.add("Android Release: " + Build.VERSION.RELEASE);
+            //sliceCreate emb = new sliceCreate(1,-1,0);
+            //trafficDescriptor descriptor = new trafficDescriptor();
 
 
+            PersistableBundle configForSubId = new PersistableBundle();
+            PackageManager pm = getContext().getPackageManager();
+            boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+            boolean feature_slicing = pm.hasSystemFeature(CAPABILITY_SLICING_CONFIG_SUPPORTED);
+            boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
+            boolean feature_phone_state = pm.hasSystemFeature(Manifest.permission.READ_PHONE_STATE);
 
-            props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
-            props.add("READ_PHONE_STATE: "+ feature_phone_state);
-            props.add("Device Software Version: " + tm.getDeviceSoftwareVersion());
-            props.add("IMEI: " + tm.getImei());
-            props.add("SimSerial: " + tm.getSimSerialNumber());
-            props.add("SubscriberId: " + tm.getSubscriberId());
-            props.add("Carrier ID from SIMmmcmnc: " +tm.getCarrierIdFromSimMccMnc());
+            //TODO Use this for the identifation of user using the profile
+            //int user_id = UserHandle.getUserHandleForUid();
+            //boolean feature_privilage_phone_State = pm.hasSystemFeature;
 
-            props.add("Feature Slicing on Package Manager: " + feature_slicing); //for now false
-            //props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
-            props.add("phone type: " + tm.getPhoneType());
-            props.add("Work Profile: " + work_profile);
-            props.add("Feature Admin: " + feature_admin);
+            boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
 
-            //props.add("Service State" + tm.getServiceState()); /* Service State Received, but blocked for now */
+            //Network currentNetwork = connectivityManager.getActiveNetworkInfo();
+            /*NetworkCapabilities caps = connectivityManager.getNetworkCapabilities(currentNetwork);
+            LinkProperties linkProperties = connectivityManager.getLinkProperties(currentNetwork);*/
 
-            //props.add("OSiD: " +trafficDescriptor.getOsAppId()); //OSiD when set receive and show here
-            //props.add("DNN ID: " +trafficDescriptor.getDataNetworkName()); //DNN when received show here
-            //props.add("Route Selection Mode: "+ RouteSelectionDescriptor.ROUTE_SSC_MODE_2);
-            props.add("Supported Modem Count: " + tm.getSupportedModemCount());
-            props.add("Network Operator: " + tm.getNetworkOperatorName());
-            props.add("Sim Operator Name: " + tm.getSimOperatorName());
-            props.add("Network Specifier: " + tm.getNetworkSpecifier());
-            props.add("Data State: " + tm.getDataState());
-            props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
-            props.add("Network Access Identifier: "+ tm.getNai());
-            props.add("preferred opportunistic data subscription Id: " +tm.getPreferredOpportunisticDataSubscription());
-            props.add("Radio Interface Capability Slicing Config: " +tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
-
-            props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
-
-            //TODO Identification of user
-            //props.add("User ID: " + )
-
-            props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
-            props.add("Network counter: " + GlobalVars.counter);
-            props.add("Default DNS: " + NetworkCallback.getDefaultDNS(getContext()));
-            //props.add("Capability List:" + NetworkCallback.getNetworkCapabilitylist(getContext()));
-            props.add("Enterprise Capability: " +NetworkCallback.getEnterpriseCapability(getContext()));
-
-            //TODO GetEnterpriseID having problems //
-
-            //props.add("Enterprise ID : " + NetworkCallback.getEnterpriseIdList(getContext()));
-
-            props.add("Validated Capability: " +NetworkCallback.getValidity(getContext()));
-            props.add("Internet Capability: " +NetworkCallback.getInternet(getContext()));
-            props.add("IMS Capability: " +NetworkCallback.getIMS(getContext()));
-            props.add("Capabilities: " +NetworkCallback.getNetworkCapabilitylist(getContext()));
-            /* TODO Fix the getConfigurationTM */
-            props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(getContext()));
-            props.add("TM Slice: " +NetworkCallback.getConfigurationTM(getContext()));
-            props.add("Slice Info: " +NetworkCallback.getNetworkSlicingInfo(getContext()));
-            props.add("Slice Config: " +NetworkCallback.getNetworkSlicingConfig(getContext()));
-            props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
-            props.add("Traffic Descriptor: " +NetworkCallback.getTrafficDescriptor(getContext()));
-            //props.add("Features: " +NetworkCallback.getFeatureList(getContext()));
-            //props.add("Service State: " +NetworkCallback.getNetworkRegistrationInfo(getContext()));
+            ArrayList<String> props = new ArrayList<String>();
+            if (HasCarrierPrivilages) {
+                Toast.makeText(getActivity(), "Has Carrier Privilages", Toast.LENGTH_SHORT).show();
+                if (feature_telephony) {
+                    Toast.makeText(getActivity(), "Has telephony", Toast.LENGTH_SHORT).show();
+                }
+                props.add("Carrier Permissions: " + HasCarrierPrivilages);
+                props.add("Feature Telephony: " + feature_telephony);
+                props.add("Android SDK: " + Build.VERSION.SDK_INT);
+                props.add("Android Release: " + Build.VERSION.RELEASE);
 
 
+                props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
+                props.add("READ_PHONE_STATE: " + feature_phone_state);
+                props.add("Device Software Version: " + tm.getDeviceSoftwareVersion());
+                props.add("IMEI: " + tm.getImei());
+                props.add("SimSerial: " + tm.getSimSerialNumber());
+                props.add("SubscriberId: " + tm.getSubscriberId());
+                props.add("Carrier ID from SIMmmcmnc: " + tm.getCarrierIdFromSimMccMnc());
 
-            //props.add("log" + networkCallback.sliceFragment.connectivityManager.isDefaultNetworkActive());
+                props.add("Feature Slicing on Package Manager: " + feature_slicing); //for now false
+                //props.add("UiCC Card Info: " + tm.getUiccCardsInfo());
+                props.add("phone type: " + tm.getPhoneType());
+                props.add("Work Profile: " + work_profile);
+                props.add("Feature Admin: " + feature_admin);
 
-            //props.add("All Cell Info: \n"+tm.getAllCellInfo()) ;
-            //props.add("Signal Strength: \n" +tm.getSignalStrength());
-            //props.add("Down Speed: " +down_speed);
+                //props.add("Service State" + tm.getServiceState()); /* Service State Received, but blocked for now */
 
-            for (String prop : props) {
+                //props.add("OSiD: " +trafficDescriptor.getOsAppId()); //OSiD when set receive and show here
+                //props.add("DNN ID: " +trafficDescriptor.getDataNetworkName()); //DNN when received show here
+                //props.add("Route Selection Mode: "+ RouteSelectionDescriptor.ROUTE_SSC_MODE_2);
+                props.add("Supported Modem Count: " + tm.getSupportedModemCount());
+                props.add("Network Operator: " + tm.getNetworkOperatorName());
+                props.add("Sim Operator Name: " + tm.getSimOperatorName());
+                props.add("Network Specifier: " + tm.getNetworkSpecifier());
+                props.add("Data State: " + tm.getDataState());
+                props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
+                props.add("Network Access Identifier: " + tm.getNai());
+                props.add("preferred opportunistic data subscription Id: " + tm.getPreferredOpportunisticDataSubscription());
+                props.add("Radio Interface Capability Slicing Config: " + tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
+
+                props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
+
+                //TODO Identification of user
+                //props.add("User ID: " + )
+
+                props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
+                props.add("Network counter: " + GlobalVars.counter);
+                props.add("Default DNS: " + NetworkCallback.getDefaultDNS(getContext()));
+                //props.add("Capability List:" + NetworkCallback.getNetworkCapabilitylist(getContext()));
+                props.add("Enterprise Capability: " + NetworkCallback.getEnterpriseCapability(getContext()));
+
+                //TODO GetEnterpriseID having problems //
+
+                //props.add("Enterprise ID : " + NetworkCallback.getEnterpriseIdList(getContext()));
+
+                props.add("Validated Capability: " + NetworkCallback.getValidity(getContext()));
+                props.add("Internet Capability: " + NetworkCallback.getInternet(getContext()));
+                props.add("IMS Capability: " + NetworkCallback.getIMS(getContext()));
+                props.add("Capabilities: " + NetworkCallback.getNetworkCapabilitylist(getContext()));
+                /* TODO Fix the getConfigurationTM */
+                props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(getContext()));
+                props.add("TM Slice: " + NetworkCallback.getConfigurationTM(getContext()));
+                props.add("Slice Info: " + NetworkCallback.getNetworkSlicingInfo(getContext()));
+                props.add("Slice Config: " + NetworkCallback.getNetworkSlicingConfig(getContext()));
+                props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
+                props.add("Traffic Descriptor: " + NetworkCallback.getTrafficDescriptor(getContext()));
+                //props.add("Features: " +NetworkCallback.getFeatureList(getContext()));
+                //props.add("Service State: " +NetworkCallback.getNetworkRegistrationInfo(getContext()));
+
+
+                //props.add("log" + networkCallback.sliceFragment.connectivityManager.isDefaultNetworkActive());
+
+                //props.add("All Cell Info: \n"+tm.getAllCellInfo()) ;
+                //props.add("Signal Strength: \n" +tm.getSignalStrength());
+                //props.add("Down Speed: " +down_speed);
+
+                for (String prop : props) {
+                    TextView tv = new TextView(getContext());
+                    tv.setText(prop);
+                    binding.sliceInfo.addView(tv);
+                }
+
+            } else {
                 TextView tv = new TextView(getContext());
-                tv.setText(prop);
+                tv.setText("This app only works with Carrier Privileges. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
                 binding.sliceInfo.addView(tv);
-            }
 
+            }
         } else {
             TextView tv = new TextView(getContext());
-            tv.setText("This app only works with Carrier Privileges. Make Sure you have the correct SHA1 fingerprint on your SIM Card.");
-            binding.sliceInfo.addView(tv);
-
+                tv.setText("Slicing not supported below API leve; 33");
         }
-
     }
 
 

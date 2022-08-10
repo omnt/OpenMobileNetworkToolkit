@@ -54,7 +54,6 @@ import android.widget.Toast;
 
 import java.util.List;
 
-
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
@@ -71,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
     public final static int Overlay_REQUEST_CODE = 251;
     private final int REQUEST_READ_PHONE_STATE=1;
 
-
-
     //@SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         cp = HasCarrierPermissions();
         ts = HasCarrierPermissions();
         // check permissions
+        // todo handle waiting for permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_PHONE_STATE}, 1);
@@ -95,10 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Requesting Privileged Phone State");
                 ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"},123);
                 SRLog.d(TAG,"Requested! " +ActivityCompat.checkSelfPermission(getApplicationContext(),"android.permission.READ_PRIVILEGED_PHONE_STATE"));
-
         }
-
-
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -225,9 +220,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean getOrganization(Context context){
         boolean flag=false;
 
-        if (context != null) {
-            Context context1 = context;
-        }
         DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         PackageManager pm = context.getPackageManager();
         ComponentName componentName = getComponentName(context);
@@ -338,8 +330,6 @@ public class MainActivity extends AppCompatActivity {
         return tm.hasSystemFeature(FEATURE_TELEPHONY_SUBSCRIPTION);
     }*/
 
-
-
     public void checkDrawOverlayPermission(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
@@ -362,5 +352,4 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().stopService(intent);
         ContextCompat.startForegroundService(getApplicationContext(), intent);
     }
-
 }
