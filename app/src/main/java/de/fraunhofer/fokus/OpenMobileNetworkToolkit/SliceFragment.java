@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -91,6 +92,7 @@ public class SliceFragment extends Fragment{
     }
 
 
+    @RequiresApi(api = 33)
     @SuppressLint("MissingPermission")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
