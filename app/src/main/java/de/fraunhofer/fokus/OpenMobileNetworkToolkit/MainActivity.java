@@ -11,12 +11,9 @@ import android.Manifest;
 import android.content.Context;
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
-import android.app.slice.Slice;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.params.Capability;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -41,6 +38,7 @@ import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -65,42 +63,21 @@ public class MainActivity extends AppCompatActivity {
     public PackageManager pm;
 
     public boolean cp = false;
-    public boolean ts = false;
     private static final String TAG = "MainActivity";
     public final static int Overlay_REQUEST_CODE = 251;
-    private final int REQUEST_READ_PHONE_STATE=1;
+    private final int REQUEST_READ_PHONE_STATE = 1;
 
     //@SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         super.onCreate(savedInstanceState);
-        //cc = ccm.getConfig();
-        tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        ccm = (CarrierConfigManager) getSystemService(CARRIER_CONFIG_SERVICE);
-        cp = HasCarrierPermissions();
-        ts = HasCarrierPermissions();
-        // check permissions
-        // todo handle waiting for permissions
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_PHONE_STATE}, 1);
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting FINE_LOCATION Permission");
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-        }
-        if(ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
-                Log.d(TAG, "Requesting Privileged Phone State");
-                ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"},123);
-                SRLog.d(TAG,"Requested! " +ActivityCompat.checkSelfPermission(getApplicationContext(),"android.permission.READ_PRIVILEGED_PHONE_STATE"));
-        }
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        //NavController navController = Navigation.findNavController(this, R.id.home_fragment);
+        //appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+        //NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 //        binding.fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -108,10 +85,26 @@ public class MainActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 //            }
 //        });
-        //FragmentManager fm = getSupportFragmentManager();
-        //HomeFragment f = (HomeFragment) fm.findFragmentById(R.id.home_fragment);
 
-        //f.setHasCarrierPrivilages(cp)
+        // check permissions
+        // todo handle waiting for permissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting FINE_LOCATION Permission");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+        }
+        if (ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
+            Log.d(TAG, "Requesting Privileged Phone State");
+            ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"}, 123);
+            SRLog.d(TAG, "Requested! " + ActivityCompat.checkSelfPermission(this.getApplicationContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE"));
+        }
+
+        FragmentManager fm = getSupportFragmentManager();
+        HomeFragment f = (HomeFragment) fm.findFragmentById(R.id.home_fragment);
+
 
 
         // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
@@ -202,13 +195,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
         return true;
     }
 
-
     public String getString(Context context, String key,
-                                   String defaultValue) {
+                            String defaultValue) {
         return context.getSharedPreferences("config", Context.MODE_PRIVATE)
                 .getString(key, defaultValue);
     }
@@ -217,18 +208,18 @@ public class MainActivity extends AppCompatActivity {
         return new ComponentName(context.getApplicationContext(), NetworkCallback.class);
     }
 
-    public boolean getOrganization(Context context){
-        boolean flag=false;
+    public boolean getOrganization(Context context) {
+        boolean flag = false;
 
         DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         PackageManager pm = context.getPackageManager();
         ComponentName componentName = getComponentName(context);
 
-        if(dpm != null) {
-            if(pm != null) {
-                SRLog.d(TAG,"isProfileOwnerApp:" + dpm.isProfileOwnerApp(context.getPackageName()));
-                SRLog.d(TAG,"isDeviceOwnerApp:"+dpm.isDeviceOwnerApp(context.getPackageName()));
-                SRLog.d(TAG,"Component Name: " + componentName);
+        if (dpm != null) {
+            if (pm != null) {
+                SRLog.d(TAG, "isProfileOwnerApp:" + dpm.isProfileOwnerApp(context.getPackageName()));
+                SRLog.d(TAG, "isDeviceOwnerApp:" + dpm.isDeviceOwnerApp(context.getPackageName()));
+                SRLog.d(TAG, "Component Name: " + componentName);
             }
         }
 
@@ -238,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                 getString(R.string.device_admin_description));
         startActivity(intent);
 
-        SRLog.d(TAG,"Is admin active: "+ dpm.isAdminActive(componentName));
+        SRLog.d(TAG, "Is admin active: " + dpm.isAdminActive(componentName));
 
         return flag;
     }
@@ -259,26 +250,39 @@ public class MainActivity extends AppCompatActivity {
                 NoCarrierToast();
             }
         } else if (id == R.id.AndroidTesting) {
-            tm.sendDialerSpecialCode("4636");
+            if (cp) {
+                tm.sendDialerSpecialCode("4636");
+            } else
+                NoCarrierToast();
         } else if (id == R.id.SonyService) {
-            tm.sendDialerSpecialCode("7378423");
-        }else if (id == R.id.HuaweiProjektMenu) {
-            tm.sendDialerSpecialCode("2846579");
-        }else if (id == R.id.NokiaTesting) {
-            tm.sendDialerSpecialCode("55555");
+            if (cp) {
+                tm.sendDialerSpecialCode("7378423");
+            } else {
+                NoCarrierToast();
+            }
+        } else if (id == R.id.HuaweiProjektMenu) {
+            if (cp) {
+                tm.sendDialerSpecialCode("2846579");
+            } else {
+                NoCarrierToast();
+            }
+        } else if (id == R.id.NokiaTesting) {
+            if (cp) {
+                tm.sendDialerSpecialCode("55555");
+            } else {
+                NoCarrierToast();
+            }
         } else if (id == R.id.about) {
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main); //TODO This layout does not exist
+            NavController navController = Navigation.findNavController(this, R.id.about_fragment); //TODO This layout does not exist
             navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
-        }
-         else if (id == R.id.apn){
-           //Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
-           //openFloatingWindow();
+        } else if (id == R.id.apn) {
+            //Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
+            //openFloatingWindow();
             Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
             startActivity(intent);
-         }
-         else if (id == R.id.slicingSetup){
-             //TODO Add slicing interface here
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        } else if (id == R.id.slicingSetup) {
+            //TODO Add slicing interface here
+            NavController navController = Navigation.findNavController(this, R.id.slice_fragment);
             navController.navigate(R.id.action_FirstFragment_to_SliceFragment);
             //Toast.makeText(getApplicationContext(), "Add slciing setup here!", Toast.LENGTH_SHORT).show();
         }
@@ -287,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavController navController = Navigation.findNavController(this, R.id.home_fragment);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
@@ -298,20 +302,20 @@ public class MainActivity extends AppCompatActivity {
         switch (i) {
             case 1: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
-                    SRLog.d(TAG,"Could not get READ_PHONE_STATE permission");
+                    SRLog.d(TAG, "Could not get READ_PHONE_STATE permission");
                     Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
 
                 } else {
-                    SRLog.d(TAG,"Got READ_PHONE_STATE_PERMISSIONS");
+                    SRLog.d(TAG, "Got READ_PHONE_STATE_PERMISSIONS");
                     Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG).show();
                 }
             }
             case 2: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
-                    SRLog.d(TAG,"Could not get LOCATION permission");
+                    SRLog.d(TAG, "Could not get LOCATION permission");
                     Toast.makeText(this, "Could not get LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
-                    SRLog.d(TAG,"Got LOCATION permission");
+                    SRLog.d(TAG, "Got LOCATION permission");
                     Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
             }
