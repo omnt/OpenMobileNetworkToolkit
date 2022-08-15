@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -22,13 +23,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Activity extends AppCompatActivity {
@@ -48,6 +49,7 @@ public class Iperf3Activity extends AppCompatActivity {
     private EditText iperf3Interval;
     private EditText iperf3Bytes;
 
+    private PopupWindow popupWindow;
 
     private LinkedList<EditText> editTexts;
 
@@ -58,12 +60,12 @@ public class Iperf3Activity extends AppCompatActivity {
     private Iperf3DBHandler iperf3DBHandler;
     private String logFilePath;
     private String logFileName;
-
+    private View v;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_iperf3);
-        View v = findViewById(android.R.id.content).getRootView();
+        v = findViewById(android.R.id.content).getRootView();
 
         iperf3LogFileName = v.findViewById(R.id.iperf3_logfile);
         iperf3IP = v.findViewById(R.id.iperf3_ip);
@@ -261,29 +263,40 @@ public class Iperf3Activity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //todo copy all log files to external storage where user can see all logs
 
+        String path = getApplicationContext().getFilesDir().toString();
+        Log.d("Files", "Path: " + path);
+        File directory = new File(path);
+        FilenameFilter filter = new FilenameFilter() {
 
-        for (Iperf3Runner iperf3R: this.iperf3OverView.getIperf3Runners()) {
-            if(iperf3R.getState().equals("TERMINATED")){
-                File from = new File(iperf3R.getLogFilePath());
-                File to = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+iperf3R.getLogFileName());
-                File ieprf3Path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/");
-                if (!ieprf3Path.exists()) {
-                    ieprf3Path.mkdir();
-                }
-                Log.d(TAG, "onDestroy: "+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+iperf3R.getLogFileName());
-                try {
-                    copyDirectoryOneLocationToAnotherLocation(from, to);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            public boolean accept(File f, String name)
+            {
+                return name.endsWith(".log");
             }
+        };
+        File iperf3Path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/");
+        if (!iperf3Path.exists()) {
+            iperf3Path.mkdir();
         }
 
+        File[] files = directory.listFiles(filter);
+        Log.d("onDestroy", "Size: "+ files.length);
+        for (File from: files) {
+            File to = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
+            Log.d(TAG, "onDestroy: "+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
+            //todo check wether file is still used by another process?
+            try {
+                copyDirectoryOneLocationToAnotherLocation(from, to);
+                from.delete();
+                Toast.makeText(Iperf3Activity.this, "Moving Logs to "+"Documents/iperf3_logs/!", Toast.LENGTH_LONG).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
