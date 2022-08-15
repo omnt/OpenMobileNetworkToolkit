@@ -1,24 +1,13 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.File;
-import java.io.FileWriter;
 
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -61,9 +50,12 @@ public class Iperf3ListActivity extends AppCompatActivity {
 
     }
 
-
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //todo add listView.onSaveInstanceState() to db and retrieve it onCreate when savedInstanceState == null
+        //https://stackoverflow.com/questions/18000093/how-to-marshall-and-unmarshall-a-parcelable-to-a-byte-array-with-help-of-parcel
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {

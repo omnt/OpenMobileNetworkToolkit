@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -48,8 +47,6 @@ public class Iperf3Activity extends AppCompatActivity {
     private EditText iperf3Duration;
     private EditText iperf3Interval;
     private EditText iperf3Bytes;
-
-    private PopupWindow popupWindow;
 
     private LinkedList<EditText> editTexts;
 
@@ -271,13 +268,7 @@ public class Iperf3Activity extends AppCompatActivity {
         String path = getApplicationContext().getFilesDir().toString();
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
-        FilenameFilter filter = new FilenameFilter() {
-
-            public boolean accept(File f, String name)
-            {
-                return name.endsWith(".log");
-            }
-        };
+        FilenameFilter filter = (f, name) -> name.endsWith(".log");
         File iperf3Path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/");
         if (!iperf3Path.exists()) {
             iperf3Path.mkdir();
