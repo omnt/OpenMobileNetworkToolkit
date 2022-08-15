@@ -44,7 +44,7 @@ public class Iperf3ListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        Iperf3Runner iperf3R = new Iperf3Runner(null, null, null, null).readBytes(this.iperf3DBHandler.getRunnerByID(ids[position]));
+        Iperf3Runner iperf3R = new Iperf3Runner(null, null, null, null, null).readBytes(this.iperf3DBHandler.getRunnerByID(ids[position]));
 
         convertView = inflater.inflate(R.layout.activity_iperf3_row_item, null);
         TextView command = (TextView) convertView.findViewById(R.id.firstLine);

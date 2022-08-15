@@ -1,18 +1,30 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
@@ -106,6 +118,7 @@ public class Iperf3Activity extends AppCompatActivity {
         this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
         this.iperf3DBHandler = Iperf3DBHandler.getInstance(getApplicationContext());
         this.iperf3OverView = new Iperf3OverView(this.iperf3TG, this.iperf3DBHandler);
+        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 1);
 
     }
 
@@ -163,10 +176,11 @@ public class Iperf3Activity extends AppCompatActivity {
                 String key = getKeyFromId(s);
                 stb.add(key);
                 if(key.equals("--logfile")){
-                    Timestamp iperfTS = new Timestamp(System.currentTimeMillis());
-                    value = getFilesDir() +"/"+value+iperfTS.toString().replace(" ", "_")+".log";
+                    Timestamp iperfT = new Timestamp(System.currentTimeMillis());
+                    String iperf3TS = "_"+iperfT.toString().replace(" ", "_").replace(":", "_");
+                    this.logFileName = value+iperf3TS+".log";
+                    value = getFilesDir() +"/"+value+iperf3TS+".log";
                     this.logFilePath = value;
-                    this.logFileName = value+iperfTS.toString().replace(" ", "_")+".log";
                 }
                 stb.add(value);
             }
@@ -214,15 +228,62 @@ public class Iperf3Activity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
 
     }
+    public static void copyDirectoryOneLocationToAnotherLocation(File sourceLocation, File targetLocation)
+            throws IOException {
+
+            InputStream in = new FileInputStream(sourceLocation);
+
+            OutputStream out = new FileOutputStream(targetLocation);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 101) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(Iperf3Activity.this, "Storage Permission Granted", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(Iperf3Activity.this, "Storage Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        for (Iperf3Runner iperf3R:this.iperf3OverView.getIperf3Runners()) {
-          //  requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE}, 1);
-        }
         //todo copy all log files to external storage where user can see all logs
 
+
+        for (Iperf3Runner iperf3R: this.iperf3OverView.getIperf3Runners()) {
+            if(iperf3R.getState().equals("TERMINATED")){
+                File from = new File(iperf3R.getLogFilePath());
+                File to = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+iperf3R.getLogFileName());
+                File ieprf3Path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/");
+                if (!ieprf3Path.exists()) {
+                    ieprf3Path.mkdir();
+                }
+                Log.d(TAG, "onDestroy: "+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+iperf3R.getLogFileName());
+                try {
+                    copyDirectoryOneLocationToAnotherLocation(from, to);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
+
 }

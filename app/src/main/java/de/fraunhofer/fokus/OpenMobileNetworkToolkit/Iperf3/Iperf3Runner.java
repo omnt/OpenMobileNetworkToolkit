@@ -7,14 +7,9 @@ import androidx.annotation.NonNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -60,6 +55,9 @@ public class Iperf3Runner implements Serializable {
         this.id = UUID.randomUUID().toString();
     }
 
+    public String getLogFileName() {
+        return logFileName;
+    }
 
     private native int iperf3Wrapper(String[] argv, String cache);
 
