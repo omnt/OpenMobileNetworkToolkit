@@ -20,20 +20,12 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.OutcomeReceiver;
 import android.os.PersistableBundle;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
-import android.telephony.data.NetworkSliceInfo;
-import android.telephony.data.NetworkSlicingConfig;
-import android.telephony.data.RouteSelectionDescriptor;
-import android.telephony.data.TrafficDescriptor;
-import android.telephony.data.UrspRule;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
@@ -41,6 +33,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -50,8 +43,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
@@ -60,31 +51,27 @@ public class MainActivity extends AppCompatActivity {
     private PersistableBundle cc;
     private ConnectivityManager cm;
     public TelephonyManager tm;
-    public PackageManager pm;
+    public ConnectivityManager connectivityManager;
+
 
     public boolean cp = false;
     private static final String TAG = "MainActivity";
     public final static int Overlay_REQUEST_CODE = 251;
     private final int REQUEST_READ_PHONE_STATE = 1;
+    NavController navController;
 
     //@SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        cp = tm.hasCarrierPrivileges();
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         setSupportActionBar(binding.toolbar);
-        //NavController navController = Navigation.findNavController(this, R.id.home_fragment);
-        //appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        //NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-//        binding.fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
+        navController = navHostFragment.getNavController();
 
         // check permissions
         // todo handle waiting for permissions
@@ -273,21 +260,15 @@ public class MainActivity extends AppCompatActivity {
                 NoCarrierToast();
             }
         } else if (id == R.id.about) {
-            NavController navController = Navigation.findNavController(this, R.id.about_fragment); //TODO This layout does not exist
-            navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
+            navController.navigate(R.id.about_fragment);
         } else if (id == R.id.apn) {
-            //Toast.makeText(getApplicationContext(), "Add slicing interface here", Toast.LENGTH_SHORT).show();
-            //openFloatingWindow();
             Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
             startActivity(intent);
         } else if (id == R.id.slicingSetup) {
-            //TODO Add slicing interface here
-            NavController navController = Navigation.findNavController(this, R.id.slice_fragment);
-            navController.navigate(R.id.action_FirstFragment_to_SliceFragment);
-            //Toast.makeText(getApplicationContext(), "Add slciing setup here!", Toast.LENGTH_SHORT).show();
+            navController.navigate(R.id.fragment_slicingsetup);
         }
-        return super.onOptionsItemSelected(item);
-    }
+            return super.onOptionsItemSelected(item);
+        }
 
     @Override
     public boolean onSupportNavigateUp() {

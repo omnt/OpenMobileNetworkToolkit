@@ -28,10 +28,12 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainerView"
-            android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.HomeFragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:tag="HomeFragment" />
+            android:layout_height="match_parent"
+            app:defaultNavHost="true"
+            android:background="@color/white"
+            app:navGraph="@navigation/nav_graph" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

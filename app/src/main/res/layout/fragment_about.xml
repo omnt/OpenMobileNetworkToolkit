@@ -12,17 +12,24 @@
     android:id="@+id/about_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SecondFragment">
+    tools:context=".AboutFragment">
 
     <TextView
-        android:id="@+id/textview_second"
-        android:layout_width="301dp"
-        android:layout_height="610dp"
-        android:layout_marginBottom="26dp"
+        android:id="@+id/about_text_box"
+        style="@style/Widget.AppCompat.TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:drawableTint="#E91E63"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.493"
         tools:text="@string/appinfo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

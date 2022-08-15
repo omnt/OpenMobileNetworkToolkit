@@ -1,27 +1,17 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.annotation.SuppressLint;
-import android.app.admin.DevicePolicyManager;
-import android.app.slice.Slice;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.FeatureInfo;
-import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
-import android.hardware.camera2.params.Capability;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
-import android.os.Build;
 import android.os.OutcomeReceiver;
-import android.os.Parcelable;
-import android.provider.Telephony;
 import android.telephony.NetworkRegistrationInfo;
-import android.telephony.NetworkScanRequest;
 import android.telephony.ServiceState;
 import android.telephony.SubscriptionInfo;
 import android.telephony.TelephonyManager;
@@ -31,18 +21,12 @@ import android.telephony.data.NetworkSlicingConfig;
 import android.telephony.data.RouteSelectionDescriptor;
 import android.telephony.data.TrafficDescriptor;
 import android.telephony.data.UrspRule;
-import android.telephony.ims.RegistrationManager;
 import android.util.Log;
-import android.widget.TableRow;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresFeature;
 import androidx.annotation.RequiresPermission;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.navigation.PopUpToBuilder;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -50,7 +34,7 @@ import java.util.List;
 
 public class NetworkCallback {
     private static final String TAG = "FLABS";
-    public SliceFragment sliceFragment = new SliceFragment();
+    public HomeFragment homeFragment = new HomeFragment();
     private Context context;
 
 
@@ -976,7 +960,7 @@ public class NetworkCallback {
             /*ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
              * */
 
-            ConnectivityManager connectivityManager = sliceFragment.connectivityManager;
+            ConnectivityManager connectivityManager = homeFragment.connectivityManager;
             connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             Network network = connectivityManager.getActiveNetwork();
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -1017,7 +1001,7 @@ public class NetworkCallback {
         try {
             //ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            ConnectivityManager connectivityManager = sliceFragment.connectivityManager;
+            ConnectivityManager connectivityManager = homeFragment.connectivityManager;
 
             Network network = connectivityManager.getActiveNetwork();
             NetworkRequest.Builder builder = new NetworkRequest.Builder()
@@ -1079,7 +1063,7 @@ public class NetworkCallback {
     public boolean customNetworkCallback(int capability, int transport_type) {
         boolean flag = false;
         try {
-            ConnectivityManager connectivityManager = sliceFragment.connectivityManager;
+            ConnectivityManager connectivityManager = homeFragment.connectivityManager;
             connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
             if (connectivityManager == null) {
@@ -1217,7 +1201,7 @@ public class NetworkCallback {
 
     public void registerNetworkCallback() {
         try {
-            ConnectivityManager connectivityManager = sliceFragment.connectivityManager;
+            ConnectivityManager connectivityManager = homeFragment.connectivityManager;
             connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
             if (connectivityManager == null) {

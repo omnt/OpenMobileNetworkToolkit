@@ -50,10 +50,10 @@ public class SlicingSetup extends Fragment {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
+            LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState
     ) {
-        binding = FragmentSlicingsetupBinding.inflate(inflater, container, false);
+        binding = FragmentSlicingsetupBinding.inflate(inflater, parent, false);
         btn_enterprise1 = (Button) binding.btnENTERPRISE1;
         btn_enterprise2 = (Button) binding.btnENTERPRISE2;
         btn_enterprise3 = (Button) binding.btnENTERPRISE3;
@@ -66,8 +66,10 @@ public class SlicingSetup extends Fragment {
             }
         });
 
-        View view = binding.getRoot();
-        return view;
+
+        //View view = binding.getRoot();
+        //return view;
+        return inflater.inflate(R.layout.fragment_slicingsetup, parent,false);
     }
 
     @SuppressLint("MissingPermission")
