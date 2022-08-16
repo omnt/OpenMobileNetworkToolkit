@@ -279,7 +279,7 @@ public class Iperf3Activity extends AppCompatActivity {
         for (File from: files) {
             File to = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
             Log.d(TAG, "onDestroy: "+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
-            //todo check wether file is still used by another process?
+            //todo check whether file is still used by another process?
             try {
                 copyDirectoryOneLocationToAnotherLocation(from, to);
                 from.delete();

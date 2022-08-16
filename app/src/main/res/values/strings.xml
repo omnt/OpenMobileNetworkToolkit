@@ -6,7 +6,7 @@
   -->
 
 <resources>
-    <string name="app_name">OpenMobileNetworkToolkit</string>
+    <string name="app_name">OMNT</string>
     <string name="action_android">Android Testing</string>
     <string name="action_samsung">Samsung IMS</string>
     <string name="action_sony">Sony Service</string>
