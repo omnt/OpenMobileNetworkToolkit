@@ -9,10 +9,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED;
-import static androidx.core.content.ContextCompat.getSystemService;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -22,8 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
-import android.text.Layout;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,23 +28,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.ui.AppBarConfiguration;
 
 import java.util.ArrayList;
-
-import android.os.OutcomeReceiver;
 import android.os.PersistableBundle;
-import android.provider.Settings;
-import android.telephony.CarrierConfigManager;
-import android.telephony.TelephonyManager;
-import android.telephony.data.NetworkSliceInfo;
-import android.telephony.data.NetworkSlicingConfig;
-import android.telephony.data.RouteSelectionDescriptor;
-import android.telephony.data.TrafficDescriptor;
-import android.telephony.data.UrspRule;
-import android.util.Log;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBinding;
 
 public class HomeFragment extends Fragment {
     public CarrierConfigManager ccm;
@@ -60,7 +43,7 @@ public class HomeFragment extends Fragment {
     private boolean cp;
     private MainActivity ma;
     private static final String TAG = "HomeFragment";
-
+    boolean feature_telephony;
     public HomeFragment() {
         super(R.layout.fragment_home);
     }
@@ -72,18 +55,20 @@ public class HomeFragment extends Fragment {
     )
     {
         ma = (MainActivity) getActivity();
-        tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
-        ccm = (CarrierConfigManager) ma.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-        cp = tm.hasCarrierPrivileges();
-        pm = getContext().getPackageManager();
-
+        pm = ma.pm;
+        feature_telephony = ma.feature_telephony;
+        if (feature_telephony) {
+            ccm = (CarrierConfigManager) ma.getSystemService(Context.CARRIER_CONFIG_SERVICE);
+            cp = ma.cp;
+            tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
+        }
         return inflater.inflate(R.layout.fragment_home, parent,false);
     }
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+
         boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
         boolean feature_phone_state = pm.hasSystemFeature(Manifest.permission.READ_PHONE_STATE);
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
@@ -96,26 +81,37 @@ public class HomeFragment extends Fragment {
         props.add("DNN ID: " +trafficDescriptor.getDataNetworkName());*/
 
         ArrayList<String> props = new ArrayList<String>();
-        props.add("Carrier Permissions: " + cp);
-        props.add("Feature Telephony: " + feature_telephony);
-        props.add("Android SDK: " + Build.VERSION.SDK_INT);
-        props.add("Android Release: " + Build.VERSION.RELEASE);
-        props.add("Phone Type: " + tm.getPhoneType());
-        props.add("Work Profile: " + work_profile);
-        props.add("Feature Admin: " + feature_admin);
-        props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
-        props.add("READ_PHONE_STATE: " + feature_phone_state);
+        props.add("\n \n ## Device ##");
         props.add("Radio Version: " + Build.getRadioVersion());
         props.add("SOC Manufacturer: " + Build.SOC_MANUFACTURER);
         props.add("SOC Model: " + Build.SOC_MODEL);
+        props.add("Phone Type: " + tm.getPhoneType());
         props.add("Supported Modem Count: " + tm.getSupportedModemCount());
+        props.add("Android SDK: " + Build.VERSION.SDK_INT);
+        props.add("Android Release: " + Build.VERSION.RELEASE);
+
+        props.add("\n \n ## Features ##");
+        props.add("Feature Telephony: " + feature_telephony);
+        props.add("Work Profile: " + work_profile);
+        props.add("Feature Admin: " + feature_admin);
+        props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
+
+        props.add("\n \n ## Permissions ##");
+        props.add("Carrier Permissions: " + cp);
+        props.add("READ_PHONE_STATE: " + feature_phone_state);
+        props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
+        props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
+        props.add("READ_PRIVILEGED_PHONE_STATE: " + (ActivityCompat.checkSelfPermission(getContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_GRANTED));
+        props.add("\n \n ## Network ##");
         props.add("Network Operator: " + tm.getNetworkOperatorName());
         props.add("Sim Operator Name: " + tm.getSimOperatorName());
         props.add("Network Specifier: " + tm.getNetworkSpecifier());
         props.add("DataState: " + tm.getDataState());
         props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
         props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
-        props.add("Radio Interface Capability Slicing Config: " + tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            props.add("Radio Interface Capability Slicing Config: " + tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
+        }
         props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
         props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
         props.add("Network counter: " + GlobalVars.counter);
@@ -134,6 +130,7 @@ public class HomeFragment extends Fragment {
         props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
         props.add("Traffic Descriptor: " + NetworkCallback.getTrafficDescriptor(getContext()));
         if (cp) { // todo try root privileges or more fine granular permission
+            props.add("\n \n ## Device Identification Information ##");
             props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
             props.add("Device SDK version: " + Build.VERSION.SDK_INT);
             props.add("IMEI: " + tm.getImei());

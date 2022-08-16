@@ -118,20 +118,26 @@ public class NetworkCallback {
             SRLog.d(TAG, "Type Name " + typename);
             SRLog.d(TAG, "Subtype Name " + subtypename);
 
-
             TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            @SuppressLint("MissingPermission") // todo handle this according to the privileges granted the app
-            ServiceState serviceState = tm.getServiceState();
-
-            List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
-            for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
-                NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
-                if (networkRegistrationInfo != null) {
-                    plmn = networkRegistrationInfo.getRegisteredPlmn();
-                    SRLog.d(TAG, "PLMN: " + plmn);
+            if (tm != null) {
+                @SuppressLint("MissingPermission")
+                ServiceState serviceState = tm.getServiceState(); // todo handle this according to the privileges granted the app
+                if (serviceState != null) {
+                    List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
+                    for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
+                        NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
+                        if (networkRegistrationInfo != null) {
+                            plmn = networkRegistrationInfo.getRegisteredPlmn();
+                            SRLog.d(TAG, "PLMN: " + plmn);
+                        } else {
+                            SRLog.d(TAG, "PLMN unavailable");
+                        }
+                    }
                 } else {
-                    SRLog.d(TAG, "PLMN unavailable");
+                    SRLog.d(TAG, "Missing permission to access service state");
                 }
+            } else {
+                SRLog.d(TAG, "This is not a phone");
             }
         }
         return plmn;

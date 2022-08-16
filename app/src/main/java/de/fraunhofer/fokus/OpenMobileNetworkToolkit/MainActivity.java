@@ -14,7 +14,6 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,9 +21,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.PersistableBundle;
 import android.provider.Settings;
-import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -36,7 +33,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
+import androidx.appcompat.widget.Toolbar;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBinding;
 
 import android.view.Menu;
@@ -47,28 +44,29 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    public CarrierConfigManager ccm;
-    private PersistableBundle cc;
-    private ConnectivityManager cm;
     public TelephonyManager tm;
-    public ConnectivityManager connectivityManager;
-
+    public PackageManager pm;
 
     public boolean cp = false;
+    public boolean feature_telephony = false;
+
     private static final String TAG = "MainActivity";
     public final static int Overlay_REQUEST_CODE = 251;
-    private final int REQUEST_READ_PHONE_STATE = 1;
     NavController navController;
 
     //@SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        cp = tm.hasCarrierPrivileges();
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
+        pm = getPackageManager();
+        feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        if (feature_telephony) {
+            tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            cp = tm.hasCarrierPrivileges();
+        }
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = navHostFragment.getNavController();
@@ -88,11 +86,6 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"}, 123);
             SRLog.d(TAG, "Requested! " + ActivityCompat.checkSelfPermission(this.getApplicationContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE"));
         }
-
-        FragmentManager fm = getSupportFragmentManager();
-        HomeFragment f = (HomeFragment) fm.findFragmentById(R.id.home_fragment);
-
-
 
         // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
 
@@ -175,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "CARRIER PERMISSION UNAVAIL7ABLE TO SLICING!");
             Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
         }*/
-
     }
 
     @Override
@@ -306,14 +298,6 @@ public class MainActivity extends AppCompatActivity {
     public void NoCarrierToast() {
         Toast.makeText(this, "Carrier Permissions needed for this", Toast.LENGTH_LONG).show();
     }
-
-    public boolean HasCarrierPermissions() {
-        return tm.hasCarrierPrivileges();
-    }
-
-    /*public boolean HasTelephonySubscription() {
-        return tm.hasSystemFeature(FEATURE_TELEPHONY_SUBSCRIPTION);
-    }*/
 
     public void checkDrawOverlayPermission(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

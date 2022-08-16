@@ -76,7 +76,7 @@ public class SlicingSetup extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         MainActivity ma = (MainActivity) getActivity();
-        setHasCarrierPrivilages(ma.HasCarrierPermissions());
+        setHasCarrierPrivilages(ma.cp);
         PackageManager pm = getContext().getPackageManager();
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         TelephonyManager tm = ma.tm;

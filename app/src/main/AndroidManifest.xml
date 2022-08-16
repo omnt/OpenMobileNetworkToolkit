@@ -27,7 +27,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OpenMobileNetworkToolkitCarrierSettings">
+        android:theme="@style/Theme.AppCompat.NoActionBar">
         <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.OpenMobileNetworkToolkit"
             android:exported="true"
             android:enabled="true"
