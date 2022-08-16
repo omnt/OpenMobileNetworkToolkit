@@ -89,6 +89,7 @@ assembleDebug:
   interruptible: true
   stage: build
   script:
+    - echo $KEYSTORE | base64 -d > '/builds/ngni/opennetworktoolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks'
     - ./gradlew assembleDebug
   artifacts:
     paths:

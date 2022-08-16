@@ -7,6 +7,7 @@
 
 plugins {
     id 'com.android.application'
+    id 'androidx.navigation.safeargs'
 }
 
 ext {
@@ -21,18 +22,27 @@ tasks.withType(JavaCompile) {
 
 
 android {
-    compileSdk 32
+    signingConfigs {
+        debug {
+            storeFile file('OpenMobileNetworkToolkit-key.jks')
+            storePassword 'phoenix2020'
+            keyPassword 'phoenix2020'
+            keyAlias 'key0'
+        }
+    }
+    compileSdk 33
     ndkVersion = "24.0.8215888"
     ndkPath = "/opt/OpenMobileNetworkToolkit/ndk/24.0.8215888"
 
     defaultConfig {
         applicationId "de.fraunhofer.fokus.OpenMobileNetworkToolkit"
-        minSdk 29
-        targetSdk 31
+        minSdk 31
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.debug
         ndk {
             ldLibs "log"
         }
@@ -45,13 +55,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     buildFeatures {
         viewBinding true
     }
     buildToolsVersion '32.1.0-rc1'
+    namespace 'de.fraunhofer.fokus.OpenMobileNetworkToolkit'
 
 
     packagingOptions {
@@ -61,14 +72,19 @@ android {
     }
 }
 
+
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.navigation:navigation-fragment:2.4.1'
-    implementation 'androidx.navigation:navigation-ui:2.4.1'
+    def nav_version = "2.5.1"
+    implementation 'androidx.appcompat:appcompat:1.5.0'
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.navigation:navigation-fragment:$nav_version"
+    implementation 'androidx.navigation:navigation-ui:2.5.1'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation "androidx.work:work-runtime:2.7.1"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
 }

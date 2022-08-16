@@ -1,65 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~ SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+  ~
+  ~ SPDX-License-Identifier: apache2
+  -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="de.fraunhofer.fokus.OpenMobileNetworkToolkit">
+    xmlns:tools="http://schemas.android.com/tools">
+
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
-
+    <uses-permission android:name="android.permission.READ_PHONE_STATE_PERMISSION"/>
     <application
-        android:allowBackup="true"
-        android:extractNativeLibs="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:usesCleartextTraffic="true"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OpenMobileNetworkToolkitCarrierSettings">
-
+        android:theme="@style/Theme.AppCompat.NoActionBar">
+        <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.OpenMobileNetworkToolkit"
+            android:exported="true"
+            android:enabled="true"
+            android:label="@string/service_name"
+            android:permission="android.permission.BIND_CARRIER_SERVICES">
+            <intent-filter>
+                <action android:name="android.service.carrier.CarrierService" />
+                <action android:name="android.service.carrier.ConfigService"/>
+            </intent-filter>
+            <meta-data android:name="android.service.carrier.LONG_LIVED_BINDING"
+                android:value="true" />
+        </service>
         <activity
             android:name=".Iperf3.Iperf3Activity"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".Iperf3.Iperf3ListActivity"
             android:parentActivityName=".Iperf3.Iperf3Activity" />
-
-
-        <service
-            android:name=".OpenMobileNetworkToolkit"
-            android:enabled="true"
-            android:exported="true"
-            android:label="@string/service_name"
-            android:permission="android.permission.BIND_CARRIER_SERVICES">
-            <intent-filter>
-                <action android:name="android.service.carrier.CarrierService" />
-                <action android:name="android.service.carrier.ConfigService" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.service.carrier.LONG_LIVED_BINDING"
-                android:value="true" />
-        </service>
-
         <activity
-            android:name=".MainActivity"
+            android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.OpenMobileNetworkToolkitCarrierSettings.NoActionBar"
-            android:windowSoftInputMode="adjustPan">
+            android:theme="@style/Theme.OpenMobileNetworkToolkitCarrierSettings.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
-
 </manifest>

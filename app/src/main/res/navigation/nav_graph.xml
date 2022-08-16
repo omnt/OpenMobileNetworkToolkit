@@ -10,32 +10,51 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/HomeFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
+        android:id="@+id/HomeFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.HomeFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/home_fragment">
+        tools:layout="@layout/fragment_home">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_HomeFragment_to_AboutFragment"
+            app:destination="@id/about_fragment" />
         <action
-            android:id="@+id/action_FirstFragment_to_iperf3Activity"
-            app:destination="@id/iperf3Activity" />
-
+            android:id="@+id/action_FirstFragment_to_SliceFragment"
+            app:destination="@+id/fragment_slice" />
+        <action
+            android:id="@+id/action_HomeFragment_to_fragment_slicingsetup"
+            app:destination="@id/fragment_slicingsetup" />
 
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SecondFragment"
+        android:id="@+id/about_fragment"
         android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
-
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.AboutFragment"
+        tools:layout="@layout/fragment_about" >
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_about_fragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_slice"
+        android:label="slice_fragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SliceFragment"
+        tools:layout="@layout/fragment_slice">
+        <action
+            android:id="@+id/action_fragment_slice_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_slicingsetup"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SlicingSetup"
+        android:label="@string/slicing_setup"
+        tools:layout="@layout/fragment_slicingsetup">
+        <action
+            android:id="@+id/action_fragment_slicingsetup_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
     </fragment>
     <activity
         android:id="@+id/iperf3Activity"

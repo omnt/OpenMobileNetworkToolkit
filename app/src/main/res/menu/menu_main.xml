@@ -10,22 +10,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
     <item
+        android:id="@+id/slicingSetup"
+        android:title="@string/slicing_setup" />
+    <item
+        android:id="@+id/apn"
+        android:title="@string/apn_settings" />
+    <item
         android:id="@+id/AndroidTesting"
         android:title="@string/action_android" />
+    <group >
+        <item
+            android:id="@+id/HuaweiProjektMenu"
+            android:title="@string/action_huawei" />
+        <item
+            android:id="@+id/MediatekIMS"
+            android:orderInCategory="100"
+            android:title="@string/action_mediatek"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/NokiaTesting"
+            android:title="@string/action_nokia" />
+        <item
+            android:id="@+id/SamsungIMS"
+            android:title="@string/action_samsung" />
+        <item
+            android:id="@+id/SonyService"
+            android:title="@string/action_sony" />
+    </group>
     <item
-        android:id="@+id/SonyService"
-        android:title="@string/action_sony" />
-    <item
-        android:id="@+id/MediatekIMS"
-        android:orderInCategory="100"
-        android:title="@string/action_mediatek"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/HuaweiProjektMenu"
-        android:title="@string/action_huawei" />
-    <item
-        android:id="@+id/SamsungIMS"
-        android:title="@string/action_samsung" />
+        android:id="@+id/logger"
+        android:title="@string/Log" />
     <item
         android:id="@+id/iperf3"
         android:title="@string/action_iperf3" />

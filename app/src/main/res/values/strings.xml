@@ -6,16 +6,17 @@
   -->
 
 <resources>
-    <string name="app_name">OMNT</string>
+    <string name="app_name">OpenMobileNetworkToolkit</string>
     <string name="action_android">Android Testing</string>
     <string name="action_samsung">Samsung IMS</string>
     <string name="action_sony">Sony Service</string>
+    <string name="action_nokia">Nokia Service</string>
     <string name="action_huawei">Huawei Project</string>
     <string name="action_mediatek">Mediatek IMS</string>
     <string name="action_iperf3">iPerf3</string>
     <string name="execute_iperf_command">Send!</string>
     <string name="iperf_command">-c 172.17.0.1</string>
-    <string name="appinfo">This app is provided by Fraunhofer FOKUS. \n This software is Licencensed on Apache 2.0. \n</string>
+    <string name="appinfo">This app is provided by Fraunhofer FOKUS. \nThis software is Licencensed on Apache 2.0. \n \nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">OpenMobileNetworkToolkit</string>
     <string name="second_fragment_label">about</string>
@@ -25,6 +26,11 @@
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="service_name" />
+    <string name="slicing">Slicing</string>
+    <string name="Log">Debug Log</string>
+    <string name="device_admin_description">I need your permission</string>
+    <string name="apn_settings">APN Settings</string>
+    <string name="slicing_setup">Slicing Setup</string>
     <string name="iperf_logfilename">Logfile Name</string>
     <string name="iperf_ip">IP</string>
     <string name="iperf_client">Client</string>

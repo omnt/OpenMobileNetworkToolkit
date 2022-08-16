@@ -8,96 +8,214 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
+import android.content.Context;
+import android.app.Activity;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.telephony.CarrierConfigManager;
-import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
+import android.util.Log;
+
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
+import androidx.appcompat.widget.Toolbar;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBinding;
+
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    public CarrierConfigManager ccm;
-    private PersistableBundle cc;
     public TelephonyManager tm;
+    public PackageManager pm;
+
     public boolean cp = false;
-    private static final String TAG = "OpenMobileNetworkToolkit";
+    public boolean feature_telephony = false;
+
+    private static final String TAG = "MainActivity";
+    public final static int Overlay_REQUEST_CODE = 251;
+    NavController navController;
 
     //@SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //cc = ccm.getConfig();
-        tm = (TelephonyManager) getSystemService(this.TELEPHONY_SERVICE);
-        ccm = (CarrierConfigManager) getSystemService(this.CARRIER_CONFIG_SERVICE);
-        cp = HasCarrierPermissions();
+        pm = getPackageManager();
+        feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        if (feature_telephony) {
+            tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            cp = tm.hasCarrierPrivileges();
+        }
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
+        navController = navHostFragment.getNavController();
+
         // check permissions
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-//            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
-//            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_PHONE_STATE}, 1);
-//        }
+        // todo handle waiting for permissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
+        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
+        }
+        if (ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
+            Log.d(TAG, "Requesting Privileged Phone State");
+            ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"}, 123);
+            SRLog.d(TAG, "Requested! " + ActivityCompat.checkSelfPermission(this.getApplicationContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE"));
         }
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-        setSupportActionBar(binding.toolbar);
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-//        binding.fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = (Fragment) fm.findFragmentById(R.id.home_fragment);
+        // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
 
-        if(fragment == null) {
-            fragment = new HomeFragment();
-            fm.beginTransaction()
-                    .add(R.id.home_fragment, fragment)
-                    .commit();
-        }
 
-        //f.setHasCarrierPrivilages(cp)
+        //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
 
+        /* TODO Clean this after slice config works */
+
+       /* if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            SRLog.d(TAG,"Requesting permission for phone_state");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+            SRLog.d(TAG,"permission for phone_state acquired");
+
+            if(tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))
+            {
+                if(tm.hasCarrierPrivileges()) {
+
+                    tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                        @Override
+                        public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
+                            SRLog.d(TAG, "SLICING CONFIG RESULT OK");
+                            NetworkSlicingConfig networkSlicingConfig1 = networkSlicingConfig;
+                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+                            List<NetworkSliceInfo> sliceInfoList = networkSlicingConfig.getSliceInfo();
+                            SRLog.d(TAG, "Slice config works!!");
+                            SRLog.d(TAG, "URSP List: " +urspRuleList);
+                            SRLog.d(TAG, "sliceInfoList: " +sliceInfoList);
+                            SRLog.d(TAG,"URSP received: " +urspRuleList.size());
+                            for(int i = 0; i < urspRuleList.size(); i++){
+                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
+                                List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
+                                List<RouteSelectionDescriptor> routeSelectionDescriptorList = urspRule.getRouteSelectionDescriptor();
+                                TrafficDescriptor trafficDescriptor = trafficDescriptorList.get(i);
+                                RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorList.get(i);
+                                List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
+                                NetworkSliceInfo networkSliceInfo = networkSliceInfoList.get(i);
+
+
+                                SliceCreate sliceCreate = new SliceCreate();
+
+
+
+
+                                SRLog.d(TAG, "URSP" + urspRule);
+                                SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
+                                SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                            }
+
+                        }
+
+                        @Override
+                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                            OutcomeReceiver.super.onError(error);
+                            SRLog.d(TAG, "SLICING CONFIG ERROR!!");
+                        }
+
+                    });
+                }
+            }
+        } else {
+            SRLog.d(TAG, "READ_PHONE_STATE PERMISSION UNAVAILABLE TO SLICING!");
+        }*/
+
+        /*if(cp) {
+
+            tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                @Override
+                public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
+                    Log.d(TAG, "SLICING CONFIG RESULT OK");
+                }
+
+                @Override
+                public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                    OutcomeReceiver.super.onError(error);
+                    Log.d(TAG, "SLICING CONFIG ERROR!!");
+                }
+
+            });
+        } else {
+            Log.d(TAG, "CARRIER PERMISSION UNAVAIL7ABLE TO SLICING!");
+            Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
+        }*/
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
         return true;
+    }
+
+    public String getString(Context context, String key,
+                            String defaultValue) {
+        return context.getSharedPreferences("config", Context.MODE_PRIVATE)
+                .getString(key, defaultValue);
+    }
+
+    public ComponentName getComponentName(Context context) {
+        return new ComponentName(context.getApplicationContext(), NetworkCallback.class);
+    }
+
+    public boolean getOrganization(Context context) {
+        boolean flag = false;
+
+        DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        PackageManager pm = context.getPackageManager();
+        ComponentName componentName = getComponentName(context);
+
+        if (dpm != null) {
+            if (pm != null) {
+                SRLog.d(TAG, "isProfileOwnerApp:" + dpm.isProfileOwnerApp(context.getPackageName()));
+                SRLog.d(TAG, "isDeviceOwnerApp:" + dpm.isDeviceOwnerApp(context.getPackageName()));
+                SRLog.d(TAG, "Component Name: " + componentName);
+            }
+        }
+
+        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
+        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                getString(R.string.device_admin_description));
+        startActivity(intent);
+
+        SRLog.d(TAG, "Is admin active: " + dpm.isAdminActive(componentName));
+
+        return flag;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        View view = findViewById(R.id.fragmentContainerView);
         if (id == R.id.MediatekIMS) {
             if (cp) {
                 tm.sendDialerSpecialCode("3646633");
@@ -111,23 +229,44 @@ public class MainActivity extends AppCompatActivity {
                 NoCarrierToast();
             }
         } else if (id == R.id.AndroidTesting) {
-            tm.sendDialerSpecialCode("4636");
+            if (cp) {
+                tm.sendDialerSpecialCode("4636");
+            } else
+                NoCarrierToast();
         } else if (id == R.id.SonyService) {
-            tm.sendDialerSpecialCode("7378423");
-        }else if (id == R.id.HuaweiProjektMenu) {
-            tm.sendDialerSpecialCode("2846579");
-        }else if (id == R.id.iperf3) {
-            Navigation.findNavController(view).navigate(R.id.action_FirstFragment_to_iperf3Activity);
+            if (cp) {
+                tm.sendDialerSpecialCode("7378423");
+            } else {
+                NoCarrierToast();
+            }
+        } else if (id == R.id.HuaweiProjektMenu) {
+            if (cp) {
+                tm.sendDialerSpecialCode("2846579");
+            } else {
+                NoCarrierToast();
+            }
+        } else if (id == R.id.NokiaTesting) {
+            if (cp) {
+                tm.sendDialerSpecialCode("55555");
+            } else {
+                NoCarrierToast();
+            }
         } else if (id == R.id.about) {
-            NavController navController = Navigation.findNavController(this, R.id.about_fragment);
-            navController.navigate(R.id.action_FirstFragment_to_SecondFragment);
+            navController.navigate(R.id.about_fragment);
+        } else if (id == R.id.apn) {
+            Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
+            startActivity(intent);
+        } else if (id == R.id.slicingSetup) {
+            navController.navigate(R.id.fragment_slicingsetup);
+        } else if (id == R.id.iperf3) {
+            navController.navigate(R.id.iperf3);
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavController navController = Navigation.findNavController(this, R.id.home_fragment);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
@@ -138,16 +277,20 @@ public class MainActivity extends AppCompatActivity {
         switch (i) {
             case 1: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
+                    SRLog.d(TAG, "Could not get READ_PHONE_STATE permission");
                     Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
 
                 } else {
+                    SRLog.d(TAG, "Got READ_PHONE_STATE_PERMISSIONS");
                     Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG).show();
                 }
             }
             case 2: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
+                    SRLog.d(TAG, "Could not get LOCATION permission");
                     Toast.makeText(this, "Could not get LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
+                    SRLog.d(TAG, "Got LOCATION permission");
                     Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
             }
@@ -158,8 +301,26 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Carrier Permissions needed for this", Toast.LENGTH_LONG).show();
     }
 
-    public boolean HasCarrierPermissions() {
-        return tm.hasCarrierPrivileges();
+    public void checkDrawOverlayPermission(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                if (null != activity) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                    activity.startActivityForResult(intent, Overlay_REQUEST_CODE);
+                } else {
+                    Toast.makeText(this, "Please grant \"Draw over other apps\" permission under application settings", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                openFloatingWindow();
+            }
+        } else {
+            openFloatingWindow();
+        }
     }
 
+    private void openFloatingWindow() {
+        Intent intent = new Intent(getApplicationContext(), DebuggerService.class);
+        getApplicationContext().stopService(intent);
+        ContextCompat.startForegroundService(getApplicationContext(), intent);
+    }
 }
