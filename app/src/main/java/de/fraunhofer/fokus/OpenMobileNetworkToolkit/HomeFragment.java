@@ -114,7 +114,6 @@ public class HomeFragment extends Fragment {
         props.add("Network Specifier: " + tm.getNetworkSpecifier());
         props.add("DataState: " + tm.getDataState());
         props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
-        props.add("Network Access Identifier: " + tm.getNai());
         props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
         props.add("Radio Interface Capability Slicing Config: " + tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
         props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
@@ -140,6 +139,7 @@ public class HomeFragment extends Fragment {
             props.add("IMEI: " + tm.getImei());
             props.add("SimSerial: " + tm.getSimSerialNumber());
             props.add("SubscriberId: " + tm.getSubscriberId());
+            props.add("Network Access Identifier: " + tm.getNai());
             // todo move to config menu
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 tm.setForbiddenPlmns(new ArrayList<String>());
