@@ -266,8 +266,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.slicingSetup) {
             navController.navigate(R.id.fragment_slicingsetup);
         }
-            return super.onOptionsItemSelected(item);
-        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public boolean onSupportNavigateUp() {
