@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_fragment_slicingsetup"
             app:destination="@id/fragment_slicingsetup" />
+        <action
+            android:id="@+id/action_HomeFragment_to_iperf3Fragment"
+            app:destination="@id/fragment_iperf3_input" />
 
     </fragment>
     <fragment
@@ -48,4 +51,14 @@
             android:id="@+id/action_fragment_slicingsetup_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/fragment_iperf3_input"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Fragment"
+        android:label="fragment_iperf3_input"
+        tools:layout="@layout/fragment_iperf3_input">
+        <action
+            android:id="@+id/action_fragment_iperf3_input_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+
 </navigation>

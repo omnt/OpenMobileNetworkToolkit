@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fragment_iperf3_input"
+    tools:context=".Iperf3.Iperf3Fragment">
+
+
+    <EditText
+        android:id="@+id/iperf3_bytes"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="420dp"
+        android:autofillHints="100"
+        android:ems="10"
+        android:hint="@string/iperf_bytes"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <EditText
+        android:id="@+id/iperf3_interval"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="364dp"
+        android:ems="10"
+        android:hint="@string/iperf_interval"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="10" />
+
+    <EditText
+        android:id="@+id/iperf3_duration"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="308dp"
+        android:ems="10"
+        android:hint="@string/iperf_duration"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="10" />
+
+    <EditText
+        android:id="@+id/iperf3_bandwith"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="252dp"
+        android:ems="10"
+        android:hint="@string/iperf_bandwidth"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="100" />
+
+    <EditText
+        android:id="@+id/iperf3_port"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="196dp"
+        android:autofillHints="5201"
+        android:ems="10"
+        android:hint="@string/iperf_port"
+        android:inputType="textPersonName"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/iperf3_ip"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="140dp"
+        android:ems="10"
+        android:hint="@string/iperf_ip"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:autofillHints="172.17.0.1" />
+
+    <EditText
+        android:id="@+id/iperf3_logfile"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="84dp"
+        android:autofillHints="100"
+        android:ems="10"
+        android:hint="@string/iperf_logfilename"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.086"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/iperf3_send"
+        android:layout_width="92dp"
+        android:layout_height="49dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="252dp"
+        android:text="@string/execute_iperf_command"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ToggleButton
+        android:id="@+id/iperf3_client"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:layout_marginEnd="48dp"
+        android:text="@string/iperf_client"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/iperf3_reverse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="52dp"
+        android:text="@string/iperf_reverse"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iperf3_client" />
+
+    <CheckBox
+        android:id="@+id/iperf_bidir"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="64dp"
+        android:text="@string/iperf_bidir"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iperf3_reverse" />
+
+    <CheckBox
+        android:id="@+id/iperf3_json"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="60dp"
+        android:text="@string/iperf_json"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iperf_bidir" />
+
+    <CheckBox
+        android:id="@+id/iperf3_one_off"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="56dp"
+        android:layout_marginBottom="40dp"
+        android:text="@string/iperf_one_off"
+        app:layout_constraintBottom_toTopOf="@+id/iperf3_send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iperf3_json"
+        app:layout_constraintVertical_bias="0.428" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="20dp"
+        android:text="@string/iperf3_server_mode"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/iperf3_client"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/iperf3_instances_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginBottom="36dp"
+        android:text="@string/iperf3_instances"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <Button
+        android:id="@+id/iperf3_move_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="268dp"
+        android:layout_marginBottom="44dp"
+        android:text="@string/iperf3_move"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

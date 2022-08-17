@@ -265,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         } else if (id == R.id.slicingSetup) {
             navController.navigate(R.id.fragment_slicingsetup);
+        } else if (id == R.id.iperf3) {
+            navController.navigate(R.id.fragment_iperf3_input);
         }
         return super.onOptionsItemSelected(item);
     }

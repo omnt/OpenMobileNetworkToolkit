@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
-  ~ SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
-  ~
-  ~ SPDX-License-Identifier: apache2
-  -->
-
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_background" />
-    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+<background android:drawable="@color/ic_launcher_background"/>
+<foreground android:drawable="@mipmap/ic_launcher_foreground"/>
 </adaptive-icon>

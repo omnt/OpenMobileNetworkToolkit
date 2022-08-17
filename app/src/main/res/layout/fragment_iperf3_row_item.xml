@@ -1,0 +1,49 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="3dip"
+    >
+
+    <TextView
+        android:id="@+id/firstLine"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_vertical"
+        android:text="Example application"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/secondLine"
+        android:layout_width="200dp"
+        android:layout_height="39dp"
+        android:layout_below="@+id/firstLine"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:text="Description"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/thirdLine"
+        android:layout_width="200dp"
+        android:layout_height="39dp"
+        android:layout_below="@id/firstLine"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:text="Timestamp" />
+
+    <ImageView
+        android:id="@+id/runningIndicator"
+        android:layout_width="23dp"
+        android:layout_height="23dp"
+        android:layout_alignRight="@id/firstLine"
+        app:srcCompat="@drawable/ic_error_outline" />
+
+
+</RelativeLayout>

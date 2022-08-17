@@ -13,7 +13,10 @@
     <string name="action_nokia">Nokia Service</string>
     <string name="action_huawei">Huawei Project</string>
     <string name="action_mediatek">Mediatek IMS</string>
-    <string name="appinfo">This app is provided by Fraunhofer FOKUS. \nThis software is Licensed on Apache 2.0. \n \nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
+    <string name="action_iperf3">iPerf3</string>
+    <string name="execute_iperf_command">Send!</string>
+    <string name="iperf_command">-c 172.17.0.1</string>
+    <string name="appinfo">This app is provided by Fraunhofer FOKUS. \nThis software is Licencensed on Apache 2.0. \n \nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">OpenMobileNetworkToolkit</string>
     <string name="second_fragment_label">about</string>
@@ -28,4 +31,20 @@
     <string name="device_admin_description">I need your permission</string>
     <string name="apn_settings">APN Settings</string>
     <string name="slicing_setup">Slicing Setup</string>
+    <string name="iperf_logfilename">Logfile Name</string>
+    <string name="iperf_ip">IP</string>
+    <string name="iperf_client">Client</string>
+    <string name="iperf_port">Port</string>
+    <string name="iperf_bandwidth">Bandwidth</string>
+    <string name="iperf_reverse">Reverse</string>
+    <string name="iperf_duration">Duration</string>
+    <string name="iperf_interval">Interval</string>
+    <string name="iperf_bytes">Bytes</string>
+    <string name="iperf_bidir">BiDir</string>
+    <string name="iperf_json">JSON</string>
+    <string name="iperf_one_off">one-off</string>
+    <string name="iperf3_server_mode">Server Mode:</string>
+    <string name="iperf3_instances">Instances</string>
+    <string name="iperf3_move">move</string>
+    <string name="export_logs">Export Logs</string>
 </resources>
