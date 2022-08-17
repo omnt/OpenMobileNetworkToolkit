@@ -38,15 +38,7 @@
             android:id="@+id/action_about_fragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/fragment_slice"
-        android:label="slice_fragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SliceFragment"
-        tools:layout="@layout/fragment_slice">
-        <action
-            android:id="@+id/action_fragment_slice_to_HomeFragment"
-            app:destination="@id/HomeFragment" />
-    </fragment>
+
     <fragment
         android:id="@+id/fragment_slicingsetup"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SlicingSetup"
