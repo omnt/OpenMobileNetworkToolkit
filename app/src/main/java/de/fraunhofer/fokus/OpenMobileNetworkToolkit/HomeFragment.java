@@ -82,19 +82,28 @@ public class HomeFragment extends Fragment {
 
         ArrayList<String> props = new ArrayList<String>();
         props.add("\n \n ## Device ##");
-        props.add("Radio Version: " + Build.getRadioVersion());
+        props.add("Model: " + Build.MODEL);
+        props.add("Manufacturer: " + Build.MANUFACTURER);
         props.add("SOC Manufacturer: " + Build.SOC_MANUFACTURER);
         props.add("SOC Model: " + Build.SOC_MODEL);
-        props.add("Phone Type: " + tm.getPhoneType());
+        props.add("Radio Version: " + Build.getRadioVersion());
         props.add("Supported Modem Count: " + tm.getSupportedModemCount());
         props.add("Android SDK: " + Build.VERSION.SDK_INT);
         props.add("Android Release: " + Build.VERSION.RELEASE);
+        props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
 
         props.add("\n \n ## Features ##");
         props.add("Feature Telephony: " + feature_telephony);
         props.add("Work Profile: " + work_profile);
         props.add("Feature Admin: " + feature_admin);
         props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            boolean sc = pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED);
+            props.add("Slicing Config supported: " + sc);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            props.add("Radio Interface Capability Slicing Config: " + tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
+        }
 
         props.add("\n \n ## Permissions ##");
         props.add("Carrier Permissions: " + cp);
@@ -102,16 +111,38 @@ public class HomeFragment extends Fragment {
         props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
         props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
         props.add("READ_PRIVILEGED_PHONE_STATE: " + (ActivityCompat.checkSelfPermission(getContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_GRANTED));
+
         props.add("\n \n ## Network ##");
         props.add("Network Operator: " + tm.getNetworkOperatorName());
         props.add("Sim Operator Name: " + tm.getSimOperatorName());
         props.add("Network Specifier: " + tm.getNetworkSpecifier());
         props.add("DataState: " + tm.getDataState());
+        props.add("DataNetworkType: " + tm.getDataNetworkType()); // todo print useful  strings
+        props.add("SignalStrength: " + tm.getSignalStrength());
+        int phone_type = tm.getPhoneType();
+        if (phone_type == 0)
+            props.add("Phone Type: None");
+        else if (phone_type == 1)
+            props.add("Phone Type: GSM");
+        else if (phone_type == 2)
+            props.add("Phone Type: CDMA");
+        else if (phone_type == 3)
+            props.add("Phone Type: SIP");
         props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
-        props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            props.add("Radio Interface Capability Slicing Config: " + tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
+        if (tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                props.add("Equivalent Home PLMNs: " + tm.getEquivalentHomePlmns());
+
+                StringBuilder tmp = new StringBuilder();
+                for (String plnm : tm.getForbiddenPlmns()) {
+                    tmp.append(plnm).append(" ");
+                }
+                props.add("Forbidden PLMNs: " + tmp);
+            }
         }
+
+        props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
+
         props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
         props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
         props.add("Network counter: " + GlobalVars.counter);
@@ -124,44 +155,32 @@ public class HomeFragment extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(getContext()));
         }
+        if (ActivityCompat.checkSelfPermission(ma, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            props.add("Cell Information: " + tm.getAllCellInfo());
+        }
+        // Network Slicing
         props.add("TM Slice: " + NetworkCallback.getConfigurationTM(getContext()));
         props.add("Slice Info: " + NetworkCallback.getNetworkSlicingInfo(getContext()));
         props.add("Slice Config: " + NetworkCallback.getNetworkSlicingConfig(getContext()));
+        // Routing and Traffic
         props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
         props.add("Traffic Descriptor: " + NetworkCallback.getTrafficDescriptor(getContext()));
         if (cp) { // todo try root privileges or more fine granular permission
             props.add("\n \n ## Device Identification Information ##");
             props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
-            props.add("Device SDK version: " + Build.VERSION.SDK_INT);
             props.add("IMEI: " + tm.getImei());
+            props.add("MEID: " + tm.getMeid());
             props.add("SimSerial: " + tm.getSimSerialNumber());
             props.add("SubscriberId: " + tm.getSubscriberId());
             props.add("Network Access Identifier: " + tm.getNai());
-            // todo move to config menu
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                tm.setForbiddenPlmns(new ArrayList<String>());
-                // todo move this to a setting menu
-                //tm.setNetworkSelectionModeManual("00101", true, AccessNetworkConstants.AccessNetworkType.NGRAN);
-            }
-            StringBuilder tmp = new StringBuilder();
-            for (String plnm : tm.getForbiddenPlmns()) {
-                tmp.append(plnm).append(" ");
-            }
-            props.add("Forbidden PLMNs: " + tmp);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 props.add("SubscriptionId: " + tm.getSubscriptionId());
             }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                PackageManager pm = ma.getPackageManager();
-                boolean sc = pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED);
-                props.add("Slicing Config supported: " + sc);
-            }
-            props.add("DataNetworkType: " + tm.getDataNetworkType());
-            if (ActivityCompat.checkSelfPermission(ma, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                props.add("Cell Information: " + tm.getAllCellInfo());
-            }
-            props.add("SignalStrength: " + tm.getSignalStrength());
+            // todo move this to a setting menu
+            //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            //    tm.setForbiddenPlmns(new ArrayList<String>());
+                //tm.setNetworkSelectionModeManual("00101", true, AccessNetworkConstants.AccessNetworkType.NGRAN);
+            //}
         }
         TextView main_infos = getView().findViewById(R.id.main_infos);
         for (String prop : props) {

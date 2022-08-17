@@ -42,8 +42,6 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
-    private ActivityMainBinding binding;
     public TelephonyManager tm;
     public PackageManager pm;
 
@@ -53,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     public final static int Overlay_REQUEST_CODE = 251;
     NavController navController;
+    private AppBarConfiguration appBarConfiguration;
 
     //@SuppressLint("MissingPermission")
     @Override
@@ -73,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
         // check permissions
         // todo handle waiting for permissions
+        //ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PHONE_STATE"},3);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
@@ -81,12 +82,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
-        if (ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
+  /*      if (ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
             Log.d(TAG, "Requesting Privileged Phone State");
             ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"}, 123);
             SRLog.d(TAG, "Requested! " + ActivityCompat.checkSelfPermission(this.getApplicationContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE"));
-        }
-
+        }*/
         // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
 
 
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.home_fragment);
+        //NavController navController = Navigation.findNavController(this, R.id.home_fragment);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
