@@ -14,6 +14,8 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,16 +38,23 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.appcompat.widget.Toolbar;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBinding;
 
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
-    private ActivityMainBinding binding;
     public TelephonyManager tm;
     public PackageManager pm;
+    protected LocationManager lm;
+    protected LocationListener locationListener;
+    protected Context context;
+
 
     public boolean cp = false;
     public boolean feature_telephony = false;
@@ -53,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     public final static int Overlay_REQUEST_CODE = 251;
     NavController navController;
+    private AppBarConfiguration appBarConfiguration;
 
     //@SuppressLint("MissingPermission")
     @Override
@@ -71,8 +81,11 @@ public class MainActivity extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = navHostFragment.getNavController();
 
+
         // check permissions
         // todo handle waiting for permissions
+        //ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PHONE_STATE"},3);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
@@ -81,12 +94,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
-        if (ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
+  /*      if (ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
             Log.d(TAG, "Requesting Privileged Phone State");
             ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"}, 123);
             SRLog.d(TAG, "Requested! " + ActivityCompat.checkSelfPermission(this.getApplicationContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE"));
-        }
-
+        }*/
         // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
 
 
@@ -177,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
     public String getString(Context context, String key,
                             String defaultValue) {
         return context.getSharedPreferences("config", Context.MODE_PRIVATE)
@@ -266,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.home_fragment);
+        //NavController navController = Navigation.findNavController(this, R.id.home_fragment);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
