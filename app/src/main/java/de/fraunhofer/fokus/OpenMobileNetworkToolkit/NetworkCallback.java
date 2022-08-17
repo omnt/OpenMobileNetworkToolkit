@@ -722,6 +722,7 @@ public class NetworkCallback {
         return flag;
     }
 
+    @SuppressLint("MissingPermission")
     public NetworkSlicingConfig getConfig(Context context) {
 
         NetworkSlicingConfig networksliceConfig = null;
