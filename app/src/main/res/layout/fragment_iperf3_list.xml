@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:exported="true"
-    tools:context=".Iperf3.Iperf3ListActivity" >
+    tools:context=".Iperf3.Iperf3ListFragment" >
         <ListView
             android:id="@+id/runners_list"
             android:layout_width="match_parent"

@@ -1,23 +1,23 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
-public class Iperf3Activity extends AppCompatActivity {
+public class Iperf3Fragment extends Fragment {
     private CheckBox iperf3BiDir;
     private CheckBox iperf3Reverse;
     private CheckBox iperf3Json;
@@ -48,6 +48,10 @@ public class Iperf3Activity extends AppCompatActivity {
     private EditText iperf3Interval;
     private EditText iperf3Bytes;
 
+    private Button sendBtn;
+    private Button instancesBtn;
+    private Button moveBtn;
+
     private LinkedList<EditText> editTexts;
 
     private static final String TAG = "iperf3Activity";
@@ -57,13 +61,23 @@ public class Iperf3Activity extends AppCompatActivity {
     private Iperf3DBHandler iperf3DBHandler;
     private String logFilePath;
     private String logFileName;
+    private Iperf3ListFragment iperf3ListFragment;
     private View v;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_iperf3);
-        v = findViewById(android.R.id.content).getRootView();
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
+        this.iperf3DBHandler = Iperf3DBHandler.getInstance(getActivity().getApplicationContext());
+        this.iperf3OverView = new Iperf3OverView(this.iperf3TG, this.iperf3DBHandler);
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_iperf3_input, parent, false);
+    }
+
+    @Override
+    public void onViewCreated(View v, Bundle savedInstanceState) {
         iperf3LogFileName = v.findViewById(R.id.iperf3_logfile);
         iperf3IP = v.findViewById(R.id.iperf3_ip);
         iperf3Port = v.findViewById(R.id.iperf3_port);
@@ -81,6 +95,13 @@ public class Iperf3Activity extends AppCompatActivity {
         editTexts.add(iperf3Interval);
         editTexts.add(iperf3Bytes);
 
+        sendBtn = v.findViewById(R.id.iperf3_send);
+        instancesBtn = v.findViewById(R.id.iperf3_instances_button);
+        moveBtn = v.findViewById(R.id.iperf3_move_button);
+
+        sendBtn.setOnClickListener(this::executeIperfCommand);
+        instancesBtn.setOnClickListener(this::showInstances);
+        moveBtn.setOnClickListener(this::moveLogs);
 
         iperf3BiDir = v.findViewById(R.id.iperf_bidir);
         iperf3Reverse = v.findViewById(R.id.iperf3_reverse);
@@ -109,30 +130,32 @@ public class Iperf3Activity extends AppCompatActivity {
         }
 
         try {
-            Os.setenv("TMPDIR", String.valueOf(getCacheDir()), true);
+            Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
         } catch (ErrnoException e) {
             e.printStackTrace();
         }
 
-        this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
-        this.iperf3DBHandler = Iperf3DBHandler.getInstance(getApplicationContext());
-        this.iperf3OverView = new Iperf3OverView(this.iperf3TG, this.iperf3DBHandler);
-        requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE}, 1);
+
 
     }
 
 
-
     public void showInstances(View view){
-        Intent intent = new Intent(Iperf3Activity.this, Iperf3ListActivity.class);
-        intent.putExtra("json", this.iperf3OverView.updateRunners());
-        startActivity(intent);
+        Bundle bundle = new Bundle();
+        bundle.putStringArray("ids", this.iperf3OverView.updateRunners());
+        if(iperf3ListFragment == null){
+            iperf3ListFragment = new Iperf3ListFragment();
+        }
+        iperf3ListFragment.setArguments(bundle);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainerView, iperf3ListFragment, "iperf3ListFragment")
+                .addToBackStack("findThisFragment").commit();
     }
 
     public void executeIperfCommand(View view) {
         String[] command =  parseInput().split(" ");
 
-        Iperf3Runner iperf3R = new Iperf3Runner(command, getApplicationContext(), this.iperf3TG, this.logFilePath, this.logFileName);
+        Iperf3Runner iperf3R = new Iperf3Runner(command, getActivity().getApplicationContext(), this.iperf3TG, this.logFilePath, this.logFileName);
         this.iperf3OverView.addRunner(iperf3R);
         iperf3R.start();
     }
@@ -178,7 +201,7 @@ public class Iperf3Activity extends AppCompatActivity {
                     Timestamp iperfT = new Timestamp(System.currentTimeMillis());
                     String iperf3TS = "_"+iperfT.toString().replace(" ", "_").replace(":", "_");
                     this.logFileName = value+iperf3TS+".log";
-                    value = getFilesDir() +"/"+value+iperf3TS+".log";
+                    value = getActivity().getFilesDir() +"/"+value+iperf3TS+".log";
                     this.logFilePath = value;
                 }
                 stb.add(value);
@@ -207,7 +230,7 @@ public class Iperf3Activity extends AppCompatActivity {
 
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
 
         outState.putString("iperf3LogFileName", iperf3LogFileName.getText().toString());
         outState.putString("iperf3IP", iperf3IP.getText().toString());
@@ -242,30 +265,8 @@ public class Iperf3Activity extends AppCompatActivity {
             out.close();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults)
-    {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == 101) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(Iperf3Activity.this, "Storage Permission Granted", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(Iperf3Activity.this, "Storage Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        String path = getApplicationContext().getFilesDir().toString();
+    private void moveLogs(View v){
+        String path = getActivity().getApplicationContext().getFilesDir().toString();
         Log.d("Files", "Path: " + path);
         File directory = new File(path);
         FilenameFilter filter = (f, name) -> name.endsWith(".log");
@@ -275,7 +276,7 @@ public class Iperf3Activity extends AppCompatActivity {
         }
 
         File[] files = directory.listFiles(filter);
-        Log.d("onDestroy", "Size: "+ files.length);
+        Log.d("onDetach", "Size: "+ files.length);
         for (File from: files) {
             File to = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
             Log.d(TAG, "onDestroy: "+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
@@ -283,11 +284,13 @@ public class Iperf3Activity extends AppCompatActivity {
             try {
                 copyDirectoryOneLocationToAnotherLocation(from, to);
                 from.delete();
-                Toast.makeText(Iperf3Activity.this, "Moving Logs to "+"Documents/iperf3_logs/!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Moving Logs to "+"Documents/iperf3_logs/!", Toast.LENGTH_LONG).show();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
+
 
 }

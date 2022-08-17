@@ -49,11 +49,11 @@
                 android:value="true" />
         </service>
         <activity
-            android:name=".Iperf3.Iperf3Activity"
+            android:name=".Iperf3.Iperf3Fragment"
             android:parentActivityName=".MainActivity" />
         <activity
-            android:name=".Iperf3.Iperf3ListActivity"
-            android:parentActivityName=".Iperf3.Iperf3Activity" />
+            android:name=".Iperf3.Iperf3ListFragment"
+            android:parentActivityName=".Iperf3.Iperf3Fragment" />
         <activity
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity"
             android:exported="true"

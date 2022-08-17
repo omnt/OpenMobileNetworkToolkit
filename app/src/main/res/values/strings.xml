@@ -45,5 +45,6 @@
     <string name="iperf_one_off">one-off</string>
     <string name="iperf3_server_mode">Server Mode:</string>
     <string name="iperf3_instances">Instances</string>
+    <string name="iperf3_move">move</string>
     <string name="export_logs">Export Logs</string>
 </resources>

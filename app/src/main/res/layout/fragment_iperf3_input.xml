@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Iperf3.Iperf3Activity">
+    android:id="@+id/fragment_iperf3_input"
+    tools:context=".Iperf3.Iperf3Fragment">
 
 
     <EditText
@@ -112,7 +113,6 @@
         android:layout_height="49dp"
         android:layout_marginEnd="48dp"
         android:layout_marginBottom="252dp"
-        android:onClick="executeIperfCommand"
         android:text="@string/execute_iperf_command"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -181,7 +181,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/iperf3_instances_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
@@ -189,7 +189,17 @@
         android:text="@string/iperf3_instances"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:onClick="showInstances"/>
+        />
+
+    <Button
+        android:id="@+id/iperf3_move_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="268dp"
+        android:layout_marginBottom="44dp"
+        android:text="@string/iperf3_move"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
