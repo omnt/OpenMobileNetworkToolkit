@@ -9,11 +9,14 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED;
+
 import android.content.Context;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +33,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
+
 import android.os.PersistableBundle;
 
 
@@ -40,20 +44,22 @@ public class HomeFragment extends Fragment {
     public ConnectivityManager connectivityManager;
     public TelephonyManager tm;
     public PackageManager pm;
+
     private boolean cp;
     private MainActivity ma;
     private static final String TAG = "HomeFragment";
     boolean feature_telephony;
+
     public HomeFragment() {
         super(R.layout.fragment_home);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState
-    )
-    {
+    ) {
         ma = (MainActivity) getActivity();
         pm = ma.pm;
         feature_telephony = ma.feature_telephony;
@@ -62,6 +68,7 @@ public class HomeFragment extends Fragment {
             cp = ma.cp;
             tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
         }
+
         return inflater.inflate(R.layout.fragment_home, parent,false);
     }
 
@@ -91,6 +98,9 @@ public class HomeFragment extends Fragment {
         props.add("Android SDK: " + Build.VERSION.SDK_INT);
         props.add("Android Release: " + Build.VERSION.RELEASE);
         props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
+
+        props.add("\n \n ## Location ##");
+        props.add("Location: " + ma.latitude + " " + ma.longitude);
 
         props.add("\n \n ## Features ##");
         props.add("Feature Telephony: " + feature_telephony);
@@ -167,7 +177,6 @@ public class HomeFragment extends Fragment {
         props.add("Traffic Descriptor: " + NetworkCallback.getTrafficDescriptor(getContext()));
         if (cp) { // todo try root privileges or more fine granular permission
             props.add("\n \n ## Device Identification Information ##");
-            props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
             props.add("IMEI: " + tm.getImei());
             props.add("MEID: " + tm.getMeid());
             props.add("SimSerial: " + tm.getSimSerialNumber());
