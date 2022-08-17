@@ -774,6 +774,7 @@ public class NetworkCallback {
         return networksliceConfig;
     }
 
+    @SuppressLint("MissingPermission")
     public static boolean getTrafficDescriptor(Context context) {
 
         boolean flag = false;
