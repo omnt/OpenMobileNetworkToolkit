@@ -25,6 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -37,9 +39,9 @@ public class SlicingSetup extends Fragment {
     private static final String TAG = "SliceSetupFragment";
     private boolean HasCarrierPrivilages;
     private FragmentSlicingsetupBinding binding;
-    private Button btn_enterprise1;
-    private Button btn_enterprise2;
-    private Button btn_enterprise3;
+    private MaterialButton btn_enterprise1;
+    private MaterialButton btn_enterprise2;
+    private MaterialButton btn_enterprise3;
     private SwipeRefreshLayout swipeRefreshLayout;
 
 
@@ -54,9 +56,9 @@ public class SlicingSetup extends Fragment {
             Bundle savedInstanceState
     ) {
         binding = FragmentSlicingsetupBinding.inflate(inflater, parent, false);
-        btn_enterprise1 = (Button) binding.btnENTERPRISE1;
-        btn_enterprise2 = (Button) binding.btnENTERPRISE2;
-        btn_enterprise3 = (Button) binding.btnENTERPRISE3;
+        btn_enterprise1 = (MaterialButton) binding.btnENTERPRISE1;
+        btn_enterprise2 = (MaterialButton) binding.btnENTERPRISE2;
+        btn_enterprise3 = (MaterialButton) binding.btnENTERPRISE3;
         swipeRefreshLayout = binding.getRoot();
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override

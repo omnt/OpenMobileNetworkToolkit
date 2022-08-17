@@ -44,19 +44,19 @@
             app:layout_constraintTop_toBottomOf="@+id/scrollView2">
 
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_ENTERPRISE1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Enterprise 1" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_ENTERPRISE2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Enterprise 2" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_ENTERPRISE3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
