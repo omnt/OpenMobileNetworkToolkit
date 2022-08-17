@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
 
         // check permissions
         // todo handle waiting for permissions
-        //ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PHONE_STATE"},3);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
@@ -94,15 +93,10 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
-  /*      if (ActivityCompat.checkSelfPermission(this, "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_DENIED) {
-            Log.d(TAG, "Requesting Privileged Phone State");
-            ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_PRIVILEGED_PHONE_STATE"}, 123);
-            SRLog.d(TAG, "Requested! " + ActivityCompat.checkSelfPermission(this.getApplicationContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE"));
-        }*/
-        // TODO Add getNetworkSlicingConfiguration, need to add Privillaged phone state
-
-
-        //int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
+        }
 
         /* TODO Clean this after slice config works */
 
@@ -303,6 +297,15 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     SRLog.d(TAG, "Got LOCATION permission");
                     Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
+                }
+            }
+            case 3: {
+                if (iArr.length <= 0 || iArr[0] != 0) {
+                    SRLog.d(TAG, "Could not get BACKGROUND_LOCATION permission");
+                    Toast.makeText(this, "Could not get BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
+                } else {
+                    SRLog.d(TAG, "Got BACKGROUND_LOCATION permission");
+                    Toast.makeText(this, "Got BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
             }
         }

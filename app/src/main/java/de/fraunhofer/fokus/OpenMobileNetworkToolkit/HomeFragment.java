@@ -89,7 +89,7 @@ public class HomeFragment extends Fragment implements LocationListener{
         super.onViewCreated(view, savedInstanceState);
 
         boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
-        boolean feature_phone_state = pm.hasSystemFeature(Manifest.permission.READ_PHONE_STATE);
+        boolean feature_phone_state = (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
 
         /*TrafficDescriptor trafficDescriptor = new TrafficDescriptor.Builder()
@@ -129,7 +129,6 @@ public class HomeFragment extends Fragment implements LocationListener{
         props.add("READ_PHONE_STATE: " + feature_phone_state);
         props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
         props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
-        props.add("READ_PRIVILEGED_PHONE_STATE: " + (ActivityCompat.checkSelfPermission(getContext(), "android.permission.READ_PRIVILEGED_PHONE_STATE") == PackageManager.PERMISSION_GRANTED));
 
         props.add("\n \n ## Network ##");
         props.add("Network Operator: " + tm.getNetworkOperatorName());
@@ -208,7 +207,7 @@ public class HomeFragment extends Fragment implements LocationListener{
 
     @Override
     public void onLocationChanged(Location location) {
-        txtLat = (TextView) getView().findViewById(R.id.location_view);
+        txtLat = (TextView) ma.findViewById(R.id.location_view);
         if (txtLat != null)
             txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
     }
