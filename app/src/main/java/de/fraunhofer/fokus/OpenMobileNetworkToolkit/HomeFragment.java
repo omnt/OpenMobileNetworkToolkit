@@ -15,6 +15,7 @@ import android.content.Context;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -23,6 +24,7 @@ import android.os.Bundle;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,18 +39,26 @@ import java.util.ArrayList;
 import android.os.PersistableBundle;
 
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements LocationListener{
     public CarrierConfigManager ccm;
     private PersistableBundle cc;
     private ConnectivityManager cm;
     public ConnectivityManager connectivityManager;
     public TelephonyManager tm;
     public PackageManager pm;
+    public LocationManager lm;
+
 
     private boolean cp;
     private MainActivity ma;
     private static final String TAG = "HomeFragment";
     boolean feature_telephony;
+
+    TextView txtLat;
+    String lat;
+    String provider;
+    protected String latitude,longitude;
+    protected boolean gps_enabled,network_enabled;
 
     public HomeFragment() {
         super(R.layout.fragment_home);
@@ -68,6 +78,8 @@ public class HomeFragment extends Fragment {
             cp = ma.cp;
             tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
         }
+        lm = (LocationManager) ma.getSystemService(Context.LOCATION_SERVICE);
+        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
 
         return inflater.inflate(R.layout.fragment_home, parent,false);
     }
@@ -98,9 +110,6 @@ public class HomeFragment extends Fragment {
         props.add("Android SDK: " + Build.VERSION.SDK_INT);
         props.add("Android Release: " + Build.VERSION.RELEASE);
         props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
-
-        props.add("\n \n ## Location ##");
-        props.add("Location: " + ma.latitude + " " + ma.longitude);
 
         props.add("\n \n ## Features ##");
         props.add("Feature Telephony: " + feature_telephony);
@@ -195,6 +204,28 @@ public class HomeFragment extends Fragment {
         for (String prop : props) {
             main_infos.append(prop + "\n");
         }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        txtLat = (TextView) getView().findViewById(R.id.location_view);
+        if (txtLat != null)
+            txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Log.d("Latitude","disable");
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        Log.d("Latitude","enable");
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        Log.d("Latitude","status");
     }
 
     @Override
