@@ -16,6 +16,7 @@
     <string name="action_iperf3">iPerf3</string>
     <string name="execute_iperf_command">Send!</string>
     <string name="iperf_command">-c 172.17.0.1</string>
+    <string name="loggin_notifaction">OpenMobileNetworkToolkit logging</string>
     <string name="appinfo">This app is provided by NGNI a department of Fraunhofer FOKUS. \n\nhttps://www.fokus.fraunhofer.de/go/ngni \n\nThis software is licensed on Apache 2.0. \n\nAuthors: \n\nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">OpenMobileNetworkToolkit</string>
@@ -47,4 +48,6 @@
     <string name="iperf3_instances">Instances</string>
     <string name="iperf3_move">move</string>
     <string name="export_logs">Export Logs</string>
+    <string name="channel_name">OMNT_Notification</string>
+    <string name="channel_description">Notification channel for Open Mobile Network Toolkit</string>
 </resources>

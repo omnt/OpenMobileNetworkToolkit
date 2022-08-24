@@ -23,6 +23,8 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE_PERMISSION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
@@ -42,6 +44,8 @@
             <meta-data android:name="android.service.carrier.LONG_LIVED_BINDING"
                 android:value="true" />
         </service>
+        <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService"
+            android:foregroundServiceType="location"/>
         <activity
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity"
             android:exported="true"
