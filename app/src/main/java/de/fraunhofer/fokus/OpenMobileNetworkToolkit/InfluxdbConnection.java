@@ -17,12 +17,12 @@ import com.influxdb.client.write.Point;
 
 
 public class InfluxdbConnection {
+    // todo read this from app settings
     private static final char[] token = "TJM4ZjsoUwsiHC1Zr_hz__oa83VAKTRvfqfeg_4BEGhyb6ox_MthgA0RZzJ1odLLmGgWVgteHXRXAP_qUJL4Gw==".toCharArray();
     private static String org = "hoelle";
     private static String bucket = "97542ee36889738b";
     private InfluxDBClient influxDBClient;
     private WriteApi writeApi;
-
 
     public boolean connect() {
         influxDBClient = InfluxDBClientFactory.create("http://10.79.30.6:8086", token, org, bucket);

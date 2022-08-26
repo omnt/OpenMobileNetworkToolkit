@@ -88,7 +88,7 @@ public class HomeFragment extends Fragment implements LocationListener{
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        InfluxdbConnection ic = new InfluxdbConnection();
+
 
 
         boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
