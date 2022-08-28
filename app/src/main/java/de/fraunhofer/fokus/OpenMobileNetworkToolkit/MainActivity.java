@@ -268,6 +268,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.iperf3) {
             navController.navigate(R.id.fragment_iperf3_input);
         }
+        else if (id == R.id.settings){
+            navController.navigate(R.id.settingsFragment);
+        }
         return super.onOptionsItemSelected(item);
     }
 
