@@ -1,23 +1,18 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="@string/messages_header">
+    <PreferenceCategory app:title="Application Settings"
+        android:icon="@drawable/ic_baseline_app_settings_alt_24">
 
-        <EditTextPreference
-            app:key="signature"
-            app:title="@string/signature_title"
-            app:useSimpleSummaryProvider="true" />
-
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
+      <SwitchPreferenceCompat
+          android:key = "carrierPermission"
+          app:title="Carrier Permission"
+          />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sync_header">
+    <PreferenceCategory app:title="Log Settings"
+        android:icon="@drawable/ic_baseline_code_24">
 
         <SwitchPreferenceCompat
             app:key="sync"
@@ -30,6 +25,290 @@
             app:summaryOn="@string/attachment_summary_on"
             app:title="@string/attachment_title" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="5G Features"
+        android:icon="@drawable/ic_baseline_5g_24">
+
+        <SwitchPreferenceCompat
+            app:key = "5GSlicing"
+            app:title="5G Slicing Feature" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Flags"
+        android:icon="@drawable/ic_baseline_outlined_flag_24">
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="buildVersionR"
+            android:title="Build.VERSION_CODES.R" />
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_1"
+            android:title="Video Calling Fallback"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_2"
+            android:title="Carrier Default WFC IMS "
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_3"
+            android:title="Hide LTE Plus Data Icon"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_4"
+            android:title="World Mode Enabled"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_5"
+            android:title="Carrier RCS Provisioning Required"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_6"
+            android:title="Show IMS Registration Status"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_7"
+            android:title="Editable WFC Roaming Mode"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_8"
+            android:title="Carrier Default WFC IMS Enabled"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_9"
+            android:title="Carrier Volte overrride WFC Provisioning"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_10"
+            android:title="KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY"
+            android:summary="Change to EditText"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_11"
+            android:title="KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY"
+            android:summary="Change to EditText"
+            android:dependency="buildVersionR"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_12"
+            android:title="KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL"
+            android:dependency="buildVersionR"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="buildVersionS"
+            android:title="Build.VERSION_CODES.S" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_13"
+            android:title="KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL"
+            android:dependency="buildVersionS"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_14"
+            android:title="KEY_HIDE_ENABLE_2G"
+            android:dependency="buildVersionS"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="switch_preference_15"
+            android:title="KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL"
+            android:dependency="buildVersionS"/>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="buildVersion0MR1"
+            android:title="Build.VERSION_CODES.0_MR1" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_17"
+            android:title="KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_18"
+            android:title="KEY_PREFER_2G_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_19"
+            android:title="KEY_CARRIER_SETTINGS_ENABLE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_20"
+            android:title="KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_21"
+            android:title="KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_22"
+            android:title="KEY_EDITABLE_ENHANCED_4G_LTE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_23"
+            android:title="KEY_CARRIER_VOLTE_AVAILABLE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_24"
+            android:title="KEY_CARRIER_VOLTE_PROVISIONING_REQUIRED_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_25"
+            android:title="KEY_CARRIER_VOLTE_PROVISIONED_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_26"
+            android:title="KEY_CARRIER_VT_AVAILABLE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_27"
+            android:title="KEY_CARRIER_VOLTE_TTY_SUPPORTED_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_28"
+            android:title="KEY_HIDE_ENHANCED_4G_LTE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_29"
+            android:title="KEY_HIDE_CARRIER_NETWORK_SETTINGS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_30"
+            android:title="KEY_HIDE_IMS_APN_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_31"
+            android:title="KEY_HIDE_PREFERRED_NETWORK_TYPE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_32"
+            android:title="KEY_HIDE_PRESET_APN_DETAILS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_33"
+            android:title="KEY_HIDE_SIM_LOCK_SETTINGS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_34"
+            android:title="KEY_ALLOW_ADDING_APNS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_35"
+            android:title="KEY_APN_EXPAND_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_36"
+            android:title="KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_37"
+            android:title="KEY_CARRIER_IMS_GBA_REQUIRED_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_38"
+            android:title="KEY_REQUIRE_ENTITLEMENT_CHECKS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_39"
+            android:title="KEY_VOLTE_REPLACEMENT_RAT_INT"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_40"
+            android:title="KEY_CARRIER_USE_IMS_FIRST_FOR_EMERGENCY_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_41"
+            android:title="KEY_AUTO_RETRY_ENABLED_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_42"
+            android:title="KEY_WORLD_PHONE_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_43"
+            android:title="KEY_SUPPORT_PAUSE_IMS_VIDEO_CALLS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_44"
+            android:title="KEY_CARRIER_UT_PROVISIONING_REQUIRED_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_45"
+            android:title="KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_46"
+            android:title="KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_47"
+            android:title="KEY_SUPPORT_EMERGENCY_SMS_OVER_IMS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_48"
+            android:title="KEY_CARRIER_DEFAULT_WFC_IMS_MODE_INT"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_49"
+            android:title="KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_50"
+            android:title="KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_51"
+            android:title="READ_PRECISE_PHONE_STATE"
+            android:dependency="buildVersion0MR1"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="switch_preference_51"
+            android:title="READ_PHONE_STATE"
+            android:dependency="buildVersion0MR1"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
