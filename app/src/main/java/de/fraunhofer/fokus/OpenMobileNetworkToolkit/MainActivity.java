@@ -8,71 +8,65 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
-import android.app.Notification;
+import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.appcompat.widget.Toolbar;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.ActivityMainBinding;
+import androidx.preference.PreferenceManager;
 
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
     public TelephonyManager tm;
     public PackageManager pm;
-    protected LocationManager lm;
-    protected LocationListener locationListener;
     protected Context context;
-
+    SharedPreferences sp;
+    SharedPreferences.OnSharedPreferenceChangeListener listener;
 
     public boolean cp = false;
     public boolean feature_telephony = false;
+
+    Intent loggingServiceIntent;
+
 
     private static final String TAG = "MainActivity";
     public final static int Overlay_REQUEST_CODE = 251;
     NavController navController;
     private AppBarConfiguration appBarConfiguration;
 
+
+
     //@SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
         pm = getPackageManager();
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
@@ -105,11 +99,28 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.createNotificationChannel(channel);
 
 
-        Intent intent = new Intent(this, LoggingService.class);
+        loggingServiceIntent = new Intent(this, LoggingService.class);
         Context context = getApplicationContext();
-        Log.d(TAG, "Start logging service");
-        context.startForegroundService(intent);
+        if (sp.getBoolean("enable_influx", false)) {
+            Log.d(TAG, "Start logging service");
+            context.startForegroundService(loggingServiceIntent);
+        }
 
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                if (Objects.equals(key, "enable_influx")) {
+                    if (prefs.getBoolean(key, false)) {
+                        Log.i(TAG, "Start logging service");
+                        context.startForegroundService(loggingServiceIntent);
+                    } else {
+                        Log.i(TAG, "Stop logging service");
+                        context.stopService(loggingServiceIntent);
+                    }
+                }
+            }
+        };
+
+        sp.registerOnSharedPreferenceChangeListener(listener);
 
         // check permissions
         // todo handle waiting for permissions
@@ -212,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
         }*/
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -219,14 +231,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-
-    public String getString(Context context, String key,
-                            String defaultValue) {
-        return context.getSharedPreferences("config", Context.MODE_PRIVATE)
-                .getString(key, defaultValue);
-    }
-
-    public ComponentName getComponentName(Context context) {
+     public ComponentName getComponentName(Context context) {
         return new ComponentName(context.getApplicationContext(), NetworkCallback.class);
     }
 
@@ -352,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     public void NoCarrierToast() {
         Toast.makeText(this, "Carrier Permissions needed for this", Toast.LENGTH_LONG).show();
     }
@@ -372,6 +378,7 @@ public class MainActivity extends AppCompatActivity {
             openFloatingWindow();
         }
     }
+
 
     private void openFloatingWindow() {
         Intent intent = new Intent(getApplicationContext(), DebuggerService.class);

@@ -13,6 +13,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -32,10 +33,11 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
-import java.util.List;
+import androidx.preference.PreferenceManager;
 
 import com.influxdb.client.write.Point;
+
+import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 
@@ -50,7 +52,10 @@ public class LoggingService extends Service {
     private Handler notificationHandler;
     private Handler influxHandler;
     InfluxdbConnection ic;
-    DataCollector dc;
+    DataProvider dc;
+    SharedPreferences sp;
+
+
 
     @Override
     public void onCreate() {
@@ -61,14 +66,10 @@ public class LoggingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG_LOGGING_SERVICE, "Start logging service.");
-        // todo only initialice if settings are set and enabled
-        ic = new InfluxdbConnection();
-        ic.connect();
-
-        dc = new DataCollector(this);
-
+        dc = new DataProvider(this);
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -85,11 +86,10 @@ public class LoggingService extends Service {
         builder =
                 new NotificationCompat.Builder(this, "OMNT_notification_channel")
                         .setContentTitle(getText(R.string.loggin_notifaction))
-                        .setContentText("5G, >9000dbm, 1337 Gbit")
+                        .setContentText("No Cell Information available")
                         .setSmallIcon(R.mipmap.ic_launcher_foreground)
                         .setColor(Color.WHITE)
                         .setContentIntent(pendingIntent)
-                        .setTicker("tick tick tick")
                         // prevent to swipe the notification away
                         .setOngoing(true)
                         // don't wait 10 seconds to show the notification
@@ -103,6 +103,13 @@ public class LoggingService extends Service {
         notificationHandler.postDelayed(notification_updater, 1000);
 
         // todo add setting to enable / disable influx output
+        String url = sp.getString("influx_URL", null);
+        String org = sp.getString("influx_org", null);
+        String bucket = sp.getString("influx_bucket", null);
+        String token = sp.getString("influx_token", null);
+
+        ic = new InfluxdbConnection(url, token, org, bucket);
+        ic.connect();
         influxHandler = new Handler(Looper.myLooper());
         influxHandler.postDelayed(influxUpdate, 1000);
 
@@ -117,14 +124,12 @@ public class LoggingService extends Service {
             String PCI = "1337";
             String CI = "2342";
             for (CellInfo ci:cil) {
-                if (ci.isRegistered()) {
+                if (ci.isRegistered()) { //we only care for the serving cell
                     OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
                     CellInfoLte ciLTE = (CellInfoLte) ci;
                     PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
                     CI = String.valueOf(ciLTE.getCellIdentity().getCi());
 
-                } else {
-                    //Log.d(TAG_LOGGING_SERVICE, String.valueOf(ci.getCellConnectionStatus()));
                 }
             }
 
@@ -141,7 +146,7 @@ public class LoggingService extends Service {
             if (ic != null){
 
                 // write network information
-                if (true) { // use settings here
+                if (sp.getBoolean("influx_network_data", false)) {
                     Point point = new Point("NetworkInformation");
                     NetworkInformation ni = dc.GetNetworkInformation();
                     point.addField("NetworkOperatorName", ni.getNetworkOperatorName());
@@ -153,14 +158,14 @@ public class LoggingService extends Service {
                     ic.writePoint(point);
                 }
                 // write signal strength information
-                if (true) { // user settings here
+                if (sp.getBoolean("influx_signal_data", false)) { // user settings here
                     Point point = new Point("SignalStrength");
                     SignalStrength ss = dc.getSignalStrength();
                     point.addField("Level", ss.getLevel());
                     ic.writePoint(point);
                 }
                 // write cell information
-                if (true) {
+                if (sp.getBoolean("influx_cell_data", false)) {
                     Point point = new Point("CellInformation");
                     List<CellInfo> cil = dc.getCellInfo();
                     for (CellInfo ci:cil) {
@@ -216,11 +221,15 @@ public class LoggingService extends Service {
         super.onDestroy();
         Log.d(TAG_LOGGING_SERVICE, "Stop logging service.");
 
+
         // Stop foreground service and remove the notification.
         stopForeground(true);
 
         // Stop the foreground service.
         stopSelf();
+        influxHandler.removeCallbacks(influxUpdate);
+        ic.disconnect();
+
     }
 
     @Nullable

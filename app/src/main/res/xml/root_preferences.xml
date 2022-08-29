@@ -11,19 +11,49 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Log Settings"
+    <PreferenceCategory app:title="Logging Settings"
         android:icon="@drawable/ic_baseline_code_24">
 
         <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
+            app:dependency="influx_URL"
+            app:key="enable_influx"
+            app:title="@string/enable_influx" />
+
+        <EditTextPreference
+            app:key="influx_URL"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="@string/influx_url_dialog_title"
+            app:title="@string/influx_url" />
+
+        <EditTextPreference
+            app:key="influx_org"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="@string/influx_org_dialog_title"
+            app:title="@string/influx_org" />
+
+        <EditTextPreference
+            app:key="influx_token"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="@string/influx_token_dialog_title"
+            app:title="@string/influx_token" />
+
+        <EditTextPreference
+            app:key="influx_bucket"
+            app:useSimpleSummaryProvider="true"
+            android:dialogTitle="@string/influx_bucket_dialog_title"
+            app:title="@string/influx_bucket" />
 
         <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
+            app:key="influx_network_data"
+            app:title="@string/influx_network_data" />
+
+        <SwitchPreferenceCompat
+            app:key="influx_cell_data"
+            app:title="@string/influx_cell_data" />
+
+        <SwitchPreferenceCompat
+            app:key="influx_signal_data"
+            app:title="@string/influx_signal_data" />
 
     </PreferenceCategory>
 

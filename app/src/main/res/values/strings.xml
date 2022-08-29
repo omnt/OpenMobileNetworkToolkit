@@ -59,11 +59,19 @@
     <string name="signature_title">Your signature</string>
     <string name="reply_title">Default reply action</string>
 
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
->>>>>>> main
+    <!-- Logging Preferences -->
+    <string name="enable_influx">Log to an InfluxDB 2x</string>
+    <string name="influx_url">InfluxDB instance URL / IP</string>
+    <string name="influx_url_dialog_title">Set InfluxDB 2.x instance URL / IP</string>
+    <string name="influx_org">InfluxDB Organization</string>
+    <string name="influx_org_dialog_title">Set InfluxDB Organization</string>
+    <string name="influx_token">Influx Token</string>
+    <string name="influx_token_dialog_title">Set InfluxDB Token</string>
+    <string name="influx_network_data">log network information</string>
+    <string name="influx_cell_data">log cell information</string>
+    <string name="influx_signal_data">log only signal information</string>
+    <string name="influx_bucket">Influx Bucket</string>
+    <string name="influx_bucket_dialog_title">Set InfluxDB Bucket</string>
+
+
 </resources>

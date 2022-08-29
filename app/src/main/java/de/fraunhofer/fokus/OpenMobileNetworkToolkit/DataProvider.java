@@ -25,7 +25,7 @@ import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 
-public class DataCollector {
+public class DataProvider {
     private CarrierConfigManager ccm;
     private ConnectivityManager cm;
     private ConnectivityManager connectivityManager;
@@ -38,7 +38,7 @@ public class DataCollector {
     private Context ct;
 
 
-    public DataCollector(Context context) {
+    public DataProvider(Context context) {
         ct = context;
         pm = ct.getPackageManager();
         lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
