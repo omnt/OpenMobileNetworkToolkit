@@ -69,9 +69,9 @@ public class SlicingSetup extends Fragment {
         });
 
 
-        //View view = binding.getRoot();
-        //return view;
-        return inflater.inflate(R.layout.fragment_slicingsetup, parent,false);
+        View view = binding.getRoot();
+        return view;
+        //return inflater.inflate(R.layout.fragment_slicingsetup, parent,false);
     }
 
     @SuppressLint("MissingPermission")

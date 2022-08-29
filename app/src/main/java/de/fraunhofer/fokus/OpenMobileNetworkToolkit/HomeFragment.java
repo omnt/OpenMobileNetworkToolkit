@@ -226,11 +226,6 @@ public class HomeFragment extends Fragment implements LocationListener{
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.d("Latitude","status");
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
     }

@@ -30,6 +30,10 @@
         <action
             android:id="@+id/action_HomeFragment_to_iperf3Fragment"
             app:destination="@id/fragment_iperf3_input" />
+        <action
+            android:id="@+id/action_HomeFragment_to_settings_fragment"
+            app:destination="@+id/settingsFragment"
+            />
 
     </fragment>
     <fragment
@@ -60,5 +64,9 @@
             android:id="@+id/action_fragment_iperf3_input_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingsFragment"
+        android:label="SettingsFragment" />
 
 </navigation>
