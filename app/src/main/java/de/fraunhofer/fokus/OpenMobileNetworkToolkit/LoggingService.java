@@ -38,11 +38,12 @@ import androidx.preference.PreferenceManager;
 import com.influxdb.client.write.Point;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 
 public class LoggingService extends Service {
-    private static final String TAG_LOGGING_SERVICE = "Logging_Service";
+    private static final String TAG = "Logging_Service";
     public TelephonyManager tm;
     public PackageManager pm;
     public boolean feature_telephony = false;
@@ -54,18 +55,18 @@ public class LoggingService extends Service {
     InfluxdbConnection ic;
     DataProvider dc;
     SharedPreferences sp;
-
+    SharedPreferences.OnSharedPreferenceChangeListener listener;
 
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG_LOGGING_SERVICE, "i");
+        Log.d(TAG, "Logging service created");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG_LOGGING_SERVICE, "Start logging service.");
+        Log.d(TAG, "Start logging service.");
         dc = new DataProvider(this);
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
@@ -86,7 +87,6 @@ public class LoggingService extends Service {
         builder =
                 new NotificationCompat.Builder(this, "OMNT_notification_channel")
                         .setContentTitle(getText(R.string.loggin_notifaction))
-                        .setContentText("No Cell Information available")
                         .setSmallIcon(R.mipmap.ic_launcher_foreground)
                         .setColor(Color.WHITE)
                         .setContentIntent(pendingIntent)
@@ -95,14 +95,56 @@ public class LoggingService extends Service {
                         // don't wait 10 seconds to show the notification
                         .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
 
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                if (Objects.equals(key, "enable_influx")) {
+                    if (prefs.getBoolean(key,false)) {
+                        setupInfluxDB();
+                    } else {
+                        stopInfluxDB();
+                    }
+                } else if (Objects.equals(key, "enable_notification_update")) {
+                    if (prefs.getBoolean(key, false)) {
+                        setupNotificationUpdate();
+                    } else {
+                        stopNotificationUpdate();
+                    }
+                }
+            }
+        };
+        sp.registerOnSharedPreferenceChangeListener(listener);
+
+
+
         // Start foreground service.
         startForeground(1, builder.build());
 
-        // todo add setting to enable / disable notification update
-        notificationHandler = new Handler(Looper.myLooper());
-        notificationHandler.postDelayed(notification_updater, 1000);
+        if (sp.getBoolean("enable_notification_update", false)) {
+            setupNotificationUpdate();
+        }
 
-        // todo add setting to enable / disable influx output
+        if (sp.getBoolean("enable_influx", false)) {
+            setupInfluxDB();
+        }
+
+        return START_STICKY;
+    }
+
+    private void setupNotificationUpdate() {
+        Log.d(TAG, "setupNotificationUpdate");
+        notificationHandler = new Handler(Looper.myLooper());
+        notificationHandler.post(notification_updater);
+    }
+
+    private void stopNotificationUpdate() {
+        Log.d(TAG, "stopNotificationUpdate");
+        notificationHandler.removeCallbacks(notification_updater);
+        builder.setContentText(null);
+        nm.notify(1, builder.build());
+    }
+
+    private void setupInfluxDB() {
+        Log.d(TAG, "setupInfluxDB");
         String url = sp.getString("influx_URL", null);
         String org = sp.getString("influx_org", null);
         String bucket = sp.getString("influx_bucket", null);
@@ -111,9 +153,13 @@ public class LoggingService extends Service {
         ic = new InfluxdbConnection(url, token, org, bucket);
         ic.connect();
         influxHandler = new Handler(Looper.myLooper());
-        influxHandler.postDelayed(influxUpdate, 1000);
+        influxHandler.post(influxUpdate);
+    }
 
-        return START_STICKY;
+    private void stopInfluxDB() {
+        Log.d(TAG, "stopInfluxDB");
+        influxHandler.removeCallbacks(influxUpdate);
+        ic.disconnect();
     }
 
     private Runnable notification_updater = new Runnable() {
@@ -210,7 +256,7 @@ public class LoggingService extends Service {
 
                 influxHandler.postDelayed(this,1000);
             } else {
-                Log.d(TAG_LOGGING_SERVICE, "influx not initialized");
+                Log.d(TAG, "influx not initialized");
             }
         }
     };
@@ -219,7 +265,7 @@ public class LoggingService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG_LOGGING_SERVICE, "Stop logging service.");
+        Log.d(TAG, "Stop logging service.");
 
 
         // Stop foreground service and remove the notification.
@@ -227,9 +273,9 @@ public class LoggingService extends Service {
 
         // Stop the foreground service.
         stopSelf();
-        influxHandler.removeCallbacks(influxUpdate);
-        ic.disconnect();
-
+        if (sp.getBoolean("enable_influx", false)) {
+            stopInfluxDB();
+        }
     }
 
     @Nullable

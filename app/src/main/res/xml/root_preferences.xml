@@ -15,6 +15,19 @@
         android:icon="@drawable/ic_baseline_code_24">
 
         <SwitchPreferenceCompat
+            app:key="enable_logging"
+            app:title="@string/enable_loggin" />
+
+        <SwitchPreferenceCompat
+            app:key="enable_notification_update"
+            app:title="@string/enable_notification_update"
+            app:summary="@string/enable_notification_update_summary"/>
+
+        <SwitchPreferenceCompat
+            app:key="enable_local_log"
+            app:title="@string/enable_local_log" />
+
+        <SwitchPreferenceCompat
             app:dependency="influx_URL"
             app:key="enable_influx"
             app:title="@string/enable_influx" />

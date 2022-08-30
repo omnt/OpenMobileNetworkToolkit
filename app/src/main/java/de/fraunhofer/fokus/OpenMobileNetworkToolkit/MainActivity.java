@@ -101,14 +101,14 @@ public class MainActivity extends AppCompatActivity {
 
         loggingServiceIntent = new Intent(this, LoggingService.class);
         Context context = getApplicationContext();
-        if (sp.getBoolean("enable_influx", false)) {
+        if (sp.getBoolean("enable_logging", false)) {
             Log.d(TAG, "Start logging service");
             context.startForegroundService(loggingServiceIntent);
         }
 
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (Objects.equals(key, "enable_influx")) {
+                if (Objects.equals(key, "enable_logging")) {
                     if (prefs.getBoolean(key, false)) {
                         Log.i(TAG, "Start logging service");
                         context.startForegroundService(loggingServiceIntent);
