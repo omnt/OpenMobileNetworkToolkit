@@ -5,8 +5,8 @@
         android:icon="@drawable/ic_baseline_app_settings_alt_24">
 
       <SwitchPreferenceCompat
-          android:key = "carrierPermission"
-          app:title="Carrier Permission"
+          android:key = "carrier_Permission"
+          app:title="@string/carrier_permissions"
           />
 
     </PreferenceCategory>
