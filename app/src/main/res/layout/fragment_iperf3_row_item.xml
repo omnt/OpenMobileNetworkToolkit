@@ -5,13 +5,18 @@
     android:padding="3dip"
     >
 
+
     <TextView
         android:id="@+id/firstLine"
-        android:layout_width="fill_parent"
+        android:layout_width="288dp"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="117dp"
         android:gravity="center_vertical"
         android:text="Example application"
         android:textSize="16sp" />
@@ -38,11 +43,23 @@
         android:maxLines="1"
         android:text="Timestamp" />
 
+    <TextView
+        android:id="@+id/iperf3State"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/firstLine"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="48dp"
+        android:layout_marginRight="-72dp"
+        android:ellipsize="marquee"
+        android:maxLines="1"
+        android:text="State" />
+
     <ImageView
         android:id="@+id/runningIndicator"
         android:layout_width="23dp"
         android:layout_height="23dp"
-        android:layout_alignRight="@id/firstLine"
+        android:layout_alignRight="@id/iperf3State"
         app:srcCompat="@drawable/ic_error_outline" />
 
 
