@@ -16,31 +16,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.telephony.CellIdentityLte;
 import android.telephony.CellInfo;
-import android.telephony.CellInfoCdma;
-import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
-import android.telephony.CellInfoNr;
-import android.telephony.CellSignalStrengthLte;
-import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
+import androidx.room.Room;
 
 import com.influxdb.client.write.Point;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
@@ -51,12 +44,14 @@ public class LoggingService extends Service {
     public NotificationManager nm;
     NotificationCompat.Builder builder;
     private Handler notificationHandler;
-    private Handler influxHandler;
+    private Handler loggingHandler;
     InfluxdbConnection ic;
     DataProvider dc;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
-
+    LocalLogDatabase db;
+    List<InfluxPointEntry> points;
+    PointDao pointDao;
 
     @Override
     public void onCreate() {
@@ -95,6 +90,7 @@ public class LoggingService extends Service {
                         // don't wait 10 seconds to show the notification
                         .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
 
+        // create preferences listener
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 if (Objects.equals(key, "enable_influx")) {
@@ -113,7 +109,6 @@ public class LoggingService extends Service {
             }
         };
         sp.registerOnSharedPreferenceChangeListener(listener);
-
 
 
         // Start foreground service.
@@ -152,112 +147,102 @@ public class LoggingService extends Service {
 
         ic = new InfluxdbConnection(url, token, org, bucket);
         ic.connect();
-        influxHandler = new Handler(Looper.myLooper());
-        influxHandler.post(influxUpdate);
+        loggingHandler = new Handler(Looper.myLooper());
+        loggingHandler.post(loggingUpdate);
     }
 
     private void stopInfluxDB() {
         Log.d(TAG, "stopInfluxDB");
-        influxHandler.removeCallbacks(influxUpdate);
+
+        loggingHandler.removeCallbacks(loggingUpdate);
         ic.disconnect();
     }
+
+    private void setupLocalLog() {
+        db = Room.databaseBuilder(getApplicationContext(),
+                LocalLogDatabase.class, "OMNT-Log").build();
+        pointDao = db.PointDao();
+    }
+
+    private void stopLocalLog(){
+
+    }
+
+    private Runnable localLogUpdate = new Runnable() {
+        @Override
+        public void run() {
+            long ts = System.currentTimeMillis() / 1000L;
+            // write network information
+            if (sp.getBoolean("influx_network_data", false)) {
+                pointDao.insertAll(new InfluxPointEntry(ts, dc.getNetworkInformationPoint()));
+            }
+            // write signal strength information
+            if (sp.getBoolean("influx_signal_data", false)) { // user settings here
+                ic.writePoint(dc.getSignalStrengthPoint());
+            }
+            // write cell information
+            if (sp.getBoolean("influx_cell_data", false)) {
+                ic.writePoint(dc.getCellInfoPoint());
+            }
+            // always add location information
+            ic.writePoint(dc.getLocationPoint());
+
+            loggingHandler.postDelayed(this,1000);
+
+        }
+    };
 
     private Runnable notification_updater = new Runnable() {
         @Override
         public void run() {
             List<CellInfo> cil = dc.getCellInfo();
-            String OperatorName = "OMNT";
-            String PCI = "1337";
-            String CI = "2342";
+            String OperatorName = "Not registered";
+            String PCI = "";
+            String CI = "";
             for (CellInfo ci:cil) {
                 if (ci.isRegistered()) { //we only care for the serving cell
                     OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
                     CellInfoLte ciLTE = (CellInfoLte) ci;
                     PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
                     CI = String.valueOf(ciLTE.getCellIdentity().getCi());
-
                 }
             }
-
             builder.setContentText(new StringBuilder().append(OperatorName).append(" PCI: ").append(PCI).append(" CI: ").append(CI));
             nm.notify(1, builder.build());
-            // disabled for now as it wakes the screen
             notificationHandler.postDelayed(this,100000);
         }
     };
 
-    private Runnable influxUpdate = new Runnable() {
+    private Runnable loggingUpdate = new Runnable() {
         @Override
         public void run() {
-            if (ic != null){
-
-                // write network information
-                if (sp.getBoolean("influx_network_data", false)) {
-                    Point point = new Point("NetworkInformation");
-                    NetworkInformation ni = dc.GetNetworkInformation();
-                    point.addField("NetworkOperatorName", ni.getNetworkOperatorName());
-                    point.addField("NetworkSpecifier",ni.getNetworkSpecifier());
-                    point.addField("SimOperatorName", ni.getSimOperatorName());
-                    point.addField("DataState", ni.getDataState());
-                    point.addField("PhoneType", ni.getPhoneType());
-                    point.addField("PreferredOpportunisticDataSubscriptionId", ni.getPreferredOpportunisticDataSubscriptionId());
-                    ic.writePoint(point);
-                }
-                // write signal strength information
-                if (sp.getBoolean("influx_signal_data", false)) { // user settings here
-                    Point point = new Point("SignalStrength");
-                    SignalStrength ss = dc.getSignalStrength();
-                    point.addField("Level", ss.getLevel());
-                    ic.writePoint(point);
-                }
-                // write cell information
-                if (sp.getBoolean("influx_cell_data", false)) {
-                    Point point = new Point("CellInformation");
-                    List<CellInfo> cil = dc.getCellInfo();
-                    for (CellInfo ci:cil) {
-                        point.addField("OperatorAlphaLong", (String) ci.getCellIdentity().getOperatorAlphaLong());
-                        if (ci instanceof CellInfoNr) {
-                            point.addField("CellType", "NR");
-                        }
-                        if (ci instanceof CellInfoLte) {
-                            CellInfoLte ciLTE = (CellInfoLte) ci;
-                            CellIdentityLte ciLTEId= ciLTE.getCellIdentity();
-                            point.addField("CellType", "LTE");
-                            point.addField("Bands", ciLTEId.getBands().toString());
-                            point.addField("Bandwidth", ciLTEId.getBandwidth());
-                            point.addField("CI",ciLTEId.getCi());
-                            point.addField("EARFCN", ciLTEId.getEarfcn());
-                            point.addField("MNC", ciLTEId.getMncString());
-                            point.addField("PCI", ciLTEId.getPci());
-                            point.addField("TAC", ciLTEId.getTac());
-                            CellSignalStrengthLte ssLTE = ciLTE.getCellSignalStrength();
-                            point.addField("CQI", ssLTE.getCqi());
-                            point.addField("RSRP", ssLTE.getRsrp());
-                            point.addField("RSRQ", ssLTE.getRsrq());
-                            point.addField("RSSI", ssLTE.getRssi());
-                            point.addField("RSSNR", ssLTE.getRssnr());
-                        }
-                        if (ci instanceof CellInfoCdma) {
-                            point.addField("CellType", "CDMA");
-                        }
-                        if (ci instanceof CellInfoGsm) {
-                            point.addField("CellType", "GSM");
-                        }
-                    }
-                    ic.writePoint(point);
-                }
-                Point point = new Point("Location");
-                Location loc = dc.getLocation();
-                point.addField("longitude", loc.getLongitude());
-                point.addField("latitude", loc.getLatitude());
-                point.addField("altitude", loc.getAltitude());
-                point.addField("speed", loc.getSpeed());
-                ic.writePoint(point);
-
-                influxHandler.postDelayed(this,1000);
-            } else {
-                Log.d(TAG, "influx not initialized");
+            List<Point> points = new ArrayList<Point>();
+            if (sp.getBoolean("influx_network_data", false)) {
+                points.add(dc.getNetworkInformationPoint());
             }
+            if (sp.getBoolean("influx_signal_data", false)) {
+                points.add(dc.getSignalStrengthPoint());
+            }
+            if (sp.getBoolean("influx_cell_data", false)) {
+                points.add(dc.getCellInfoPoint());
+            }
+            points.add(dc.getLocationPoint());
+
+            if (sp.getBoolean("enable_influx", false)) {
+                for (Point point:points) {
+                    ic.writePoint(point);
+                }
+            }
+
+            if (sp.getBoolean("enable_local_log", false)) {
+                long ts = System.currentTimeMillis();
+                for (Point point:points) {
+
+                    // as we can't simply get the timestamp we use a new one. This should be handled nicer
+                    pointDao.insertAll(new InfluxPointEntry(ts, point));
+                }
+            }
+            loggingHandler.postDelayed(this,1000);
         }
     };
 
@@ -278,9 +263,11 @@ public class LoggingService extends Service {
         }
     }
 
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 }
+
