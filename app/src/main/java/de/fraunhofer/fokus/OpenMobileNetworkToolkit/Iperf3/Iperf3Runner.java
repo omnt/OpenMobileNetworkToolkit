@@ -24,6 +24,7 @@ public class Iperf3Runner implements Serializable {
     private String timestamp;
     private String state;
     private String logFilePath = null;
+    private int iperf3State;
 
     private transient Context context;
     private transient ThreadGroup iperf3TG;
@@ -37,9 +38,11 @@ public class Iperf3Runner implements Serializable {
     }
 
 
-    public String getState(){
+    public String getThreadState(){
         return this.state;
     }
+
+    public int getIperf3State() {return this.iperf3State;}
 
     public void checkState(){
         this.state = this.iperf3Thread.getState().toString();
@@ -70,7 +73,7 @@ public class Iperf3Runner implements Serializable {
     }
 
     private Runnable createRunable() {
-        return () -> iperf3Wrapper(command, context.getApplicationInfo().nativeLibraryDir);
+        return () -> this.iperf3State = iperf3Wrapper(command, context.getApplicationInfo().nativeLibraryDir);
     }
 
     public String getTimestamp(){
@@ -85,10 +88,6 @@ public class Iperf3Runner implements Serializable {
         this.timestamp = timestamp.toString();
         iperf3Thread.start();
         return 0;
-    }
-
-    public String getThreadState(){
-        return this.iperf3Thread.getState().toString();
     }
 
     @NonNull
