@@ -10,11 +10,11 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 
 
-
-@Database(entities = {InfluxPointEntry.class}, version = 1)
+@Database(entities = {CellInformation.class}, version = 1)
 abstract class LocalLogDatabase extends RoomDatabase {
-    public abstract PointDao PointDao();
+    //public abstract PointDao PointDao();
+    public abstract CellInfoDao CellInfoDao();
 }
-

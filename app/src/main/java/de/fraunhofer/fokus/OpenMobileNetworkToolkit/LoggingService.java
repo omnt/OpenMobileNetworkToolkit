@@ -161,7 +161,7 @@ public class LoggingService extends Service {
     private void setupLocalLog() {
         db = Room.databaseBuilder(getApplicationContext(),
                 LocalLogDatabase.class, "OMNT-Log").build();
-        pointDao = db.PointDao();
+        //pointDao = db.PointDao();
     }
 
     private void stopLocalLog(){
@@ -171,10 +171,10 @@ public class LoggingService extends Service {
     private Runnable localLogUpdate = new Runnable() {
         @Override
         public void run() {
-            long ts = System.currentTimeMillis() / 1000L;
+            long ts = System.currentTimeMillis();
             // write network information
             if (sp.getBoolean("influx_network_data", false)) {
-                pointDao.insertAll(new InfluxPointEntry(ts, dc.getNetworkInformationPoint()));
+                //pointDao.insertAll(new InfluxPointEntry(ts, dc.getNetworkInformationPoint()));
             }
             // write signal strength information
             if (sp.getBoolean("influx_signal_data", false)) { // user settings here
@@ -239,7 +239,7 @@ public class LoggingService extends Service {
                 for (Point point:points) {
 
                     // as we can't simply get the timestamp we use a new one. This should be handled nicer
-                    pointDao.insertAll(new InfluxPointEntry(ts, point));
+                    //pointDao.insertAll(new InfluxPointEntry(ts, point));
                 }
             }
             loggingHandler.postDelayed(this,1000);
