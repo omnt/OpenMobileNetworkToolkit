@@ -35,8 +35,15 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.gson.Gson;
 import com.influxdb.client.write.Point;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,7 +63,6 @@ public class LoggingService extends Service {
     DataProvider dc;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
-
 
     @Override
     public void onCreate() {
@@ -126,6 +132,7 @@ public class LoggingService extends Service {
         if (sp.getBoolean("enable_influx", false)) {
             setupInfluxDB();
         }
+
 
         return START_STICKY;
     }
@@ -261,6 +268,41 @@ public class LoggingService extends Service {
         }
     };
 
+    private Runnable influxIperf3Update = new Runnable() {
+        @Override
+        public void run() {
+            if (ic != null){
+                String path = getApplicationContext().getFilesDir().toString();
+                Log.d("influxIperf3Update", "Path: " + path);
+                File directory = new File(path);
+                FilenameFilter filter = (f, name) -> name.endsWith(".log");
+
+                File[] files = directory.listFiles(filter);
+/*                for (File from: files) {
+                    Log.d(TAG, "influxIperf3Update: "+from.getName());
+                    try {
+
+                        Point point = new Point("Iperf3");
+
+                        for (Iperf3JsonAsClass.Interval interval:data.intervals) {
+                            point.addField("Timestamp", interval.streams.get(0).end);
+                            point.addField("bits_per_second", interval.streams.get(0).bits_per_second);
+                        }
+                        ic.writePoint(point);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+*/
+
+
+                influxHandler.postDelayed(this,1000);
+            } else {
+                Log.d(TAG, "influx not initialized");
+            }
+        }
+    };
+
 
     @Override
     public void onDestroy() {
@@ -274,6 +316,10 @@ public class LoggingService extends Service {
         // Stop the foreground service.
         stopSelf();
         if (sp.getBoolean("enable_influx", false)) {
+            stopInfluxDB();
+        }
+
+        if (sp.getBoolean("enable_iperf3_update", false)) {
             stopInfluxDB();
         }
     }

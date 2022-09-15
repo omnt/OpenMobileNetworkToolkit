@@ -1,0 +1,111 @@
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
+
+import com.google.gson.Gson;
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxdbConnection;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Timestamp;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
+public class Iperf3UploadWorker extends Worker {
+    private static final String TAG = "Iperf3UploadWorker";
+    InfluxdbConnection influx;
+    private String logFilePath;
+    private String measurementName;
+    private String ip;
+
+    private String port;
+    private String bandwidth;
+    private String duration;
+    private String interval;
+    private String bytes;
+
+    private boolean rev;
+    private boolean biDir;
+    private boolean oneOff;
+    private boolean client;
+
+    public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+        logFilePath = getInputData().getString("logfilepath");
+
+        ip = getInputData().getString("ip");
+        measurementName = getInputData().getString("measurementName");
+
+        port = getInputData().getString("port");
+        bandwidth = getInputData().getString("bandwidth");
+        duration = getInputData().getString("duration");
+        interval = getInputData().getString("interval");
+        bytes = getInputData().getString("bytes");
+
+
+        rev = getInputData().getBoolean("rev", false);
+        biDir = getInputData().getBoolean("biDir",false);
+        oneOff = getInputData().getBoolean("oneOff",false);
+        client = getInputData().getBoolean("client",false);
+
+
+    }
+    private void setup(){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String url = sp.getString("influx_URL", null);
+        String org = sp.getString("influx_org", null);
+        String bucket = sp.getString("influx_bucket", null);
+        String token = sp.getString("influx_token", null);
+        influx = new InfluxdbConnection(url, token, org, bucket);
+    }
+    @NonNull
+    @Override
+    public Result doWork() {
+        setup();
+        if(!influx.connect()){
+            return Result.failure();
+        }
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(logFilePath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        Root iperf3AsJson = new Gson().fromJson(br, Root.class);
+        int timestamp = iperf3AsJson.start.timestamp.timesecs;
+        Point point = new Point(measurementName);
+        for (Interval interval: iperf3AsJson.intervals) {
+            point.addTag("IP", ip);
+            point.addTag("port", port);
+            point.addTag("duration", duration);
+
+            point.time((timestamp+interval.streams.get(0).end)*1000, WritePrecision.MS);
+            point.addField("bits_per_second", interval.streams.get(0).bitsPerSecond/1000/1000);
+            if(!influx.writePoint(point)){
+                return Result.failure();
+            }
+        }
+
+        influx.sendAll();
+        influx.disconnect();
+
+
+        return Result.success();
+    }
+}

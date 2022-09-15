@@ -25,11 +25,6 @@ public class Iperf3ListFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        if (savedInstanceState != null) {
-           listView.onRestoreInstanceState(savedInstanceState.getParcelable("ListState"));
-        }
         this.ids = getArguments().getStringArray("ids");
         iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(), this.ids);
 
@@ -46,6 +41,11 @@ public class Iperf3ListFragment extends Fragment {
 
         listView = v.findViewById(R.id.runners_list);
         listView.setAdapter(iperf3ListAdapter);
+
+
+        if (savedInstanceState != null) {
+            listView.onRestoreInstanceState(savedInstanceState.getParcelable("ListState"));
+        }
 
 
 

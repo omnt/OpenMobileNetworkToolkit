@@ -52,6 +52,7 @@ android {
 
 dependencies {
     implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.work:work-runtime:2.7.1'
     def nav_version = "2.5.1"
     implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'androidx.activity:activity:1.5.1'
