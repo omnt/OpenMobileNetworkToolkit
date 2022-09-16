@@ -1,7 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,7 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 
@@ -20,12 +20,13 @@ public class Iperf3ListFragment extends Fragment {
     ListView listView;
     Iperf3ListAdapter iperf3ListAdapter;
     private Iperf3DBHandler iperf3DBHandler;
-    String[] ids;
+    Iperf3Fragment.ListElem[] ids;
 
+    @RequiresApi(api = 33)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.ids = getArguments().getStringArray("ids");
+        this.ids = (Iperf3Fragment.ListElem[]) getArguments().getParcelableArray("iperf3List");
         iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(), this.ids);
 
     }
