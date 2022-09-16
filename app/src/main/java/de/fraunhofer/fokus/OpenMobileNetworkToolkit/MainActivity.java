@@ -38,6 +38,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
 
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                     if(prefs.getBoolean(key, false)) {
                         SRLog.d(TAG, "Carrier Permission Approved");
                         cp = tm.hasCarrierPrivileges();
-                        if(cp == true){
+                        if(cp){
                             Toast.makeText(context, "Carrier Permission Approved!", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(context,"Carrier Permissions Rejected!", Toast.LENGTH_SHORT).show();
