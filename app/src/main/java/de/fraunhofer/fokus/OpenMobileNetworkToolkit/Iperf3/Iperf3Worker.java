@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -22,13 +23,15 @@ public class Iperf3Worker extends Worker {
         cmd = getInputData().getStringArray("commands");
     }
 
+
     @NonNull
     @Override
     public Result doWork() {
         int result = iperf3Wrapper(cmd, getApplicationContext().getApplicationInfo().nativeLibraryDir);
         Log.d(TAG, "doWork: "+result);
+        Data output = new Data.Builder().putInt("iperf3_result", result).build();
         if (result == 0)
-            return Result.success();
-        return Result.failure();
+            return Result.success(output);
+        return Result.failure(output);
     }
 }

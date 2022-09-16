@@ -3,7 +3,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
@@ -13,26 +12,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Operation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.util.LinkedList;
 import java.util.List;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Fragment extends Fragment {
@@ -124,7 +119,6 @@ public class Iperf3Fragment extends Fragment {
 
         sendBtn.setOnClickListener(this::executeIperfCommand);
         instancesBtn.setOnClickListener(this::showInstances);
-        moveBtn.setOnClickListener(this::moveLogs);
 
         iperf3BiDir = v.findViewById(R.id.iperf_bidir);
         iperf3Reverse = v.findViewById(R.id.iperf3_reverse);
@@ -219,10 +213,27 @@ public class Iperf3Fragment extends Fragment {
         iperf3Data.putBoolean("oneOff", input.iperf3OneOff);
         iperf3Data.putBoolean("client", input.iperf3Client);
 
+
+
+
         OneTimeWorkRequest iperf3UP = new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class).setInputData(iperf3Data.build()).build();
+        OneTimeWorkRequest iperf3Move = new OneTimeWorkRequest.Builder(Iperf3MoveWorker.class).setInputData(iperf3Data.build()).build();
 
-        iperf3WM.beginWith(iperf3WR).then(iperf3UP).enqueue();
+        Operation op = iperf3WM.beginWith(iperf3WR)
+                .then(iperf3UP)
+                .then(iperf3Move)
+                .enqueue();
 
+
+
+
+        final Observer<WorkInfo> nameObserver = new Observer<WorkInfo>() {
+            @Override
+            public void onChanged(@Nullable final WorkInfo workInfo) {
+                Log.d(TAG, "onChanged1: "+workInfo.getOutputData().getInt("iperf3_result", -100));
+            }
+        };
+        iperf3WM.getWorkInfoByIdLiveData(iperf3WR.getId()).observe(getViewLifecycleOwner(), nameObserver);
     }
 
     private String getKeyFromId(String s, String value){
@@ -333,44 +344,6 @@ public class Iperf3Fragment extends Fragment {
 
     }
 
-    public static void copyDirectoryOneLocationToAnotherLocation(File sourceLocation, File targetLocation)
-            throws IOException {
-
-            InputStream in = new FileInputStream(sourceLocation);
-
-            OutputStream out = new FileOutputStream(targetLocation);
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            in.close();
-            out.close();
-    }
-
-
-    private void moveLogs(View v){
-        String path = getActivity().getApplicationContext().getFilesDir().toString();
-        Log.d("moveLogs", "Path: " + path);
-        File directory = new File(path);
-        FilenameFilter filter = (f, name) -> name.endsWith(".log");
-        File iperf3Path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/");
-        if (!iperf3Path.exists()) {
-            iperf3Path.mkdir();
-        }
-        File[] files = directory.listFiles(filter);
-        for (File from: files) {
-            File to = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
-            Log.d(TAG, "moveLogs: "+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/"+from.getName());
-            try {
-                copyDirectoryOneLocationToAnotherLocation(from, to);
-                from.delete();
-                Toast.makeText(getActivity().getApplicationContext(), "Moving Logs to "+"Documents/iperf3_logs/!", Toast.LENGTH_LONG).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     @Override
     public void onDestroy(){
