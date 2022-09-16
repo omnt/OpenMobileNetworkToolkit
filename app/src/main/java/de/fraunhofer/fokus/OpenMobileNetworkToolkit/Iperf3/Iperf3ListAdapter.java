@@ -50,11 +50,12 @@ public class Iperf3ListAdapter extends BaseAdapter {
         TextView command = (TextView) convertView.findViewById(R.id.firstLine);
         TextView runnerID = (TextView) convertView.findViewById(R.id.secondLine);
         TextView timestamp = (TextView) convertView.findViewById(R.id.thirdLine);
+        TextView iperf3State = (TextView) convertView.findViewById(R.id.iperf3State);
         ImageView icon = (ImageView) convertView.findViewById(R.id.runningIndicator);
 
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);;
 
-        switch (iperf3R.getState()){
+        switch (iperf3R.getThreadState()){
             case "NEW":
                 break;
             case "RUNNABLE":
@@ -70,6 +71,7 @@ public class Iperf3ListAdapter extends BaseAdapter {
                 break;
             case "TERMINATED":
                 drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all, null);
+                iperf3State.setText(Integer.toString(iperf3R.getIperf3State()));
                 break;
             default:
         }

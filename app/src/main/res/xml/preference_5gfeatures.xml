@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment">
+
+
+        <SwitchPreferenceCompat
+            app:key = "5GSlicing"
+            app:title="5G Slicing Feature" />
+
+</PreferenceScreen>
