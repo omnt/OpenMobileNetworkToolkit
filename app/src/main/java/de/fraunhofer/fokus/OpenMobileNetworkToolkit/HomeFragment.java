@@ -14,6 +14,7 @@ import android.content.Context;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -33,6 +34,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ public class HomeFragment extends Fragment implements LocationListener {
     public TelephonyManager tm;
     public PackageManager pm;
     public LocationManager lm;
+    SharedPreferences sharedPreferences;
 
 
     private boolean cp;
@@ -72,6 +75,8 @@ public class HomeFragment extends Fragment implements LocationListener {
             LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState
     ) {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Boolean carrierPermission = sharedPreferences.getBoolean("carrierPermission",false);
         ma = (MainActivity) getActivity();
         pm = ma.pm;
         feature_telephony = ma.feature_telephony;
