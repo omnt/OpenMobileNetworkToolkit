@@ -16,6 +16,7 @@ import com.influxdb.client.write.Point;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.concurrent.ExecutionException;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
@@ -72,25 +73,26 @@ public class Iperf3UploadWorker extends Worker {
     @Override
     public Result doWork() {
         setup();
+        Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
         if(!influx.connect()){
             return Result.failure();
         }
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(logFilePath));
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NullPointerException e) {
             e.printStackTrace();
+            return Result.failure(output);
         }
         Root iperf3AsJson = new Gson().fromJson(br, Root.class);
-        int timestamp = iperf3AsJson.start.timestamp.timesecs;
+        long timestamp = iperf3AsJson.start.timestamp.timesecs;
         Point point = new Point(measurementName);
-        Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
         for (Interval interval: iperf3AsJson.intervals) {
             point.addTag("IP", ip);
             point.addTag("port", port);
             point.addTag("duration", duration);
 
-            point.time((timestamp+interval.streams.get(0).end)*1000, WritePrecision.MS);
+            point.time((timestamp+Math.round(interval.streams.get(0).end))*1000, WritePrecision.MS);
             point.addField("bits_per_second", interval.streams.get(0).bitsPerSecond);
             if(!influx.writePoint(point)){
                 return Result.failure(output);

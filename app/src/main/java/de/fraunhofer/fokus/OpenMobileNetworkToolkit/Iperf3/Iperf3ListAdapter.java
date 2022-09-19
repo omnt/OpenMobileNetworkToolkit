@@ -59,10 +59,10 @@ public class Iperf3ListAdapter extends BaseAdapter {
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
 
-        command.setText(tmp.input.getMeasurementName());
-        runnerID.setText(String.valueOf(tmp.result));
-        timestamp.setText(Boolean.toString(tmp.moved));
-
+        command.setText("Measurement: "+tmp.input.getMeasurementName());
+        iperf3State.setText("Result:"+ tmp.result);
+        timestamp.setText("Moved: "+ !tmp.moved);
+        runnerID.setText("Uploaded: "+ !tmp.uploaded);
 /*
         switch (tmp..getThreadState()){
             case "NEW":

@@ -29,9 +29,13 @@ public class Iperf3Worker extends Worker {
     public Result doWork() {
         int result = iperf3Wrapper(cmd, getApplicationContext().getApplicationInfo().nativeLibraryDir);
         Log.d(TAG, "doWork: "+result);
-        Data output = new Data.Builder().putInt("iperf3_result", result).build();
+        Data.Builder output = new Data.Builder()
+                .putInt("iperf3_result", result);
         if (result == 0)
-            return Result.success(output);
-        return Result.failure(output);
+            return Result.success(output.build());
+        return Result.failure(output
+                .putBoolean("iperf3_upload", true)
+                .putBoolean("iperf3_move", true)
+                .build());
     }
 }
