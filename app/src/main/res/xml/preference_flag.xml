@@ -1,96 +1,8 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.FlagSettingFragment">
 
-    <PreferenceCategory app:title="Application Settings"
-        android:icon="@drawable/ic_baseline_app_settings_alt_24">
-
-      <SwitchPreferenceCompat
-          android:key = "carrier_Permission"
-          app:title="@string/carrier_permissions"
-          />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="Logging Settings"
-        android:icon="@drawable/ic_baseline_code_24">
-
-        <SwitchPreferenceCompat
-            app:key="enable_logging"
-            app:title="@string/enable_loggin" />
-
-        <SwitchPreferenceCompat
-            app:key="enable_notification_update"
-            app:title="@string/enable_notification_update"
-            app:summary="@string/enable_notification_update_summary"/>
-
-        <SwitchPreferenceCompat
-            app:key="enable_local_log"
-            app:title="@string/enable_local_log" />
-
-        <SwitchPreferenceCompat
-            app:dependency="influx_URL"
-            app:key="enable_influx"
-            app:title="@string/enable_influx" />
-
-        <EditTextPreference
-            app:key="influx_URL"
-            app:useSimpleSummaryProvider="true"
-            android:dialogTitle="@string/influx_url_dialog_title"
-            app:title="@string/influx_url" />
-
-        <EditTextPreference
-            app:key="influx_org"
-            app:useSimpleSummaryProvider="true"
-            android:dialogTitle="@string/influx_org_dialog_title"
-            app:title="@string/influx_org" />
-
-        <EditTextPreference
-            app:key="influx_token"
-            app:useSimpleSummaryProvider="true"
-            android:dialogTitle="@string/influx_token_dialog_title"
-            app:title="@string/influx_token" />
-
-        <EditTextPreference
-            app:key="influx_bucket"
-            app:useSimpleSummaryProvider="true"
-            android:dialogTitle="@string/influx_bucket_dialog_title"
-            app:title="@string/influx_bucket" />
-
-        <SwitchPreferenceCompat
-            app:key="influx_network_data"
-            app:title="@string/influx_network_data" />
-
-
-        <SwitchPreferenceCompat
-            app:key="influx_throughput_data"
-            app:title="@string/influx_throughput_data" />
-
-        <EditTextPreference
-            app:key="measurement_name"
-            app:useSimpleSummaryProvider="true"
-            app:title="@string/measurement" />
-
-        <SwitchPreferenceCompat
-            app:key="influx_cell_data"
-            app:title="@string/influx_cell_data" />
-
-        <SwitchPreferenceCompat
-            app:key="influx_signal_data"
-            app:title="@string/influx_signal_data" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="5G Features"
-        android:icon="@drawable/ic_baseline_5g_24">
-
-        <SwitchPreferenceCompat
-            app:key = "5GSlicing"
-            app:title="5G Slicing Feature" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="Flags"
-        android:icon="@drawable/ic_baseline_outlined_flag_24">
 
         <CheckBoxPreference
             android:defaultValue="true"
@@ -362,6 +274,7 @@
             android:key="switch_preference_51"
             android:title="READ_PHONE_STATE"
             android:dependency="buildVersion0MR1"/>
-    </PreferenceCategory>
+
+
 
 </PreferenceScreen>

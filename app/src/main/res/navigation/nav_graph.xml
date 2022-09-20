@@ -31,8 +31,8 @@
             android:id="@+id/action_HomeFragment_to_iperf3Fragment"
             app:destination="@id/fragment_iperf3_input" />
         <action
-            android:id="@+id/action_HomeFragment_to_settings_fragment"
-            app:destination="@+id/settingsFragment"
+            android:id="@+id/action_HomeFragment_to_settings_header_fragment"
+            app:destination="@+id/settingsHeaderFragment"
             />
 
     </fragment>
@@ -79,8 +79,52 @@
             app:destination="@id/fragment_iperf3_input" />
     </fragment>
     <fragment
+        android:id="@+id/settingsHeaderFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsHeaderFragment"
+        android:label="SettingsHeaderFragment">
+        <action
+            android:id="@+id/action_settingsFragment_to_settingsFragment2"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/features5gSettingFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment"
+        android:label="Features5gSettingFragment" />
+    <fragment
+        android:id="@+id/applicationSettingsFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"
+        android:label="ApplicationSettingsFragment"
+        tools:layout="@xml/preference_application">
+
+    </fragment>
+    <fragment
+        android:id="@+id/flagSettingFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.FlagSettingFragment"
+        android:label="FlagSettingFragment"
+        tools:layout="@xml/preference_flag"/>
+    <fragment
+        android:id="@+id/loggingSettingsFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"
+        android:label="LoggingSettingsFragment"
+        tools:layout="@xml/preference_logging"/>
+    <fragment
         android:id="@+id/settingsFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingsFragment"
-        android:label="SettingsFragment" />
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment"
+        android:label="SettingsFragment"
+        tools:layout="@xml/preference">
+        <action
+            android:id="@+id/action_settingsFragment2_to_applicationSettingsFragment"
+            app:destination="@id/applicationSettingsFragment"
+            />
+        <action
+            android:id="@+id/action_settingsFragment2_to_features5gSettingFragment"
+            app:destination="@id/features5gSettingFragment" />
+        <action
+            android:id="@+id/action_settingsFragment2_to_flagSettingFragment"
+            app:destination="@id/flagSettingFragment" />
+        <action
+            android:id="@+id/action_settingsFragment2_to_loggingSettingsFragment"
+            app:destination="@id/loggingSettingsFragment" />
+    </fragment>
 
 </navigation>
