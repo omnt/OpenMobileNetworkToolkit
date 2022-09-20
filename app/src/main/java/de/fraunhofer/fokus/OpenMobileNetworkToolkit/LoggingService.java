@@ -19,8 +19,10 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.telephony.CellIdentityNr;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoLte;
+import android.telephony.CellInfoNr;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -204,9 +206,19 @@ public class LoggingService extends Service {
             for (CellInfo ci:cil) {
                 if (ci.isRegistered()) { //we only care for the serving cell
                     OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
-                    CellInfoLte ciLTE = (CellInfoLte) ci;
-                    PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
-                    CI = String.valueOf(ciLTE.getCellIdentity().getCi());
+                    if (ci instanceof CellInfoNr) {
+                        CellInfoNr ciNr = (CellInfoNr) ci;
+                        CellIdentityNr cidNr = (CellIdentityNr) ciNr.getCellIdentity();
+                        PCI = String.valueOf(cidNr.getPci());
+                        CI = String.valueOf(cidNr.getNci());
+
+                    }
+                    if (ci instanceof CellInfoLte) {
+                        CellInfoLte ciLTE = (CellInfoLte) ci;
+                        PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
+                        CI = String.valueOf(ciLTE.getCellIdentity().getCi());
+                    }
+
 
                 }
             }

@@ -24,6 +24,8 @@ public class CellInformation {
     private int pci;
     private int tac;
     private int level;
+
+    private int cellConnectionStatus;
     // LTE
     private int earfcn;
     private int bandwidth;
@@ -55,6 +57,13 @@ public class CellInformation {
         this.level = level;
     }
 
+    public int getCellConnectionStatus() {
+        return cellConnectionStatus;
+    }
+
+    public void setCellConnectionStatus(int cellConnectionStatus) {
+        this.cellConnectionStatus = cellConnectionStatus;
+    }
 
     public int getCsirsrp() {
         return csirsrp;

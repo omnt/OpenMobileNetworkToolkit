@@ -35,7 +35,6 @@ import com.influxdb.client.write.Point;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
@@ -184,10 +183,12 @@ public class DataProvider {
         return  point;
     }
 
-    public CellInformation getCellInformation(){
-        CellInformation cim = new CellInformation();
+    public List<CellInformation> getCellInformation(){
+        List<CellInformation> ciml = new ArrayList<>();
         List<CellInfo> cil = getCellInfo();
         for (CellInfo ci:cil) {
+            CellInformation cim = new CellInformation();
+            cim.setCellConnectionStatus(ci.getCellConnectionStatus());
             cim.setAlphaLong((String) ci.getCellIdentity().getOperatorAlphaLong());
             if (ci instanceof CellInfoNr) {
                 cim.setCellType("NR");
@@ -234,7 +235,9 @@ public class DataProvider {
             if (ci instanceof CellInfoGsm) {
                 cim.setCellType("GSM");
             }
-        }return cim;
+            ciml.add(cim);
+        }
+        return ciml;
     }
 
 
