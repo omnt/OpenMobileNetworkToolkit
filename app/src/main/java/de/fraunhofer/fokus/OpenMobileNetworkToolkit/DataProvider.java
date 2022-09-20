@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CellIdentityLte;
 import android.telephony.CellIdentityNr;
@@ -25,6 +26,7 @@ import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 
@@ -33,6 +35,7 @@ import com.influxdb.client.write.Point;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
@@ -40,7 +43,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 public class DataProvider {
     private CarrierConfigManager ccm;
     private ConnectivityManager cm;
-    private ConnectivityManager connectivityManager;
     public LocationManager lm;
     private TelephonyManager tm;
     private PackageManager pm;
@@ -57,6 +59,7 @@ public class DataProvider {
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ct.getSystemService(Context.CARRIER_CONFIG_SERVICE);
+            cm = (ConnectivityManager)ct.getSystemService(Context.CONNECTIVITY_SERVICE);
             tm = (TelephonyManager) ct.getSystemService(Context.TELEPHONY_SERVICE);
             cp = tm.hasCarrierPrivileges();
         }
@@ -118,6 +121,10 @@ public class DataProvider {
         }
         cellInfo = tm.getAllCellInfo();
         return cellInfo;
+    }
+
+    public ConnectivityManager getCm() {
+        return cm;
     }
 
     public Point getCellInfoPoint() {
@@ -230,6 +237,7 @@ public class DataProvider {
         }return cim;
     }
 
+
     public SignalStrength getSignalStrength() {
         if (tm != null) {
             SignalStrength signalStrength;
@@ -240,10 +248,30 @@ public class DataProvider {
         }
     }
 
+    public Point getNetworkCapabilitiesPoint(String measurementName){
+        NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        int downSpeed = nc.getLinkDownstreamBandwidthKbps();
+        int upSpeed = nc.getLinkUpstreamBandwidthKbps();
+        Log.d(TAG, "getNetworkCapabilitiesPoint: downSpeed "+downSpeed);
+        Log.d(TAG, "getNetworkCapabilitiesPoint: upSpeed "+upSpeed);
+        int signalStrength = nc.getSignalStrength();
+        Point point = new Point(measurementName);
+        point.addField("downSpeed_kbps", downSpeed);
+        point.addField("upSpeed_kbps", upSpeed);
+        point.addField("signalStrength", signalStrength);
+        point.time(System.currentTimeMillis(), WritePrecision.MS);
+        return point;
+    }
+
+
     public Point getSignalStrengthPoint() {
         Point point = new Point("SignalStrength");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
         SignalStrength ss = getSignalStrength();
+        if(ss == null){
+            point.addField("Level", -1);
+            return point;
+        }
         point.addField("Level", ss.getLevel());
         return point;
     }

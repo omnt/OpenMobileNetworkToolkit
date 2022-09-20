@@ -11,24 +11,26 @@ import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 
+import java.util.LinkedList;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3ListAdapter extends BaseAdapter {
     Context context;
     LayoutInflater inflater;
     Iperf3DBHandler iperf3DBHandler;
-    String[] ids;
+    Iperf3Fragment.ListElem[] listElems;
 
-    public Iperf3ListAdapter(Context context, String[] ids) {
+    public Iperf3ListAdapter(Context context, Iperf3Fragment.ListElem[] elements) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         this.iperf3DBHandler = Iperf3DBHandler.getInstance(context);
-        this.ids = ids;
+        this.listElems = elements;
     }
 
     @Override
     public int getCount() {
-        return this.ids.length;
+        return this.listElems.length;
     }
 
     @Override
@@ -44,18 +46,25 @@ public class Iperf3ListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        Iperf3Runner iperf3R = new Iperf3Runner(null, null, null, null, null).readBytes(this.iperf3DBHandler.getRunnerByID(ids[position]));
+        Iperf3Fragment.ListElem tmp = this.listElems[position];
+
 
         convertView = inflater.inflate(R.layout.fragment_iperf3_row_item, null);
         TextView command = (TextView) convertView.findViewById(R.id.firstLine);
         TextView runnerID = (TextView) convertView.findViewById(R.id.secondLine);
         TextView timestamp = (TextView) convertView.findViewById(R.id.thirdLine);
         TextView iperf3State = (TextView) convertView.findViewById(R.id.iperf3State);
-        ImageView icon = (ImageView) convertView.findViewById(R.id.runningIndicator);
+      //  ImageView icon = (ImageView) convertView.findViewById(R.id.runningIndicator);
 
-        Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);;
+        Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
-        switch (iperf3R.getThreadState()){
+
+        command.setText("Measurement: "+tmp.input.getMeasurementName());
+        iperf3State.setText("Result:"+ tmp.result);
+        timestamp.setText("Moved: "+ !tmp.moved);
+        runnerID.setText("Uploaded: "+ !tmp.uploaded);
+/*
+        switch (tmp..getThreadState()){
             case "NEW":
                 break;
             case "RUNNABLE":
@@ -75,12 +84,8 @@ public class Iperf3ListAdapter extends BaseAdapter {
                 break;
             default:
         }
-
-        icon.setImageDrawable(drawable);
-
-        command.setText(iperf3R.getCommand());
-        runnerID.setText(iperf3R.getId());
-        timestamp.setText(iperf3R.getTimestamp());
+*/
+        //icon.setImageDrawable(drawable);
         return convertView;
     }
 }

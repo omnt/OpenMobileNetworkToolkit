@@ -60,6 +60,16 @@
             app:key="influx_network_data"
             app:title="@string/influx_network_data" />
 
+
+        <SwitchPreferenceCompat
+            app:key="influx_throughput_data"
+            app:title="@string/influx_throughput_data" />
+
+        <EditTextPreference
+            app:key="measurement_name"
+            app:useSimpleSummaryProvider="true"
+            app:title="@string/measurement" />
+
         <SwitchPreferenceCompat
             app:key="influx_cell_data"
             app:title="@string/influx_cell_data" />

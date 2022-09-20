@@ -90,5 +90,9 @@ public class InfluxdbConnection {
         return true;
     }
 
+    public void sendAll(){
+        writeApi.flush();
+    }
+
 }
 

@@ -111,6 +111,7 @@ public class LoggingService extends Service {
         sp.registerOnSharedPreferenceChangeListener(listener);
 
 
+
         // Start foreground service.
         startForeground(1, builder.build());
 
@@ -121,6 +122,7 @@ public class LoggingService extends Service {
         if (sp.getBoolean("enable_influx", false)) {
             setupInfluxDB();
         }
+
 
         return START_STICKY;
     }
@@ -205,10 +207,13 @@ public class LoggingService extends Service {
                     CellInfoLte ciLTE = (CellInfoLte) ci;
                     PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
                     CI = String.valueOf(ciLTE.getCellIdentity().getCi());
+
                 }
             }
+
             builder.setContentText(new StringBuilder().append(OperatorName).append(" PCI: ").append(PCI).append(" CI: ").append(CI));
             nm.notify(1, builder.build());
+            // disabled for now as it wakes the screen
             notificationHandler.postDelayed(this,100000);
         }
     };
@@ -220,6 +225,11 @@ public class LoggingService extends Service {
             if (sp.getBoolean("influx_network_data", false)) {
                 points.add(dc.getNetworkInformationPoint());
             }
+
+            if(sp.getBoolean("influx_throughput_data", false)) {
+                points.add(dc.getNetworkCapabilitiesPoint(sp.getString("measurement_name", "iperf3_test")));
+            }
+
             if (sp.getBoolean("influx_signal_data", false)) {
                 points.add(dc.getSignalStrengthPoint());
             }
@@ -234,6 +244,10 @@ public class LoggingService extends Service {
                 }
             }
 
+
+            ic.sendAll();
+
+
             if (sp.getBoolean("enable_local_log", false)) {
                 long ts = System.currentTimeMillis();
                 for (Point point:points) {
@@ -242,6 +256,9 @@ public class LoggingService extends Service {
                     //pointDao.insertAll(new InfluxPointEntry(ts, point));
                 }
             }
+
+
+
             loggingHandler.postDelayed(this,1000);
         }
     };
@@ -263,11 +280,9 @@ public class LoggingService extends Service {
         }
     }
 
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 }
-
