@@ -28,7 +28,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 public class DataProvider {
     private CarrierConfigManager ccm;
     private ConnectivityManager cm;
-    private ConnectivityManager connectivityManager;
     public LocationManager lm;
     private TelephonyManager tm;
     private PackageManager pm;
@@ -45,6 +44,7 @@ public class DataProvider {
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ct.getSystemService(Context.CARRIER_CONFIG_SERVICE);
+            cm = (ConnectivityManager)ct.getSystemService(Context.CONNECTIVITY_SERVICE);
             tm = (TelephonyManager) ct.getSystemService(Context.TELEPHONY_SERVICE);
             cp = tm.hasCarrierPrivileges();
         }
@@ -81,6 +81,10 @@ public class DataProvider {
         }
         cellInfo = tm.getAllCellInfo();
         return cellInfo;
+    }
+
+    public ConnectivityManager getCm() {
+        return cm;
     }
 
     public SignalStrength getSignalStrength() {

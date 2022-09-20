@@ -17,6 +17,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -214,9 +216,28 @@ public class LoggingService extends Service {
                 if (sp.getBoolean("influx_signal_data", false)) { // user settings here
                     Point point = new Point("SignalStrength");
                     SignalStrength ss = dc.getSignalStrength();
-                    point.addField("Level", ss.getLevel());
+
+                    try {
+                        point.addField("Level", ss.getLevel());
+                        ic.writePoint(point);
+                    } catch (NullPointerException ignored) {
+                    }
+                }
+
+                // write throughput data
+                if(sp.getBoolean("influx_throughput_data", false)) {
+                    ConnectivityManager cm = dc.getCm();
+                    NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
+                    int downSpeed = nc.getLinkDownstreamBandwidthKbps();
+                    int upSpeed = nc.getLinkUpstreamBandwidthKbps();
+                    int signalStrength = nc.getSignalStrength();
+                    Point point = new Point(sp.getString("measurement_name", "iperf3_test"));
+                    point.addField("downSpeed_kbps", downSpeed);
+                    point.addField("upSpeed_kbps", upSpeed);
+                    point.addField("signalStrength", signalStrength);
                     ic.writePoint(point);
                 }
+
                 // write cell information
                 if (sp.getBoolean("influx_cell_data", false)) {
                     Point point = new Point("CellInformation");
@@ -255,12 +276,18 @@ public class LoggingService extends Service {
                 }
                 Point point = new Point("Location");
                 Location loc = dc.getLocation();
-                point.addField("longitude", loc.getLongitude());
-                point.addField("latitude", loc.getLatitude());
-                point.addField("altitude", loc.getAltitude());
-                point.addField("speed", loc.getSpeed());
-                ic.writePoint(point);
 
+                try {
+                    point.addField("longitude", loc.getLongitude());
+                    point.addField("latitude", loc.getLatitude());
+                    point.addField("altitude", loc.getAltitude());
+                    point.addField("speed", loc.getSpeed());
+                    ic.writePoint(point);
+                }
+                catch (NullPointerException e) {
+                    Log.d(TAG, "run: no location found");
+                }
+                
                 influxHandler.postDelayed(this,1000);
             } else {
                 Log.d(TAG, "influx not initialized");

@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -31,6 +32,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Fragment extends Fragment {
@@ -381,9 +384,9 @@ public class Iperf3Fragment extends Fragment {
 
 
 
-
         OneTimeWorkRequest iperf3UP = new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class).setInputData(iperf3Data.build()).build();
         OneTimeWorkRequest iperf3Move = new OneTimeWorkRequest.Builder(Iperf3MoveWorker.class).setInputData(iperf3Data.build()).build();
+
 
         Operation op = iperf3WM.beginWith(iperf3WR)
                 .then(iperf3UP)

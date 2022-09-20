@@ -54,7 +54,7 @@ public class Iperf3ListAdapter extends BaseAdapter {
         TextView runnerID = (TextView) convertView.findViewById(R.id.secondLine);
         TextView timestamp = (TextView) convertView.findViewById(R.id.thirdLine);
         TextView iperf3State = (TextView) convertView.findViewById(R.id.iperf3State);
-        ImageView icon = (ImageView) convertView.findViewById(R.id.runningIndicator);
+      //  ImageView icon = (ImageView) convertView.findViewById(R.id.runningIndicator);
 
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
@@ -85,7 +85,7 @@ public class Iperf3ListAdapter extends BaseAdapter {
             default:
         }
 */
-        icon.setImageDrawable(drawable);
+        //icon.setImageDrawable(drawable);
         return convertView;
     }
 }

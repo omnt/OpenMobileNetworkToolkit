@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -25,6 +26,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
+    private SharedPreferences sp;
     private String logFilePath;
     private String measurementName;
     private String ip;
@@ -59,10 +61,9 @@ public class Iperf3UploadWorker extends Worker {
         oneOff = getInputData().getBoolean("oneOff",false);
         client = getInputData().getBoolean("client",false);
 
-
+        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
     private void setup(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String url = sp.getString("influx_URL", null);
         String org = sp.getString("influx_org", null);
         String bucket = sp.getString("influx_bucket", null);
@@ -86,14 +87,21 @@ public class Iperf3UploadWorker extends Worker {
         }
         Root iperf3AsJson = new Gson().fromJson(br, Root.class);
         long timestamp = iperf3AsJson.start.timestamp.timesecs;
-        Point point = new Point(measurementName);
         for (Interval interval: iperf3AsJson.intervals) {
+            Point point = new Point(sp.getString("measurement_name", "iperf3_test"));
             point.addTag("IP", ip);
             point.addTag("port", port);
             point.addTag("duration", duration);
 
-            point.time((timestamp+Math.round(interval.streams.get(0).end))*1000, WritePrecision.MS);
+            point.addField("rtt", interval.streams.get(0).rtt);
+            point.addField("bytes", interval.streams.get(0).bytes);
+            point.addField("rttvar", interval.streams.get(0).rttvar);
+            long tmpTimestamp = timestamp+Math.round(interval.streams.get(0).end);
+            point.time(tmpTimestamp, WritePrecision.S);
             point.addField("bits_per_second", interval.streams.get(0).bitsPerSecond);
+
+
+            Log.d(TAG, "doWork: "+point.toLineProtocol());
             if(!influx.writePoint(point)){
                 return Result.failure(output);
             }

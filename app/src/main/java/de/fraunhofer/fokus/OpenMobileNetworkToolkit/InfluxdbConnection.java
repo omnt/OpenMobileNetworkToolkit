@@ -61,7 +61,6 @@ public class InfluxdbConnection {
     // Add a point to the message queue
     public boolean writePoint(Point point) {
         try {
-            Log.d(TAG, "writePoint: "+point.toLineProtocol());
             writeApi.writePoint(point);
         } catch (com.influxdb.exceptions.InfluxException e) {
             Log.d(TAG, "disconnect: Error while writing points to influx DB");
