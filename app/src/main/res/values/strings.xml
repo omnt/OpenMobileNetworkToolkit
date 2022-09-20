@@ -59,6 +59,9 @@
     <string name="signature_title">Your signature</string>
     <string name="reply_title">Default reply action</string>
 
+    <!-- Application Preferences -->
+    <string name="carrier_permissions">carrier_permission</string>
+
     <!-- Logging Preferences -->
     <string name="enable_influx">InfluxDB 2x log</string>
     <string name="influx_url">InfluxDB instance URL / IP</string>

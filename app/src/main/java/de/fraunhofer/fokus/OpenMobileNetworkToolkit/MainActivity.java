@@ -38,6 +38,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
 
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            cp = tm.hasCarrierPrivileges();
+            cp = HasCarrierPermissions();
         }
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -115,6 +116,19 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         Log.i(TAG, "Stop logging service");
                         context.stopService(loggingServiceIntent);
+                    }
+                }
+                if (Objects.equals(key, "carrier_Permission")) {
+                    if(prefs.getBoolean(key, false)) {
+                        SRLog.d(TAG, "Carrier Permission Approved");
+                        cp = tm.hasCarrierPrivileges();
+                        if(cp){
+                            Toast.makeText(context, "Carrier Permission Approved!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(context,"Carrier Permissions Rejected!", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        SRLog.d(TAG,"Carrier Permission Denied!");
                     }
                 }
             }
@@ -377,6 +391,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             openFloatingWindow();
         }
+    }
+
+    public boolean HasCarrierPermissions() {
+        return tm.hasCarrierPrivileges();
     }
 
 

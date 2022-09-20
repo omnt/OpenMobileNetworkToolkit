@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment">
+    <Preference
+        app:title="Application Settings"
+        android:icon="@drawable/ic_baseline_app_settings_alt_24"
+        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"/>
+    <Preference
+        app:title="Log Settings"
+        android:icon="@drawable/ic_baseline_code_24"
+        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"/>
+    <Preference
+        app:title="5G Feature Settings"
+        android:icon="@drawable/ic_baseline_5g_24"
+        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment"/>
+
+    <Preference
+        app:title="Flag Settings"
+        android:icon="@drawable/ic_baseline_outlined_flag_24"
+        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.FlagSettingFragment"/>
+
+</PreferenceScreen>
