@@ -16,9 +16,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkCapabilities;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -32,20 +29,11 @@ import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 import androidx.room.Room;
 
-import com.google.gson.Gson;
 import com.influxdb.client.write.Point;
 
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
@@ -237,6 +225,11 @@ public class LoggingService extends Service {
             if (sp.getBoolean("influx_network_data", false)) {
                 points.add(dc.getNetworkInformationPoint());
             }
+
+            if(sp.getBoolean("influx_throughput_data", false)) {
+                points.add(dc.getNetworkCapabilitiesPoint(sp.getString("measurement_name", "iperf3_test")));
+            }
+
             if (sp.getBoolean("influx_signal_data", false)) {
                 points.add(dc.getSignalStrengthPoint());
             }
@@ -251,20 +244,8 @@ public class LoggingService extends Service {
                 }
             }
 
-            //todo
-            // write throughput data
-            if(sp.getBoolean("influx_throughput_data", false)) {
-                ConnectivityManager cm = dc.getCm();
-                NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
-                int downSpeed = nc.getLinkDownstreamBandwidthKbps();
-                int upSpeed = nc.getLinkUpstreamBandwidthKbps();
-                int signalStrength = nc.getSignalStrength();
-                Point point = new Point(sp.getString("measurement_name", "iperf3_test"));
-                point.addField("downSpeed_kbps", downSpeed);
-                point.addField("upSpeed_kbps", upSpeed);
-                point.addField("signalStrength", signalStrength);
-                ic.writePoint(point);
-            }
+
+            ic.sendAll();
 
 
             if (sp.getBoolean("enable_local_log", false)) {
