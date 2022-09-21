@@ -33,6 +33,7 @@ import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
@@ -75,10 +76,17 @@ public class DataProvider {
         Point point = new Point("Location");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
         Location loc = getLocation();
-        point.addField("longitude", loc.getLongitude());
-        point.addField("latitude", loc.getLatitude());
-        point.addField("altitude", loc.getAltitude());
-        point.addField("speed", loc.getSpeed());
+        if (loc != null) {
+            point.addField("longitude", loc.getLongitude());
+            point.addField("latitude", loc.getLatitude());
+            point.addField("altitude", loc.getAltitude());
+            point.addField("speed", loc.getSpeed());
+        } else {
+            point.addField("longitude", 0);
+            point.addField("latitude", 0);
+            point.addField("altitude", 0);
+            point.addField("speed", 0);
+        }
         return point;
     }
 
@@ -139,7 +147,7 @@ public class DataProvider {
                 point.addField("CellType", "NR");
                 CellInfoNr ciNR = (CellInfoNr) ci;
                 CellIdentityNr ciNRId = (CellIdentityNr) ciNR.getCellIdentity();
-                point.addField("Bands", ciNRId.getBands().toString());
+                point.addField("Bands", Arrays.toString(ciNRId.getBands()));
                 point.addField("CI", ciNRId.getNci());
                 point.addField("NRARFCN", ciNRId.getNrarfcn());
                 point.addField("MNC", ciNRId.getMncString());
@@ -159,7 +167,7 @@ public class DataProvider {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
                 CellIdentityLte ciLTEId = ciLTE.getCellIdentity();
                 point.addField("CellType", "LTE");
-                point.addField("Bands", ciLTEId.getBands().toString());
+                point.addField("Bands", Arrays.toString(ciLTEId.getBands()));
                 point.addField("Bandwidth", ciLTEId.getBandwidth());
                 point.addField("CI", ciLTEId.getCi());
                 point.addField("EARFCN", ciLTEId.getEarfcn());
