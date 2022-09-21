@@ -149,7 +149,7 @@ public class LoggingService extends Service {
         String bucket = sp.getString("influx_bucket", null);
         String token = sp.getString("influx_token", null);
 
-        ic = new InfluxdbConnection(url, token, org, bucket);
+        ic = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
         ic.connect();
         loggingHandler = new Handler(Looper.myLooper());
         loggingHandler.post(loggingUpdate);
@@ -182,11 +182,11 @@ public class LoggingService extends Service {
             }
             // write signal strength information
             if (sp.getBoolean("influx_signal_data", false)) { // user settings here
-                ic.writePoint(dc.getSignalStrengthPoint());
+                //ic.writePoint(dc.getSignalStrengthPoint());
             }
             // write cell information
             if (sp.getBoolean("influx_cell_data", false)) {
-                ic.writePoint(dc.getCellInfoPoint());
+                //ic.writePoint(dc.getCellInfoPoint());
             }
             // always add location information
             ic.writePoint(dc.getLocationPoint());
@@ -239,14 +239,14 @@ public class LoggingService extends Service {
             }
 
             if(sp.getBoolean("influx_throughput_data", false)) {
-                points.add(dc.getNetworkCapabilitiesPoint(sp.getString("measurement_name", "iperf3_test")));
+                points.add(dc.getNetworkCapabilitiesPoint());
             }
 
             if (sp.getBoolean("influx_signal_data", false)) {
                 points.add(dc.getSignalStrengthPoint());
             }
             if (sp.getBoolean("influx_cell_data", false)) {
-                points.add(dc.getCellInfoPoint());
+                    points.addAll(dc.getCellInfoPoint());
             }
             points.add(dc.getLocationPoint());
 

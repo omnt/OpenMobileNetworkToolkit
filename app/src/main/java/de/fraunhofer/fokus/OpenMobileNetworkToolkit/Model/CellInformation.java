@@ -25,6 +25,7 @@ public class CellInformation {
     private int tac;
     private int level;
 
+    private boolean isRegistered;
     private int cellConnectionStatus;
     // LTE
     private int earfcn;
@@ -63,6 +64,14 @@ public class CellInformation {
 
     public void setCellConnectionStatus(int cellConnectionStatus) {
         this.cellConnectionStatus = cellConnectionStatus;
+    }
+
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public void setRegistered(boolean registered) {
+        isRegistered = registered;
     }
 
     public int getCsirsrp() {

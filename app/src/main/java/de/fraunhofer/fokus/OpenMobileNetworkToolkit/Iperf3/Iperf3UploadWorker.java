@@ -17,7 +17,6 @@ import com.influxdb.client.write.Point;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.concurrent.ExecutionException;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
@@ -68,7 +67,7 @@ public class Iperf3UploadWorker extends Worker {
         String org = sp.getString("influx_org", null);
         String bucket = sp.getString("influx_bucket", null);
         String token = sp.getString("influx_token", null);
-        influx = new InfluxdbConnection(url, token, org, bucket);
+        influx = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
     }
     @NonNull
     @Override
@@ -88,7 +87,7 @@ public class Iperf3UploadWorker extends Worker {
         Root iperf3AsJson = new Gson().fromJson(br, Root.class);
         long timestamp = iperf3AsJson.start.timestamp.timesecs;
         for (Interval interval: iperf3AsJson.intervals) {
-            Point point = new Point(sp.getString("measurement_name", "iperf3_test"));
+            Point point = new Point("Iperf3");
             point.addTag("IP", ip);
             point.addTag("port", port);
             point.addTag("duration", duration);
