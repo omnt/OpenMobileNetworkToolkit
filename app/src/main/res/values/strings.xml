@@ -59,6 +59,9 @@
     <string name="signature_title">Your signature</string>
     <string name="reply_title">Default reply action</string>
 
+    <!-- Application Preferences -->
+    <string name="carrier_permissions">carrier_permission</string>
+
     <!-- Logging Preferences -->
     <string name="enable_influx">InfluxDB 2x log</string>
     <string name="influx_url">InfluxDB instance URL / IP</string>
@@ -68,10 +71,12 @@
     <string name="influx_token">Influx Token</string>
     <string name="influx_token_dialog_title">Set InfluxDB Token</string>
     <string name="influx_network_data">Log network information</string>
+    <string name="influx_throughput_data">Log throughput information</string>
     <string name="influx_cell_data">Log cell information</string>
     <string name="influx_signal_data">Log signal information</string>
     <string name="influx_bucket">InfluxDB bucket</string>
     <string name="influx_bucket_dialog_title">Set InfluxDB bucket</string>
+    <string name="measurement">Measurement name</string>
     <string name="enable_loggin">Logging</string>
     <string name="enable_local_log">Local log</string>
     <string name="enable_notification_update">Enable notification update</string>

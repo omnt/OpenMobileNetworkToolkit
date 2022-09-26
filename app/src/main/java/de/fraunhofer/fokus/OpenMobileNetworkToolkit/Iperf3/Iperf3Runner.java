@@ -5,9 +5,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -26,11 +31,17 @@ public class Iperf3Runner implements Serializable {
     private String logFilePath = null;
     private int iperf3State;
 
+    //flag for uploaded to influxdb
+    private boolean uploaded;
+
+    //flag for moved to /Documents/iperf3
+    private boolean moved;
+
+
     private transient Context context;
     private transient ThreadGroup iperf3TG;
     private transient Thread iperf3Thread;
     private transient static final String TAG = "iperf3Runner";
-
 
     static {
         System.loadLibrary("iperf3.11");
@@ -56,6 +67,8 @@ public class Iperf3Runner implements Serializable {
         this.logFilePath = logFilePath;
         this.logFileName = logFileName;
         this.id = UUID.randomUUID().toString();
+        this.uploaded = false;
+        this.moved = false;
     }
 
     public String getLogFileName() {
@@ -73,7 +86,21 @@ public class Iperf3Runner implements Serializable {
     }
 
     private Runnable createRunable() {
-        return () -> this.iperf3State = iperf3Wrapper(command, context.getApplicationInfo().nativeLibraryDir);
+        return () -> {
+            this.iperf3State = iperf3Wrapper(command, context.getApplicationInfo().nativeLibraryDir);
+            if(iperf3Thread.getState() == Thread.State.TERMINATED){
+                if(logFilePath != null && iperf3State == 0){
+                    FileInputStream fis = null;
+                    try {
+                        fis = new FileInputStream(new File(logFilePath));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    BufferedReader bfr = new BufferedReader(new InputStreamReader(fis));
+
+                }
+            }
+        };
     }
 
     public String getTimestamp(){
@@ -87,6 +114,7 @@ public class Iperf3Runner implements Serializable {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         this.timestamp = timestamp.toString();
         iperf3Thread.start();
+
         return 0;
     }
 

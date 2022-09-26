@@ -14,6 +14,7 @@ import android.content.Context;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -33,13 +34,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 
 import android.os.PersistableBundle;
 
 
-public class HomeFragment extends Fragment implements LocationListener{
+public class HomeFragment extends Fragment implements LocationListener {
     public CarrierConfigManager ccm;
     private PersistableBundle cc;
     private ConnectivityManager cm;
@@ -47,6 +50,7 @@ public class HomeFragment extends Fragment implements LocationListener{
     public TelephonyManager tm;
     public PackageManager pm;
     public LocationManager lm;
+    SharedPreferences sharedPreferences;
 
 
     private boolean cp;
@@ -59,6 +63,7 @@ public class HomeFragment extends Fragment implements LocationListener{
     String provider;
     protected String latitude,longitude;
     protected boolean gps_enabled,network_enabled;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public HomeFragment() {
         super(R.layout.fragment_home);
@@ -70,6 +75,8 @@ public class HomeFragment extends Fragment implements LocationListener{
             LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState
     ) {
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Boolean carrierPermission = sharedPreferences.getBoolean("carrierPermission",false);
         ma = (MainActivity) getActivity();
         pm = ma.pm;
         feature_telephony = ma.feature_telephony;
@@ -78,22 +85,30 @@ public class HomeFragment extends Fragment implements LocationListener{
             cp = ma.cp;
             tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
         }
+
+        View view = inflater.inflate(R.layout.fragment_home, parent, false);
+
         lm = (LocationManager) ma.getSystemService(Context.LOCATION_SERVICE);
         lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
-
-        return inflater.inflate(R.layout.fragment_home, parent,false);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.home_fragment);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getActivity().recreate();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+        return view;
     }
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-
-
         boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
         boolean feature_phone_state = (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
+
 
         /*TrafficDescriptor trafficDescriptor = new TrafficDescriptor.Builder()
                 .build();

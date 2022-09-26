@@ -5,8 +5,8 @@
         android:icon="@drawable/ic_baseline_app_settings_alt_24">
 
       <SwitchPreferenceCompat
-          android:key = "carrierPermission"
-          app:title="Carrier Permission"
+          android:key = "carrier_Permission"
+          app:title="@string/carrier_permissions"
           />
 
     </PreferenceCategory>
@@ -59,6 +59,16 @@
         <SwitchPreferenceCompat
             app:key="influx_network_data"
             app:title="@string/influx_network_data" />
+
+
+        <SwitchPreferenceCompat
+            app:key="influx_throughput_data"
+            app:title="@string/influx_throughput_data" />
+
+        <EditTextPreference
+            app:key="measurement_name"
+            app:useSimpleSummaryProvider="true"
+            app:title="@string/measurement" />
 
         <SwitchPreferenceCompat
             app:key="influx_cell_data"

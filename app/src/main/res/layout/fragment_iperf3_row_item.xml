@@ -55,12 +55,5 @@
         android:maxLines="1"
         android:text="State" />
 
-    <ImageView
-        android:id="@+id/runningIndicator"
-        android:layout_width="23dp"
-        android:layout_height="23dp"
-        android:layout_alignRight="@id/iperf3State"
-        app:srcCompat="@drawable/ic_error_outline" />
-
 
 </RelativeLayout>
