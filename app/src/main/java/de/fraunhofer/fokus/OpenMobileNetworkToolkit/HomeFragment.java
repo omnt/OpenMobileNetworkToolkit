@@ -10,10 +10,9 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED;
 
-import android.content.Context;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -22,9 +21,9 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,8 +37,6 @@ import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
-
-import android.os.PersistableBundle;
 
 
 public class HomeFragment extends Fragment implements LocationListener {

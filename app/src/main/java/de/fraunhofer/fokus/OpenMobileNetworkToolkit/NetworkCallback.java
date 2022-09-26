@@ -30,6 +30,7 @@ import androidx.annotation.RequiresPermission;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class NetworkCallback {
@@ -324,7 +325,7 @@ public class NetworkCallback {
                 if (capability != null)
                     for (int i = 0; i < capability.length; i++) {
                         SRLog.d(TAG, "Capability from Network: " + capability[i]);
-                        String cap = capability.toString();
+                        String cap = Arrays.toString(capability);
                         listCapability.add(cap);
                     }
                 //enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
