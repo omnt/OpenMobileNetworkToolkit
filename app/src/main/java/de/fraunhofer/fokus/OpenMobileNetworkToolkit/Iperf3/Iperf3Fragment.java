@@ -2,10 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
@@ -28,12 +25,10 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Fragment extends Fragment {
@@ -71,9 +66,11 @@ public class Iperf3Fragment extends Fragment {
     private View v;
     private SharedPreferences preferences;
     private Iperf3Input input;
-    private ListElem[] iperf3List;
 
-    public static class Iperf3Input implements Parcelable{
+    private Iperf3ResultsDataBase db;
+    private ArrayList<String> uids;
+
+    public static class Iperf3Input{
         public boolean iperf3BiDir;
         public boolean iperf3Reverse;
         public boolean iperf3Json;
@@ -91,164 +88,8 @@ public class Iperf3Fragment extends Fragment {
         public String iperf3Interval;
         public String iperf3Bytes;
 
-        public Iperf3Input() {
-        }
-
-        public boolean isIperf3BiDir() {
-            return iperf3BiDir;
-        }
-
-        public boolean isIperf3Reverse() {
-            return iperf3Reverse;
-        }
-
-        public boolean isIperf3Json() {
-            return iperf3Json;
-        }
-
-        public boolean isIperf3OneOff() {
-            return iperf3OneOff;
-        }
-
-        public boolean isIperf3Client() {
-            return iperf3Client;
-        }
-
-        public String getIperf3LogFilePath() {
-            return iperf3LogFilePath;
-        }
-
-        public String getIperf3LogFileName() {
-            return iperf3LogFileName;
-        }
-
-        public String getMeasurementName() {
-            return measurementName;
-        }
-
-        public String getIperf3IP() {
-            return iperf3IP;
-        }
-
-        public String getIperf3Port() {
-            return iperf3Port;
-        }
-
-        public String getIperf3Bandwidth() {
-            return iperf3Bandwidth;
-        }
-
-        public String getIperf3Duration() {
-            return iperf3Duration;
-        }
-
-        public String getIperf3Interval() {
-            return iperf3Interval;
-        }
-
-        public String getIperf3Bytes() {
-            return iperf3Bytes;
-        }
-
-        protected Iperf3Input(Parcel in) {
-            iperf3BiDir = in.readBoolean();
-            iperf3Reverse = in.readBoolean();
-            iperf3Json = in.readBoolean();
-            iperf3OneOff = in.readBoolean();
-            iperf3Client = in.readBoolean();
-            iperf3LogFilePath = in.readString();
-            iperf3LogFileName = in.readString();
-            measurementName = in.readString();
-            iperf3IP = in.readString();
-            iperf3Port = in.readString();
-            iperf3Bandwidth = in.readString();
-            iperf3Duration = in.readString();
-            iperf3Interval = in.readString();
-            iperf3Bytes = in.readString();
-        }
-
-        public static final Creator<Iperf3Input> CREATOR = new Creator<Iperf3Input>() {
-            @Override
-            public Iperf3Input createFromParcel(Parcel in) {
-                return new Iperf3Input(in);
-            }
-
-            @Override
-            public Iperf3Input[] newArray(int size) {
-                return new Iperf3Input[size];
-            }
-        };
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(@NonNull Parcel parcel, int i) {
-            parcel.writeByte((byte) (iperf3BiDir ? 1 : 0));
-            parcel.writeByte((byte) (iperf3Reverse ? 1 : 0));
-            parcel.writeByte((byte) (iperf3Json ? 1 : 0));
-            parcel.writeByte((byte) (iperf3OneOff ? 1 : 0));
-            parcel.writeByte((byte) (iperf3Client ? 1 : 0));
-            parcel.writeString(iperf3LogFilePath);
-            parcel.writeString(iperf3LogFileName);
-            parcel.writeString(measurementName);
-            parcel.writeString(iperf3IP);
-            parcel.writeString(iperf3Port);
-            parcel.writeString(iperf3Bandwidth);
-            parcel.writeString(iperf3Duration);
-            parcel.writeString(iperf3Interval);
-            parcel.writeString(iperf3Bytes);
-        }
     }
 
-    public static class ListElem implements Parcelable {
-        public int result;
-        public boolean uploaded;
-        public boolean moved;
-        public Iperf3Input input;
-
-        protected ListElem(Parcel in) {
-            result = in.readInt();
-            uploaded = in.readBoolean();
-            moved = in.readBoolean();
-            input = in.readParcelable(Iperf3Input.class.getClassLoader());
-        }
-
-        public static final Creator<ListElem> CREATOR = new Creator<ListElem>() {
-            @Override
-            public ListElem createFromParcel(Parcel in) {
-                return new ListElem(in);
-            }
-
-            @Override
-            public ListElem[] newArray(int size) {
-                return new ListElem[size];
-            }
-        };
-
-        public ListElem(int result, boolean uploaded, boolean moved, Iperf3Input input) {
-            this.result = result;
-            this.uploaded = uploaded;
-            this.moved = moved;
-            this.input = input;
-        }
-
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(@NonNull Parcel parcel, int i) {
-            parcel.writeInt(result);
-            parcel.writeBoolean(uploaded);
-            parcel.writeBoolean(moved);
-            parcel.writeParcelable(input, i);
-        }
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -256,9 +97,9 @@ public class Iperf3Fragment extends Fragment {
         this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
         this.iperf3DBHandler = Iperf3DBHandler.getInstance(getActivity().getApplicationContext());
         this.iperf3OverView = new Iperf3OverView(this.iperf3TG, this.iperf3DBHandler);
-        this.iperf3List = new ListElem[0];
         this.input = new Iperf3Input();
-
+        this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
+        this.uids = new ArrayList<>();
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -315,6 +156,7 @@ public class Iperf3Fragment extends Fragment {
             iperf3OneOff.setChecked(savedInstanceState.getBoolean("iperf3OneOff"));
 
             iperf3Client.setChecked(savedInstanceState.getBoolean("iperf3Client"));
+
         } else {
             iperf3LogFileName.setText(preferences.getString("iperf3LogFileName", null));
             iperf3IP.setText(preferences.getString("iperf3IP",null));
@@ -332,8 +174,12 @@ public class Iperf3Fragment extends Fragment {
             iperf3OneOff.setChecked(preferences.getBoolean("iperf3OneOff",false));
 
             iperf3Client.setChecked(preferences.getBoolean("iperf3Client",false));
-        }
 
+            String json = preferences.getString("iperf3List", null);
+
+
+
+        }
         try {
             Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
         } catch (ErrnoException e) {
@@ -344,7 +190,7 @@ public class Iperf3Fragment extends Fragment {
 
     public void showInstances(View view){
         Bundle bundle = new Bundle();
-        bundle.putParcelableArray("iperf3List", iperf3List);
+        bundle.putStringArrayList("iperf3List", uids);
         if(iperf3ListFragment == null){
             iperf3ListFragment = new Iperf3ListFragment();
         }
@@ -397,40 +243,31 @@ public class Iperf3Fragment extends Fragment {
             @Override
             public void onChanged(@Nullable final WorkInfo workInfo) {
                 int iperf3_result;
+                String iperf3ID;
                 boolean iperf3_upload, iperf3_move;
                 iperf3_result = workInfo.getOutputData().getInt("iperf3_result", -100);
+                iperf3ID = workInfo.getOutputData().getString("iperf3WorkerID");
                 iperf3_upload = workInfo.getOutputData().getBoolean("iperf3_upload", false);
                 iperf3_move = workInfo.getOutputData().getBoolean("iperf3_move", false);
                 Log.d(TAG, "onChanged: iperf3_result: "+iperf3_result);
                 Log.d(TAG, "onChanged: iperf3_upload: "+iperf3_upload);
                 Log.d(TAG, "onChanged: iperf3_move: "+iperf3_move);
 
-                if(iperf3_result == -100)
-                    return;
-                ListElem tmp = new ListElem(iperf3_result, iperf3_upload, iperf3_move, input);
-                iperf3List = addX(iperf3List, tmp);
+                Iperf3RunResultDao iperf3RunResultDao = db.iperf3RunResultDao();
+                Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3ID, iperf3_result, iperf3_upload, iperf3_move, input);
+                uids.add(iperf3ID);
+                if(iperf3_result == -100){
+                    //todo elegant in runnable schieben und als thread starten
+                    iperf3RunResultDao.insert(iperf3RunResult);
+                } else {
+                    iperf3RunResultDao.update(iperf3RunResult);
+                }
             }
         };
         iperf3WM.getWorkInfoByIdLiveData(iperf3WR.getId()).observe(getViewLifecycleOwner(), nameObserver);
+
     }
-    public static ListElem[] addX( ListElem arr[], ListElem x)
-    {
-        int i;
-        int n = arr.length;
-        // create a new array of size n+1
-        ListElem newarr[] = new ListElem[n + 1];
 
-        // insert the elements from
-        // the old array into the new array
-        // insert all elements till n
-        // then insert x at n+1
-        for (i = 0; i < n; i++)
-            newarr[i] = arr[i];
-
-        newarr[n] = x;
-
-        return newarr;
-    }
     private String getKeyFromId(String s, String value){
         String key = "";
         switch (s){

@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -18,24 +19,32 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 public class Iperf3ListAdapter extends BaseAdapter {
     Context context;
     LayoutInflater inflater;
-    Iperf3DBHandler iperf3DBHandler;
-    Iperf3Fragment.ListElem[] listElems;
+    Iperf3ResultsDataBase db;
+    ArrayList<String> uids;
 
-    public Iperf3ListAdapter(Context context, Iperf3Fragment.ListElem[] elements) {
+    public void setUids(ArrayList<String> uids) {
+        this.uids = uids;
+    }
+
+
+    public Iperf3ListAdapter(Context context, ArrayList<String> uids) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
-        this.iperf3DBHandler = Iperf3DBHandler.getInstance(context);
-        this.listElems = elements;
+        this.db = Iperf3ResultsDataBase.getDatabase(context);
+        this.uids = uids;
     }
+
+
 
     @Override
     public int getCount() {
-        return this.listElems.length;
+        return this.db.iperf3RunResultDao().getLength();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+
+        return this.db.iperf3RunResultDao().getRunResult(uids.get(position));
     }
 
     @Override
@@ -46,9 +55,6 @@ public class Iperf3ListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        Iperf3Fragment.ListElem tmp = this.listElems[position];
-
-
         convertView = inflater.inflate(R.layout.fragment_iperf3_row_item, null);
         TextView command = (TextView) convertView.findViewById(R.id.firstLine);
         TextView runnerID = (TextView) convertView.findViewById(R.id.secondLine);
@@ -58,7 +64,7 @@ public class Iperf3ListAdapter extends BaseAdapter {
 
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
-
+/*
         command.setText("Measurement: "+tmp.input.getMeasurementName());
         iperf3State.setText("Result:"+ tmp.result);
         timestamp.setText("Moved: "+ !tmp.moved);

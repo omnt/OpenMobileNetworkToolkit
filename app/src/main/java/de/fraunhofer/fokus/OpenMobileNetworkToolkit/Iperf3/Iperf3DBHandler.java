@@ -12,9 +12,9 @@ import androidx.annotation.Nullable;
 public class Iperf3DBHandler extends SQLiteOpenHelper {
 
     private static final String TAG = "Iperf3DBHandler";
-    private static final String DB_NAME = "Iperf3Runner";
+    private static final String DB_NAME = "Iperf3Worker";
     private static final int DB_VERSION = 1;
-    private static final String TABLE_NAME = "Iperf3Runners";
+    private static final String TABLE_NAME = "Iperf3Worker";
     private static final String ID_COL = "id";
     private static final String IPERF3_RUNNER_B = "Iperf3AsBLOB";
     private static Iperf3DBHandler sInstance;

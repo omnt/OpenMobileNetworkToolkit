@@ -13,22 +13,21 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 
+import java.util.ArrayList;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 
 public class Iperf3ListFragment extends Fragment {
     ListView listView;
     Iperf3ListAdapter iperf3ListAdapter;
-    private Iperf3DBHandler iperf3DBHandler;
-    Iperf3Fragment.ListElem[] ids;
 
     @RequiresApi(api = 33)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.ids = (Iperf3Fragment.ListElem[]) getArguments().getParcelableArray("iperf3List");
-        iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(), this.ids);
-
+        iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(),
+                savedInstanceState.getStringArrayList("iperf3List"));
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -38,15 +37,15 @@ public class Iperf3ListFragment extends Fragment {
     public void onViewCreated(View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        this.iperf3DBHandler = Iperf3DBHandler.getInstance(getActivity().getApplicationContext());
-
         listView = v.findViewById(R.id.runners_list);
         listView.setAdapter(iperf3ListAdapter);
 
 
         if (savedInstanceState != null) {
             listView.onRestoreInstanceState(savedInstanceState.getParcelable("ListState"));
+            iperf3ListAdapter.setUids(savedInstanceState.getStringArrayList("iperf3List"));
         }
+
 
 
 
