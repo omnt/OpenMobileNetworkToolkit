@@ -14,7 +14,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
+import android.net.TrafficStats;
 import android.telephony.CarrierConfigManager;
+import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
 import android.telephony.CellIdentityNr;
 import android.telephony.CellInfo;
@@ -22,6 +24,7 @@ import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoNr;
+import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
 import android.telephony.SignalStrength;
@@ -151,6 +154,7 @@ public class DataProvider {
                 point.addField("CI", ciNRId.getNci());
                 point.addField("NRARFCN", ciNRId.getNrarfcn());
                 point.addField("MNC", ciNRId.getMncString());
+                point.addField("MCC", ciNRId.getMccString());
                 point.addField("PCI", ciNRId.getPci());
                 point.addField("TAC", ciNRId.getTac());
                 CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
@@ -172,6 +176,7 @@ public class DataProvider {
                 point.addField("CI", ciLTEId.getCi());
                 point.addField("EARFCN", ciLTEId.getEarfcn());
                 point.addField("MNC", ciLTEId.getMncString());
+                point.addField("MCC", ciLTEId.getMccString());
                 point.addField("PCI", ciLTEId.getPci());
                 point.addField("TAC", ciLTEId.getTac());
                 CellSignalStrengthLte ssLTE = ciLTE.getCellSignalStrength();
@@ -186,7 +191,18 @@ public class DataProvider {
                 point.addField("CellType", "CDMA");
             }
             if (ci instanceof CellInfoGsm) {
+                CellInfoGsm ciGSM = (CellInfoGsm) ci;
                 point.addField("CellType", "GSM");
+                CellIdentityGsm ciGSMId = ciGSM.getCellIdentity();
+                point.addField("CI", ciGSMId.getCid());
+                point.addField("ARFCN", ciGSMId.getArfcn());
+                point.addField("MNC", ciGSMId.getMncString());
+                point.addField("MCC", ciGSMId.getMccString());
+                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ciGSM.getCellSignalStrength();
+                point.addField("Level",ssGSM.getLevel());
+                point.addField("AsuLevel", ssGSM.getAsuLevel());
+                point.addField("Dbm", ssGSM.getDbm());
+                point.addField("RSSI", ssGSM.getRssi());
             }
             points.add(point);
         }
@@ -204,7 +220,7 @@ public class DataProvider {
                 cim.setCellType("NR");
                 CellInfoNr ciNR = (CellInfoNr) ci;
                 CellIdentityNr ciNRId = (CellIdentityNr) ciNR.getCellIdentity();
-                cim.setBands(ciNRId.getBands().toString());
+                cim.setBands(Arrays.toString(ciNRId.getBands()));
                 cim.setCi(ciNRId.getNci());
                 cim.setNrarfcn(ciNRId.getNrarfcn());
                 cim.setMnc(ciNRId.getMncString());
@@ -224,7 +240,7 @@ public class DataProvider {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
                 CellIdentityLte ciLTEId= ciLTE.getCellIdentity();
                 cim.setCellType("LTE");
-                cim.setBands(ciLTEId.getBands().toString());
+                cim.setBands(Arrays.toString(ciLTEId.getBands()));
                 cim.setBandwidth(ciLTEId.getBandwidth());
                 cim.setCi(ciLTEId.getCi());
                 cim.setEarfcn(ciLTEId.getEarfcn());
@@ -263,14 +279,20 @@ public class DataProvider {
 
     public Point getNetworkCapabilitiesPoint(){
         NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
-        int downSpeed = nc.getLinkDownstreamBandwidthKbps();
-        int upSpeed = nc.getLinkUpstreamBandwidthKbps();
-        int signalStrength = nc.getSignalStrength();
         Point point = new Point("InterfaceThroughput");
-        point.addField("downSpeed_kbps", downSpeed);
-        point.addField("upSpeed_kbps", upSpeed);
-        point.addField("signalStrength", signalStrength);
-        point.time(System.currentTimeMillis(), WritePrecision.MS);
+        if (nc != null) {
+            int downSpeed = nc.getLinkDownstreamBandwidthKbps();
+            int upSpeed = nc.getLinkUpstreamBandwidthKbps();
+            point.addField("downSpeed_kbps", downSpeed);
+            point.addField("upSpeed_kbps", upSpeed);
+            point.time(System.currentTimeMillis(), WritePrecision.MS);
+        } else {
+            point.addField("downSpeed_kbps", -1);
+            point.addField("upSpeed_kbps", -1);
+            point.time(System.currentTimeMillis(), WritePrecision.MS);
+        }
+        point.addField("MobileTxBytes", TrafficStats.getMobileTxBytes());
+        point.addField("MobileRxBytes", TrafficStats.getMobileRxBytes());
         return point;
     }
 
