@@ -49,8 +49,8 @@
         android:layout_height="wrap_content"
         android:layout_alignRight="@id/firstLine"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="48dp"
-        android:layout_marginRight="-72dp"
+        android:layout_marginEnd="156dp"
+        android:layout_marginRight="36dp"
         android:ellipsize="marquee"
         android:maxLines="1"
         android:text="State" />

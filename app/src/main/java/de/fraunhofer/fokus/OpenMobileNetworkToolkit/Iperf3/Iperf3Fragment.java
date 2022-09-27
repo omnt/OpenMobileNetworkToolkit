@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -21,13 +22,16 @@ import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
+import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -99,7 +103,7 @@ public class Iperf3Fragment extends Fragment {
         this.iperf3OverView = new Iperf3OverView(this.iperf3TG, this.iperf3DBHandler);
         this.input = new Iperf3Input();
         this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
-        this.uids = new ArrayList<>();
+        this.uids = new ArrayList<>(this.db.iperf3RunResultDao().getIDs());
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -156,7 +160,6 @@ public class Iperf3Fragment extends Fragment {
             iperf3OneOff.setChecked(savedInstanceState.getBoolean("iperf3OneOff"));
 
             iperf3Client.setChecked(savedInstanceState.getBoolean("iperf3Client"));
-
         } else {
             iperf3LogFileName.setText(preferences.getString("iperf3LogFileName", null));
             iperf3IP.setText(preferences.getString("iperf3IP",null));
@@ -174,11 +177,6 @@ public class Iperf3Fragment extends Fragment {
             iperf3OneOff.setChecked(preferences.getBoolean("iperf3OneOff",false));
 
             iperf3Client.setChecked(preferences.getBoolean("iperf3Client",false));
-
-            String json = preferences.getString("iperf3List", null);
-
-
-
         }
         try {
             Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
@@ -200,8 +198,6 @@ public class Iperf3Fragment extends Fragment {
                 .addToBackStack("findThisFragment").commit();
     }
 
-
-
     public void executeIperfCommand(View view) {
         String[] command =  parseInput().split(" ");
 
@@ -209,9 +205,10 @@ public class Iperf3Fragment extends Fragment {
         //  this.iperf3OverView.addRunner(iperf3R);
         //  iperf3R.start();
 
-
+        String iperf3WorkerID = UUID.randomUUID().toString();
         Data.Builder iperf3Data = new Data.Builder();
         iperf3Data.putStringArray("commands", command);
+        iperf3Data.putString("iperf3WorkerID", iperf3WorkerID);
         OneTimeWorkRequest iperf3WR = new OneTimeWorkRequest.Builder(Iperf3Worker.class).setInputData(iperf3Data.build()).build();
         WorkManager iperf3WM =  WorkManager.getInstance(getActivity().getApplicationContext());
         iperf3Data.putString("logfilepath", logFilePath);
@@ -228,25 +225,23 @@ public class Iperf3Fragment extends Fragment {
         iperf3Data.putBoolean("oneOff", input.iperf3OneOff);
         iperf3Data.putBoolean("client", input.iperf3Client);
 
-
-
         OneTimeWorkRequest iperf3UP = new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class).setInputData(iperf3Data.build()).build();
         OneTimeWorkRequest iperf3Move = new OneTimeWorkRequest.Builder(Iperf3MoveWorker.class).setInputData(iperf3Data.build()).build();
 
+        if (preferences.getBoolean("enable_influx", false)) {
+            iperf3WM.beginWith(iperf3WR).then(iperf3UP).then(iperf3Move).enqueue();
+        } else {
+            iperf3WM.beginWith(iperf3WR).then(iperf3Move).enqueue();
+        }
 
-        Operation op = iperf3WM.beginWith(iperf3WR)
-                .then(iperf3UP)
-                .then(iperf3Move)
-                .enqueue();
 
+        uids.add(iperf3WorkerID);
         final Observer<WorkInfo> nameObserver = new Observer<WorkInfo>() {
             @Override
             public void onChanged(@Nullable final WorkInfo workInfo) {
                 int iperf3_result;
-                String iperf3ID;
                 boolean iperf3_upload, iperf3_move;
                 iperf3_result = workInfo.getOutputData().getInt("iperf3_result", -100);
-                iperf3ID = workInfo.getOutputData().getString("iperf3WorkerID");
                 iperf3_upload = workInfo.getOutputData().getBoolean("iperf3_upload", false);
                 iperf3_move = workInfo.getOutputData().getBoolean("iperf3_move", false);
                 Log.d(TAG, "onChanged: iperf3_result: "+iperf3_result);
@@ -254,11 +249,10 @@ public class Iperf3Fragment extends Fragment {
                 Log.d(TAG, "onChanged: iperf3_move: "+iperf3_move);
 
                 Iperf3RunResultDao iperf3RunResultDao = db.iperf3RunResultDao();
-                Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3ID, iperf3_result, iperf3_upload, iperf3_move, input);
-                uids.add(iperf3ID);
+                Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3WorkerID, iperf3_result, iperf3_upload, iperf3_move, input);
                 if(iperf3_result == -100){
-                    //todo elegant in runnable schieben und als thread starten
                     iperf3RunResultDao.insert(iperf3RunResult);
+
                 } else {
                     iperf3RunResultDao.update(iperf3RunResult);
                 }
@@ -374,8 +368,7 @@ public class Iperf3Fragment extends Fragment {
         outState.putBoolean("iperf3Json", iperf3Json.isChecked());
         outState.putBoolean("iperf3OneOff", iperf3OneOff.isChecked());
         outState.putBoolean("iperf3Client", iperf3Client.isChecked());
-
-
+        outState.putStringArrayList("iperf3List", uids);
     }
 
 

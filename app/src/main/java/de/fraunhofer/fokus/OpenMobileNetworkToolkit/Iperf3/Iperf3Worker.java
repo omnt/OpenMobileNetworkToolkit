@@ -30,7 +30,7 @@ public class Iperf3Worker extends Worker {
     public Iperf3Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         cmd = getInputData().getStringArray("commands");
-        iperf3WorkerID = UUID.randomUUID().toString();
+        iperf3WorkerID = getInputData().getString("iperf3WorkerID");
     }
 
     private ForegroundInfo createForegroundInfo(@NonNull String progress) {
@@ -62,12 +62,12 @@ public class Iperf3Worker extends Worker {
 
         Data.Builder output = new Data.Builder()
                 .putInt("iperf3_result", result)
+                .putBoolean("iperf3_upload", false)
+                .putBoolean("iperf3_move", false)
                 .putString("iperf3WorkerID", iperf3WorkerID);
         if (result == 0)
             return Result.success(output.build());
         return Result.failure(output
-                .putBoolean("iperf3_upload", true)
-                .putBoolean("iperf3_move", true)
                 .build());
     }
 }

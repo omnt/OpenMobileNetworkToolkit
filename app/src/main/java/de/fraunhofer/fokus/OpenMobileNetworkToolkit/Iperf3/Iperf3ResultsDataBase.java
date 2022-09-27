@@ -19,6 +19,7 @@ public abstract class Iperf3ResultsDataBase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     Iperf3ResultsDataBase.class, "iperf3_result_database")
                             .addTypeConverter(new Iperf3InputConverter())
+                            .allowMainThreadQueries()
                             .build();
                 }
             }

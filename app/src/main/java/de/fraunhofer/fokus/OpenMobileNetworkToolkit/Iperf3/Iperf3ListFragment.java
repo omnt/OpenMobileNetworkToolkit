@@ -27,7 +27,7 @@ public class Iperf3ListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(),
-                savedInstanceState.getStringArrayList("iperf3List"));
+                this.getArguments().getStringArrayList("iperf3List"));
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {

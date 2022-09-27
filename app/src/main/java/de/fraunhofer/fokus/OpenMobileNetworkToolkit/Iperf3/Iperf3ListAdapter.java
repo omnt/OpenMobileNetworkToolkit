@@ -1,18 +1,19 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.lifecycle.LiveData;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -38,20 +39,20 @@ public class Iperf3ListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return this.db.iperf3RunResultDao().getLength();
+        return this.uids.size();
     }
 
     @Override
     public Object getItem(int position) {
-
-        return this.db.iperf3RunResultDao().getRunResult(uids.get(position));
+        return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -64,11 +65,12 @@ public class Iperf3ListAdapter extends BaseAdapter {
 
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
-/*
-        command.setText("Measurement: "+tmp.input.getMeasurementName());
-        iperf3State.setText("Result:"+ tmp.result);
-        timestamp.setText("Moved: "+ !tmp.moved);
-        runnerID.setText("Uploaded: "+ !tmp.uploaded);
+        Iperf3RunResult test = (Iperf3RunResult) getItem(position);
+
+        command.setText("Measurement: "+test.input.measurementName);
+        iperf3State.setText(""+test.result);
+        timestamp.setText("Moved: "+ test.moved);
+        runnerID.setText("Uploaded: "+ test.uploaded);
 /*
         switch (tmp..getThreadState()){
             case "NEW":
