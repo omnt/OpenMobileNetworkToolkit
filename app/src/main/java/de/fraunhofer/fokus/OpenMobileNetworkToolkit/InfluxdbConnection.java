@@ -51,12 +51,12 @@ public class InfluxdbConnection {
         try {
             influxDBClient = InfluxDBClientFactory.create(url, token, org, bucket);
             writeApi = influxDBClient.makeWriteApi(WriteOptions.builder()
-                    .batchSize(5000)
+                    .batchSize(1000)
                     .flushInterval(1000)
                     .backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST)
                     .bufferLimit(100000)
-                    .jitterInterval(1000)
-                    .retryInterval(5000)
+                    .jitterInterval(10)
+                    .retryInterval(500)
                     .build());
             Log.d(TAG, "connect: Connected to InfluxDB");
 
