@@ -152,6 +152,7 @@ public class DataProvider {
                 CellIdentityNr ciNRId = (CellIdentityNr) ciNR.getCellIdentity();
                 point.addField("Bands", Arrays.toString(ciNRId.getBands()));
                 point.addField("CI", ciNRId.getNci());
+                point.addTag("CI", String.valueOf(ciNRId.getNci()));
                 point.addField("NRARFCN", ciNRId.getNrarfcn());
                 point.addField("MNC", ciNRId.getMncString());
                 point.addField("MCC", ciNRId.getMccString());
@@ -174,6 +175,7 @@ public class DataProvider {
                 point.addField("Bands", Arrays.toString(ciLTEId.getBands()));
                 point.addField("Bandwidth", ciLTEId.getBandwidth());
                 point.addField("CI", ciLTEId.getCi());
+                point.addTag("CI", String.valueOf(ciLTEId.getCi()));
                 point.addField("EARFCN", ciLTEId.getEarfcn());
                 point.addField("MNC", ciLTEId.getMncString());
                 point.addField("MCC", ciLTEId.getMccString());
@@ -195,6 +197,7 @@ public class DataProvider {
                 point.addField("CellType", "GSM");
                 CellIdentityGsm ciGSMId = ciGSM.getCellIdentity();
                 point.addField("CI", ciGSMId.getCid());
+                point.addTag("CI", String.valueOf(ciGSMId.getCid()));
                 point.addField("ARFCN", ciGSMId.getArfcn());
                 point.addField("MNC", ciGSMId.getMncString());
                 point.addField("MCC", ciGSMId.getMccString());
