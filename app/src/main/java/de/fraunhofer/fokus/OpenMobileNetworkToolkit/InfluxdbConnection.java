@@ -18,6 +18,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.WriteOptions;
+import com.influxdb.client.domain.Ready;
 import com.influxdb.client.write.Point;
 
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
@@ -90,15 +91,20 @@ public class InfluxdbConnection {
 
     // Add a point to the message queue
     public boolean writePoint(Point point) {
-        try {
-            point.addTag("measurement_name", sp.getString("measurement_name", "OMNT"));
-            writeApi.writePoint(point);
-        } catch (com.influxdb.exceptions.InfluxException e) {
-            Log.d(TAG, "disconnect: Error while writing points to influx DB");
-            e.printStackTrace();
+        if (influxDBClient.ready().getStatus() == Ready.StatusEnum.READY)  {
+            try {
+                point.addTag("measurement_name", sp.getString("measurement_name", "OMNT"));
+                writeApi.writePoint(point);
+            } catch (com.influxdb.exceptions.InfluxException e) {
+                Log.d(TAG, "disconnect: Error while writing points to influx DB");
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        } else {
+            Log.d(TAG, "influx client not ready");
             return false;
         }
-        return true;
     }
 
     public void sendAll(){

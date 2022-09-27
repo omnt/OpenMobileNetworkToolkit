@@ -25,6 +25,7 @@ import android.telephony.CellInfoLte;
 import android.telephony.CellInfoNr;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -97,7 +98,16 @@ public class LoggingService extends Service {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 if (Objects.equals(key, "enable_influx")) {
                     if (prefs.getBoolean(key,false)) {
-                        setupInfluxDB();
+                        if (prefs.getString("influx_URL", "").isEmpty() || prefs.getString("influx_org", "").isEmpty() || prefs.getString("influx_token", "").isEmpty() || prefs.getString("influx_bucket", "").isEmpty()) {
+                            Log.i(TAG, "Not all influx settings are present in preferences");
+                            Toast.makeText(getApplicationContext(), "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
+                            prefs.edit().putBoolean("enable_influx", false).apply();
+
+
+                            Log.d(TAG, getPackageName() + "_preferences");
+                        } else {
+                            setupInfluxDB();
+                        }
                     } else {
                         stopInfluxDB();
                     }
@@ -111,7 +121,6 @@ public class LoggingService extends Service {
             }
         };
         sp.registerOnSharedPreferenceChangeListener(listener);
-
 
 
         // Start foreground service.
@@ -142,24 +151,42 @@ public class LoggingService extends Service {
         nm.notify(1, builder.build());
     }
 
-    private void setupInfluxDB() {
+    private boolean setupInfluxDB() {
         Log.d(TAG, "setupInfluxDB");
-        String url = sp.getString("influx_URL", null);
-        String org = sp.getString("influx_org", null);
-        String bucket = sp.getString("influx_bucket", null);
-        String token = sp.getString("influx_token", null);
+        String url = sp.getString("influx_URL", "");
+        String org = sp.getString("influx_org", "");
+        String bucket = sp.getString("influx_bucket", "");
+        String token = sp.getString("influx_token", "");
 
-        ic = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
-        ic.connect();
-        loggingHandler = new Handler(Looper.myLooper());
-        loggingHandler.post(loggingUpdate);
+        if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
+            Log.e(TAG, "Influx parameters incomplete, can't setup logging");
+            Log.d(TAG, "bucket: " + bucket);
+            return false;
+        } else {
+            ic = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
+            if (ic.connect()) {
+                loggingHandler = new Handler(Looper.myLooper());
+                loggingHandler.post(loggingUpdate);
+                return true;
+            } else {
+                Log.i(TAG, "can't start influx logging, connect to database not successful");
+                return false;
+            }
+        }
     }
 
     private void stopInfluxDB() {
         Log.d(TAG, "stopInfluxDB");
-
-        loggingHandler.removeCallbacks(loggingUpdate);
-        ic.disconnect();
+        if (loggingHandler != null) {
+            try {
+                loggingHandler.removeCallbacks(loggingUpdate);
+            } catch (java.lang.NullPointerException e) {
+                Log.d(TAG, "trying to stop influx service while it was not running");
+            }
+        }
+        if (ic != null) {
+            ic.disconnect();
+        }
     }
 
     private void setupLocalLog() {
