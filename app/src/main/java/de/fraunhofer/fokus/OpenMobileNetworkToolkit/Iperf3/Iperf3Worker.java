@@ -62,8 +62,6 @@ public class Iperf3Worker extends Worker {
 
         Data.Builder output = new Data.Builder()
                 .putInt("iperf3_result", result)
-                .putBoolean("iperf3_upload", false)
-                .putBoolean("iperf3_move", false)
                 .putString("iperf3WorkerID", iperf3WorkerID);
         if (result == 0)
             return Result.success(output.build());

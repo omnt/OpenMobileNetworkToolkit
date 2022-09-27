@@ -32,6 +32,15 @@ public interface Iperf3RunResultDao {
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     void insert(Iperf3RunResult iperf3RunResult);
 
+    @Query("UPDATE iperf3_result_database SET result=:result WHERE uid=:uid")
+    void updateResult(String uid, int result);
+
+    @Query("UPDATE iperf3_result_database SET uploaded=:uploaded WHERE uid=:uid")
+    void updateUpload(String uid, boolean uploaded);
+
+    @Query("UPDATE iperf3_result_database SET moved=:moved WHERE uid=:uid")
+    void updateMove(String uid, boolean moved);
+
     @Update
     void update(Iperf3RunResult iperf3RunResult);
 

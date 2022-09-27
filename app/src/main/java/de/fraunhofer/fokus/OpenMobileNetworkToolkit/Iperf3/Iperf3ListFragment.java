@@ -1,5 +1,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -21,6 +24,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 public class Iperf3ListFragment extends Fragment {
     ListView listView;
     Iperf3ListAdapter iperf3ListAdapter;
+    private Iperf3ResultsDataBase db;
 
     @RequiresApi(api = 33)
     @Override
@@ -28,6 +32,8 @@ public class Iperf3ListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(),
                 this.getArguments().getStringArrayList("iperf3List"));
+
+        this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -46,14 +52,19 @@ public class Iperf3ListFragment extends Fragment {
             iperf3ListAdapter.setUids(savedInstanceState.getStringArrayList("iperf3List"));
         }
 
-
+        ArrayList<String> uids = this.getArguments().getStringArrayList("iperf3List");
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> listView, View itemView, int itemPosition, long itemId)
             {
-
+                Iperf3RunResult tmp = db.iperf3RunResultDao().getRunResult(uids.get(itemPosition));
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.parse(tmp.input.iperf3LogFilePath), "text/plain");
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
             }
         });
 
