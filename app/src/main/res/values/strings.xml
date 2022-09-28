@@ -81,6 +81,7 @@
     <string name="enable_local_log">Local log</string>
     <string name="enable_notification_update">Enable notification update</string>
     <string name="enable_notification_update_summary">This will wake up the screen on each update</string>
+    <string name="runningIndicator">running_indicator</string>
 
 
 </resources>

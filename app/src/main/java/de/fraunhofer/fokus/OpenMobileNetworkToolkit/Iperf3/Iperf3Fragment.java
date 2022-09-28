@@ -236,7 +236,7 @@ public class Iperf3Fragment extends Fragment {
         if (preferences.getBoolean("enable_influx", false)) {
             iperf3WM.beginWith(iperf3WR).then(iperf3UP).then(iperf3Move).enqueue();
         } else {
-            iperf3WM.beginWith(iperf3WR).enqueue();//.then(iperf3Move).enqueue();
+            iperf3WM.beginWith(iperf3WR).then(iperf3Move).enqueue();
         }
 
         iperf3WM.getWorkInfoByIdLiveData(iperf3WR.getId()).observeForever(new Observer<WorkInfo>() {
@@ -246,6 +246,8 @@ public class Iperf3Fragment extends Fragment {
                 iperf3_result = workInfo.getOutputData().getInt("iperf3_result", -100);
                 Log.d(TAG, "onChanged: iperf3_result: "+iperf3_result);
                 iperf3RunResultDao.updateResult(iperf3WorkerID, iperf3_result);
+                if(iperf3ListFragment != null)
+                    iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
             }
         });
         iperf3WM.getWorkInfoByIdLiveData(iperf3UP.getId()).observeForever(new Observer<WorkInfo>() {
@@ -255,6 +257,8 @@ public class Iperf3Fragment extends Fragment {
                 iperf3_upload = workInfo.getOutputData().getBoolean("iperf3_upload", false);
                 Log.d(TAG, "onChanged: iperf3_upload: "+iperf3_upload);
                 iperf3RunResultDao.updateUpload(iperf3WorkerID, iperf3_upload);
+                if(iperf3ListFragment != null)
+                    iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
             }
         });
         iperf3WM.getWorkInfoByIdLiveData(iperf3Move.getId()).observeForever(new Observer<WorkInfo>() {
@@ -264,6 +268,9 @@ public class Iperf3Fragment extends Fragment {
                 iperf3_move = workInfo.getOutputData().getBoolean("iperf3_move", false);
                 Log.d(TAG, "onChanged: iperf3_move: "+iperf3_move);
                 iperf3RunResultDao.updateMove(iperf3WorkerID, iperf3_move);
+                if(iperf3ListFragment != null)
+                    iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
+
             }
         });
     }

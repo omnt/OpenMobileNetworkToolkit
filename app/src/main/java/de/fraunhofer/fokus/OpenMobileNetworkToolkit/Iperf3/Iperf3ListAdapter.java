@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
@@ -61,7 +62,7 @@ public class Iperf3ListAdapter extends BaseAdapter {
         TextView runnerID = (TextView) convertView.findViewById(R.id.secondLine);
         TextView timestamp = (TextView) convertView.findViewById(R.id.thirdLine);
         TextView iperf3State = (TextView) convertView.findViewById(R.id.iperf3State);
-      //  ImageView icon = (ImageView) convertView.findViewById(R.id.runningIndicator);
+        ImageView icon = (ImageView) convertView.findViewById(R.id.iperf3RunningIndicator);
 
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
@@ -71,29 +72,16 @@ public class Iperf3ListAdapter extends BaseAdapter {
         iperf3State.setText(""+test.result);
         timestamp.setText("Moved: "+ test.moved);
         runnerID.setText("Uploaded: "+ test.uploaded);
-/*
-        switch (tmp..getThreadState()){
-            case "NEW":
-                break;
-            case "RUNNABLE":
-                drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_directions_run, null);
-                break;
-            case "BLOCKED":
-                break;
-            case "WAITING":
-                break;
-            case "WATING":
-                break;
-            case "TIMED_WAITING":
-                break;
-            case "TERMINATED":
-                drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all, null);
-                iperf3State.setText(Integer.toString(iperf3R.getIperf3State()));
-                break;
-            default:
+
+        if (test.result == -100) {
+            drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_directions_run, null);
+        } else if(test.result != 0) {
+            drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
+        } else {
+            drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all, null);
         }
-*/
-        //icon.setImageDrawable(drawable);
+
+        icon.setImageDrawable(drawable);
         return convertView;
     }
 }

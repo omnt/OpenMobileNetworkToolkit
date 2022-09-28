@@ -12,10 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="3dp"
-        android:layout_marginTop="2dp"
         android:layout_marginEnd="117dp"
         android:gravity="center_vertical"
         android:text="Example application"
@@ -23,11 +21,12 @@
 
     <TextView
         android:id="@+id/secondLine"
-        android:layout_width="200dp"
-        android:layout_height="39dp"
+        android:layout_width="205dp"
+        android:layout_height="25dp"
         android:layout_below="@+id/firstLine"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginTop="11dp"
         android:layout_marginBottom="0dp"
         android:ellipsize="marquee"
         android:maxLines="1"
@@ -49,11 +48,20 @@
         android:layout_height="wrap_content"
         android:layout_alignRight="@id/firstLine"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="156dp"
-        android:layout_marginRight="36dp"
+        android:layout_marginEnd="152dp"
+        android:layout_marginRight="32dp"
         android:ellipsize="marquee"
         android:maxLines="1"
         android:text="State" />
 
+
+    <ImageView
+        android:id="@+id/iperf3RunningIndicator"
+        android:layout_width="118dp"
+        android:layout_height="34dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="2dp"
+        android:contentDescription="@string/runningIndicator"
+        android:src="@drawable/ic_error_outline" />
 
 </RelativeLayout>

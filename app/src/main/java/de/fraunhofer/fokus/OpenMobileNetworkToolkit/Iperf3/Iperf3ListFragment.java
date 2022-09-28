@@ -3,6 +3,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,10 @@ public class Iperf3ListFragment extends Fragment {
         this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
     }
 
+    public Iperf3ListAdapter getIperf3ListAdapter(){
+        return this.iperf3ListAdapter;
+    }
+
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_iperf3_list, parent, false);
     }
@@ -59,6 +64,8 @@ public class Iperf3ListFragment extends Fragment {
 
             public void onItemClick(AdapterView<?> listView, View itemView, int itemPosition, long itemId)
             {
+
+                //todo make intent right
                 Iperf3RunResult tmp = db.iperf3RunResultDao().getRunResult(uids.get(itemPosition));
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
