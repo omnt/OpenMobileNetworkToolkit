@@ -38,9 +38,6 @@ public interface Iperf3RunResultDao {
     @Query("UPDATE iperf3_result_database SET uploaded=:uploaded WHERE uid=:uid")
     void updateUpload(String uid, boolean uploaded);
 
-    @Query("UPDATE iperf3_result_database SET moved=:moved WHERE uid=:uid")
-    void updateMove(String uid, boolean moved);
-
     @Update
     void update(Iperf3RunResult iperf3RunResult);
 

@@ -82,6 +82,8 @@
     <string name="enable_notification_update">Enable notification update</string>
     <string name="enable_notification_update_summary">This will wake up the screen on each update</string>
     <string name="runningIndicator">running_indicator</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

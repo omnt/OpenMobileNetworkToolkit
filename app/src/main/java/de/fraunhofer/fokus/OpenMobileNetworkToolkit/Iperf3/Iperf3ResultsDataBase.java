@@ -1,12 +1,14 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
-
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {Iperf3RunResult.class}, version = 1)
+@Database(
+        entities = {Iperf3RunResult.class},
+        version = 2
+)
 public abstract class Iperf3ResultsDataBase extends RoomDatabase {
     public abstract Iperf3RunResultDao iperf3RunResultDao();
     private static volatile Iperf3ResultsDataBase INSTANCE;
@@ -26,5 +28,4 @@ public abstract class Iperf3ResultsDataBase extends RoomDatabase {
         }
         return INSTANCE;
     }
-
 }

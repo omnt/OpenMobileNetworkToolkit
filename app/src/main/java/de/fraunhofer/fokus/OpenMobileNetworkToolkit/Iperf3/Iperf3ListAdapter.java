@@ -68,9 +68,9 @@ public class Iperf3ListAdapter extends BaseAdapter {
 
         Iperf3RunResult test = (Iperf3RunResult) getItem(position);
 
-        command.setText("Measurement: "+test.input.measurementName);
+        command.setText(test.input.measurementName);
         iperf3State.setText(""+test.result);
-        timestamp.setText("Moved: "+ test.moved);
+        timestamp.setText(test.input.timestamp);
         runnerID.setText("Uploaded: "+ test.uploaded);
 
         if (test.result == -100) {

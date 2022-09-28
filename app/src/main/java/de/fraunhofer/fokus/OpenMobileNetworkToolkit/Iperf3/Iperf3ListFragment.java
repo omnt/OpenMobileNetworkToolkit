@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,14 +66,14 @@ public class Iperf3ListFragment extends Fragment {
 
             public void onItemClick(AdapterView<?> listView, View itemView, int itemPosition, long itemId)
             {
-
-                //todo make intent right
-                Iperf3RunResult tmp = db.iperf3RunResultDao().getRunResult(uids.get(itemPosition));
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse(tmp.input.iperf3LogFilePath), "text/plain");
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getContext().startActivity(intent);
+                    Iperf3RunResult tmp = db.iperf3RunResultDao().getRunResult(uids.get(itemPosition));
+                    Bundle bundle = new Bundle();
+                    bundle.putString("uid", uids.get(itemPosition));
+                    Iperf3LogFragment test = new Iperf3LogFragment();
+                    test.setArguments(bundle);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView, test, "iperf3LogFragment")
+                        .addToBackStack("findThisFragment").commit();
             }
         });
 
