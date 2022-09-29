@@ -20,16 +20,15 @@
             app:dependency="enable_logging"/>
 
         <SwitchPreferenceCompat
-            app:dependency="enable_logging"
             app:key="enable_influx"
-            app:title="@string/enable_influx" />
+            app:title="@string/enable_influx"
+            app:dependency="influx_URL"/>
 
         <EditTextPreference
             app:key="influx_URL"
             app:useSimpleSummaryProvider="true"
             android:dialogTitle="@string/influx_url_dialog_title"
-            app:title="@string/influx_url"
-            app:dependency="enable_influx"/>
+            app:title="@string/influx_url" />
 
         <EditTextPreference
             app:key="influx_org"
@@ -54,29 +53,24 @@
 
         <SwitchPreferenceCompat
             app:key="influx_network_data"
-            app:title="@string/influx_network_data"
-            app:dependency="enable_influx"/>
+            app:title="@string/influx_network_data" />
 
         <SwitchPreferenceCompat
             app:key="influx_throughput_data"
-            app:title="@string/influx_throughput_data"
-            app:dependency="enable_influx"/>
+            app:title="@string/influx_throughput_data" />
 
         <EditTextPreference
             app:key="measurement_name"
             app:useSimpleSummaryProvider="true"
-            app:title="@string/measurement"
-            app:dependency="enable_influx"/>
+            app:title="@string/measurement" />
 
 
         <SwitchPreferenceCompat
             app:key="influx_cell_data"
-            app:title="@string/influx_cell_data"
-            app:dependency="enable_influx"/>
+            app:title="@string/influx_cell_data" />
 
         <SwitchPreferenceCompat
             app:key="influx_signal_data"
-            app:title="@string/influx_signal_data"
-            app:dependency="enable_influx"/>
+            app:title="@string/influx_signal_data" />
 
 </PreferenceScreen>
