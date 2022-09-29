@@ -66,7 +66,6 @@ public class Iperf3ListFragment extends Fragment {
 
             public void onItemClick(AdapterView<?> listView, View itemView, int itemPosition, long itemId)
             {
-                    Iperf3RunResult tmp = db.iperf3RunResultDao().getRunResult(uids.get(itemPosition));
                     Bundle bundle = new Bundle();
                     bundle.putString("uid", uids.get(itemPosition));
                     Iperf3LogFragment test = new Iperf3LogFragment();

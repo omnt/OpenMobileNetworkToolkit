@@ -60,10 +60,6 @@ public class Iperf3Fragment extends Fragment {
 
     private static final String TAG = "iperf3Activity";
 
-    private ThreadGroup iperf3TG;
-    private Thread iperf3MThread;
-    private Iperf3OverView iperf3OverView;
-    private Iperf3DBHandler iperf3DBHandler;
     private String logFilePath;
     private String logFileDir;
     private String logFileName;
@@ -100,9 +96,6 @@ public class Iperf3Fragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.iperf3TG = new ThreadGroup("iperf3ThreadGroup");
-        this.iperf3DBHandler = Iperf3DBHandler.getInstance(getActivity().getApplicationContext());
-        this.iperf3OverView = new Iperf3OverView(this.iperf3TG, this.iperf3DBHandler);
         this.input = new Iperf3Input();
         this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
         this.uids = new ArrayList<>(this.db.iperf3RunResultDao().getIDs());
