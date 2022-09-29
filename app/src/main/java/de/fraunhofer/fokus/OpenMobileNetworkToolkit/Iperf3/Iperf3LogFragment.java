@@ -100,13 +100,10 @@ public class Iperf3LogFragment extends Fragment {
 
         leftFirst.setImageDrawable(Iperf3Utils.getDrawable(getContext(), iperf3RunResult.result));
         rightFirst.setText("Uploaded \n"+iperf3RunResult.uploaded);
-
-
         leftSecond.setText("Remote host \n"+iperf3RunResult.input.iperf3IP);
-        //rightSecond.setText("Local host \n"+iperf3RunResult.input.iperf3LocalHost+":"+iperf3RunResult.input.iperf3LocalPort);
-
+        rightSecond.setText("Run ID \n"+iperf3RunResult.uid);
         leftThird.setText("Time \n"+iperf3RunResult.input.timestamp);
-
+        rightThird.setText("");
 
         wrapper.setText(iperf3RunResult.input.iperf3Command);
     }

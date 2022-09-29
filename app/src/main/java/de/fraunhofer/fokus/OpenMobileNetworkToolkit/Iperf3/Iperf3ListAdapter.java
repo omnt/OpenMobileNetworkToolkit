@@ -70,6 +70,8 @@ public class Iperf3ListAdapter extends BaseAdapter {
 
         command.setText(test.input.measurementName);
         iperf3State.setText(""+test.result);
+        if(test.result == -100)
+            iperf3State.setText("RUN");
         timestamp.setText(test.input.timestamp.toString());
         runnerID.setText("Uploaded: "+ test.uploaded);
 
