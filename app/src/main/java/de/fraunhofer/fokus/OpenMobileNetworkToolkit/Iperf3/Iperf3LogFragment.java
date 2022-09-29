@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.influxdb.client.write.Point;
@@ -40,6 +41,18 @@ public class Iperf3LogFragment extends Fragment {
     private Handler logHandler;
     private File file;
     private String uid;
+
+    private TextView headliner;
+    private ImageView leftFirst;
+    private TextView leftSecond;
+    private TextView leftThird;
+    private TextView rightFirst;
+    private TextView rightSecond;
+    private TextView rightThird;
+    private TextView wrapper;
+
+
+
     public Iperf3LogFragment() {
         // Required empty public constructor
     }
@@ -57,17 +70,11 @@ public class Iperf3LogFragment extends Fragment {
             StringBuilder text = new StringBuilder();
             Iperf3RunResult iperf3RunResult = db.iperf3RunResultDao().getRunResult(uid);
             Log.d(TAG, "run: "+iperf3RunResult.result);
-            if(iperf3RunResult.result != -100){
-                logHandler.removeCallbacks(logUpdate);
-                Log.d(TAG, "run: dropped out");
-                return;
-            }
 
             try {
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String line;
                 while ((line = br.readLine()) != null) {
-                    Log.d(TAG, "run: "+line);
                     text.append(line);
                     text.append('\n');
                 }
@@ -77,10 +84,32 @@ public class Iperf3LogFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            setFields(iperf3RunResult);
 
-            logHandler.postDelayed(this,3000);
+            if(iperf3RunResult.result != -100){
+                logHandler.removeCallbacks(logUpdate);
+                return;
+            }
+
+            logHandler.postDelayed(this,1000);
         }
     };
+
+    private void setFields(Iperf3RunResult iperf3RunResult){
+        headliner.setText(iperf3RunResult.input.measurementName);
+
+        leftFirst.setImageDrawable(Iperf3Utils.getDrawable(getContext(), iperf3RunResult.result));
+        rightFirst.setText("Uploaded \n"+iperf3RunResult.uploaded);
+
+
+        leftSecond.setText("Remote host \n"+iperf3RunResult.input.iperf3IP);
+        //rightSecond.setText("Local host \n"+iperf3RunResult.input.iperf3LocalHost+":"+iperf3RunResult.input.iperf3LocalPort);
+
+        leftThird.setText("Time \n"+iperf3RunResult.input.timestamp);
+
+
+        wrapper.setText(iperf3RunResult.input.iperf3Command);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,6 +118,18 @@ public class Iperf3LogFragment extends Fragment {
         logView = v.findViewById(R.id.stats);
         logView.setMovementMethod(new ScrollingMovementMethod());
         Iperf3RunResult iperf3RunResult = db.iperf3RunResultDao().getRunResult(this.getArguments().getString("uid"));
+
+        headliner = v.findViewById(R.id.headliner);
+        leftFirst = v.findViewById(R.id.leftFirst);
+        leftSecond = v.findViewById(R.id.leftSecond);
+        leftThird = v.findViewById(R.id.leftThird);
+        rightFirst = v.findViewById(R.id.rightFirst);
+        rightSecond = v.findViewById(R.id.rightSecond);
+        rightThird = v.findViewById(R.id.rightThird);
+        wrapper = v.findViewById(R.id.wrapper);
+
+        setFields(iperf3RunResult);
+
         file = new File(iperf3RunResult.input.iperf3LogFilePath);
         uid = iperf3RunResult.uid;
         Log.d(TAG, "onCreateView: "+file.getAbsolutePath());
@@ -96,5 +137,10 @@ public class Iperf3LogFragment extends Fragment {
         logHandler = new Handler(Looper.myLooper());
         logHandler.post(logUpdate);
         return v;
+    }
+
+    public void onPause(){
+        super.onPause();
+        logHandler.removeCallbacks(logUpdate);
     }
 }

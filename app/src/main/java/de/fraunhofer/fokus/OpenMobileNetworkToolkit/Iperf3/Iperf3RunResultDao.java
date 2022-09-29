@@ -20,7 +20,7 @@ public interface Iperf3RunResultDao {
     @Query("SELECT COUNT(*) FROM iperf3_result_database")
     LiveData<Integer> getLength();
 
-    @Query("SELECT uid FROM iperf3_result_database")
+    @Query("SELECT uid FROM iperf3_result_database ORDER BY timestamp DESC")
     List<String> getIDs();
 
     @Query("SELECT * FROM iperf3_result_database WHERE uid = :comp_uid")

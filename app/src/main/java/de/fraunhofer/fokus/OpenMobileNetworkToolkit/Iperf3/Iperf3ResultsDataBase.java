@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase;
 
 @Database(
         entities = {Iperf3RunResult.class},
-        version = 2
+        version = 3
 )
 public abstract class Iperf3ResultsDataBase extends RoomDatabase {
     public abstract Iperf3RunResultDao iperf3RunResultDao();

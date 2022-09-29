@@ -70,17 +70,10 @@ public class Iperf3ListAdapter extends BaseAdapter {
 
         command.setText(test.input.measurementName);
         iperf3State.setText(""+test.result);
-        timestamp.setText(test.input.timestamp);
+        timestamp.setText(test.input.timestamp.toString());
         runnerID.setText("Uploaded: "+ test.uploaded);
 
-        if (test.result == -100) {
-            drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_directions_run, null);
-        } else if(test.result != 0) {
-            drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
-        } else {
-            drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all, null);
-        }
-
+        drawable = Iperf3Utils.getDrawable(context, test.result);
         icon.setImageDrawable(drawable);
         return convertView;
     }

@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.system.ErrnoException;
@@ -25,6 +26,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import java.io.File;
+import java.net.NetworkInterface;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -81,6 +83,7 @@ public class Iperf3Fragment extends Fragment {
         public boolean iperf3OneOff;
         public boolean iperf3Client;
 
+        public String iperf3Command;
         public String iperf3LogFilePath;
         public String iperf3LogFileName;
         public String measurementName;
@@ -90,7 +93,7 @@ public class Iperf3Fragment extends Fragment {
         public String iperf3Duration;
         public String iperf3Interval;
         public String iperf3Bytes;
-        public String timestamp;
+        public Timestamp timestamp;
     }
 
 
@@ -234,8 +237,8 @@ public class Iperf3Fragment extends Fragment {
        // OneTimeWorkRequest iperf3Move = new OneTimeWorkRequest.Builder(Iperf3MoveWorker.class).setInputData(iperf3Data.build()).addTag("iperf3").build();
 
         Iperf3RunResultDao iperf3RunResultDao = db.iperf3RunResultDao();
-        iperf3RunResultDao.insert(new Iperf3RunResult(iperf3WorkerID, -100,false, input));
-        uids.add(iperf3WorkerID);
+        iperf3RunResultDao.insert(new Iperf3RunResult(iperf3WorkerID, -100,false, input, input.timestamp));
+        uids.add(0, iperf3WorkerID);
 
         if (preferences.getBoolean("enable_influx", false)) {
             //iperf3WM.beginWith(iperf3WR).then(iperf3UP).then(iperf3Move).enqueue();
@@ -329,9 +332,8 @@ public class Iperf3Fragment extends Fragment {
             }
         }
 
-        Timestamp iperfT = new Timestamp(System.currentTimeMillis());
-        input.timestamp = iperfT.toString();
-        String iperf3TS = "_"+iperfT.toString().replace(" ", "_").replace(":", "_");
+        input.timestamp = new Timestamp(System.currentTimeMillis());
+        String iperf3TS = "_"+input.timestamp.toString().replace(" ", "_").replace(":", "_");
         String logName = iperf3EtLog.getText().toString();
         input.measurementName = logName;
         if(!logName.equals("")){
@@ -375,7 +377,12 @@ public class Iperf3Fragment extends Fragment {
         }
 
         String joined = String.join(" ", stb);
+
+
         Log.d(TAG, "parseInput: joined command "+ joined);
+        input.iperf3Command = joined;
+
+
         return joined;
     }
 
