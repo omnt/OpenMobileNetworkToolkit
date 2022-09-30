@@ -53,42 +53,18 @@ public class Iperf3ListFragment extends Fragment {
         listView = v.findViewById(R.id.runners_list);
         listView.setAdapter(iperf3ListAdapter);
 
-
-        if (savedInstanceState != null) {
-            listView.onRestoreInstanceState(savedInstanceState.getParcelable("ListState"));
-            iperf3ListAdapter.setUids(savedInstanceState.getStringArrayList("iperf3List"));
-        }
-
         ArrayList<String> uids = this.getArguments().getStringArrayList("iperf3List");
 
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            public void onItemClick(AdapterView<?> listView, View itemView, int itemPosition, long itemId)
-            {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("uid", uids.get(itemPosition));
-                    Iperf3LogFragment test = new Iperf3LogFragment();
-                    test.setArguments(bundle);
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView, test, "iperf3LogFragment")
-                        .addToBackStack("findThisFragment").commit();
-            }
+        listView.setOnItemClickListener((listView, itemView, itemPosition, itemId) -> {
+                Bundle bundle = new Bundle();
+                bundle.putString("uid", uids.get(itemPosition));
+                Iperf3LogFragment test = new Iperf3LogFragment();
+                test.setArguments(bundle);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView, test, "iperf3LogFragment")
+                    .addToBackStack("findThisFragment").commit();
         });
 
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //todo add listView.onSaveInstanceState() to db and retrieve it onCreate when savedInstanceState == null
-        //https://stackoverflow.com/questions/18000093/how-to-marshall-and-unmarshall-a-parcelable-to-a-byte-array-with-help-of-parcel
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("ListState", listView.onSaveInstanceState());
     }
 
 }
