@@ -12,11 +12,14 @@ import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import java.util.UUID;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Worker extends Worker {
     private static final String TAG = "iperf3Worker";
     private final String[] cmd;
+    private final String iperf3WorkerID;
     static {
         System.loadLibrary("iperf3.11");
         Log.i(TAG, "iperf.so loaded!");
@@ -27,15 +30,14 @@ public class Iperf3Worker extends Worker {
     public Iperf3Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         cmd = getInputData().getStringArray("commands");
+        iperf3WorkerID = getInputData().getString("iperf3WorkerID");
     }
 
     private ForegroundInfo createForegroundInfo(@NonNull String progress) {
-        // Build a notification using bytesRead and contentLength
 
         Context context = getApplicationContext();
         String id = "OMNT_notification_channel";
         String title = "Iperf3 Test is running...";
-        // This PendingIntent can be used to cancel the worker
 
         Notification notification = new NotificationCompat.Builder(context, id)
                 .setContentTitle(title)
@@ -44,8 +46,6 @@ public class Iperf3Worker extends Worker {
                 .setColor(Color.WHITE)
                 .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
-        // Add the cancel action to the notification which can
-                // be used to cancel the worker
                 .build();
         return new ForegroundInfo(100, notification);
     }
@@ -61,12 +61,11 @@ public class Iperf3Worker extends Worker {
 
 
         Data.Builder output = new Data.Builder()
-                .putInt("iperf3_result", result);
+                .putInt("iperf3_result", result)
+                .putString("iperf3WorkerID", iperf3WorkerID);
         if (result == 0)
             return Result.success(output.build());
         return Result.failure(output
-                .putBoolean("iperf3_upload", true)
-                .putBoolean("iperf3_move", true)
                 .build());
     }
 }

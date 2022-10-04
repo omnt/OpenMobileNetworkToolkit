@@ -31,12 +31,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 public class HomeFragment extends Fragment implements LocationListener {
@@ -98,6 +105,22 @@ public class HomeFragment extends Fragment implements LocationListener {
         return view;
     }
 
+    public static ArrayList<String> getIPs(ArrayList<String> props){
+        try {
+            List<NetworkInterface> networkInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for(NetworkInterface networkInterface: networkInterfaces) {
+                List<InetAddress> iNets = Collections.list(networkInterface.getInetAddresses());
+                for(InetAddress iNet: iNets){
+                    props.add(networkInterface.getDisplayName()+"\t\t"+iNet.getHostAddress().split("%")[0]);
+                }
+            }
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        }
+
+        return props;
+    }
+
     @SuppressLint({"MissingPermission", "HardwareIds"})
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -144,6 +167,10 @@ public class HomeFragment extends Fragment implements LocationListener {
         props.add("READ_PHONE_STATE: " + feature_phone_state);
         props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
         props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
+
+
+        props.add("\n \n ## Interfaces ##");
+        props = getIPs(props);
 
         props.add("\n \n ## Network ##");
         props.add("Network Operator: " + tm.getNetworkOperatorName());

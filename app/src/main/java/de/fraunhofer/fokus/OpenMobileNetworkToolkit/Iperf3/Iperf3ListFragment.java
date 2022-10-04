@@ -1,11 +1,16 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,22 +18,29 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 
 public class Iperf3ListFragment extends Fragment {
     ListView listView;
     Iperf3ListAdapter iperf3ListAdapter;
-    private Iperf3DBHandler iperf3DBHandler;
-    Iperf3Fragment.ListElem[] ids;
+    private Iperf3ResultsDataBase db;
 
     @RequiresApi(api = 33)
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.ids = (Iperf3Fragment.ListElem[]) getArguments().getParcelableArray("iperf3List");
-        iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(), this.ids);
+        iperf3ListAdapter = new Iperf3ListAdapter(getActivity().getApplicationContext(),
+                this.getArguments().getStringArrayList("iperf3List"));
 
+        this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
+    }
+
+    public Iperf3ListAdapter getIperf3ListAdapter(){
+        return this.iperf3ListAdapter;
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -38,39 +50,21 @@ public class Iperf3ListFragment extends Fragment {
     public void onViewCreated(View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        this.iperf3DBHandler = Iperf3DBHandler.getInstance(getActivity().getApplicationContext());
-
         listView = v.findViewById(R.id.runners_list);
         listView.setAdapter(iperf3ListAdapter);
 
+        ArrayList<String> uids = this.getArguments().getStringArrayList("iperf3List");
 
-        if (savedInstanceState != null) {
-            listView.onRestoreInstanceState(savedInstanceState.getParcelable("ListState"));
-        }
-
-
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            public void onItemClick(AdapterView<?> listView, View itemView, int itemPosition, long itemId)
-            {
-
-            }
+        listView.setOnItemClickListener((listView, itemView, itemPosition, itemId) -> {
+                Bundle bundle = new Bundle();
+                bundle.putString("uid", uids.get(itemPosition));
+                Iperf3LogFragment test = new Iperf3LogFragment();
+                test.setArguments(bundle);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragmentContainerView, test, "iperf3LogFragment")
+                    .addToBackStack("findThisFragment").commit();
         });
 
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //todo add listView.onSaveInstanceState() to db and retrieve it onCreate when savedInstanceState == null
-        //https://stackoverflow.com/questions/18000093/how-to-marshall-and-unmarshall-a-parcelable-to-a-byte-array-with-help-of-parcel
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("ListState", listView.onSaveInstanceState());
     }
 
 }
