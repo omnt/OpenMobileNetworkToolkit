@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         loggingServiceIntent = new Intent(this, LoggingService.class);
         Context context = getApplicationContext();
         if (sp.getBoolean("enable_logging", false)) {
-            Log.d(TAG, "Start logging service");
+            SRLog.d(TAG, "Start logging service");
             context.startForegroundService(loggingServiceIntent);
         }
 
@@ -111,16 +111,16 @@ public class MainActivity extends AppCompatActivity {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 if (Objects.equals(key, "enable_logging")) {
                     if (prefs.getBoolean(key, false)) {
-                        Log.i(TAG, "Start logging service");
+                        SRLog.i(TAG, "Start logging service");
                         context.startForegroundService(loggingServiceIntent);
                     } else {
-                        Log.i(TAG, "Stop logging service");
+                        SRLog.i(TAG, "Stop logging service");
                         context.stopService(loggingServiceIntent);
                     }
                 }
                 if (Objects.equals(key, "carrier_Permission")) {
                     if(prefs.getBoolean(key, false)) {
-                        SRLog.d(TAG, "Carrier Permission Approved");
+                        SRLog.i(TAG, "Carrier Permission Approved");
                         cp = tm.hasCarrierPrivileges();
                         if(cp){
                             Toast.makeText(context, "Carrier Permission Approved!", Toast.LENGTH_SHORT).show();
@@ -128,7 +128,24 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(context,"Carrier Permissions Rejected!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        SRLog.d(TAG,"Carrier Permission Denied!");
+                        SRLog.i(TAG,"Carrier Permission Denied!");
+                    }
+                }
+                if(Objects.equals(key,"enable_influx")) {
+                    if(prefs.getBoolean(key,false)){
+                        SRLog.i(TAG, "Enabled Influx Log");
+                        //Call influx logging here
+
+                    } else {
+                        SRLog.i(TAG,"Stop Influx Logging");
+                    }
+                }
+                if(Objects.equals(key,"influx_url")){
+                    String val = prefs.getString("influx_url","");
+                    if(val == ""){
+                        SRLog.i(TAG, "Influx URL unknown");
+                    } else {
+                        SRLog.i(TAG,"Influx URL:" + key);
                     }
                 }
             }
@@ -159,84 +176,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        /* TODO Clean this after slice config works */
-
-       /* if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-            SRLog.d(TAG,"Requesting permission for phone_state");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
-            SRLog.d(TAG,"permission for phone_state acquired");
-
-            if(tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))
-            {
-                if(tm.hasCarrierPrivileges()) {
-
-                    tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                        @Override
-                        public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
-                            SRLog.d(TAG, "SLICING CONFIG RESULT OK");
-                            NetworkSlicingConfig networkSlicingConfig1 = networkSlicingConfig;
-                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
-                            List<NetworkSliceInfo> sliceInfoList = networkSlicingConfig.getSliceInfo();
-                            SRLog.d(TAG, "Slice config works!!");
-                            SRLog.d(TAG, "URSP List: " +urspRuleList);
-                            SRLog.d(TAG, "sliceInfoList: " +sliceInfoList);
-                            SRLog.d(TAG,"URSP received: " +urspRuleList.size());
-                            for(int i = 0; i < urspRuleList.size(); i++){
-                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
-                                List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
-                                List<RouteSelectionDescriptor> routeSelectionDescriptorList = urspRule.getRouteSelectionDescriptor();
-                                TrafficDescriptor trafficDescriptor = trafficDescriptorList.get(i);
-                                RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorList.get(i);
-                                List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
-                                NetworkSliceInfo networkSliceInfo = networkSliceInfoList.get(i);
-
-
-                                SliceCreate sliceCreate = new SliceCreate();
-
-
-
-
-                                SRLog.d(TAG, "URSP" + urspRule);
-                                SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
-                                SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
-                            }
-
-                        }
-
-                        @Override
-                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                            OutcomeReceiver.super.onError(error);
-                            SRLog.d(TAG, "SLICING CONFIG ERROR!!");
-                        }
-
-                    });
-                }
-            }
-        } else {
-            SRLog.d(TAG, "READ_PHONE_STATE PERMISSION UNAVAILABLE TO SLICING!");
-        }*/
-
-        /*if(cp) {
-
-            tm.getNetworkSlicingConfiguration(getApplicationContext().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                @Override
-                public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
-                    Log.d(TAG, "SLICING CONFIG RESULT OK");
-                }
-
-                @Override
-                public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                    OutcomeReceiver.super.onError(error);
-                    Log.d(TAG, "SLICING CONFIG ERROR!!");
-                }
-
-            });
-        } else {
-            Log.d(TAG, "CARRIER PERMISSION UNAVAIL7ABLE TO SLICING!");
-            Toast.makeText(getApplicationContext(),"CARRIER PERMISSION UNAVAILABLE TO SLICING!", Toast.LENGTH_SHORT).show();
-        }*/
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
