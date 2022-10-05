@@ -63,7 +63,7 @@
     <string name="carrier_permissions">carrier_permission</string>
 
     <!-- Logging Preferences -->
-    <string name="enable_influx">InfluxDB 2x log</string>
+    <string name="enable_influx">InfluxDB 2.x log</string>
     <string name="influx_url">InfluxDB instance URL / IP</string>
     <string name="influx_url_dialog_title">Set InfluxDB instance URL / IP</string>
     <string name="influx_org">InfluxDB Organization</string>
@@ -71,19 +71,25 @@
     <string name="influx_token">Influx Token</string>
     <string name="influx_token_dialog_title">Set InfluxDB Token</string>
     <string name="influx_network_data">Log network information</string>
+    <string name="log_neighbour_cells">Log neighbour cells</string>
     <string name="influx_throughput_data">Log throughput information</string>
     <string name="influx_cell_data">Log cell information</string>
     <string name="influx_signal_data">Log signal information</string>
     <string name="influx_bucket">InfluxDB bucket</string>
     <string name="influx_bucket_dialog_title">Set InfluxDB bucket</string>
     <string name="measurement">Measurement name</string>
-    <string name="enable_loggin">Logging</string>
+    <string name="tags">Tags</string>
+    <string name="tags_summary">Comma separated list of tags</string>
+    <string name="enable_logging">Logging</string>
     <string name="enable_local_log">Local log</string>
     <string name="enable_notification_update">Enable notification update</string>
     <string name="enable_notification_update_summary">This will wake up the screen on each update</string>
     <string name="runningIndicator">running_indicator</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enable_logging_summary">start / stop the logging service</string>
+    <string name="enable_local_log_summary">Log to a database on the device</string>
+    <string name="enable_influx_summary">Log to a remote Influx 2.x database</string>
 
 
 </resources>

@@ -9,4 +9,9 @@
             app:title="Carrier Permission"
             />
 
+        <SwitchPreferenceCompat
+            app:key="enable_notification_update"
+            app:title="@string/enable_notification_update"
+            app:summary="@string/enable_notification_update_summary"/>
+
 </PreferenceScreen>
