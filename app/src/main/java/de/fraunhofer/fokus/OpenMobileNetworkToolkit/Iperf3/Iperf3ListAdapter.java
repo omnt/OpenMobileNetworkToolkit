@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -10,82 +11,72 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.lifecycle.LiveData;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3ListAdapter extends BaseAdapter {
     Context context;
     LayoutInflater inflater;
-    Iperf3DBHandler iperf3DBHandler;
-    Iperf3Fragment.ListElem[] listElems;
+    Iperf3ResultsDataBase db;
+    ArrayList<String> uids;
 
-    public Iperf3ListAdapter(Context context, Iperf3Fragment.ListElem[] elements) {
+    public void setUids(ArrayList<String> uids) {
+        this.uids = uids;
+    }
+
+
+    public Iperf3ListAdapter(Context context, ArrayList<String> uids) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
-        this.iperf3DBHandler = Iperf3DBHandler.getInstance(context);
-        this.listElems = elements;
+        this.db = Iperf3ResultsDataBase.getDatabase(context);
+        this.uids = uids;
     }
+
+
 
     @Override
     public int getCount() {
-        return this.listElems.length;
+        return this.uids.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
-        Iperf3Fragment.ListElem tmp = this.listElems[position];
-
 
         convertView = inflater.inflate(R.layout.fragment_iperf3_row_item, null);
         TextView command = (TextView) convertView.findViewById(R.id.firstLine);
         TextView runnerID = (TextView) convertView.findViewById(R.id.secondLine);
         TextView timestamp = (TextView) convertView.findViewById(R.id.thirdLine);
         TextView iperf3State = (TextView) convertView.findViewById(R.id.iperf3State);
-      //  ImageView icon = (ImageView) convertView.findViewById(R.id.runningIndicator);
+        ImageView icon = (ImageView) convertView.findViewById(R.id.iperf3RunningIndicator);
 
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
+        Iperf3RunResult test = (Iperf3RunResult) getItem(position);
 
-        command.setText("Measurement: "+tmp.input.getMeasurementName());
-        iperf3State.setText("Result:"+ tmp.result);
-        timestamp.setText("Moved: "+ !tmp.moved);
-        runnerID.setText("Uploaded: "+ !tmp.uploaded);
-/*
-        switch (tmp..getThreadState()){
-            case "NEW":
-                break;
-            case "RUNNABLE":
-                drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_directions_run, null);
-                break;
-            case "BLOCKED":
-                break;
-            case "WAITING":
-                break;
-            case "WATING":
-                break;
-            case "TIMED_WAITING":
-                break;
-            case "TERMINATED":
-                drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_done_all, null);
-                iperf3State.setText(Integer.toString(iperf3R.getIperf3State()));
-                break;
-            default:
-        }
-*/
-        //icon.setImageDrawable(drawable);
+        command.setText(test.input.measurementName);
+        iperf3State.setText(""+test.result);
+        if(test.result == -100)
+            iperf3State.setText("RUN");
+        timestamp.setText(test.input.timestamp.toString());
+        runnerID.setText("Uploaded: "+ test.uploaded);
+
+        drawable = Iperf3Utils.getDrawable(context, test.result);
+        icon.setImageDrawable(drawable);
         return convertView;
     }
 }
