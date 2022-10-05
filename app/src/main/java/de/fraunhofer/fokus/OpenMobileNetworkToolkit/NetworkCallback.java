@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
+import androidx.preference.PreferenceManager;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
