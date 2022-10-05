@@ -241,4 +241,7 @@ public class HomeFragment extends Fragment implements LocationListener {
     public void onDestroyView() {
         super.onDestroyView();
     }
+
+
+
 }
