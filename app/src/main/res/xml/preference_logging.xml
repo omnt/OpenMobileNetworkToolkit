@@ -22,7 +22,7 @@
         <SwitchPreferenceCompat
             app:key="enable_influx"
             app:title="@string/enable_influx"
-            app:dependency="influx_URL"/>
+            app:dependency="influx_URL" />
 
         <EditTextPreference
             app:key="influx_URL"

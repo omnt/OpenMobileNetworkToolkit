@@ -74,4 +74,5 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat implements
 
         SRLog.d(TAG,"preference changed");
     }
+
 }
