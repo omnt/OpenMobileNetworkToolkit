@@ -6,23 +6,27 @@
 
         <SwitchPreferenceCompat
             app:key="enable_logging"
-            app:title="@string/enable_loggin" />
+            app:title="@string/enable_logging"
+            app:summary="@string/enable_logging_summary"/>
 
-        <SwitchPreferenceCompat
-            app:key="enable_notification_update"
-            app:title="@string/enable_notification_update"
-            app:summary="@string/enable_notification_update_summary"
-            app:dependency="enable_logging"/>
+        <PreferenceCategory
+            app:key="local_log_category"
+            app:title="Local DB">
 
         <SwitchPreferenceCompat
             app:key="enable_local_log"
             app:title="@string/enable_local_log"
-            app:dependency="enable_logging"/>
+            app:summary="@string/enable_local_log_summary"
+            />
+        </PreferenceCategory>
+        <PreferenceCategory
+            app:key="influx_category"
+            app:title="Influx DB">
 
         <SwitchPreferenceCompat
             app:key="enable_influx"
             app:title="@string/enable_influx"
-            app:dependency="influx_URL" />
+            app:summary="@string/enable_influx_summary"/>
 
         <EditTextPreference
             app:key="influx_URL"
@@ -51,26 +55,38 @@
             app:title="@string/influx_bucket"
             app:dependency="enable_influx"/>
 
-        <SwitchPreferenceCompat
-            app:key="influx_network_data"
-            app:title="@string/influx_network_data" />
-
-        <SwitchPreferenceCompat
-            app:key="influx_throughput_data"
-            app:title="@string/influx_throughput_data" />
-
         <EditTextPreference
             app:key="measurement_name"
             app:useSimpleSummaryProvider="true"
             app:title="@string/measurement" />
 
+        <EditTextPreference
+            app:key="tags"
+            app:useSimpleSummaryProvider="true"
+            app:title="@string/tags"
+            app:summary="@string/tags_summary"/>
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            app:key="logging_category"
+            app:title="Logging content">
+
+        <SwitchPreferenceCompat
+            app:key="influx_network_data"
+            app:title="@string/influx_network_data" />
 
         <SwitchPreferenceCompat
             app:key="influx_cell_data"
             app:title="@string/influx_cell_data" />
 
         <SwitchPreferenceCompat
-            app:key="influx_signal_data"
-            app:title="@string/influx_signal_data" />
+            app:key="log_neighbour_cells"
+            app:title="@string/log_neighbour_cells"
+            app:dependency="influx_cell_data"/>
+        <SwitchPreferenceCompat
+            app:key="influx_throughput_data"
+            app:title="@string/influx_throughput_data" />
+        </PreferenceCategory>
 
 </PreferenceScreen>

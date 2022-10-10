@@ -16,12 +16,7 @@
 
         <SwitchPreferenceCompat
             app:key="enable_logging"
-            app:title="@string/enable_loggin" />
-
-        <SwitchPreferenceCompat
-            app:key="enable_notification_update"
-            app:title="@string/enable_notification_update"
-            app:summary="@string/enable_notification_update_summary"/>
+            app:title="@string/enable_logging" />
 
         <SwitchPreferenceCompat
             app:key="enable_local_log"
