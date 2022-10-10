@@ -14,6 +14,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="forestgreen">#228B22</color>
+    <color name="crimson">#DC143C</color>
 
     <!--Debugger Theme-->
     <color name="debug_assert_color">#ffce7dfa</color>

@@ -5,12 +5,15 @@ import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -25,7 +28,10 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.NetworkInterface;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -54,6 +60,10 @@ public class Iperf3Fragment extends Fragment {
 
     private Button sendBtn;
     private Button instancesBtn;
+
+    private Handler buttonHandler;
+
+    private Iperf3RunResultDao iperf3RunResultDao;
 
 
     private LinkedList<EditText> editTexts;
@@ -101,6 +111,7 @@ public class Iperf3Fragment extends Fragment {
         this.uids = new ArrayList<>(this.db.iperf3RunResultDao().getIDs());
         this.iperf3WM =  WorkManager.getInstance(getActivity().getApplicationContext());
         this.logFileDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/";
+        this.iperf3RunResultDao = db.iperf3RunResultDao();
         File iperf3Path = new File(this.logFileDir);
         if (!iperf3Path.exists()) {
             iperf3Path.mkdir();
@@ -199,6 +210,14 @@ public class Iperf3Fragment extends Fragment {
                 .addToBackStack("findThisFragment").commit();
     }
 
+    private Runnable buttonUpdate = new Runnable() {
+        @Override
+        public void run() {
+            sendBtn.setBackgroundColor(getContext().getColor(R.color.purple_500));
+            sendBtn.clearAnimation();
+        }
+    };
+
     public void executeIperfCommand(View view) {
         String[] command =  parseInput().split(" ");
 
@@ -223,7 +242,6 @@ public class Iperf3Fragment extends Fragment {
 
         OneTimeWorkRequest iperf3UP = new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class).setInputData(iperf3Data.build()).addTag("iperf3").build();
 
-        Iperf3RunResultDao iperf3RunResultDao = db.iperf3RunResultDao();
         iperf3RunResultDao.insert(new Iperf3RunResult(iperf3WorkerID, -100,false, input, input.timestamp));
         uids.add(0, iperf3WorkerID);
 
@@ -233,10 +251,18 @@ public class Iperf3Fragment extends Fragment {
             iperf3WM.beginWith(iperf3WR).enqueue();
         }
 
+
+
         iperf3WM.getWorkInfoByIdLiveData(iperf3WR.getId()).observeForever(workInfo -> {
             int iperf3_result;
             iperf3_result = workInfo.getOutputData().getInt("iperf3_result", -100);
             Log.d(TAG, "onChanged: iperf3_result: "+iperf3_result);
+            if(iperf3_result == -100){
+                sendBtn.setBackgroundColor(getContext().getColor(R.color.forestgreen));
+            } else if(iperf3_result != 0) {
+                sendBtn.setBackgroundColor(getContext().getColor(R.color.crimson));
+                sendBtn.clearAnimation();
+            }
             iperf3RunResultDao.updateResult(iperf3WorkerID, iperf3_result);
             if(iperf3ListFragment != null)
                 iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
@@ -249,6 +275,13 @@ public class Iperf3Fragment extends Fragment {
             if(iperf3ListFragment != null)
                 iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
         });
+
+        sendBtn.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.send));
+
+        Handler buttonHandler = new Handler(Looper.myLooper());
+        buttonHandler.postDelayed(buttonUpdate, 5000);
+
+
     }
 
     private String getKeyFromId(String s, String value){
