@@ -19,7 +19,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SRLog;
 
 public class LoggingSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener{
     public static String TAG = "PreferenceSettings";
-
+    SwitchPreferenceCompat enable_influx_switch;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -27,7 +27,7 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat implements
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
 
-        SwitchPreferenceCompat enable_influx_switch = (SwitchPreferenceCompat) findPreference("enable_influx");
+        enable_influx_switch = (SwitchPreferenceCompat) findPreference("enable_influx");
         EditTextPreference influx_url_editText = (EditTextPreference) findPreference("influx_url");
         EditTextPreference influx_org_editText = (EditTextPreference) findPreference("influx_org");
         EditTextPreference influx_token_editText = (EditTextPreference) findPreference("influx_token");
