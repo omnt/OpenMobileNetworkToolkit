@@ -2,7 +2,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -13,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -22,17 +20,13 @@ import android.widget.ToggleButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import java.io.BufferedReader;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.NetworkInterface;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -47,7 +41,7 @@ public class Iperf3Fragment extends Fragment {
     private CheckBox iperf3Json;
     private CheckBox iperf3OneOff;
 
-    private ToggleButton iperf3Client;
+    private ToggleButton iperf3IsServer;
 
 
     private EditText iperf3EtLog;
@@ -61,14 +55,18 @@ public class Iperf3Fragment extends Fragment {
     private Button sendBtn;
     private Button instancesBtn;
 
-    private Handler buttonHandler;
-
     private Iperf3RunResultDao iperf3RunResultDao;
+
+    private LinearProgressIndicator progressIndicator;
+    private int[] failedColors;
+    private int[] runningColors;
+    private int[] succesColors;
+    private final int SHOW_PROGRESSBAR = 3000;
 
 
     private LinkedList<EditText> editTexts;
 
-    private static final String TAG = "iperf3Activity";
+    private static final String TAG = "iperf3InputFragment";
 
     private String logFilePath;
     private String logFileDir;
@@ -87,7 +85,7 @@ public class Iperf3Fragment extends Fragment {
         public boolean iperf3Json;
 
         public boolean iperf3OneOff;
-        public boolean iperf3Client;
+        public boolean iperf3IsServer;
 
         public String iperf3Command;
         public String iperf3LogFilePath;
@@ -130,6 +128,16 @@ public class Iperf3Fragment extends Fragment {
         iperf3EtDuration = v.findViewById(R.id.iperf3_duration);
         iperf3EtInterval = v.findViewById(R.id.iperf3_interval);
         iperf3EtBytes = v.findViewById(R.id.iperf3_bytes);
+        progressIndicator = v.findViewById(R.id.iperf3_progress);
+
+        failedColors = new int[]{getContext().getColor(R.color.crimson), getContext().getColor(R.color.crimson), getContext().getColor(R.color.crimson)};
+        runningColors = new int[]{getContext().getColor(R.color.purple_500), getContext().getColor(R.color.crimson),getContext().getColor(R.color.forestgreen)};
+        succesColors = new int[]{getContext().getColor(R.color.forestgreen),getContext().getColor(R.color.forestgreen),getContext().getColor(R.color.forestgreen)};
+
+        progressIndicator.setIndicatorColor(runningColors);
+        progressIndicator.setIndeterminateAnimationType(LinearProgressIndicator.INDETERMINATE_ANIMATION_TYPE_CONTIGUOUS);
+        progressIndicator.setVisibility(LinearProgressIndicator.INVISIBLE);
+
 
         editTexts = new LinkedList<>();
         //editTexts.add(iperf3EtLog);
@@ -151,7 +159,7 @@ public class Iperf3Fragment extends Fragment {
         iperf3Json = v.findViewById(R.id.iperf3_json);
         iperf3OneOff = v.findViewById(R.id.iperf3_one_off);
 
-        iperf3Client = v.findViewById(R.id.iperf3_client);
+        iperf3IsServer = v.findViewById(R.id.iperf3_is_server);
 
         preferences = getActivity().getSharedPreferences("iperf3Fragment", Context.MODE_PRIVATE);
 
@@ -171,7 +179,7 @@ public class Iperf3Fragment extends Fragment {
             iperf3Json.setChecked(savedInstanceState.getBoolean("iperf3Json"));
             iperf3OneOff.setChecked(savedInstanceState.getBoolean("iperf3OneOff"));
 
-            iperf3Client.setChecked(savedInstanceState.getBoolean("iperf3Client"));
+            iperf3IsServer.setChecked(savedInstanceState.getBoolean("iperf3Client"));
         } else {
             iperf3EtLog.setText(preferences.getString("iperf3LogFileName", null));
             iperf3EtIp.setText(preferences.getString("iperf3IP",null));
@@ -188,7 +196,7 @@ public class Iperf3Fragment extends Fragment {
             iperf3Json.setChecked(preferences.getBoolean("iperf3Json",false));
             iperf3OneOff.setChecked(preferences.getBoolean("iperf3OneOff",false));
 
-            iperf3Client.setChecked(preferences.getBoolean("iperf3Client",false));
+            iperf3IsServer.setChecked(preferences.getBoolean("iperf3Client",false));
         }
         try {
             Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
@@ -210,11 +218,11 @@ public class Iperf3Fragment extends Fragment {
                 .addToBackStack("findThisFragment").commit();
     }
 
-    private Runnable buttonUpdate = new Runnable() {
+    private Runnable progressbarUpdate = new Runnable() {
         @Override
         public void run() {
-            sendBtn.setBackgroundColor(getContext().getColor(R.color.purple_500));
-            sendBtn.clearAnimation();
+            progressIndicator.setVisibility(LinearProgressIndicator.INVISIBLE);
+            progressIndicator.setIndicatorColor(runningColors);
         }
     };
 
@@ -238,7 +246,7 @@ public class Iperf3Fragment extends Fragment {
         iperf3Data.putBoolean("rev", input.iperf3Reverse);
         iperf3Data.putBoolean("biDir", input.iperf3BiDir);
         iperf3Data.putBoolean("oneOff", input.iperf3OneOff);
-        iperf3Data.putBoolean("client", input.iperf3Client);
+        iperf3Data.putBoolean("client", input.iperf3IsServer);
 
         OneTimeWorkRequest iperf3UP = new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class).setInputData(iperf3Data.build()).addTag("iperf3").build();
 
@@ -251,17 +259,23 @@ public class Iperf3Fragment extends Fragment {
             iperf3WM.beginWith(iperf3WR).enqueue();
         }
 
-
+        Handler progressbarHandler = new Handler(Looper.myLooper());
 
         iperf3WM.getWorkInfoByIdLiveData(iperf3WR.getId()).observeForever(workInfo -> {
             int iperf3_result;
             iperf3_result = workInfo.getOutputData().getInt("iperf3_result", -100);
             Log.d(TAG, "onChanged: iperf3_result: "+iperf3_result);
             if(iperf3_result == -100){
-                sendBtn.setBackgroundColor(getContext().getColor(R.color.forestgreen));
+                progressIndicator.setVisibility(LinearProgressIndicator.VISIBLE);
+                if(input.iperf3IsServer){
+                    progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
+                }
             } else if(iperf3_result != 0) {
-                sendBtn.setBackgroundColor(getContext().getColor(R.color.crimson));
-                sendBtn.clearAnimation();
+                progressIndicator.setIndicatorColor(failedColors);
+                progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
+            } else {
+                progressIndicator.setIndicatorColor(succesColors);
+                progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
             }
             iperf3RunResultDao.updateResult(iperf3WorkerID, iperf3_result);
             if(iperf3ListFragment != null)
@@ -276,10 +290,7 @@ public class Iperf3Fragment extends Fragment {
                 iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
         });
 
-        sendBtn.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.send));
 
-        Handler buttonHandler = new Handler(Looper.myLooper());
-        buttonHandler.postDelayed(buttonUpdate, 5000);
 
 
     }
@@ -348,15 +359,15 @@ public class Iperf3Fragment extends Fragment {
         stb.add("--logfile");
         stb.add(this.logFilePath);
 
-        input.iperf3Client = false;
+        input.iperf3IsServer = false;
         input.iperf3BiDir = false;
         input.iperf3Reverse = false;
         input.iperf3OneOff = false;
         input.iperf3Json = false;
 
-        if(iperf3Client.isChecked()){
+        if(iperf3IsServer.isChecked()){
             stb.add("-s");
-            input.iperf3Client = true;
+            input.iperf3IsServer = true;
         }
         if(iperf3BiDir.isChecked()){
             stb.add("--bidir");
@@ -402,7 +413,7 @@ public class Iperf3Fragment extends Fragment {
         outState.putBoolean("iperf3Reverse", iperf3Reverse.isChecked());
         outState.putBoolean("iperf3Json", iperf3Json.isChecked());
         outState.putBoolean("iperf3OneOff", iperf3OneOff.isChecked());
-        outState.putBoolean("iperf3Client", iperf3Client.isChecked());
+        outState.putBoolean("iperf3Client", iperf3IsServer.isChecked());
     }
 
 
@@ -424,7 +435,7 @@ public class Iperf3Fragment extends Fragment {
         editor.putBoolean("iperf3Reverse", iperf3Reverse.isChecked());
         editor.putBoolean("iperf3Json", iperf3Json.isChecked());
         editor.putBoolean("iperf3OneOff", iperf3OneOff.isChecked());
-        editor.putBoolean("iperf3Client", iperf3Client.isChecked());
+        editor.putBoolean("iperf3Client", iperf3IsServer.isChecked());
         editor.apply();
     }
 

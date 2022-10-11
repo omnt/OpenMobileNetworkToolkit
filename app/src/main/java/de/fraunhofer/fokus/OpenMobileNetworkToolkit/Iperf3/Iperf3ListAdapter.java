@@ -58,11 +58,11 @@ public class Iperf3ListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         convertView = inflater.inflate(R.layout.fragment_iperf3_row_item, null);
-        TextView command = (TextView) convertView.findViewById(R.id.firstLine);
-        TextView runnerID = (TextView) convertView.findViewById(R.id.secondLine);
-        TextView timestamp = (TextView) convertView.findViewById(R.id.thirdLine);
-        TextView iperf3State = (TextView) convertView.findViewById(R.id.iperf3State);
-        ImageView icon = (ImageView) convertView.findViewById(R.id.iperf3RunningIndicator);
+        TextView command = convertView.findViewById(R.id.firstLine);
+        TextView uploaded = convertView.findViewById(R.id.secondLine);
+        TextView timestamp = convertView.findViewById(R.id.thirdLine);
+        TextView iperf3State = convertView.findViewById(R.id.iperf3State);
+        ImageView icon = convertView.findViewById(R.id.iperf3RunningIndicator);
 
         Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
@@ -73,7 +73,7 @@ public class Iperf3ListAdapter extends BaseAdapter {
         if(test.result == -100)
             iperf3State.setText("RUN");
         timestamp.setText(test.input.timestamp.toString());
-        runnerID.setText("Uploaded: "+ test.uploaded);
+        uploaded.setText("Uploaded: "+ test.uploaded);
 
         drawable = Iperf3Utils.getDrawable(context, test.result);
         icon.setImageDrawable(drawable);
