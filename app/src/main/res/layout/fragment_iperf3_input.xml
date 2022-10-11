@@ -8,9 +8,15 @@
     tools:context=".Iperf3.Iperf3Fragment">
 
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/iperf3_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-
-        <EditText
+    <EditText
             android:id="@+id/iperf3_bytes"
             android:layout_width="226dp"
             android:layout_height="58dp"
@@ -117,7 +123,7 @@
         app:layout_constraintVertical_bias="0.39" />
 
     <ToggleButton
-        android:id="@+id/iperf3_client"
+        android:id="@+id/iperf3_is_server"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
