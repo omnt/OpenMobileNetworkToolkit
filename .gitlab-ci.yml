@@ -64,7 +64,7 @@ lintDebug:
 
 getIperf3:
   variables: 
-    iperf3_version: "3.11"
+    iperf3_version: "3.12"
     iperf3_source: "iperf-${iperf3_version}"
     iperf3_excutable: "libiperf${iperf3_version}"
     PACKAGENAME: "iperf${iperf3_version}."

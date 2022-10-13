@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -12,6 +13,7 @@ import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -21,8 +23,28 @@ public class Iperf3Worker extends Worker {
     private final String[] cmd;
     private final String iperf3WorkerID;
     static {
-        System.loadLibrary("iperf3.11");
-        Log.i(TAG, "iperf.so loaded!");
+        ArrayList<Integer> loadedLibs = new ArrayList<>();
+        try {
+            System.loadLibrary("iperf3.10.1");
+            Log.i(TAG, "iperf3.10.1 loaded!");
+            loadedLibs.add(1);
+        } catch (UnsatisfiedLinkError ignored) {}
+
+        try {
+            System.loadLibrary("iperf3.11");
+            Log.i(TAG, "iperf3.11 loaded!");
+            loadedLibs.add(1);
+        } catch (UnsatisfiedLinkError ignored) {}
+
+        try {
+            System.loadLibrary("iperf3.12");
+            Log.i(TAG, "iperf3.12 loaded!");
+            loadedLibs.add(1);
+        } catch (UnsatisfiedLinkError ignored) {}
+
+        if(loadedLibs.size() > 1){
+            Log.d(TAG, "static initializer: multiple libiperfs loaded!");
+        }
     }
 
     private native int iperf3Wrapper(String[] argv, String cache);
