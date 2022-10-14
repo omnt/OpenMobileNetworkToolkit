@@ -90,6 +90,10 @@
     <string name="enable_logging_summary">start / stop the logging service</string>
     <string name="enable_local_log_summary">Log to a database on the device</string>
     <string name="enable_influx_summary">Log to a remote Influx 2.x database</string>
+    <string name="start_logging_on_boot">Start logging on boot</string>
+    <string name="start_logging_on_boot_summary">Start the logging service on device boot</string>
+    <string name="fake_location">Use fake location</string>
+    <string name="fake_location_summary">Use a fake location for all measurements for testing / privacy reasons</string>
 
 
 </resources>
