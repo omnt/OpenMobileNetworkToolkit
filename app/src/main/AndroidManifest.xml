@@ -55,5 +55,39 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".WorkProfile.WorkProfileActivity"
+            android:label="@string/work_profile_management">
+        </activity>
+
+        <activity
+            android:name=".WorkProfile.EnableProfileActivity"
+            android:label="@string/work_profile_management" />
+
+        <activity
+            android:name=".WorkProfile.ProvisioningSuccessActivity"
+            android:label="@string/work_profile_management"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.action.PROVISIONING_SUCCESSFUL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".WorkProfile.BasicDeviceAdminReceiver"
+            android:description="@string/work_profile_management"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/basic_device_admin_receiver" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>
