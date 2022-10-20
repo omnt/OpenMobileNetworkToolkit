@@ -90,6 +90,39 @@
     <string name="enable_logging_summary">start / stop the logging service</string>
     <string name="enable_local_log_summary">Log to a database on the device</string>
     <string name="enable_influx_summary">Log to a remote Influx 2.x database</string>
+    <string name="work_profile_management">Work Profile Management</string>
 
+    <!-- Work Profile Management -->
+    <string name="intro_message">
+        <![CDATA[
+            This sample demonstrates how to create a managed profile. You can also learn how to
+            enable or disable other apps and how to set restrictions to them. Intents can be
+            configured to be forwarded between primary account and managed profile. Finally, you can
+            wipe all the data associated with the profile.
+            Note that there can only be one managed profile on a device.
+        ]]>
+    </string>
+    <string name="set_up_profile">Set up profile</string>
+    <string name="enable_forwarding">Enable forwarding of Share Intent</string>
+    <string name="send_intent_text">Send a sample share Intent</string>
+    <string name="disable_forwarding">Disable forwarding</string>
+    <string name="setup_profile_message">This app is currently not a profile owner.</string>
+    <string name="main_message">The app is ready to control the managed profile.</string>
+    <string name="remove_profile">Remove managed profile</string>
+    <string name="all_done">Setup all done</string>
+    <string name="all_done_explanation">To manage the configuration in your managed profile, visit the badged version of this application.</string>
+    <string name="toggle_calculator">Calculator in this profile: </string>
+    <string name="toggle_chrome">Chrome in this profile:</string>
+    <string name="set_chrome_restrictions">Set Chrome restrictions</string>
+    <string name="clear_chrome_restrictions">Clear Chrome restrictions</string>
+    <string name="icon">Icon</string>
+    <string name="profile_name">Sample Managed Profile</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="restrictions_set">Restrictions set.</string>
+    <string name="activity_not_found">No app can handle this intent.</string>
+    <string name="cleared">Cleared.</string>
+
+    <!-- -->
 
 </resources>
