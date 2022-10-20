@@ -10,6 +10,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
     <item
+        android:id="@+id/workprofilemanagement"
+        android:title="@string/work_profile_management"
+        />
+    <item
         android:id="@+id/slicingSetup"
         android:title="@string/slicing_setup" />
     <item

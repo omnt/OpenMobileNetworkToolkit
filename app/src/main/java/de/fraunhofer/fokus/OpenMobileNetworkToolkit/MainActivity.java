@@ -42,6 +42,8 @@ import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     public TelephonyManager tm;
@@ -265,6 +267,10 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (id == R.id.settings){
             navController.navigate(R.id.settingsFragment);
+        }
+        else if (id == R.id.workprofilemanagement){
+            Intent work_profile = new Intent(this, WorkProfileActivity.class);
+            startActivity(work_profile);
         }
         return super.onOptionsItemSelected(item);
     }
