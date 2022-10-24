@@ -50,29 +50,12 @@ public class BasicManagedProfileFragment extends Fragment implements
     private static final String TAG = "ManagedProfileFragment";
 
     /**
-     * Package name of calculator
-     */
-    private static final String PACKAGE_NAME_CALCULATOR = "com.android.calculator2";
-
-    /**
-     * Package name of Chrome
-     */
-    private static final String PACKAGE_NAME_CHROME = "com.android.chrome";
-
-    /**
      * {@link Button} to remove this managed profile.
      */
     private Button mButtonRemoveProfile;
 
-    /**
-     * Whether the calculator app is enabled in this profile
-     */
-    private boolean mCalculatorEnabled;
 
-    /**
-     * Whether Chrome is enabled in this profile
-     */
-    private boolean mChromeEnabled;
+    private boolean mPreferentialNetwork;
 
     public BasicManagedProfileFragment() {
     }
@@ -87,15 +70,6 @@ public class BasicManagedProfileFragment extends Fragment implements
         return inflater.inflate(R.layout.basic_managed_profile_fragment, container, false);
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        // Retrieves whether the calculator app is enabled in this profile
-        mCalculatorEnabled = isApplicationEnabled(PACKAGE_NAME_CALCULATOR);
-        // Retrieves whether Chrome is enabled in this profile
-        mChromeEnabled = isApplicationEnabled(PACKAGE_NAME_CHROME);
-
-    }
 
     /**
      * Checks if the application is available in this profile.
@@ -132,33 +106,25 @@ public class BasicManagedProfileFragment extends Fragment implements
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         // Bind event listeners and initial states
-        view.findViewById(R.id.set_chrome_restrictions).setOnClickListener(this);
-        view.findViewById(R.id.clear_chrome_restrictions).setOnClickListener(this);
+
         view.findViewById(R.id.enable_forwarding).setOnClickListener(this);
         view.findViewById(R.id.disable_forwarding).setOnClickListener(this);
         view.findViewById(R.id.send_intent).setOnClickListener(this);
+        view.findViewById(R.id.preferential_switch).setOnClickListener(this);
 
 
         mButtonRemoveProfile = (Button) view.findViewById(R.id.remove_profile);
         mButtonRemoveProfile.setOnClickListener(this);
 
 
-        Switch toggleCalculator = (Switch) view.findViewById(R.id.toggle_calculator);
-        toggleCalculator.setChecked(mCalculatorEnabled);
-        toggleCalculator.setOnClickListener(this);
-
-        Switch toggleChrome = (Switch) view.findViewById(R.id.toggle_chrome);
-        toggleChrome.setChecked(mChromeEnabled);
-        toggleChrome.setOnClickListener(this);
+        Switch preferentialNetwork = (Switch) view.findViewById(R.id.preferential_switch);
+        preferentialNetwork.setChecked(setPreferentialEnabled());
+        preferentialNetwork.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.set_chrome_restrictions: {
-                setChromeRestrictions();
-                break;
-            }
             case R.id.enable_forwarding: {
                 enableForwarding();
                 break;
@@ -182,14 +148,9 @@ public class BasicManagedProfileFragment extends Fragment implements
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         switch (buttonView.getId()) {
-            case R.id.toggle_calculator: {
-                setAppEnabled(PACKAGE_NAME_CALCULATOR, isChecked);
-                mCalculatorEnabled = isChecked;
-                break;
-            }
-            case R.id.toggle_chrome: {
-                setAppEnabled(PACKAGE_NAME_CHROME, isChecked);
-                mChromeEnabled = isChecked;
+            case R.id.preferential_switch: {
+                setPreferentialEnabled();
+                mPreferentialNetwork = isChecked;
                 break;
             }
         }
@@ -244,80 +205,6 @@ public class BasicManagedProfileFragment extends Fragment implements
         } catch (PackageManager.NameNotFoundException exception){
             SRLog.e(TAG, "The app cannot be found: " + packageName, exception);
         }
-    }
-
-    /**
-     * Sets restrictions to Chrome
-     */
-    private void setChromeRestrictions(){
-        final Activity activity = getActivity();
-        if(null == activity) {
-            return;
-        }
-        final DevicePolicyManager devicePolicyManager =
-                (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        final Bundle settings = new Bundle();
-
-        settings.putString("EditBookmarksEnabled", "false");
-        settings.putString("IncognitoModeAvailability", "1");
-        settings.putString("ManagedBookmarks",
-                "[{\"name\": \"Chromium\", \"url\": \"http://chromium.org\"}, " +
-                        "{\"name\": \"Google\", \"url\": \"https://www.google.com\"}]");
-        settings.putString("DefaultSearchProviderEnabled", "true");
-        settings.putString("DefaultSearchProviderName", "\"LMGTFY\"");
-        settings.putString("DefaultSearchProviderSearchURL",
-                "\"http://lmgtfy.com/?q={searchTerms}\"");
-        settings.putString("URLBlacklist", "[\"example.com\", \"example.org\"]");
-
-        StringBuilder message = new StringBuilder("Setting Chrome restrictions");
-        for(String key: settings.keySet()) {
-            message.append("\n");
-            message.append(key);
-            message.append(": ");
-            message.append(settings.getString(key));
-        }
-        ScrollView view = new ScrollView(activity);
-        TextView text = new TextView(activity);
-        text.setText(message);
-        int size = (int) activity.getResources().getDimension(R.dimen.activity_horizontal_margin);
-        view.setPadding(size, size, size, size);
-        view.addView(text);
-
-        new AlertDialog.Builder(activity)
-                .setView(view)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // This is how you can set restrictions to an app.
-                        // The format for settings in Bundle differs from app to app.
-                        devicePolicyManager.setApplicationRestrictions(
-                                BasicDeviceAdminReceiver.getComponentName(activity),
-                                PACKAGE_NAME_CHROME, settings);
-                        Toast.makeText(activity, R.string.restrictions_set,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .show();
-    }
-
-    /**
-     * Clears restrictions to Chrome
-     */
-
-    private void clearChromeRestrictions() {
-        final Activity activity = getActivity();
-        if (null == activity) {
-            return;
-        }
-        final DevicePolicyManager manager =
-                (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        // In order to clear restrictions, pass null as the restriction Bundle for
-        // setApplicationRestrictions
-        manager.setApplicationRestrictions
-                (BasicDeviceAdminReceiver.getComponentName(activity),
-                        PACKAGE_NAME_CHROME, null);
-        Toast.makeText(activity, R.string.cleared, Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -391,5 +278,22 @@ public class BasicManagedProfileFragment extends Fragment implements
                 (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
         manager.wipeData(0);
         // The screen turns off here
+    }
+
+    private boolean setPreferentialEnabled() {
+        boolean flag = false;
+        Context context = getContext();
+        if (context != null) {
+            try {
+                DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+                devicePolicyManager.setPreferentialNetworkServiceEnabled(true);
+                SRLog.d(TAG,"setPreferentialNetworkServiceEnabled");
+                flag = true;
+            } catch (Exception exception) {
+                SRLog.e(TAG,"setPreferentialNetworkServiceEnabled failed!");
+                flag = false;
+            }
+        }
+        return flag;
     }
 }

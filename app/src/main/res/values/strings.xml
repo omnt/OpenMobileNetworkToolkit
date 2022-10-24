@@ -106,7 +106,7 @@
     <string name="enable_forwarding">Enable forwarding of Share Intent</string>
     <string name="send_intent_text">Send a sample share Intent</string>
     <string name="disable_forwarding">Disable forwarding</string>
-    <string name="setup_profile_message">This app is currently not a profile owner.</string>
+    <string name="setup_profile_message">This app is currently not the owner of this device or profile. Please tap Next to set up appropriate management by this app.</string>
     <string name="main_message">The app is ready to control the managed profile.</string>
     <string name="remove_profile">Remove managed profile</string>
     <string name="all_done">Setup all done</string>
@@ -122,6 +122,8 @@
     <string name="restrictions_set">Restrictions set.</string>
     <string name="activity_not_found">No app can handle this intent.</string>
     <string name="cleared">Cleared.</string>
+    <string name="set_up_managed_profile">Set up managed profile</string>
+    <string name="preferential_network_service">Preferential Network Service</string>
 
     <!-- -->
 

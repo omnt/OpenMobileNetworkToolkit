@@ -37,6 +37,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/icon"
-        android:src="@drawable/badge" />
+        android:src="@mipmap/portfolio" />
 
 </LinearLayout>

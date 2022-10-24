@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 if (Objects.equals(key, "carrier_Permission")) {
-                    if(prefs.getBoolean(key, false)) {
+                    if(prefs.getBoolean(key, true)) {
                         SRLog.i(TAG, "Carrier Permission Approved");
                         cp = tm.hasCarrierPrivileges();
                         if(cp){
@@ -340,6 +340,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean HasCarrierPermissions() {
+        boolean flag = tm.hasCarrierPrivileges();
         return tm.hasCarrierPrivileges();
     }
 
