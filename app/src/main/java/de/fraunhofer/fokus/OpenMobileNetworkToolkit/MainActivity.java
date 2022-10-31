@@ -38,7 +38,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
-import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
 
@@ -265,6 +264,9 @@ public class MainActivity extends AppCompatActivity {
         }
         else if (id == R.id.settings){
             navController.navigate(R.id.settingsFragment);
+        }
+        else if (id == R.id.influxDBMenu){
+            navController.navigate(R.id.influxDBFragment);
         }
         return super.onOptionsItemSelected(item);
     }
