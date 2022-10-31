@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean HasCarrierPermissions() {
-        boolean flag = tm.hasCarrierPrivileges();
+        SRLog.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());
         return tm.hasCarrierPrivileges();
     }
 

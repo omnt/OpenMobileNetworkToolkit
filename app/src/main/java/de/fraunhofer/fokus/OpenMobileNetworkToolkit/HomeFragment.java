@@ -86,7 +86,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         feature_telephony = ma.feature_telephony;
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ma.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-            cp = ma.cp;
+            cp = ma.HasCarrierPermissions();
             tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
         }
 
