@@ -19,10 +19,10 @@
     <item
         android:id="@+id/apn"
         android:title="@string/apn_settings" />
-    <item
-        android:id="@+id/AndroidTesting"
-        android:title="@string/action_android" />
     <group >
+        <item
+            android:id="@+id/AndroidTesting"
+            android:title="@string/action_android" />
         <item
             android:id="@+id/HuaweiProjektMenu"
             android:title="@string/action_huawei" />
@@ -47,6 +47,9 @@
     <item
         android:id="@+id/iperf3"
         android:title="@string/action_iperf3" />
+    <item
+        android:id="@+id/influxDBMenu"
+        android:title="InfluxDB" />
     <item
         android:id="@+id/about"
         android:title="@string/about" />

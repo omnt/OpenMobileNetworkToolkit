@@ -9,6 +9,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -31,6 +32,7 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 
 import androidx.core.app.ActivityCompat;
+import androidx.preference.PreferenceManager;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -52,12 +54,14 @@ public class DataProvider {
     private static final String TAG = "DataCollector";
     private boolean feature_telephony = false;
     private Context ct;
+    private SharedPreferences sp;
 
 
     public DataProvider(Context context) {
         ct = context;
         pm = ct.getPackageManager();
         lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ct.getSystemService(Context.CARRIER_CONFIG_SERVICE);
@@ -78,17 +82,25 @@ public class DataProvider {
     public Point getLocationPoint() {
         Point point = new Point("Location");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
-        Location loc = getLocation();
-        if (loc != null) {
-            point.addField("longitude", loc.getLongitude());
-            point.addField("latitude", loc.getLatitude());
-            point.addField("altitude", loc.getAltitude());
-            point.addField("speed", loc.getSpeed());
-        } else {
-            point.addField("longitude", 0);
-            point.addField("latitude", 0);
-            point.addField("altitude", 0);
-            point.addField("speed", 0);
+        if (sp.getBoolean("fake_location", false)) {
+            point.addField("longitude", 13.3143266);
+            point.addField("latitude", 52.5259678);
+            point.addField("altitude", 34.0);
+            point.addField("speed", 0.0);
+
+        } else  {
+            Location loc = getLocation();
+            if (loc != null) {
+                point.addField("longitude", loc.getLongitude());
+                point.addField("latitude", loc.getLatitude());
+                point.addField("altitude", loc.getAltitude());
+                point.addField("speed", loc.getSpeed());
+            } else {
+                point.addField("longitude", 0.0);
+                point.addField("latitude", 0.0);
+                point.addField("altitude", 0.0);
+                point.addField("speed", 0.0);
+            }
         }
         return point;
     }

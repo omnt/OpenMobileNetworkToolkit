@@ -9,6 +9,16 @@
             app:title="@string/enable_logging"
             app:summary="@string/enable_logging_summary"/>
 
+        <SwitchPreferenceCompat
+            app:key="start_logging_on_boot"
+            app:title="@string/start_logging_on_boot"
+            app:summary="@string/start_logging_on_boot_summary"/>
+
+        <SwitchPreferenceCompat
+            app:key="fake_location"
+            app:title="@string/fake_location"
+            app:summary="@string/fake_location_summary"/>
+
         <PreferenceCategory
             app:key="local_log_category"
             app:title="Local DB">

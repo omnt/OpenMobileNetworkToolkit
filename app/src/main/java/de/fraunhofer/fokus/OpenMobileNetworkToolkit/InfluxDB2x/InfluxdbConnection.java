@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: apache2
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 
 
 import android.content.Context;
@@ -18,13 +18,13 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.WriteOptions;
+import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.client.write.Point;
 
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 
 public class InfluxdbConnection {
-    // todo read this from app settings
     private final static String TAG = "InfluxDBConnection";
     private char[] token;
     private String org;
@@ -35,8 +35,6 @@ public class InfluxdbConnection {
     private WriteApi writeApi;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
-
-
 
     public InfluxdbConnection(String URL, String token, String org, String bucket, Context context) {
             this.token = token.toCharArray();
@@ -104,6 +102,29 @@ public class InfluxdbConnection {
         //    Log.d(TAG, "influx client not ready");
         //    return false;
         //}
+    }
+
+    // Setup a local database and store credentials
+    public  boolean setup() {
+        try {
+            if (influxDBClient.isOnboardingAllowed()) {
+                OnboardingRequest or = new OnboardingRequest();
+                or.bucket("omnt");
+                or.org("OMNT");
+                or.password("omnt2022"); //todo THIS SHOULD NOT BE HARDCODED
+                or.username("omnt");
+                or.token("1234567890"); //todo generate a token
+                influxDBClient.onBoarding(or);
+                Log.d(TAG, "Database onboarding successfully");
+                return true;
+            } else {
+                Log.d(TAG, "Database was already onboarded");
+                return false;
+            }
+
+        } catch (com.influxdb.exceptions.InfluxException e){
+            return false;
+        }
     }
 
     public void sendAll(){

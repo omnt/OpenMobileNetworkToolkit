@@ -9,6 +9,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -46,6 +47,14 @@
         </service>
         <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService"
             android:foregroundServiceType="location"/>
+        <receiver
+            android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingServiceOnBootReceiver"
+            android:label="StartLoggingServiceAtBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity"
             android:exported="true"

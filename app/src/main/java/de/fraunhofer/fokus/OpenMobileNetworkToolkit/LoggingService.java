@@ -30,13 +30,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
-import androidx.room.Room;
 
 import com.influxdb.client.write.Point;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
@@ -48,13 +49,11 @@ public class LoggingService extends Service {
     NotificationCompat.Builder builder;
     private Handler notificationHandler;
     private Handler loggingHandler;
-    InfluxdbConnection ic;
+    InfluxdbConnection ic; // remote influxDB
+    InfluxdbConnection lic; // local influxDB
     DataProvider dc;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
-    LocalLogDatabase db;
-    List<InfluxPointEntry> points;
-    PointDao pointDao;
 
     @Override
     public void onCreate() {
@@ -106,7 +105,7 @@ public class LoggingService extends Service {
 
                             Log.d(TAG, getPackageName() + "_preferences");
                         } else {
-                            setupInfluxDB();
+                            setupRemoteInfluxDB();
                         }
                     } else {
                         stopInfluxDB();
@@ -131,7 +130,7 @@ public class LoggingService extends Service {
         }
 
         if (sp.getBoolean("enable_influx", false)) {
-            setupInfluxDB();
+            setupRemoteInfluxDB();
         }
 
 
@@ -151,8 +150,8 @@ public class LoggingService extends Service {
         nm.notify(1, builder.build());
     }
 
-    private boolean setupInfluxDB() {
-        Log.d(TAG, "setupInfluxDB");
+    private boolean setupRemoteInfluxDB() {
+        Log.d(TAG, "setupRemoteInfluxDB");
         String url = sp.getString("influx_URL", "");
         String org = sp.getString("influx_org", "");
         String bucket = sp.getString("influx_bucket", "");
@@ -160,7 +159,6 @@ public class LoggingService extends Service {
 
         if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
             Log.e(TAG, "Influx parameters incomplete, can't setup logging");
-            Log.d(TAG, "bucket: " + bucket);
             return false;
         } else {
             ic = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
@@ -174,6 +172,30 @@ public class LoggingService extends Service {
             }
         }
     }
+
+    private boolean setupLocalInfluxDB() {
+        Log.d(TAG, "setupLocalInfluxDB");
+        String url = sp.getString("influx_URL", "");
+        String org = sp.getString("influx_org", "");
+        String bucket = sp.getString("influx_bucket", "");
+        String token = sp.getString("influx_token", "");
+
+        if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
+            Log.e(TAG, "Influx parameters incomplete, can't setup logging");
+            return false;
+        } else {
+            ic = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
+            if (ic.connect()) {
+                loggingHandler = new Handler(Looper.myLooper());
+                loggingHandler.post(loggingUpdate);
+                return true;
+            } else {
+                Log.i(TAG, "can't start influx logging, connect to database not successful");
+                return false;
+            }
+        }
+    }
+
 
     private void stopInfluxDB() {
         Log.d(TAG, "stopInfluxDB");
@@ -190,9 +212,7 @@ public class LoggingService extends Service {
     }
 
     private void setupLocalLog() {
-        db = Room.databaseBuilder(getApplicationContext(),
-                LocalLogDatabase.class, "OMNT-Log").build();
-        //pointDao = db.PointDao();
+
     }
 
     private void stopLocalLog(){
@@ -285,16 +305,17 @@ public class LoggingService extends Service {
 
 
             ic.sendAll();
+            //Log.d(TAG, "Sending points");
 
 
-            if (sp.getBoolean("enable_local_log", false)) {
+/*            if (sp.getBoolean("enable_local_log", false)) {
                 long ts = System.currentTimeMillis();
                 for (Point point:points) {
 
                     // as we can't simply get the timestamp we use a new one. This should be handled nicer
                     //pointDao.insertAll(new InfluxPointEntry(ts, point));
-                }
-            }
+                }*/
+            //}
 
 
 
