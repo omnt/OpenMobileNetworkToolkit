@@ -34,6 +34,9 @@
             android:id="@+id/action_HomeFragment_to_settings_header_fragment"
             app:destination="@+id/settingsHeaderFragment"
             />
+        <action
+            android:id="@+id/action_HomeFragment_to_influxDBFragment"
+            app:destination="@id/influxDBFragment" />
 
     </fragment>
     <fragment
@@ -133,6 +136,14 @@
         <action
             android:id="@+id/action_settingsFragment2_to_loggingSettingsFragment"
             app:destination="@id/loggingSettingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/influxDBFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxDBFragment"
+        android:label="InfluxDBFragment" >
+        <action
+            android:id="@+id/action_influxDBFragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
     </fragment>
 
 </navigation>
