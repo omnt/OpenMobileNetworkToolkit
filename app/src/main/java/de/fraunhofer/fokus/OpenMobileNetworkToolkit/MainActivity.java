@@ -38,9 +38,10 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
-import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -119,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 if (Objects.equals(key, "carrier_Permission")) {
-                    if(prefs.getBoolean(key, false)) {
+                    if(prefs.getBoolean(key, true)) {
                         SRLog.i(TAG, "Carrier Permission Approved");
                         cp = tm.hasCarrierPrivileges();
                         if(cp){
@@ -266,6 +267,13 @@ public class MainActivity extends AppCompatActivity {
         else if (id == R.id.settings){
             navController.navigate(R.id.settingsFragment);
         }
+        else if (id == R.id.workprofilemanagement) {
+            Intent work_profile = new Intent(this, WorkProfileActivity.class);
+            startActivity(work_profile);
+        }
+        else if (id == R.id.influxDBMenu){
+            navController.navigate(R.id.influxDBFragment);
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -334,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean HasCarrierPermissions() {
+        SRLog.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());
         return tm.hasCarrierPrivileges();
     }
 
