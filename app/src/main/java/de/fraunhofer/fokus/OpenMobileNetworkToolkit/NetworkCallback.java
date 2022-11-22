@@ -125,15 +125,19 @@ public class NetworkCallback {
                 @SuppressLint("MissingPermission")
                 ServiceState serviceState = tm.getServiceState(); // todo handle this according to the privileges granted the app
                 if (serviceState != null) {
-                    List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
-                    for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
-                        NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
-                        if (networkRegistrationInfo != null) {
-                            plmn = networkRegistrationInfo.getRegisteredPlmn();
-                            SRLog.d(TAG, "PLMN: " + plmn);
-                        } else {
-                            SRLog.d(TAG, "PLMN unavailable");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
+                        for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
+                            NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
+                            if (networkRegistrationInfo != null) {
+                                plmn = networkRegistrationInfo.getRegisteredPlmn();
+                                SRLog.d(TAG, "PLMN: " + plmn);
+                            } else {
+                                SRLog.d(TAG, "PLMN unavailable");
+                            }
                         }
+                    } else {
+                        plmn = ""; // todo use old API here
                     }
                 } else {
                     SRLog.d(TAG, "Missing permission to access service state");
@@ -199,12 +203,14 @@ public class NetworkCallback {
             NetworkRegistrationInfo networkRegistrationInfo = null;
 
             if (networkRegistrationInfo != null) { //todo this seems wrong as it can never be true
-                availServices = networkRegistrationInfo.getAvailableServices();
-                if (availServices != null) {
-                    for (int i = 0; i < availServices.size(); i++) {
-                        SRLog.d(TAG, "Available Services from Network: " + availServices);
-                        String avService = availServices.toString();
-                        availableServices.add(avService);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    availServices = networkRegistrationInfo.getAvailableServices();
+                    if (availServices != null) {
+                        for (int i = 0; i < availServices.size(); i++) {
+                            SRLog.d(TAG, "Available Services from Network: " + availServices);
+                            String avService = availServices.toString();
+                            availableServices.add(avService);
+                        }
                     }
                 }
             } else {
@@ -240,17 +246,18 @@ public class NetworkCallback {
         ServiceState serviceState = tm.getServiceState(); //todo this should be guarded by an permission check
         SRLog.d(TAG, "Service State: " + serviceState.getState());
         if (serviceState.getState() == 1) {  //2 for DATA_CONNECTED 1 FOR DATA_CONNECTING
-            networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
-            if (networkRegistrationInfo != null) {
-                for (int i = 0; i < networkRegistrationInfoList.size(); i++) { // todo this is always 0 as an empty array was assigned before
-                    SRLog.d(TAG, "Size of List :" + networkRegistrationInfoList.size());
-                    NetworkRegistrationInfo networkRegistrationInfo1 = networkRegistrationInfo.get(i);
-                    regPLMN = networkRegistrationInfo1.getRegisteredPlmn();
-                    SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfoList.toString());
-                    SRLog.d(TAG, "Registered PLMN" + regPLMN);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
+                if (networkRegistrationInfo != null) {
+                    for (int i = 0; i < networkRegistrationInfoList.size(); i++) { // todo this is always 0 as an empty array was assigned before
+                        SRLog.d(TAG, "Size of List :" + networkRegistrationInfoList.size());
+                        NetworkRegistrationInfo networkRegistrationInfo1 = networkRegistrationInfo.get(i);
+                        regPLMN = networkRegistrationInfo1.getRegisteredPlmn();
+                        SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfoList.toString());
+                        SRLog.d(TAG, "Registered PLMN" + regPLMN);
+                    }
                 }
             }
-
         } else {
             SRLog.d(TAG, "Network Registration Info Unavailable! Check Network State");
             regPLMN = "Could not recieve PLMN";
@@ -272,15 +279,17 @@ public class NetworkCallback {
         ServiceState serviceState = tm.getServiceState(); //todo add permission check
         SRLog.d(TAG, "Service State: " + serviceState.getState());
         if (serviceState.getState() == 1) {  //2 for DATA_CONNECTED 1 FOR DATA_CONNECTING
-            networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
-            if (networkRegistrationInfo != null) {
-                for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
-                    SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfo);
-                    String netwrokRegistrationInfoString = networkRegistrationInfo.toString();
-                    networkRegistrationInfoList.add(netwrokRegistrationInfoString);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
+                if (networkRegistrationInfo != null) {
+                    for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
+                        SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfo);
+                        String netwrokRegistrationInfoString = networkRegistrationInfo.toString();
+                        networkRegistrationInfoList.add(netwrokRegistrationInfoString);
+                    }
                 }
+                flag = true;
             }
-            flag = true;
         } else {
             SRLog.d(TAG, "Network Registration Info Unavailable! Check Network State");
             flag = false;
@@ -1170,7 +1179,9 @@ public class NetworkCallback {
             //Log.d(TAG, "INET4Address: "+ inet4Address.toString());
             SRLog.d(TAG, "LINK PROPERTIES: " + linkProperties);
             SRLog.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
-            SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            }
             SRLog.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
 
             assert connectivityManager != null;
@@ -1313,7 +1324,9 @@ public class NetworkCallback {
             //Log.d(TAG, "INET4Address: "+ inet4Address.toString());
             SRLog.d(TAG, "LINK PROPERTIES: " + linkProperties);
             SRLog.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
-            SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            }
             SRLog.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
 
             assert connectivityManager != null;

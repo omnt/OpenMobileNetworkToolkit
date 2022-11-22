@@ -144,7 +144,9 @@ public class HomeFragment extends Fragment implements LocationListener {
             props.add("SOC Model: " + Build.SOC_MODEL);
         }
         props.add("Radio Version: " + Build.getRadioVersion());
-        props.add("Supported Modem Count: " + tm.getSupportedModemCount());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            props.add("Supported Modem Count: " + tm.getSupportedModemCount());
+        }
         props.add("Android SDK: " + Build.VERSION.SDK_INT);
         props.add("Android Release: " + Build.VERSION.RELEASE);
         props.add("Device Software version: " + tm.getDeviceSoftwareVersion());

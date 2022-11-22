@@ -16,6 +16,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.TrafficStats;
+import android.os.Build;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
@@ -155,14 +156,18 @@ public class DataProvider {
         for (CellInfo ci:cil) {
             Point point = new Point("CellInformation");
             point.time(ts, WritePrecision.MS);
-            point.addField("OperatorAlphaLong", (String) ci.getCellIdentity().getOperatorAlphaLong());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                point.addField("OperatorAlphaLong", (String) ci.getCellIdentity().getOperatorAlphaLong());
+            }
             point.addField("CellConnectionStatus", ci.getCellConnectionStatus());
             point.addField("IsRegistered", ci.isRegistered());
             if (ci instanceof CellInfoNr) {
                 point.addField("CellType", "NR");
                 CellInfoNr ciNR = (CellInfoNr) ci;
                 CellIdentityNr ciNRId = (CellIdentityNr) ciNR.getCellIdentity();
-                point.addField("Bands", Arrays.toString(ciNRId.getBands()));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    point.addField("Bands", Arrays.toString(ciNRId.getBands()));
+                }
                 point.addField("CI", ciNRId.getNci());
                 point.addTag("CI", String.valueOf(ciNRId.getNci()));
                 point.addField("NRARFCN", ciNRId.getNrarfcn());
@@ -184,7 +189,9 @@ public class DataProvider {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
                 CellIdentityLte ciLTEId = ciLTE.getCellIdentity();
                 point.addField("CellType", "LTE");
-                point.addField("Bands", Arrays.toString(ciLTEId.getBands()));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    point.addField("Bands", Arrays.toString(ciLTEId.getBands()));
+                }
                 point.addField("Bandwidth", ciLTEId.getBandwidth());
                 point.addField("CI", ciLTEId.getCi());
                 point.addTag("CI", String.valueOf(ciLTEId.getCi()));
@@ -217,7 +224,9 @@ public class DataProvider {
                 point.addField("Level",ssGSM.getLevel());
                 point.addField("AsuLevel", ssGSM.getAsuLevel());
                 point.addField("Dbm", ssGSM.getDbm());
-                point.addField("RSSI", ssGSM.getRssi());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    point.addField("RSSI", ssGSM.getRssi());
+                }
             }
             points.add(point);
         }
@@ -230,12 +239,16 @@ public class DataProvider {
         for (CellInfo ci:cil) {
             CellInformation cim = new CellInformation();
             cim.setCellConnectionStatus(ci.getCellConnectionStatus());
-            cim.setAlphaLong((String) ci.getCellIdentity().getOperatorAlphaLong());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                cim.setAlphaLong((String) ci.getCellIdentity().getOperatorAlphaLong());
+            }
             if (ci instanceof CellInfoNr) {
                 cim.setCellType("NR");
                 CellInfoNr ciNR = (CellInfoNr) ci;
                 CellIdentityNr ciNRId = (CellIdentityNr) ciNR.getCellIdentity();
-                cim.setBands(Arrays.toString(ciNRId.getBands()));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    cim.setBands(Arrays.toString(ciNRId.getBands()));
+                }
                 cim.setCi(ciNRId.getNci());
                 cim.setNrarfcn(ciNRId.getNrarfcn());
                 cim.setMnc(ciNRId.getMncString());
@@ -255,7 +268,9 @@ public class DataProvider {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
                 CellIdentityLte ciLTEId= ciLTE.getCellIdentity();
                 cim.setCellType("LTE");
-                cim.setBands(Arrays.toString(ciLTEId.getBands()));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    cim.setBands(Arrays.toString(ciLTEId.getBands()));
+                }
                 cim.setBandwidth(ciLTEId.getBandwidth());
                 cim.setCi(ciLTEId.getCi());
                 cim.setEarfcn(ciLTEId.getEarfcn());
