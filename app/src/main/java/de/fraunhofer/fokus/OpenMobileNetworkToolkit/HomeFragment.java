@@ -31,13 +31,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -141,10 +139,14 @@ public class HomeFragment extends Fragment implements LocationListener {
         props.add("\n \n ## Device ##");
         props.add("Model: " + Build.MODEL);
         props.add("Manufacturer: " + Build.MANUFACTURER);
-        props.add("SOC Manufacturer: " + Build.SOC_MANUFACTURER);
-        props.add("SOC Model: " + Build.SOC_MODEL);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            props.add("SOC Manufacturer: " + Build.SOC_MANUFACTURER);
+            props.add("SOC Model: " + Build.SOC_MODEL);
+        }
         props.add("Radio Version: " + Build.getRadioVersion());
-        props.add("Supported Modem Count: " + tm.getSupportedModemCount());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            props.add("Supported Modem Count: " + tm.getSupportedModemCount());
+        }
         props.add("Android SDK: " + Build.VERSION.SDK_INT);
         props.add("Android Release: " + Build.VERSION.RELEASE);
         props.add("Device Software version: " + tm.getDeviceSoftwareVersion());

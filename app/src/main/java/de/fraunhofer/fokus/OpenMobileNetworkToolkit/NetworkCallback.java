@@ -2,7 +2,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -11,6 +10,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
+import android.os.Build;
 import android.os.OutcomeReceiver;
 import android.telephony.NetworkRegistrationInfo;
 import android.telephony.ServiceState;
@@ -28,7 +28,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import androidx.preference.PreferenceManager;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -126,15 +125,19 @@ public class NetworkCallback {
                 @SuppressLint("MissingPermission")
                 ServiceState serviceState = tm.getServiceState(); // todo handle this according to the privileges granted the app
                 if (serviceState != null) {
-                    List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
-                    for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
-                        NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
-                        if (networkRegistrationInfo != null) {
-                            plmn = networkRegistrationInfo.getRegisteredPlmn();
-                            SRLog.d(TAG, "PLMN: " + plmn);
-                        } else {
-                            SRLog.d(TAG, "PLMN unavailable");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
+                        for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
+                            NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
+                            if (networkRegistrationInfo != null) {
+                                plmn = networkRegistrationInfo.getRegisteredPlmn();
+                                SRLog.d(TAG, "PLMN: " + plmn);
+                            } else {
+                                SRLog.d(TAG, "PLMN unavailable");
+                            }
                         }
+                    } else {
+                        plmn = ""; // todo use old API here
                     }
                 } else {
                     SRLog.d(TAG, "Missing permission to access service state");
@@ -200,12 +203,14 @@ public class NetworkCallback {
             NetworkRegistrationInfo networkRegistrationInfo = null;
 
             if (networkRegistrationInfo != null) { //todo this seems wrong as it can never be true
-                availServices = networkRegistrationInfo.getAvailableServices();
-                if (availServices != null) {
-                    for (int i = 0; i < availServices.size(); i++) {
-                        SRLog.d(TAG, "Available Services from Network: " + availServices);
-                        String avService = availServices.toString();
-                        availableServices.add(avService);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    availServices = networkRegistrationInfo.getAvailableServices();
+                    if (availServices != null) {
+                        for (int i = 0; i < availServices.size(); i++) {
+                            SRLog.d(TAG, "Available Services from Network: " + availServices);
+                            String avService = availServices.toString();
+                            availableServices.add(avService);
+                        }
                     }
                 }
             } else {
@@ -241,17 +246,18 @@ public class NetworkCallback {
         ServiceState serviceState = tm.getServiceState(); //todo this should be guarded by an permission check
         SRLog.d(TAG, "Service State: " + serviceState.getState());
         if (serviceState.getState() == 1) {  //2 for DATA_CONNECTED 1 FOR DATA_CONNECTING
-            networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
-            if (networkRegistrationInfo != null) {
-                for (int i = 0; i < networkRegistrationInfoList.size(); i++) { // todo this is always 0 as an empty array was assigned before
-                    SRLog.d(TAG, "Size of List :" + networkRegistrationInfoList.size());
-                    NetworkRegistrationInfo networkRegistrationInfo1 = networkRegistrationInfo.get(i);
-                    regPLMN = networkRegistrationInfo1.getRegisteredPlmn();
-                    SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfoList.toString());
-                    SRLog.d(TAG, "Registered PLMN" + regPLMN);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
+                if (networkRegistrationInfo != null) {
+                    for (int i = 0; i < networkRegistrationInfoList.size(); i++) { // todo this is always 0 as an empty array was assigned before
+                        SRLog.d(TAG, "Size of List :" + networkRegistrationInfoList.size());
+                        NetworkRegistrationInfo networkRegistrationInfo1 = networkRegistrationInfo.get(i);
+                        regPLMN = networkRegistrationInfo1.getRegisteredPlmn();
+                        SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfoList.toString());
+                        SRLog.d(TAG, "Registered PLMN" + regPLMN);
+                    }
                 }
             }
-
         } else {
             SRLog.d(TAG, "Network Registration Info Unavailable! Check Network State");
             regPLMN = "Could not recieve PLMN";
@@ -273,15 +279,17 @@ public class NetworkCallback {
         ServiceState serviceState = tm.getServiceState(); //todo add permission check
         SRLog.d(TAG, "Service State: " + serviceState.getState());
         if (serviceState.getState() == 1) {  //2 for DATA_CONNECTED 1 FOR DATA_CONNECTING
-            networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
-            if (networkRegistrationInfo != null) {
-                for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
-                    SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfo);
-                    String netwrokRegistrationInfoString = networkRegistrationInfo.toString();
-                    networkRegistrationInfoList.add(netwrokRegistrationInfoString);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                networkRegistrationInfo = serviceState.getNetworkRegistrationInfoList();
+                if (networkRegistrationInfo != null) {
+                    for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
+                        SRLog.d(TAG, "Network Registration Info " + networkRegistrationInfo);
+                        String netwrokRegistrationInfoString = networkRegistrationInfo.toString();
+                        networkRegistrationInfoList.add(netwrokRegistrationInfoString);
+                    }
                 }
+                flag = true;
             }
-            flag = true;
         } else {
             SRLog.d(TAG, "Network Registration Info Unavailable! Check Network State");
             flag = false;
@@ -316,21 +324,23 @@ public class NetworkCallback {
 
     public static List<String> getNetworkCapabilitylist(Context context) {
         List<String> listCapability = new ArrayList<>();
-        int capability[] = null;
-        Boolean enterprise = false;
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        Network network = connectivityManager.getActiveNetwork();
-        if (network != null) {
-            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-            if (networkCapabilities != null) {
-                capability = networkCapabilities.getCapabilities();
-                if (capability != null)
-                    for (int i = 0; i < capability.length; i++) {
-                        SRLog.d(TAG, "Capability from Network: " + capability[i]);
-                        String cap = Arrays.toString(capability);
-                        listCapability.add(cap);
-                    }
-                //enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            int capability[];
+            Boolean enterprise = false;
+            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network network = connectivityManager.getActiveNetwork();
+            if (network != null) {
+                NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+                if (networkCapabilities != null) {
+                    capability = networkCapabilities.getCapabilities();
+                    if (capability != null)
+                        for (int i = 0; i < capability.length; i++) {
+                            SRLog.d(TAG, "Capability from Network: " + capability[i]);
+                            String cap = Arrays.toString(capability);
+                            listCapability.add(cap);
+                        }
+                    //enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
+                }
             }
         }
         return listCapability;
@@ -338,77 +348,76 @@ public class NetworkCallback {
 
 
     public static boolean getNetworkSlicingInfo(Context context) {
-
         boolean flag = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
+                List<UrspRule> urspRuleList = new ArrayList<>();
+                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
+                List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (context != null) {
+                    Context context1 = context;
+                    ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Network network = connectivityManager.getActiveNetwork();
 
-        try {
-            List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
-            List<UrspRule> urspRuleList = new ArrayList<>();
-            List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
-            List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (context != null) {
-                Context context1 = context;
-                ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network network = connectivityManager.getActiveNetwork();
+                    /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+                    if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
+                        //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
 
-                /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
-                if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
-                    //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
+                        tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                            @Override
+                            public void onResult(@NonNull NetworkSlicingConfig result) {
+                                NetworkSlicingConfig networkSlicingConfig = result;
+                                List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
 
-                    tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                        @Override
-                        public void onResult(@NonNull NetworkSlicingConfig result) {
-                            NetworkSlicingConfig networkSlicingConfig = result;
-                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
-
-                            SRLog.d(TAG, "Slice Info config function works!!");
+                                SRLog.d(TAG, "Slice Info config function works!!");
 
 
-                            for (int i = 0; i < urspRuleList.size(); i++) {
-                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
-                                List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
-                                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
+                                for (int i = 0; i < urspRuleList.size(); i++) {
+                                    UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
+                                    List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
+                                    List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
 
-                                if (routeSelectionDescriptorsList != null) {
-                                    for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
-                                        RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
+                                    if (routeSelectionDescriptorsList != null) {
+                                        for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
+                                            RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
 
-                                        if (routeSelectionDescriptor != null) {
-                                            List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
-                                            SRLog.d(TAG, "Network Slices Available: " + networkSliceInfoList.size());
-                                            for (int k = 0; k < networkSliceInfoList.size(); k++) {
-                                                NetworkSliceInfo networkSliceInfo = networkSliceInfoList.get(i);
-                                                SRLog.d(TAG, "Slice Differentiator: " + networkSliceInfo.getSliceDifferentiator());
-                                                SRLog.d(TAG, "Mapped PLMN Slice Differentiator: " + networkSliceInfo.getMappedHplmnSliceDifferentiator());
-                                                SRLog.d(TAG, "Slice PLMN Service Type: " + networkSliceInfo.getMappedHplmnSliceServiceType());
-                                                SRLog.d(TAG, "Slice Service Type: " + networkSliceInfo.getSliceServiceType());
+                                            if (routeSelectionDescriptor != null) {
+                                                List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
+                                                SRLog.d(TAG, "Network Slices Available: " + networkSliceInfoList.size());
+                                                for (int k = 0; k < networkSliceInfoList.size(); k++) {
+                                                    NetworkSliceInfo networkSliceInfo = networkSliceInfoList.get(i);
+                                                    SRLog.d(TAG, "Slice Differentiator: " + networkSliceInfo.getSliceDifferentiator());
+                                                    SRLog.d(TAG, "Mapped PLMN Slice Differentiator: " + networkSliceInfo.getMappedHplmnSliceDifferentiator());
+                                                    SRLog.d(TAG, "Slice PLMN Service Type: " + networkSliceInfo.getMappedHplmnSliceServiceType());
+                                                    SRLog.d(TAG, "Slice Service Type: " + networkSliceInfo.getSliceServiceType());
 
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                            OutcomeReceiver.super.onError(error);
-                            SRLog.d(TAG, "Slice Info Failed");
-                        }
-                    });
-                    flag = true;
+                            @Override
+                            public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                                OutcomeReceiver.super.onError(error);
+                                SRLog.d(TAG, "Slice Info Failed");
+                            }
+                        });
+                        flag = true;
+                    }
+                } else {
+                    flag = false;
                 }
-            } else {
+
+
+            } catch (Exception e) {
+                SRLog.d(TAG, "Slice Info Failed!");
                 flag = false;
             }
-
-
-        } catch (Exception e) {
-            SRLog.d(TAG, "Slice Info Failed!");
-            flag = false;
         }
-
         return flag;
     }
 
@@ -501,246 +510,245 @@ public class NetworkCallback {
 
     @RequiresPermission(value = "android.permission.READ_PRIVILEGED_PHONE_STATE")
     public static boolean getConfigurationTM(Context context) {
-        PackageManager pm = context.getPackageManager();
-
-        boolean telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
-        boolean capability_slicing = pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED);
-
-       /*List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
-       List<UrspRule> urspRuleList = new ArrayList<>();*/
-
-        MainActivity ma = new MainActivity();
-        SRLog.d(TAG, "CAPABILITY SLICING: " + capability_slicing);
-
-
-        /*SRLog.d(TAG, "Has carrier privilleges:" +tm.hasCarrierPrivileges());
-       SRLog.d(TAG, "PACKAGE MANAGER" +pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED));
-        SRLog.d(TAG, "Capability: "+tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED));*/
         boolean flag = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PackageManager pm = context.getPackageManager();
 
-        try {
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (context != null) {
-                Context context1 = context;
-                ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network network = connectivityManager.getActiveNetwork();
+            boolean telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+            boolean capability_slicing = pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED);
 
-                /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
-                if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
-                    //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
+           /*List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
+           List<UrspRule> urspRuleList = new ArrayList<>();*/
 
-                    tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                        @Override
-                        public void onResult(@NonNull NetworkSlicingConfig result) {
-                            NetworkSlicingConfig networkSlicingConfig = result;
-                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+            MainActivity ma = new MainActivity();
+            SRLog.d(TAG, "CAPABILITY SLICING: " + capability_slicing);
 
-                            SRLog.d(TAG, "Slice config works!!");
-                            SRLog.d(TAG, "URSP List: " + urspRuleList);
-                            SRLog.d(TAG, "URSP received: " + urspRuleList.size());
 
-                            for (int i = 0; i < urspRuleList.size(); i++) {
-                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
-                                List<TrafficDescriptor> trafficDescriptor = urspRule.getTrafficDescriptors();
-                                List<RouteSelectionDescriptor> routeSelectionDescriptor = urspRule.getRouteSelectionDescriptor();
-                                SRLog.d(TAG, "URSP" + urspRule);
-                                SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
-                                SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+            /*SRLog.d(TAG, "Has carrier privilleges:" +tm.hasCarrierPrivileges());
+           SRLog.d(TAG, "PACKAGE MANAGER" +pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED));
+            SRLog.d(TAG, "Capability: "+tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED));*/
+
+
+            try {
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (context != null) {
+                    Context context1 = context;
+                    ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Network network = connectivityManager.getActiveNetwork();
+
+                    /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+                    if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
+                        //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
+
+                        tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                            @Override
+                            public void onResult(@NonNull NetworkSlicingConfig result) {
+                                NetworkSlicingConfig networkSlicingConfig = result;
+                                List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+
+                                SRLog.d(TAG, "Slice config works!!");
+                                SRLog.d(TAG, "URSP List: " + urspRuleList);
+                                SRLog.d(TAG, "URSP received: " + urspRuleList.size());
+
+                                for (int i = 0; i < urspRuleList.size(); i++) {
+                                    UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
+                                    List<TrafficDescriptor> trafficDescriptor = urspRule.getTrafficDescriptors();
+                                    List<RouteSelectionDescriptor> routeSelectionDescriptor = urspRule.getRouteSelectionDescriptor();
+                                    SRLog.d(TAG, "URSP" + urspRule);
+                                    SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
+                                    SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                }
+
                             }
 
-                        }
-
-                        @Override
-                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                            OutcomeReceiver.super.onError(error);
-                            SRLog.d(TAG, "Slice Config rejected!");
-                        }
-                    });
-                    flag = true;
+                            @Override
+                            public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                                OutcomeReceiver.super.onError(error);
+                                SRLog.d(TAG, "Slice Config rejected!");
+                            }
+                        });
+                        flag = true;
+                    }
+                } else {
+                    flag = false;
                 }
-            } else {
+                SRLog.d(TAG, "TM Config:" + flag);
+
+
+            } catch (Exception e) {
+                SRLog.d(TAG, "Network slice configuration Failed!");
                 flag = false;
             }
-            SRLog.d(TAG, "TM Config:" + flag);
-
-
-        } catch (Exception e) {
-            SRLog.d(TAG, "Network slice configuration Failed!");
-            flag = false;
         }
-
         return flag;
     }
 
 
     public static boolean getNetworkSlicingConfig(Context context) {
         boolean flag = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (context != null) {
+                    Context context1 = context;
+                    ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Network network = connectivityManager.getActiveNetwork();
+                    /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+                    if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
+                        //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
 
-        try {
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (context != null) {
-                Context context1 = context;
-                ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network network = connectivityManager.getActiveNetwork();
-                /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
-                if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
-                    //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
+                        tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                            @Override
+                            public void onResult(@NonNull NetworkSlicingConfig result) {
+                                NetworkSlicingConfig networkSlicingConfig = result;
+                                List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
 
-                    tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                        @Override
-                        public void onResult(@NonNull NetworkSlicingConfig result) {
-                            NetworkSlicingConfig networkSlicingConfig = result;
-                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+                                for (int i = 0; i < urspRuleList.size(); i++) {
+                                    UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
+                                    List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
 
-                            for (int i = 0; i < urspRuleList.size(); i++) {
-                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
-                                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
+                                    if (routeSelectionDescriptorsList != null) {
+                                        for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
+                                            RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
+                                            SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
 
-                                if (routeSelectionDescriptorsList != null) {
-                                    for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
-                                        RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
-                                        SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                            if (routeSelectionDescriptor != null) {
+                                                SRLog.d(TAG, "Route Selection Descriptor Available");
+                                                List<String> dataNetworkNameList = routeSelectionDescriptor.getDataNetworkName();
+                                                List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
 
-                                        if (routeSelectionDescriptor != null) {
-                                            SRLog.d(TAG, "Route Selection Descriptor Available");
-                                            List<String> dataNetworkNameList = routeSelectionDescriptor.getDataNetworkName();
-                                            List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
-
-                                            if (dataNetworkNameList != null) {
-                                                for (int k = 0; k < dataNetworkNameList.size(); k++) {
-                                                    SRLog.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
+                                                if (dataNetworkNameList != null) {
+                                                    for (int k = 0; k < dataNetworkNameList.size(); k++) {
+                                                        SRLog.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
+                                                    }
+                                                } else {
+                                                    SRLog.d(TAG, "DNN List: " + dataNetworkNameList.size());
                                                 }
-                                            } else {
-                                                SRLog.d(TAG, "DNN List: " + dataNetworkNameList.size());
-                                            }
 
-                                            if(networkSliceInfoList != null){
-                                                for(int l=0; l < networkSliceInfoList.size();l++){
-                                                    NetworkSliceInfo sliceInfo = networkSliceInfoList.get(i);
-                                                    SRLog.d(TAG,"Network Slice Status: "+sliceInfo.getStatus());
-                                                    SRLog.d(TAG,"Network Slice Service Type: "+sliceInfo.getSliceServiceType());
-                                                    SRLog.d(TAG,"Network Slice Differentiator: "+sliceInfo.getSliceDifferentiator());
-                                                    SRLog.d(TAG,"Network HPLMN Service Type"+sliceInfo.getMappedHplmnSliceServiceType());
-                                                    SRLog.d(TAG,"Network HPLMN Differentiator: "+sliceInfo.getMappedHplmnSliceDifferentiator());
+                                                if (networkSliceInfoList != null) {
+                                                    for (int l = 0; l < networkSliceInfoList.size(); l++) {
+                                                        NetworkSliceInfo sliceInfo = networkSliceInfoList.get(i);
+                                                        SRLog.d(TAG, "Network Slice Status: " + sliceInfo.getStatus());
+                                                        SRLog.d(TAG, "Network Slice Service Type: " + sliceInfo.getSliceServiceType());
+                                                        SRLog.d(TAG, "Network Slice Differentiator: " + sliceInfo.getSliceDifferentiator());
+                                                        SRLog.d(TAG, "Network HPLMN Service Type" + sliceInfo.getMappedHplmnSliceServiceType());
+                                                        SRLog.d(TAG, "Network HPLMN Differentiator: " + sliceInfo.getMappedHplmnSliceDifferentiator());
 
+                                                    }
+                                                } else {
+                                                    SRLog.d(TAG, "NetworkSliceInfo List: " + networkSliceInfoList.size());
                                                 }
-                                            } else {
-                                                SRLog.d(TAG, "NetworkSliceInfo List: " + networkSliceInfoList.size());
-                                            }
-                                            SRLog.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
-                                            SRLog.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
-                                            SRLog.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
+                                                SRLog.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
+                                                SRLog.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
+                                                SRLog.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
 
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                            OutcomeReceiver.super.onError(error);
-                            SRLog.d(TAG, "Slice Config rejected!");
-                        }
-                    });
-                    flag = true;
+                            @Override
+                            public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                                OutcomeReceiver.super.onError(error);
+                                SRLog.d(TAG, "Slice Config rejected!");
+                            }
+                        });
+                        flag = true;
+                    }
+
+
+                } else {
+                    SRLog.d(TAG, "Context returned Null!!");
+                    flag = false;
                 }
 
-
-            } else {
-                SRLog.d(TAG,"Context returned Null!!");
+            } catch (Exception e) {
+                SRLog.d(TAG, "Network slice configuration Failed!");
                 flag = false;
             }
-
-        } catch (Exception e) {
-            SRLog.d(TAG, "Network slice configuration Failed!");
-            flag = false;
         }
         return flag;
-
     }
 
 
     public static boolean getRouteSelectionDescriptor(Context context) {
-
-
         boolean flag = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
+                List<UrspRule> urspRuleList = new ArrayList<>();
+                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
+                List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (context != null) {
+                    Context context1 = context;
+                    ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Network network = connectivityManager.getActiveNetwork();
 
-        try {
-            List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
-            List<UrspRule> urspRuleList = new ArrayList<>();
-            List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
-            List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (context != null) {
-                Context context1 = context;
-                ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network network = connectivityManager.getActiveNetwork();
+                    /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+                    if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
+                        //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
 
-                /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
-                if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
-                    //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
+                        tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                            @Override
+                            public void onResult(@NonNull NetworkSlicingConfig result) {
+                                NetworkSlicingConfig networkSlicingConfig = result;
+                                List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
 
-                    tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                        @Override
-                        public void onResult(@NonNull NetworkSlicingConfig result) {
-                            NetworkSlicingConfig networkSlicingConfig = result;
-                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+                                SRLog.d(TAG, "Slice Info config function works!!");
+                                // SRLog.d(TAG, "URSP List: " +urspRuleList);
+                                // SRLog.d(TAG,"URSP received: " +urspRuleList.size());
 
-                            SRLog.d(TAG, "Slice Info config function works!!");
-                            // SRLog.d(TAG, "URSP List: " +urspRuleList);
-                            // SRLog.d(TAG,"URSP received: " +urspRuleList.size());
+                                for (int i = 0; i < urspRuleList.size(); i++) {
+                                    UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
+                                    List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
+                                    List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
+                                    //SRLog.d(TAG, "URSP" + urspRule);
+                                    //SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
+                                    if (routeSelectionDescriptorsList != null) {
+                                        for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
+                                            RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
+                                            //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
 
-                            for (int i = 0; i < urspRuleList.size(); i++) {
-                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
-                                List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
-                                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
-                                //SRLog.d(TAG, "URSP" + urspRule);
-                                //SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
-                                if (routeSelectionDescriptorsList != null) {
-                                    for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
-                                        RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
-                                        //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                            if (routeSelectionDescriptor != null) {
+                                                SRLog.d(TAG, "Route Selection Descriptor Available");
+                                                List<String> dataNetworkNameList = routeSelectionDescriptor.getDataNetworkName();
 
-                                        if (routeSelectionDescriptor != null) {
-                                            SRLog.d(TAG, "Route Selection Descriptor Available");
-                                            List<String> dataNetworkNameList = routeSelectionDescriptor.getDataNetworkName();
-
-                                            if (dataNetworkNameList != null) {
-                                                for (int k = 0; k < dataNetworkNameList.size(); k++) {
-                                                    SRLog.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
+                                                if (dataNetworkNameList != null) {
+                                                    for (int k = 0; k < dataNetworkNameList.size(); k++) {
+                                                        SRLog.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
+                                                    }
+                                                } else {
+                                                    SRLog.d(TAG, "DNN List: " + dataNetworkNameList.size());
                                                 }
-                                            } else {
-                                                SRLog.d(TAG, "DNN List: " + dataNetworkNameList.size());
+                                                SRLog.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
+                                                SRLog.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
+                                                SRLog.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
                                             }
-                                            SRLog.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
-                                            SRLog.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
-                                            SRLog.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                            OutcomeReceiver.super.onError(error);
-                            SRLog.d(TAG, "Slice Config rejected!");
-                        }
-                    });
-                    flag = true;
+                            @Override
+                            public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                                OutcomeReceiver.super.onError(error);
+                                SRLog.d(TAG, "Slice Config rejected!");
+                            }
+                        });
+                        flag = true;
+                    }
+                } else {
+                    flag = false;
                 }
-            } else {
+                SRLog.d(TAG, "TM Config:" + flag);
+
+            } catch (Exception e) {
+                SRLog.d(TAG, "Network slice configuration Failed!");
                 flag = false;
             }
-            SRLog.d(TAG, "TM Config:" + flag);
-
-
-        } catch (Exception e) {
-            SRLog.d(TAG, "Network slice configuration Failed!");
-            flag = false;
         }
-
 
 
 
@@ -782,51 +790,51 @@ public class NetworkCallback {
 
         NetworkSlicingConfig networksliceConfig = null;
         boolean flag = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
 
-        try {
 
+                List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
+                List<UrspRule> urspRuleList = new ArrayList<>();
+                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
+                List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (context != null) {
+                    Context context1 = context;
+                    ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Network network = connectivityManager.getActiveNetwork();
 
-            List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
-            List<UrspRule> urspRuleList = new ArrayList<>();
-            List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
-            List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (context != null) {
-                Context context1 = context;
-                ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network network = connectivityManager.getActiveNetwork();
+                    /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+                    if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
+                        //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
 
-                /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
-                if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
-                    //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
+                        tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                            @Override
+                            public void onResult(@NonNull NetworkSlicingConfig result) {
+                                NetworkSlicingConfig networkSlicingConfig = result;
+                                SRLog.d(TAG, "function works!!");
+                                //flag = true;
+                            }
 
-                    tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                        @Override
-                        public void onResult(@NonNull NetworkSlicingConfig result) {
-                            NetworkSlicingConfig networkSlicingConfig = result;
-                            SRLog.d(TAG, "function works!!");
-                            //flag = true;
-                        }
+                            @Override
+                            public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                                OutcomeReceiver.super.onError(error);
+                                SRLog.d(TAG, "Traffi Descriptor Failed!");
+                                //flag = false;
+                            }
+                        });
 
-                        @Override
-                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                            OutcomeReceiver.super.onError(error);
-                            SRLog.d(TAG, "Traffi Descriptor Failed!");
-                            //flag = false;
-                        }
-                    });
-
+                    }
+                } else {
+                    flag = false;
                 }
-            } else {
-                flag = false;
+                SRLog.d(TAG, "TM Config:" + flag);
+
+
+            } catch (Exception e) {
+                SRLog.d(TAG, "Traffic Descriptor Failed!");
             }
-            SRLog.d(TAG, "TM Config:" + flag);
-
-
-        } catch (Exception e) {
-            SRLog.d(TAG, "Traffic Descriptor Failed!");
         }
-
         return networksliceConfig;
     }
 
@@ -834,70 +842,72 @@ public class NetworkCallback {
     public static boolean getTrafficDescriptor(Context context) {
 
         boolean flag = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            try {
+                List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
+                List<UrspRule> urspRuleList = new ArrayList<>();
+                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
+                List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
+                TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+                if (context != null) {
+                    Context context1 = context;
+                    ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Network network = connectivityManager.getActiveNetwork();
 
-        try {
-            List<NetworkSliceInfo> sliceInfoList = new ArrayList<>();
-            List<UrspRule> urspRuleList = new ArrayList<>();
-            List<RouteSelectionDescriptor> routeSelectionDescriptorsList = new ArrayList<>();
-            List<TrafficDescriptor> trafficDescriptorList = new ArrayList<>();
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            if (context != null) {
-                Context context1 = context;
-                ConnectivityManager connectivityManager = (ConnectivityManager) context1.getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network network = connectivityManager.getActiveNetwork();
+                    /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
+                    if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
+                        //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
 
-                /* TODO Find a way to get READ_PRIVILEGED_PHONE_STATE for getNetworkSlicingConfiguration */
-                if (tm.isRadioInterfaceCapabilitySupported(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED)) {
-                    //if (tm.hasCarrierPrivileges()) {/* TODO Change to true for working */
+                        tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
+                            @Override
+                            public void onResult(@NonNull NetworkSlicingConfig result) {
+                                NetworkSlicingConfig networkSlicingConfig = result;
+                                List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
+                                SRLog.d(TAG, "Traffic Descriptor function works!!");
 
-                    tm.getNetworkSlicingConfiguration(context1.getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
-                        @Override
-                        public void onResult(@NonNull NetworkSlicingConfig result) {
-                            NetworkSlicingConfig networkSlicingConfig = result;
-                            List<UrspRule> urspRuleList = networkSlicingConfig.getUrspRules();
-                            SRLog.d(TAG, "Traffic Descriptor function works!!");
+                                for (int i = 0; i < urspRuleList.size(); i++) {
+                                    UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
+                                    List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
+                                    List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
+                                    if (trafficDescriptorList != null) {
+                                        for (int j = 0; i < trafficDescriptorList.size(); i++) {
+                                            TrafficDescriptor trafficDescriptor = urspRule.getTrafficDescriptors().get(i);
+                                            //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
 
-                            for (int i = 0; i < urspRuleList.size(); i++) {
-                                UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
-                                List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
-                                List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
-                                if (trafficDescriptorList != null) {
-                                    for (int j = 0; i < trafficDescriptorList.size(); i++) {
-                                        TrafficDescriptor trafficDescriptor = urspRule.getTrafficDescriptors().get(i);
-                                        //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                            if (trafficDescriptor != null) {
+                                                SRLog.d(TAG, "Traffic Descriptor Available");
+                                                SRLog.d(TAG, "Traffic Descriptor DNN: " + trafficDescriptor.getDataNetworkName());
+                                                SRLog.d(TAG, "Traffic Descriptor Os App ID: " + trafficDescriptor.getOsAppId());
 
-                                        if (trafficDescriptor != null) {
-                                            SRLog.d(TAG, "Traffic Descriptor Available");
-                                            SRLog.d(TAG, "Traffic Descriptor DNN: " + trafficDescriptor.getDataNetworkName());
-                                            SRLog.d(TAG, "Traffic Descriptor Os App ID: " + trafficDescriptor.getOsAppId());
-
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
-                            OutcomeReceiver.super.onError(error);
-                            SRLog.d(TAG, "Traffi Descriptor Failed!");
-                        }
-                    });
-                    flag = true;
+                            @Override
+                            public void onError(@NonNull TelephonyManager.NetworkSlicingException error) {
+                                OutcomeReceiver.super.onError(error);
+                                SRLog.d(TAG, "Traffi Descriptor Failed!");
+                            }
+                        });
+                        flag = true;
+                    }
+                } else {
+                    flag = false;
                 }
-            } else {
+                SRLog.d(TAG, "TM Config:" + flag);
+
+
+            } catch (Exception e) {
+                SRLog.d(TAG, "Traffic Descriptor Failed!");
                 flag = false;
             }
-            SRLog.d(TAG, "TM Config:" + flag);
 
 
-        } catch (Exception e) {
-            SRLog.d(TAG, "Traffic Descriptor Failed!");
-            flag = false;
+            return flag;
         }
-
-
-        return flag;
+        return false;
     }
 
     public static void getURSPrules(Context context) {
@@ -912,12 +922,14 @@ public class NetworkCallback {
 
         /* TODO: Get URSP rules from network */
         UrspRule urspRule = null;
-        if (urspRule != null) {
-            /* TODO: Get routeSelection and trafficDescriptor from URSP rules */
-            routeSelectionDescriptor =
-                    urspRule.getRouteSelectionDescriptor();
-            trafficDescriptor =
-                    urspRule.getTrafficDescriptors();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (urspRule != null) {
+                /* TODO: Get routeSelection and trafficDescriptor from URSP rules */
+                routeSelectionDescriptor =
+                        urspRule.getRouteSelectionDescriptor();
+                trafficDescriptor =
+                        urspRule.getTrafficDescriptors();
+            }
         }
     }
 
@@ -1167,7 +1179,9 @@ public class NetworkCallback {
             //Log.d(TAG, "INET4Address: "+ inet4Address.toString());
             SRLog.d(TAG, "LINK PROPERTIES: " + linkProperties);
             SRLog.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
-            SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            }
             SRLog.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
 
             assert connectivityManager != null;
@@ -1310,7 +1324,9 @@ public class NetworkCallback {
             //Log.d(TAG, "INET4Address: "+ inet4Address.toString());
             SRLog.d(TAG, "LINK PROPERTIES: " + linkProperties);
             SRLog.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
-            SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                SRLog.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
+            }
             SRLog.d(TAG, "Network Type Name: " + networkInfo.getTypeName().toString());
 
             assert connectivityManager != null;

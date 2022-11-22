@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -252,7 +253,11 @@ public class LoggingService extends Service {
             String CI = "";
             for (CellInfo ci:cil) {
                 if (ci.isRegistered()) { //we only care for the serving cell
-                    OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
+                    } else {
+                        OperatorName = ""; // todo use old API here
+                    }
                     if (ci instanceof CellInfoNr) {
                         CellInfoNr ciNr = (CellInfoNr) ci;
                         CellIdentityNr cidNr = (CellIdentityNr) ciNr.getCellIdentity();

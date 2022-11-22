@@ -1,11 +1,12 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile;
 
+import static android.app.admin.DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT;
+import static android.app.admin.DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED;
+
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
@@ -17,19 +18,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ScrollView;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import static android.app.admin.DevicePolicyManager.FLAG_MANAGED_CAN_ACCESS_PARENT;
-import static android.app.admin.DevicePolicyManager.FLAG_PARENT_CAN_ACCESS_MANAGED;
-
-import java.net.FileNameMap;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SRLog;
@@ -282,16 +276,18 @@ public class BasicManagedProfileFragment extends Fragment implements
 
     private boolean setPreferentialEnabled() {
         boolean flag = false;
-        Context context = getContext();
-        if (context != null) {
-            try {
-                DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-                devicePolicyManager.setPreferentialNetworkServiceEnabled(true);
-                SRLog.d(TAG,"setPreferentialNetworkServiceEnabled");
-                flag = true;
-            } catch (Exception exception) {
-                SRLog.e(TAG,"setPreferentialNetworkServiceEnabled failed!");
-                flag = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Context context = getContext();
+            if (context != null) {
+                try {
+                    DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+                    devicePolicyManager.setPreferentialNetworkServiceEnabled(true);
+                    SRLog.d(TAG, "setPreferentialNetworkServiceEnabled");
+                    flag = true;
+                } catch (Exception exception) {
+                    SRLog.e(TAG, "setPreferentialNetworkServiceEnabled failed!");
+                    flag = false;
+                }
             }
         }
         return flag;
