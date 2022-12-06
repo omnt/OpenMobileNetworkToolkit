@@ -1,12 +1,12 @@
-
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON;
-
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class SumReceived {
-
+public class Udp{
+    @SerializedName("socket")
+    @Expose
+    public Integer socket;
     @SerializedName("start")
     @Expose
     public Integer start;
@@ -18,13 +18,10 @@ public class SumReceived {
     public Float seconds;
     @SerializedName("bytes")
     @Expose
-    public Long bytes;
+    public Integer bytes;
     @SerializedName("bits_per_second")
     @Expose
     public Float bitsPerSecond;
-    @SerializedName("sender")
-    @Expose
-    public Boolean sender;
     @SerializedName("packets")
     @Expose
     public Integer packets;
@@ -37,4 +34,10 @@ public class SumReceived {
     @SerializedName("lost_percent")
     @Expose
     public Float lostPercent;
+    @SerializedName("out_of_order")
+    @Expose
+    public Integer outOfOrder;
+    @SerializedName("sender")
+    @Expose
+    public Boolean sender;
 }

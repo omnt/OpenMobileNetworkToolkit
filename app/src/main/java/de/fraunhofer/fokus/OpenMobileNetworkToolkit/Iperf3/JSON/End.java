@@ -1,16 +1,19 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON;
 
-import java.util.List;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 public class End {
 
     @SerializedName("streams")
     @Expose
     public List<Stream__1> streams = null;
+    @SerializedName("sum")
+    @Expose
+    public Sum sum;
     @SerializedName("sum_sent")
     @Expose
     public SumSent sumSent;

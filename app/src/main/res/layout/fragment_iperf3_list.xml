@@ -6,10 +6,10 @@
     android:orientation="vertical"
     android:exported="true"
     tools:context=".Iperf3.Iperf3ListFragment" >
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/runners_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-        </ListView>
+        </androidx.recyclerview.widget.RecyclerView>
 </RelativeLayout>

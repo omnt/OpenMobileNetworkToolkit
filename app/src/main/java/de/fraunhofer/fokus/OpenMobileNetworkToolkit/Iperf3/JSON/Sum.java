@@ -31,4 +31,17 @@ public class Sum {
     @Expose
     public Boolean sender;
 
+    @SerializedName("packets")
+    @Expose
+    public Integer packets;
+    @SerializedName("jitter_ms")
+    @Expose
+    public Float jitterMs;
+    @SerializedName("lost_packets")
+    @Expose
+    public Integer lostPackets;
+    @SerializedName("lost_percent")
+    @Expose
+    public Float lostPercent;
+
 }

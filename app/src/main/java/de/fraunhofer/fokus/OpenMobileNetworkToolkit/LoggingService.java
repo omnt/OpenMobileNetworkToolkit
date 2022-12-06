@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
@@ -153,47 +154,27 @@ public class LoggingService extends Service {
 
     private boolean setupRemoteInfluxDB() {
         Log.d(TAG, "setupRemoteInfluxDB");
-        String url = sp.getString("influx_URL", "");
-        String org = sp.getString("influx_org", "");
-        String bucket = sp.getString("influx_bucket", "");
-        String token = sp.getString("influx_token", "");
-
-        if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
-            Log.e(TAG, "Influx parameters incomplete, can't setup logging");
-            return false;
+        ic = InfluxdbConnections.getRicInstance(getApplicationContext());
+        if (ic.connect()) {
+            loggingHandler = new Handler(Looper.myLooper());
+            loggingHandler.post(loggingUpdate);
+            return true;
         } else {
-            ic = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
-            if (ic.connect()) {
-                loggingHandler = new Handler(Looper.myLooper());
-                loggingHandler.post(loggingUpdate);
-                return true;
-            } else {
-                Log.i(TAG, "can't start influx logging, connect to database not successful");
-                return false;
-            }
+            Log.i(TAG, "can't start influx logging, connect to database not successful");
+            return false;
         }
     }
 
     private boolean setupLocalInfluxDB() {
         Log.d(TAG, "setupLocalInfluxDB");
-        String url = sp.getString("influx_URL", "");
-        String org = sp.getString("influx_org", "");
-        String bucket = sp.getString("influx_bucket", "");
-        String token = sp.getString("influx_token", "");
-
-        if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
-            Log.e(TAG, "Influx parameters incomplete, can't setup logging");
-            return false;
+        ic = InfluxdbConnections.getLicInstance(getApplicationContext());
+        if (ic.connect()) {
+            loggingHandler = new Handler(Looper.myLooper());
+            loggingHandler.post(loggingUpdate);
+            return true;
         } else {
-            ic = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
-            if (ic.connect()) {
-                loggingHandler = new Handler(Looper.myLooper());
-                loggingHandler.post(loggingUpdate);
-                return true;
-            } else {
-                Log.i(TAG, "can't start influx logging, connect to database not successful");
-                return false;
-            }
+            Log.i(TAG, "can't start influx logging, connect to database not successful");
+            return false;
         }
     }
 
