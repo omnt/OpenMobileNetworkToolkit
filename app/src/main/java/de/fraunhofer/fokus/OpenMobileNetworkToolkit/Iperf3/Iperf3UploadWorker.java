@@ -17,10 +17,13 @@ import com.influxdb.client.write.Point;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.LinkedList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
 
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
@@ -33,8 +36,9 @@ public class Iperf3UploadWorker extends Worker {
     private String port;
     private String bandwidth;
     private String duration;
-    private String interval;
+    private String intervalIperf;
     private String bytes;
+    private String protocol;
 
     private boolean rev;
     private boolean biDir;
@@ -49,25 +53,42 @@ public class Iperf3UploadWorker extends Worker {
         measurementName = getInputData().getString("measurementName");
 
         port = getInputData().getString("port");
+        if(port == null)
+            port = "5201";
+        protocol = getInputData().getString("protocol");
         bandwidth = getInputData().getString("bandwidth");
-        duration = getInputData().getString("duration");
-        interval = getInputData().getString("interval");
-        bytes = getInputData().getString("bytes");
 
+        if(bandwidth == null){
+            if(protocol.equals("TCP")) {
+                bandwidth = "unlimited";
+            } else {
+                bandwidth = "1000";
+            }
+        }
+
+        duration = getInputData().getString("duration");
+        if(duration == null)
+            duration = "10";
+        intervalIperf = getInputData().getString("interval");
+        if(intervalIperf == null)
+            intervalIperf = "1";
+        bytes = getInputData().getString("bytes");
+        if(bytes == null){
+            if(protocol.equals("TCP")) {
+                bytes = "8";
+            } else {
+                bytes = "1470";
+            }
+        }
 
         rev = getInputData().getBoolean("rev", false);
         biDir = getInputData().getBoolean("biDir",false);
         oneOff = getInputData().getBoolean("oneOff",false);
         client = getInputData().getBoolean("client",false);
-
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
     private void setup(){
-        String url = sp.getString("influx_URL", null);
-        String org = sp.getString("influx_org", null);
-        String bucket = sp.getString("influx_bucket", null);
-        String token = sp.getString("influx_token", null);
-        influx = new InfluxdbConnection(url, token, org, bucket, getApplicationContext());
+        influx = InfluxdbConnections.getRicInstance(getApplicationContext());
     }
     @NonNull
     @Override
@@ -85,29 +106,63 @@ public class Iperf3UploadWorker extends Worker {
             return Result.failure(output);
         }
         Root iperf3AsJson = new Gson().fromJson(br, Root.class);
-        long timestamp = iperf3AsJson.start.timestamp.timesecs;
+        long timestamp = iperf3AsJson.start.timestamp.timesecs.longValue()*1000;
+        Log.d(TAG, "doWork: "+timestamp);
+
+        String role = "server";
+        if(iperf3AsJson.start.connectingTo != null){
+            role = "client";
+        }
+
+
+        LinkedList<Point> points = new LinkedList<Point>();
         for (Interval interval: iperf3AsJson.intervals) {
-            Point point = new Point("Iperf3");
-            point.addTag("IP", ip);
-            point.addTag("port", port);
-            point.addTag("duration", duration);
+            for (Stream stream: interval.streams){
+                Point point = new Point("Iperf3");
+                point.addTag("bidir", String.valueOf(biDir));
+                point.addTag("sender", String.valueOf(stream.sender));
+                point.addTag("role", role);
+                point.addTag("socket", String.valueOf(stream.socket));
+                point.addTag("protocol", protocol);
+                point.addTag("interval", intervalIperf);
+                point.addTag("version", iperf3AsJson.start.version);
+                point.addTag("reversed", String.valueOf(rev));
+                point.addTag("oneOff", String.valueOf(oneOff));
+                point.addTag("connectingToHost", iperf3AsJson.start.connectingTo.host);
+                point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
+                point.addTag("bandwith", bandwidth);
+                point.addTag("duration", duration);
+                point.addTag("bytes", bytes);
+                point.addTag("run", measurementName);
 
-            point.addField("rtt", interval.streams.get(0).rtt);
-            point.addField("bytes", interval.streams.get(0).bytes);
-            point.addField("rttvar", interval.streams.get(0).rttvar);
-            long tmpTimestamp = timestamp+Math.round(interval.streams.get(0).end);
-            point.time(tmpTimestamp, WritePrecision.S);
-            point.addField("bits_per_second", interval.streams.get(0).bitsPerSecond);
 
+                point.addField("bits_per_second", stream.bitsPerSecond);
+                point.addField("seconds", stream.seconds);
+                point.addField("bytes", stream.bytes);
+                point.addField("rtt", stream.rtt);
+                point.addField("rttvar", stream.rttvar);
+                point.addField("retransmits", stream.retransmits);
+                point.addField("jitter_ms", stream.jitterMs);
+                point.addField("lost_packets", stream.lostPackets);
+                point.addField("lost_percent", stream.lostPercent);
 
-            Log.d(TAG, "doWork: "+point.toLineProtocol());
+                long tmpTimestamp = timestamp + (long) (stream.end * 1000);
+                Log.d(TAG, "doWork: "+tmpTimestamp);
+                point.time(tmpTimestamp, WritePrecision.MS);
+
+                Log.d(TAG, "doWork: "+point.toLineProtocol());
+                points.add(point);
+            }
+        }
+
+        for (Point point:points) {
             if(!influx.writePoint(point)){
                 return Result.failure(output);
             }
         }
 
+
         influx.sendAll();
-        influx.disconnect();
 
         output = new Data.Builder().putBoolean("iperf3_upload", true).build();
         return Result.success(output);

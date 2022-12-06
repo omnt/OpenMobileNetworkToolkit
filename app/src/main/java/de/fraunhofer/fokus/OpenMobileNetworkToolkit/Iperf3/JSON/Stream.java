@@ -30,6 +30,18 @@ public class Stream {
     @SerializedName("snd_cwnd")
     @Expose
     public Integer sndCwnd;
+    @SerializedName("packets")
+    @Expose
+    public int packets;
+    @SerializedName("jitter_ms")
+    @Expose
+    public Float jitterMs;
+    @SerializedName("lost_packets")
+    @Expose
+    public Integer lostPackets;
+    @SerializedName("lost_percent")
+    @Expose
+    public Float lostPercent;
     @SerializedName("snd_wnd")
     @Expose
     public Integer sndWnd;

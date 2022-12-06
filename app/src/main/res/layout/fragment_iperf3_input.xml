@@ -29,7 +29,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
+    <EditText
+        android:id="@+id/iperf3_streams"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="476dp"
+        android:autofillHints="100"
+        android:ems="10"
+        android:hint="@string/iperf_streams"
+        android:inputType="textPersonName"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
             android:id="@+id/iperf3_interval"
             android:layout_width="226dp"
             android:layout_height="58dp"
@@ -56,7 +69,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/iperf3_bandwith"
+            android:id="@+id/iperf3_bandwidth"
             android:layout_width="226dp"
             android:layout_height="58dp"
             android:layout_marginTop="248dp"
@@ -210,6 +223,16 @@
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintVertical_bias="0.589" />
 
+    <Spinner
+        android:id="@+id/iperf3_protocol_spinner"
+        android:layout_width="120dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.304"
+        app:layout_constraintStart_toStartOf="@+id/guideline210"
+        app:layout_constraintTop_toTopOf="@+id/guideline9" />
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
         android:layout_width="wrap_content"
@@ -222,35 +245,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="703dp" />
+        app:layout_constraintGuide_end="695dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="240dp" />
+        app:layout_constraintGuide_begin="254dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="317dp" />
+        app:layout_constraintGuide_begin="306dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="386dp" />
+        app:layout_constraintGuide_begin="366dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="117dp" />
+        app:layout_constraintGuide_begin="142dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

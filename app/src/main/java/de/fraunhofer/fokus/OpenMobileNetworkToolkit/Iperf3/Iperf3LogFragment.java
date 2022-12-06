@@ -1,16 +1,8 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
-import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
-import android.system.ErrnoException;
-import android.system.Os;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,16 +11,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.influxdb.client.write.Point;
+import androidx.fragment.app.Fragment;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -83,6 +71,8 @@ public class Iperf3LogFragment extends Fragment {
 
             } catch (IOException e) {
                 e.printStackTrace();
+                logHandler.removeCallbacks(logUpdate);
+                return;
             }
             setFields(iperf3RunResult);
 
