@@ -14,9 +14,6 @@ import android.os.PersistableBundle;
 import android.service.carrier.CarrierIdentifier;
 import android.service.carrier.CarrierService;
 import android.telephony.CarrierConfigManager;
-import android.util.Log;
-
-import java.security.Permission;
 
 public class OpenMobileNetworkToolkit extends CarrierService {
     private static final String TAG = "OpenMobileNetworkToolkit";
@@ -53,8 +50,6 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL, true);
             configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
             configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
-
-
         } else {
             SRLog.d(TAG, " not available with below api level 30");
         }
@@ -68,6 +63,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         } else {
             SRLog.d(TAG, "KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY is not available with below api level 31");
         }
+        configForSubId.putBoolean(CarrierConfigManager.KEY_FORCE_HOME_NETWORK_BOOL, true);
         configForSubId.putBoolean(CarrierConfigManager.KEY_PREFER_2G_BOOL, false);
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_SETTINGS_ENABLE_BOOL, true);
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL, false);

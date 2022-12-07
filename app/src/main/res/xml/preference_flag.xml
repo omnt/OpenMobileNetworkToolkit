@@ -95,10 +95,13 @@
             android:key="buildVersion0MR1"
             android:title="Build.VERSION_CODES.0_MR1" />
         <SwitchPreferenceCompat
+            android:id="@+id/switchPreferenceCompat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:defaultValue="false"
+            android:dependency="buildVersion0MR1"
             android:key="switch_preference_17"
-            android:title="KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL"
-            android:dependency="buildVersion0MR1"/>
+            android:title="KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL" />
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="switch_preference_18"
@@ -274,7 +277,11 @@
             android:key="switch_preference_51"
             android:title="READ_PHONE_STATE"
             android:dependency="buildVersion0MR1"/>
-
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:dependency="buildVersion0MR1"
+            android:key="switch_preference_52"
+            android:title="KEY_FORCE_HOME_NETWORK_BOOL" />
 
 
 </PreferenceScreen>
