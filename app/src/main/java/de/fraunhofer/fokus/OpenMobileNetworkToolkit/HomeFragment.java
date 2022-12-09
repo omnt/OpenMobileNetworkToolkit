@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -90,8 +91,12 @@ public class HomeFragment extends Fragment implements LocationListener {
 
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
 
-        lm = (LocationManager) ma.getSystemService(Context.LOCATION_SERVICE);
-        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            lm = (LocationManager) ma.getSystemService(Context.LOCATION_SERVICE);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
+        } else {
+            Log.d(TAG, "onCreateView: No Location Permissions");
+        }
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.home_fragment);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -149,8 +154,9 @@ public class HomeFragment extends Fragment implements LocationListener {
         }
         props.add("Android SDK: " + Build.VERSION.SDK_INT);
         props.add("Android Release: " + Build.VERSION.RELEASE);
-        props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
-
+        if (feature_phone_state) {
+            props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
+        }
         props.add("\n \n ## Features ##");
         props.add("Feature Telephony: " + feature_telephony);
         props.add("Work Profile: " + work_profile);
@@ -179,7 +185,9 @@ public class HomeFragment extends Fragment implements LocationListener {
         props.add("Sim Operator Name: " + tm.getSimOperatorName());
         props.add("Network Specifier: " + tm.getNetworkSpecifier());
         props.add("DataState: " + tm.getDataState());
-        props.add("DataNetworkType: " + tm.getDataNetworkType()); // todo print useful  strings
+        if (feature_phone_state) {
+            props.add("DataNetworkType: " + tm.getDataNetworkType()); // todo print useful  strings
+        }
         props.add("SignalStrength: " + tm.getSignalStrength());
         int phone_type = tm.getPhoneType();
         if (phone_type == 0)
@@ -190,8 +198,10 @@ public class HomeFragment extends Fragment implements LocationListener {
             props.add("Phone Type: CDMA");
         else if (phone_type == 3)
             props.add("Phone Type: SIP");
-        props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
-        if (tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+        if (feature_phone_state) {
+            props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
+        }
+        if (feature_phone_state && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 props.add("Equivalent Home PLMNs: " + tm.getEquivalentHomePlmns());
 
@@ -202,8 +212,9 @@ public class HomeFragment extends Fragment implements LocationListener {
                 props.add("Forbidden PLMNs: " + tmp);
             }
         }
-
-        props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
+        if (feature_phone_state) {
+            props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
+        }
 
         props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
         props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
@@ -237,11 +248,6 @@ public class HomeFragment extends Fragment implements LocationListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 props.add("SubscriptionId: " + tm.getSubscriptionId());
             }
-            // todo move this to a setting menu
-            //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            //    tm.setForbiddenPlmns(new ArrayList<String>());
-                //tm.setNetworkSelectionModeManual("00101", true, AccessNetworkConstants.AccessNetworkType.NGRAN);
-            //}
         }
         TextView main_infos = getView().findViewById(R.id.main_infos);
         for (String prop : props) {
