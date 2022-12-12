@@ -37,6 +37,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_influxDBFragment"
             app:destination="@id/influxDBFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_specialCodeFragment"
+            app:destination="@id/specialCodesFragment" />
 
     </fragment>
     <fragment
@@ -143,6 +146,14 @@
         android:label="InfluxDBFragment" >
         <action
             android:id="@+id/action_influxDBFragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/specialCodesFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SpecialCodesFragment"
+        android:label="SpecialCodeFragment" >
+        <action
+            android:id="@+id/action_specialCodeFragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
 

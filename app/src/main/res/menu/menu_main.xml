@@ -6,54 +6,39 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:icon="@drawable/antenna"
     tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
     <item
+        android:id="@+id/iperf3"
+        android:title="@string/action_iperf3" />
+    <item
+        android:id="@+id/special_codes"
+        android:icon="@android:drawable/ic_dialog_dialer"
+        android:title="@string/special_codes"
+        android:visible="true" />
+    <item
         android:id="@+id/workprofilemanagement"
-        android:title="@string/work_profile_management"
-        />
+        android:title="@string/work_profile_management" />
     <item
         android:id="@+id/slicingSetup"
         android:title="@string/slicing_setup" />
     <item
         android:id="@+id/apn"
         android:title="@string/apn_settings" />
-    <group >
-        <item
-            android:id="@+id/AndroidTesting"
-            android:title="@string/action_android" />
-        <item
-            android:id="@+id/HuaweiProjektMenu"
-            android:title="@string/action_huawei" />
-        <item
-            android:id="@+id/MediatekIMS"
-            android:orderInCategory="100"
-            android:title="@string/action_mediatek"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/NokiaTesting"
-            android:title="@string/action_nokia" />
-        <item
-            android:id="@+id/SamsungIMS"
-            android:title="@string/action_samsung" />
-        <item
-            android:id="@+id/SonyService"
-            android:title="@string/action_sony" />
-    </group>
-    <item
-        android:id="@+id/logger"
-        android:title="@string/Log" />
-    <item
-        android:id="@+id/iperf3"
-        android:title="@string/action_iperf3" />
     <item
         android:id="@+id/influxDBMenu"
-        android:title="InfluxDB" />
-    <item
-        android:id="@+id/about"
-        android:title="@string/about" />
+        android:title="@string/influxdb" />
     <item
         android:id="@+id/settings"
-        android:title="Settings"/>
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/settings" />
+    <item
+        android:id="@+id/logger"
+        android:title="@string/Log"
+        android:visible="false" />
+    <item
+        android:id="@+id/about"
+        android:icon="@android:drawable/ic_dialog_info"
+        android:title="@string/about" />
 </menu>

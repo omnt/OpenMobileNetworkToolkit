@@ -8,6 +8,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -36,7 +37,6 @@ import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
 import java.util.Objects;
@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
             cp = HasCarrierPermissions();
         }
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
@@ -216,72 +217,46 @@ public class MainActivity extends AppCompatActivity {
         return flag;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.MediatekIMS) {
-            if (cp) {
-                tm.sendDialerSpecialCode("3646633");
-            } else {
-                NoCarrierToast();
-            }
-        } else if (id == R.id.SamsungIMS) {
-            if (cp) {
-                tm.sendDialerSpecialCode("467");
-            } else {
-                NoCarrierToast();
-            }
-        } else if (id == R.id.AndroidTesting) {
-            if (cp) {
-                tm.sendDialerSpecialCode("4636");
-            } else
-                NoCarrierToast();
-        } else if (id == R.id.SonyService) {
-            if (cp) {
-                tm.sendDialerSpecialCode("7378423");
-            } else {
-                NoCarrierToast();
-            }
-        } else if (id == R.id.HuaweiProjektMenu) {
-            if (cp) {
-                tm.sendDialerSpecialCode("2846579");
-            } else {
-                NoCarrierToast();
-            }
-        } else if (id == R.id.NokiaTesting) {
-            if (cp) {
-                tm.sendDialerSpecialCode("55555");
-            } else {
-                NoCarrierToast();
-            }
-        } else if (id == R.id.about) {
-            navController.navigate(R.id.about_fragment);
-        } else if (id == R.id.apn) {
-            Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
-            startActivity(intent);
-        } else if (id == R.id.slicingSetup) {
-            navController.navigate(R.id.fragment_slicingsetup);
-        } else if (id == R.id.iperf3) {
-            navController.navigate(R.id.fragment_iperf3_input);
-        }
-        else if (id == R.id.settings){
-            navController.navigate(R.id.settingsFragment);
-        }
-        else if (id == R.id.workprofilemanagement) {
-            Intent work_profile = new Intent(this, WorkProfileActivity.class);
-            startActivity(work_profile);
-        }
-        else if (id == R.id.influxDBMenu){
-            navController.navigate(R.id.influxDBFragment);
+        switch (item.getItemId()) {
+            case R.id.about:
+                navController.navigate(R.id.about_fragment);
+                break;
+            case R.id.apn:
+                Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
+                startActivity(intent);
+                break;
+            case R.id.slicingSetup:
+                navController.navigate(R.id.fragment_slicingsetup);
+                break;
+            case R.id.iperf3:
+                navController.navigate(R.id.fragment_iperf3_input);
+                break;
+            case R.id.settings:
+                navController.navigate(R.id.settingsFragment);
+                break;
+            case R.id.workprofilemanagement:
+                Intent work_profile = new Intent(this, WorkProfileActivity.class);
+                startActivity(work_profile);
+            case R.id.influxDBMenu:
+                navController.navigate(R.id.influxDBFragment);
+                break;
+            case R.id.special_codes:
+                navController.navigate(R.id.specialCodesFragment);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
+        navController.navigate(R.id.HomeFragment);
         //NavController navController = Navigation.findNavController(this, R.id.home_fragment);
-        return NavigationUI.navigateUp(navController, appBarConfiguration)
-                || super.onSupportNavigateUp();
+        //return NavigationUI.navigateUp(navController, appBarConfiguration)
+        //        || super.onSupportNavigateUp();
+        return true;
     }
 
     @Override

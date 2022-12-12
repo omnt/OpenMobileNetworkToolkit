@@ -10,7 +10,7 @@
     <string name="action_android">Android Testing</string>
     <string name="action_samsung">Samsung IMS</string>
     <string name="action_sony">Sony Service</string>
-    <string name="action_nokia">Nokia Service</string>
+    <string name="action_nokia">Nokia enable SA</string>
     <string name="action_huawei">Huawei Project</string>
     <string name="action_mediatek">Mediatek IMS</string>
     <string name="action_iperf3">iPerf3</string>
@@ -130,6 +130,9 @@
     <string name="set_up_managed_profile">Set up managed profile</string>
     <string name="preferential_network_service">Preferential Network Service</string>
     <string name="iperf_streams">-P / Parallel streams</string>
+    <string name="settings">Settings</string>
+    <string name="influxdb">InfluxDB</string>
+    <string name="special_codes">Special Codes</string>
 
     <!-- -->
 
