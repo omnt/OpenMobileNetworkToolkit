@@ -92,7 +92,7 @@ public class Iperf3Fragment extends Fragment {
     private Iperf3ResultsDataBase db;
     private ArrayList<String> uids;
 
-    public static class Iperf3Input{
+    public static class Iperf3Input {
         public boolean iperf3BiDir;
         public boolean iperf3Reverse;
         public boolean iperf3Json;
@@ -128,8 +128,8 @@ public class Iperf3Fragment extends Fragment {
         this.input = new Iperf3Input();
         this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
         this.uids = new ArrayList<>(this.db.iperf3RunResultDao().getIDs());
-        this.iperf3WM =  WorkManager.getInstance(getActivity().getApplicationContext());
-        this.logFileDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/iperf3_logs/";
+        this.iperf3WM = WorkManager.getInstance(getActivity().getApplicationContext());
+        this.logFileDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/iperf3_logs/";
         this.iperf3RunResultDao = db.iperf3RunResultDao();
         File iperf3Path = new File(this.logFileDir);
         if (!iperf3Path.exists()) {
@@ -186,8 +186,8 @@ public class Iperf3Fragment extends Fragment {
 
 
         failedColors = new int[]{getContext().getColor(R.color.crimson), getContext().getColor(R.color.crimson), getContext().getColor(R.color.crimson)};
-        runningColors = new int[]{getContext().getColor(R.color.purple_500), getContext().getColor(R.color.crimson),getContext().getColor(R.color.forestgreen)};
-        succesColors = new int[]{getContext().getColor(R.color.forestgreen),getContext().getColor(R.color.forestgreen),getContext().getColor(R.color.forestgreen)};
+        runningColors = new int[]{getContext().getColor(R.color.purple_500), getContext().getColor(R.color.crimson), getContext().getColor(R.color.forestgreen)};
+        succesColors = new int[]{getContext().getColor(R.color.forestgreen), getContext().getColor(R.color.forestgreen), getContext().getColor(R.color.forestgreen)};
 
         progressIndicator.setIndicatorColor(runningColors);
         progressIndicator.setIndeterminateAnimationType(LinearProgressIndicator.INDETERMINATE_ANIMATION_TYPE_CONTIGUOUS);
@@ -219,7 +219,6 @@ public class Iperf3Fragment extends Fragment {
         iperf3IsServer = v.findViewById(R.id.iperf3_is_server);
 
 
-
         spinner = v.findViewById(R.id.iperf3_protocol_spinner);
 
 
@@ -234,7 +233,7 @@ public class Iperf3Fragment extends Fragment {
 
                 Iperf3RunResult iperf3RunResult = db.iperf3RunResultDao().getRunResult(result.getString("uid"));
                 String logFileName = iperf3RunResult.input.iperf3LogFileName.split("_")[0];
-                if(logFileName.equals("iperf3"))
+                if (logFileName.equals("iperf3"))
                     logFileName = "";
                 iperf3EtLog.setText(logFileName);
                 iperf3EtIp.setText(iperf3RunResult.input.iperf3IP);
@@ -257,8 +256,7 @@ public class Iperf3Fragment extends Fragment {
         });
 
 
-
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             iperf3EtLog.setText(savedInstanceState.getString("iperf3LogFileName"));
             iperf3EtIp.setText(savedInstanceState.getString("iperf3IP"));
             iperf3EtPort.setText(savedInstanceState.getString("iperf3Port"));
@@ -278,21 +276,21 @@ public class Iperf3Fragment extends Fragment {
             iperf3IsServer.setChecked(savedInstanceState.getBoolean("iperf3Client"));
         } else {
             iperf3EtLog.setText(preferences.getString("iperf3LogFileName", null));
-            iperf3EtIp.setText(preferences.getString("iperf3IP",null));
-            iperf3EtPort.setText(preferences.getString("iperf3Port",null));
-            iperf3EtBandwidth.setText(preferences.getString("iperf3Bandwidth",null));
-            iperf3EtDuration.setText(preferences.getString("iperf3Duration",null));
-            iperf3EtInterval.setText(preferences.getString("iperf3Interval",null));
-            iperf3EtBytes.setText(preferences.getString("iperf3Bytes",null));
+            iperf3EtIp.setText(preferences.getString("iperf3IP", null));
+            iperf3EtPort.setText(preferences.getString("iperf3Port", null));
+            iperf3EtBandwidth.setText(preferences.getString("iperf3Bandwidth", null));
+            iperf3EtDuration.setText(preferences.getString("iperf3Duration", null));
+            iperf3EtInterval.setText(preferences.getString("iperf3Interval", null));
+            iperf3EtBytes.setText(preferences.getString("iperf3Bytes", null));
             iperf3EtStreams.setText(preferences.getString("iperf3Streams", null));
 
-            iperf3BiDir.setChecked(preferences.getBoolean("iperf3BiDir",false));
-            iperf3Reverse.setChecked(preferences.getBoolean("iperf3BiDir",false));
-            iperf3BiDir.setChecked(preferences.getBoolean("iperf3Reverse",false));
-            iperf3Json.setChecked(preferences.getBoolean("iperf3Json",false));
-            iperf3OneOff.setChecked(preferences.getBoolean("iperf3OneOff",false));
+            iperf3BiDir.setChecked(preferences.getBoolean("iperf3BiDir", false));
+            iperf3Reverse.setChecked(preferences.getBoolean("iperf3BiDir", false));
+            iperf3BiDir.setChecked(preferences.getBoolean("iperf3Reverse", false));
+            iperf3Json.setChecked(preferences.getBoolean("iperf3Json", false));
+            iperf3OneOff.setChecked(preferences.getBoolean("iperf3OneOff", false));
             spinner.setSelection(preferences.getInt("iperf3IdxProtocol", 0));
-            iperf3IsServer.setChecked(preferences.getBoolean("iperf3Client",false));
+            iperf3IsServer.setChecked(preferences.getBoolean("iperf3Client", false));
         }
         try {
             Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
@@ -302,10 +300,10 @@ public class Iperf3Fragment extends Fragment {
         return v;
     }
 
-    public void showInstances(View view){
+    public void showInstances(View view) {
         Bundle bundle = new Bundle();
         bundle.putStringArrayList("iperf3List", uids);
-        if(iperf3ListFragment == null){
+        if (iperf3ListFragment == null) {
             iperf3ListFragment = new Iperf3ListFragment();
         }
 
@@ -324,7 +322,7 @@ public class Iperf3Fragment extends Fragment {
     };
 
     public void executeIperfCommand(View view) {
-        String[] command =  parseInput().split(" ");
+        String[] command = parseInput().split(" ");
 
         String iperf3WorkerID = UUID.randomUUID().toString();
         Data.Builder iperf3Data = new Data.Builder();
@@ -349,8 +347,8 @@ public class Iperf3Fragment extends Fragment {
         ListenableFuture<List<WorkInfo>> status = iperf3WM.getWorkInfosByTag("iperf3Run");
 
         try {
-            for(WorkInfo workInfo: status.get()){
-                if(workInfo.getState().equals(WorkInfo.State.RUNNING)){
+            for (WorkInfo workInfo : status.get()) {
+                if (workInfo.getState().equals(WorkInfo.State.RUNNING)) {
                     Toast.makeText(getContext(), "iperf3 Test is running!", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -363,11 +361,10 @@ public class Iperf3Fragment extends Fragment {
         iperf3Data.putInt("notificationID", uids.size());
 
 
-
         OneTimeWorkRequest iperf3WR = new OneTimeWorkRequest.Builder(Iperf3Worker.class).setInputData(iperf3Data.build()).addTag("iperf3Run").addTag(iperf3WorkerID).build();
         OneTimeWorkRequest iperf3UP = new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class).setInputData(iperf3Data.build()).addTag("iperf3").build();
 
-        iperf3RunResultDao.insert(new Iperf3RunResult(iperf3WorkerID, -100,false, input, input.timestamp));
+        iperf3RunResultDao.insert(new Iperf3RunResult(iperf3WorkerID, -100, false, input, input.timestamp));
 
         if (preferences.getBoolean("enable_influx", false)) {
             iperf3WM.beginWith(iperf3WR).then(iperf3UP).enqueue();
@@ -381,43 +378,41 @@ public class Iperf3Fragment extends Fragment {
         iperf3WM.getWorkInfoByIdLiveData(iperf3WR.getId()).observeForever(workInfo -> {
             int iperf3_result;
             iperf3_result = workInfo.getOutputData().getInt("iperf3_result", -100);
-            if(workInfo.getState().equals(WorkInfo.State.CANCELLED)){
+            if (workInfo.getState().equals(WorkInfo.State.CANCELLED)) {
                 iperf3_result = -1;
             }
             iperf3RunResultDao.updateResult(iperf3WorkerID, iperf3_result);
-            Log.d(TAG, "onChanged: iperf3_result: "+iperf3_result);
-            if(iperf3_result == -100){
+            Log.d(TAG, "onChanged: iperf3_result: " + iperf3_result);
+            if (iperf3_result == -100) {
                 progressIndicator.setVisibility(LinearProgressIndicator.VISIBLE);
-                if(input.iperf3IsServer){
+                if (input.iperf3IsServer) {
                     progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
                 }
-            } else if(iperf3_result != 0) {
+            } else if (iperf3_result != 0) {
                 progressIndicator.setIndicatorColor(failedColors);
                 progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
             } else {
                 progressIndicator.setIndicatorColor(succesColors);
                 progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
             }
-            if(iperf3ListFragment != null)
+            if (iperf3ListFragment != null)
                 iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
         });
         iperf3WM.getWorkInfoByIdLiveData(iperf3UP.getId()).observeForever(workInfo -> {
             boolean iperf3_upload;
             iperf3_upload = workInfo.getOutputData().getBoolean("iperf3_upload", false);
-            Log.d(TAG, "onChanged: iperf3_upload: "+iperf3_upload);
+            Log.d(TAG, "onChanged: iperf3_upload: " + iperf3_upload);
             iperf3RunResultDao.updateUpload(iperf3WorkerID, iperf3_upload);
-            if(iperf3ListFragment != null)
+            if (iperf3ListFragment != null)
                 iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
         });
 
 
-
-
     }
 
-    private String getKeyFromId(String s, String value){
+    private String getKeyFromId(String s, String value) {
         String key = "";
-        switch (s){
+        switch (s) {
             case "iperf3_logfile":
                 key = "--logfile";
                 input.measurementName = value;
@@ -454,11 +449,11 @@ public class Iperf3Fragment extends Fragment {
         return key;
     }
 
-    private String parseInput(){
+    private String parseInput() {
         List<String> stb = new LinkedList<>();
-        for (EditText et: editTexts) {
+        for (EditText et : editTexts) {
             String value = et.getText().toString();
-            if(!value.equals("")){
+            if (!value.equals("")) {
                 String s = getResources().getResourceEntryName(et.getId());
                 String key = getKeyFromId(s, value);
                 stb.add(key);
@@ -467,23 +462,23 @@ public class Iperf3Fragment extends Fragment {
         }
 
         String protocol = spinner.getSelectedItem().toString();
-        if(!protocol.equals("TCP"))
-            stb.add("--"+protocol.toLowerCase());
+        if (!protocol.equals("TCP"))
+            stb.add("--" + protocol.toLowerCase());
         input.iperf3IdxProtocol = spinner.getSelectedItemPosition();
 
         input.timestamp = new Timestamp(System.currentTimeMillis());
-        String iperf3TS = "_"+input.timestamp.toString().replace(" ", "_").replace(":", "_");
+        String iperf3TS = "_" + input.timestamp.toString().replace(" ", "_").replace(":", "_");
         String logName = iperf3EtLog.getText().toString();
         input.measurementName = logName;
-        if(!logName.equals("")){
-            this.logFileName = logName+iperf3TS+".txt";
+        if (!logName.equals("")) {
+            this.logFileName = logName + iperf3TS + ".txt";
         } else {
-            this.logFileName = "iperf3"+iperf3TS+".txt";
+            this.logFileName = "iperf3" + iperf3TS + ".txt";
             input.measurementName = "iperf3";
         }
 
         input.iperf3LogFileName = this.logFileName;
-        this.logFilePath = this.logFileDir+this.logFileName;
+        this.logFilePath = this.logFileDir + this.logFileName;
         input.iperf3LogFilePath = this.logFilePath;
 
         stb.add("--logfile");
@@ -495,31 +490,30 @@ public class Iperf3Fragment extends Fragment {
         input.iperf3OneOff = false;
         input.iperf3Json = false;
 
-        if(iperf3IsServer.isChecked()){
+        if (iperf3IsServer.isChecked()) {
             stb.add("-s");
             input.iperf3IsServer = true;
         }
-        if(iperf3BiDir.isChecked()){
+        if (iperf3BiDir.isChecked()) {
             stb.add("--bidir");
             input.iperf3BiDir = true;
         }
-        if(iperf3Reverse.isChecked()){
+        if (iperf3Reverse.isChecked()) {
             stb.add("--reverse");
             input.iperf3Reverse = true;
         }
-        if(iperf3OneOff.isChecked()){
+        if (iperf3OneOff.isChecked()) {
             stb.add("--one-off");
             input.iperf3OneOff = true;
         }
-        if(iperf3Json.isChecked()){
+        if (iperf3Json.isChecked()) {
             stb.add("--json");
             input.iperf3Json = true;
         }
 
         String joined = String.join(" ", stb);
 
-
-        Log.d(TAG, "parseInput: joined command "+ joined);
+        Log.d(TAG, "parseInput: joined command " + joined);
         input.iperf3Command = joined;
 
 
@@ -547,7 +541,7 @@ public class Iperf3Fragment extends Fragment {
         outState.putBoolean("iperf3Client", iperf3IsServer.isChecked());
     }
 
-    private void writeToSP(){
+    private void writeToSP() {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("iperf3IdxProtocol", spinner.getSelectedItemPosition());
         editor.putString("iperf3LogFileName", iperf3EtLog.getText().toString());
@@ -570,10 +564,8 @@ public class Iperf3Fragment extends Fragment {
 
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         writeToSP();
     }
-
-
 }
