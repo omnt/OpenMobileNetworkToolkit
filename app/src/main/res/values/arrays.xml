@@ -16,5 +16,10 @@
         <item>UDP</item>
     </string-array>
 
+    <string-array name="iperf_mode">
+        <item>Client</item>
+        <item>Server</item>
+    </string-array>
+
 
 </resources>
