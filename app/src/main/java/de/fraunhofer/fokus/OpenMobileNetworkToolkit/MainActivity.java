@@ -39,6 +39,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.preference.PreferenceManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
@@ -157,27 +159,26 @@ public class MainActivity extends AppCompatActivity {
 
         // check permissions
         // todo handle waiting for permissions
-
+        List<String> permissions = new ArrayList<String>();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
+            permissions.add(Manifest.permission.READ_PHONE_STATE);
         }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 2);
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
         // on android 13 an newer we need to ask for permission to show the notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Requesting POST_NOTIFICATIONS Permission");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 4);
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
-
+        if (!permissions.isEmpty()){
+            String[] perms = permissions.toArray(new String[permissions.size()]);
+            ActivityCompat.requestPermissions(this, perms , 1337);
+        }
     }
 
     @Override
@@ -272,6 +273,7 @@ public class MainActivity extends AppCompatActivity {
                     SRLog.d(TAG, "Got READ_PHONE_STATE_PERMISSIONS");
                     Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG).show();
                 }
+                break;
             }
             case 2: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
@@ -281,7 +283,9 @@ public class MainActivity extends AppCompatActivity {
                     SRLog.d(TAG, "Got LOCATION permission");
                     Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
+                break;
             }
+
             case 3: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
                     SRLog.d(TAG, "Could not get BACKGROUND_LOCATION permission");
@@ -290,7 +294,14 @@ public class MainActivity extends AppCompatActivity {
                     SRLog.d(TAG, "Got BACKGROUND_LOCATION permission");
                     Toast.makeText(this, "Got BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
+                break;
             }
+            case 1337:
+                // we need to request background location after we got foreground. todo add more checks here if the user said yes
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
+                }
         }
     }
 
