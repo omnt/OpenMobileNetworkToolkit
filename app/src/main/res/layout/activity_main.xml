@@ -25,7 +25,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:navigationIcon="@drawable/ic_launcher_foreground"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             tools:layout_conversion_absoluteHeight="56dp"
             tools:layout_conversion_absoluteWidth="411dp"
             tools:layout_editor_absoluteX="0dp"
