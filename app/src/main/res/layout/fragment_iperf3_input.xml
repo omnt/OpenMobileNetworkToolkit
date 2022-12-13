@@ -68,18 +68,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/iperf3_bandwidth"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="248dp"
-        android:autofillHints="100"
-        android:ems="10"
-        android:hint="@string/iperf_bandwidth"
-        android:inputType="number"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+     <EditText
+            android:id="@+id/iperf3_bandwidth"
+            android:layout_width="226dp"
+            android:layout_height="58dp"
+            android:layout_marginTop="248dp"
+            android:autofillHints="100"
+            android:ems="10"
+            android:hint="@string/iperf_bandwidth"
+            android:inputType="number"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
 
     <EditText
         android:id="@+id/iperf3_port"
@@ -132,14 +134,14 @@
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toTopOf="@+id/guideline15" />
 
-    <ToggleButton
-        android:id="@+id/iperf3_is_server"
+
+    <Spinner
+        android:id="@+id/iperf3_mode_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="@string/iperf_client"
+        android:layout_marginTop="100dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_bias="0.147"
         app:layout_constraintStart_toStartOf="@+id/guideline210"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -170,13 +172,15 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="28dp"
+        android:layout_width="326dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="28dp"
         android:text="@string/iperf3_server_mode"
+        android:textAlignment="center"
         android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
