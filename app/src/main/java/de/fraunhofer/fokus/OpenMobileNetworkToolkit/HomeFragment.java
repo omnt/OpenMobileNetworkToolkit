@@ -224,7 +224,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         props.add("Validated Capability: " + NetworkCallback.getValidity(getContext()));
         props.add("Internet Capability: " + NetworkCallback.getInternet(getContext()));
         props.add("IMS Capability: " + NetworkCallback.getIMS(getContext()));
-        props.add("Capabilities: " + NetworkCallback.getNetworkCapabilitylist(getContext()));
+        props.add("Capabilities: \n" + NetworkCallback.getNetworkCapabilitylist(getContext()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(getContext()));
         }

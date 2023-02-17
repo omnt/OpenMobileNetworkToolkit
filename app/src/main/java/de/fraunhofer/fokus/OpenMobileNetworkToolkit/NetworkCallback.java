@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
@@ -22,6 +23,9 @@ import android.telephony.data.NetworkSlicingConfig;
 import android.telephony.data.RouteSelectionDescriptor;
 import android.telephony.data.TrafficDescriptor;
 import android.telephony.data.UrspRule;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -322,14 +326,29 @@ public class NetworkCallback {
         return listCapability;
     }*/
 
-    public static List<String> getNetworkCapabilitylist(Context context) {
+    /**
 
+     This method returns a string containing the network capabilities of the device.
+
+     @param context The context of the application.
+
+     @return A string containing the network capabilities of the device.
+     */
+
+    public static String getNetworkCapabilitylist(Context context) {
+
+        // Create a StringBuilder to build the display string
+        StringBuilder networkCapabilitiesBuilder = new StringBuilder();
+
+        // Create a String that is passed on from string builder.
+        String networkAllCapabilities = "";
+
+        //List of Ints for Capabilities
         List<String> listCapability = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             int capability[];
             Boolean enterprise = false;
-            // Create a StringBuilder to build the display string
-            StringBuilder networkCapabilitiesBuilder = new StringBuilder();
+
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             Network network = connectivityManager.getActiveNetwork();
             if (network != null) {
@@ -351,36 +370,88 @@ public class NetworkCallback {
                         if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE)) {
                             networkCapabilitiesBuilder.append("ENTERPRISE\n");
                         }
-                        // Add more capabilities as needed
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                            networkCapabilitiesBuilder.append("VALIDATED\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_IMS)) {
+                            networkCapabilitiesBuilder.append("IMS\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CBS)) {
+                            networkCapabilitiesBuilder.append("CBS\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL)) {
+                            networkCapabilitiesBuilder.append("CAPTIVE PORTAL\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_EIMS)) {
+                            networkCapabilitiesBuilder.append("EIMS\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_FOREGROUND)) {
+                            networkCapabilitiesBuilder.append("FOREGROUND\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_FOTA)) {
+                            networkCapabilitiesBuilder.append("FOTA\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                            networkCapabilitiesBuilder.append("INTERNET\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_BANDWIDTH)) {
+                            networkCapabilitiesBuilder.append("PRIORITIZE BANDWIDTH\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_PRIORITIZE_LATENCY)) {
+                            networkCapabilitiesBuilder.append("PRIORITIZE LATENCY\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)) {
+                            networkCapabilitiesBuilder.append("TRUSTED\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED)) {
+                            networkCapabilitiesBuilder.append("NOT CONGESTED\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)) {
+                            networkCapabilitiesBuilder.append("NOT METERED\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)) {
+                            networkCapabilitiesBuilder.append("NOT RESTRICTED\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)) {
+                            networkCapabilitiesBuilder.append("NOT VPN\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING)) {
+                            networkCapabilitiesBuilder.append("NOT ROAMING\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED)) {
+                            networkCapabilitiesBuilder.append("NOT SUSPENDED\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TEMPORARILY_NOT_METERED)) {
+                            networkCapabilitiesBuilder.append("TEMPORARILY NOT METERED\n");
+                        } else {
+                            networkCapabilitiesBuilder.append("\nUnknown Capability Received! Check Logs for Capability value\n");
+                        }
+                        // Add more CAPABILITIES as needed
                     }
                     if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                         networkCapabilitiesBuilder.append("Wi-Fi\n");
                         if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_WIFI_P2P)) {
                             networkCapabilitiesBuilder.append("Wi-Fi P2P\n");
                         }
-                        // Add more capabilities as needed
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                            networkCapabilitiesBuilder.append("WIFI INTERNET\n");
+                        }
                     }
                     // Add more transports as needed
                 }
-
-
-
-
-
 
                 if (networkCapabilities != null) {
                     capability = networkCapabilities.getCapabilities();
                     if (capability != null)
                         for (int i = 0; i < capability.length; i++) {
                             SRLog.d(TAG, "Capability from Network: " + capability[i]);
-                            String cap = Arrays.toString(capability);
-                            listCapability.add(cap);
+
                         }
-                    //enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
                 }
+                networkAllCapabilities = networkCapabilitiesBuilder.toString();
             }
         }
-        return listCapability;
+        return networkAllCapabilities;
     }
 
 
