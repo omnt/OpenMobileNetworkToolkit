@@ -23,6 +23,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.telephony.CarrierConfigManager;
+import android.telephony.CellIdentity;
+import android.telephony.CellIdentityCdma;
+import android.telephony.CellIdentityGsm;
+import android.telephony.CellIdentityLte;
+import android.telephony.CellIdentityWcdma;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoCdma;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellInfoLte;
+import android.telephony.CellInfoWcdma;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -228,9 +238,8 @@ public class HomeFragment extends Fragment implements LocationListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(getContext()));
         }
-        if (ActivityCompat.checkSelfPermission(ma, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            props.add("Cell Information: " + tm.getAllCellInfo());
-        }
+        props.add("Cell Information: " + cellInfo());
+
         // Network Slicing
         props.add("TM Slice: " + NetworkCallback.getConfigurationTM(getContext()));
         props.add("Slice Info: " + NetworkCallback.getNetworkSlicingInfo(getContext()));
@@ -253,6 +262,94 @@ public class HomeFragment extends Fragment implements LocationListener {
         for (String prop : props) {
             main_infos.append(prop + "\n");
         }
+    }
+
+    private String cellInfo() {
+        StringBuilder cellInfoBuilder = new StringBuilder();
+        String allCellInfo = "";
+        Set<CellIdentity> seenCellTowers = new HashSet<>();
+        if (ActivityCompat.checkSelfPermission(ma, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            List<CellInfo> cellInfoList = tm.getAllCellInfo();
+
+
+
+            for (CellInfo cellInfo : cellInfoList) {
+                if (cellInfo instanceof CellInfoGsm) {
+                    CellIdentityGsm cellIdentity = ((CellInfoGsm) cellInfo).getCellIdentity();
+
+                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                        seenCellTowers.add(cellIdentity);
+                        cellInfoBuilder.append("Cell Identity (GSM): ");
+                        cellInfoBuilder.append(cellIdentity.getCid());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("MCC: ");
+                        cellInfoBuilder.append(cellIdentity.getMcc());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("MNC: ");
+                        cellInfoBuilder.append(cellIdentity.getMnc());
+                        cellInfoBuilder.append("\n");
+                    }
+                    // Display cell identity information for GSM network
+                    // e.g. cellIdentity.getCid(), cellIdentity.getMcc(), cellIdentity.getMnc(), etc.
+                    // Add more cell identity information as needed
+                } else if (cellInfo instanceof CellInfoCdma) {
+                    CellIdentityCdma cellIdentity = ((CellInfoCdma) cellInfo).getCellIdentity();
+                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                        seenCellTowers.add(cellIdentity);
+                        cellInfoBuilder.append("Cell Identity (CDMA): ");
+                        cellInfoBuilder.append(cellIdentity.getBasestationId());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("System ID: ");
+                        cellInfoBuilder.append(cellIdentity.getSystemId());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("Network ID: ");
+                        cellInfoBuilder.append(cellIdentity.getNetworkId());
+                        cellInfoBuilder.append("\n");
+                    }
+                    // Add more cell identity information as needed
+                    // Display cell identity information for CDMA network
+                    // e.g. cellIdentity.getBasestationId(), cellIdentity.getSystemId(), cellIdentity.getNetworkId(), etc.
+                } else if (cellInfo instanceof CellInfoLte) {
+                    CellIdentityLte cellIdentity = ((CellInfoLte) cellInfo).getCellIdentity();
+
+                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                        seenCellTowers.add(cellIdentity);
+                        cellInfoBuilder.append("Cell Identity (LTE): ");
+                        cellInfoBuilder.append(cellIdentity.getCi());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("MCC: ");
+                        cellInfoBuilder.append(cellIdentity.getMcc());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("MNC: ");
+                        cellInfoBuilder.append(cellIdentity.getMnc());
+                        cellInfoBuilder.append("\n");
+                    }
+                    // Add more cell identity information as needed
+                    // Display cell identity information for LTE network
+                    // e.g. cellIdentity.getCi(), cellIdentity.getMcc(), cellIdentity.getMnc(), etc.
+                } else if (cellInfo instanceof CellInfoWcdma) {
+                    CellIdentityWcdma cellIdentity = ((CellInfoWcdma) cellInfo).getCellIdentity();
+
+                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                        seenCellTowers.add(cellIdentity);
+                        cellInfoBuilder.append("Cell Identity (WCDMA): ");
+                        cellInfoBuilder.append(cellIdentity.getCid());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("MCC: ");
+                        cellInfoBuilder.append(cellIdentity.getMcc());
+                        cellInfoBuilder.append("\n");
+                        cellInfoBuilder.append("MNC: ");
+                        cellInfoBuilder.append(cellIdentity.getMnc());
+                        cellInfoBuilder.append("\n");
+                    }
+                    // Add more cell identity information as needed
+                    // Display cell identity information for WCDMA network
+                    // e.g. cellIdentity.getCid(), cellIdentity.getMcc(), cellIdentity.getMnc(), etc.
+                }
+            }
+            allCellInfo = cellInfoBuilder.toString();
+        }
+        return allCellInfo;
     }
 
     @Override
