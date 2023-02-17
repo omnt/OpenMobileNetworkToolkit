@@ -323,14 +323,51 @@ public class NetworkCallback {
     }*/
 
     public static List<String> getNetworkCapabilitylist(Context context) {
+
         List<String> listCapability = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             int capability[];
             Boolean enterprise = false;
+            // Create a StringBuilder to build the display string
+            StringBuilder networkCapabilitiesBuilder = new StringBuilder();
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             Network network = connectivityManager.getActiveNetwork();
             if (network != null) {
                 NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
+
+                // Iterate over the network capabilities and extract the information that you are interested in
+                if (networkCapabilities != null) {
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                        networkCapabilitiesBuilder.append("Cellular\n");
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_MMS)) {
+                            networkCapabilitiesBuilder.append("MMS\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_SUPL)) {
+                            networkCapabilitiesBuilder.append("SUPL\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_DUN)) {
+                            networkCapabilitiesBuilder.append("DUN\n");
+                        }
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE)) {
+                            networkCapabilitiesBuilder.append("ENTERPRISE\n");
+                        }
+                        // Add more capabilities as needed
+                    }
+                    if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        networkCapabilitiesBuilder.append("Wi-Fi\n");
+                        if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_WIFI_P2P)) {
+                            networkCapabilitiesBuilder.append("Wi-Fi P2P\n");
+                        }
+                        // Add more capabilities as needed
+                    }
+                    // Add more transports as needed
+                }
+
+
+
+
+
+
                 if (networkCapabilities != null) {
                     capability = networkCapabilities.getCapabilities();
                     if (capability != null)
