@@ -19,6 +19,13 @@
             app:title="@string/fake_location"
             app:summary="@string/fake_location_summary"/>
 
+        <EditTextPreference
+            android:defaultValue="1"
+            android:key="logging_interval"
+            android:inputType="number"
+            android:title="@string/logging_interval"
+            app:summary="Logging interval in seconds"/>
+
         <PreferenceCategory
             app:key="local_log_category"
             app:title="Local DB">

@@ -29,6 +29,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -55,14 +56,16 @@ public class LoggingService extends Service {
     InfluxdbConnection lic; // local influxDB
     DataProvider dc;
     SharedPreferences sp;
-    SharedPreferences.OnSharedPreferenceChangeListener listener;
 
+    SharedPreferences.OnSharedPreferenceChangeListener listener;
+    private int interval;
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Logging service created");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "Start logging service.");
@@ -70,6 +73,7 @@ public class LoggingService extends Service {
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
         sp = PreferenceManager.getDefaultSharedPreferences(this);
+        interval =  Integer.parseInt(sp.getString("logging_interval", "1"));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -305,7 +309,7 @@ public class LoggingService extends Service {
 
 
 
-            loggingHandler.postDelayed(this,1000);
+            loggingHandler.postDelayed(this,interval * 1000);
         }
     };
 

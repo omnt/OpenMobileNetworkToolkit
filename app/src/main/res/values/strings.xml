@@ -133,6 +133,7 @@
     <string name="settings">Settings</string>
     <string name="influxdb">InfluxDB</string>
     <string name="special_codes">Special Codes</string>
+    <string name="logging_interval">Logging Interval</string>
 
     <!-- -->
 
