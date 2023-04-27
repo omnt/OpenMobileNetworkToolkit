@@ -73,7 +73,7 @@ public class LoggingService extends Service {
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
         sp = PreferenceManager.getDefaultSharedPreferences(this);
-        interval =  Integer.parseInt(sp.getString("logging_interval", "1"));
+        interval = Integer.parseInt(sp.getString("logging_interval", "1000"));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -308,8 +308,7 @@ public class LoggingService extends Service {
             //}
 
 
-
-            loggingHandler.postDelayed(this,interval * 1000);
+            loggingHandler.postDelayed(this,interval);
         }
     };
 

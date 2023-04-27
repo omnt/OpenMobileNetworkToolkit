@@ -3,6 +3,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,6 +34,8 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat implements
         EditTextPreference influx_token_editText = (EditTextPreference) findPreference("influx_token");
         EditTextPreference influx_bucket_editText = (EditTextPreference) findPreference("infoux_bucket");
 
+        androidx.preference.EditTextPreference editTextPreference = getPreferenceManager().findPreference("logging_interval");
+        editTextPreference.setOnBindEditTextListener(editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
     }
 
 
