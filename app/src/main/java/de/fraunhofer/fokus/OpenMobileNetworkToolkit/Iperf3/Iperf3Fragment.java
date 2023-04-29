@@ -489,7 +489,7 @@ public class Iperf3Fragment extends Fragment {
             this.logFileName = logName + iperf3TS + ".txt";
         } else {
             this.logFileName = "iperf3" + iperf3TS + ".txt";
-            input.measurementName = "iperf3";
+            input.measurementName = "Iperf3";
         }
 
         input.iperf3LogFileName = this.logFileName;
