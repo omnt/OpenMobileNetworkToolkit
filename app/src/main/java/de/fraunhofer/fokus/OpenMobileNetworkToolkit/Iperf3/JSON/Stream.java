@@ -53,6 +53,9 @@ public class Stream {
     public Integer rttvar;
     @SerializedName("pmtu")
     @Expose
+    public Integer outOfOrder;
+    @SerializedName("out_of_order")
+    @Expose
     public Integer pmtu;
     @SerializedName("omitted")
     @Expose

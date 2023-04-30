@@ -10,7 +10,7 @@ public class End {
 
     @SerializedName("streams")
     @Expose
-    public List<Stream__1> streams = null;
+    public List<Stream__1> streams;
     @SerializedName("sum")
     @Expose
     public Sum sum;
