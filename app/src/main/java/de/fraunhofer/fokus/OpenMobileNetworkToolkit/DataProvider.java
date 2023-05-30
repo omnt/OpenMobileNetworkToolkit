@@ -26,10 +26,11 @@ import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoNr;
+import android.telephony.CellSignalStrength;
+import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
-import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 
 import androidx.core.app.ActivityCompat;
@@ -51,9 +52,8 @@ public class DataProvider {
     public LocationManager lm;
     private TelephonyManager tm;
     private PackageManager pm;
-    private boolean cp;
-    private static final String TAG = "DataCollector";
-    private boolean feature_telephony = false;
+    private static final String TAG = "DataProvider";
+    private boolean feature_telephony;
     private Context ct;
     private SharedPreferences sp;
 
@@ -66,9 +66,14 @@ public class DataProvider {
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ct.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-            cm = (ConnectivityManager)ct.getSystemService(Context.CONNECTIVITY_SERVICE);
+            cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
             tm = (TelephonyManager) ct.getSystemService(Context.TELEPHONY_SERVICE);
-            cp = tm.hasCarrierPrivileges();
+        }
+    }
+    // Filter values before adding them as we dont need to log not available information
+    public void addOnlyAvailablePoint(Point point, String key, int value) {
+        if (value != CellInfo.UNAVAILABLE) {
+            point.addField(key, value);
         }
     }
 
@@ -88,8 +93,7 @@ public class DataProvider {
             point.addField("latitude", 52.5259678);
             point.addField("altitude", 34.0);
             point.addField("speed", 0.0);
-
-        } else  {
+        } else {
             Location loc = getLocation();
             if (loc != null) {
                 point.addField("longitude", loc.getLongitude());
@@ -145,15 +149,19 @@ public class DataProvider {
         return cellInfo;
     }
 
-    public ConnectivityManager getCm() {
-        return cm;
-    }
-
     public List<Point> getCellInfoPoint() {
         List<Point> points = new ArrayList<>();
         long ts = System.currentTimeMillis();
+        boolean nc = sp.getBoolean("log_neighbour_cells", false);
+
         List<CellInfo> cil = getCellInfo();
-        for (CellInfo ci:cil) {
+        for (CellInfo ci : cil) {
+            // check if want to log neighbour cells and skip non registered cells
+            if (!nc) {
+                if (!ci.isRegistered()) {
+                    continue;
+                }
+            }
             Point point = new Point("CellInformation");
             point.time(ts, WritePrecision.MS);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -175,15 +183,15 @@ public class DataProvider {
                 point.addField("MCC", ciNRId.getMccString());
                 point.addField("PCI", ciNRId.getPci());
                 point.addField("TAC", ciNRId.getTac());
-                CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
-                point.addField("Level", ssNR.getLevel());
-                //point.addField("CQI", ssNR.getCqi());
-                point.addField("CsiRSRP", ssNR.getCsiRsrp());
-                point.addField("CsiRSRQ", ssNR.getCsiRsrq());
-                point.addField("CsiSINR", ssNR.getCsiSinr());
-                point.addField("SSRSRP", ssNR.getSsRsrp());
-                point.addField("SSRSRQ", ssNR.getSsRsrq());
-                point.addField("SSSINR", ssNR.getSsSinr());
+                //   CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
+                //   point.addField("Level", ssNR.getLevel());
+                //   //point.addField("CQI", ssNR.getCqi());
+                //   point.addField("CsiRSRP", ssNR.getCsiRsrp());
+                //   point.addField("CsiRSRQ", ssNR.getCsiRsrq());
+                //   point.addField("CsiSINR", ssNR.getCsiSinr());
+                //   point.addField("SSRSRP", ssNR.getSsRsrp());
+                //   point.addField("SSRSRQ", ssNR.getSsRsrq());
+                //   point.addField("SSSINR", ssNR.getSsSinr());
             }
             if (ci instanceof CellInfoLte) {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
@@ -200,13 +208,13 @@ public class DataProvider {
                 point.addField("MCC", ciLTEId.getMccString());
                 point.addField("PCI", ciLTEId.getPci());
                 point.addField("TAC", ciLTEId.getTac());
-                CellSignalStrengthLte ssLTE = ciLTE.getCellSignalStrength();
-                point.addField("Level", ssLTE.getLevel());
-                point.addField("CQI", ssLTE.getCqi());
-                point.addField("RSRP", ssLTE.getRsrp());
-                point.addField("RSRQ", ssLTE.getRsrq());
-                point.addField("RSSI", ssLTE.getRssi());
-                point.addField("RSSNR", ssLTE.getRssnr());
+                //CellSignalStrengthLte ssLTE = ciLTE.getCellSignalStrength();
+                //point.addField("Level", ssLTE.getLevel());
+                //point.addField("CQI", ssLTE.getCqi());
+                //point.addField("RSRP", ssLTE.getRsrp());
+                //point.addField("RSRQ", ssLTE.getRsrq());
+                //point.addField("RSSI", ssLTE.getRssi());
+                //point.addField("RSSNR", ssLTE.getRssnr());
             }
             if (ci instanceof CellInfoCdma) {
                 point.addField("CellType", "CDMA");
@@ -220,23 +228,23 @@ public class DataProvider {
                 point.addField("ARFCN", ciGSMId.getArfcn());
                 point.addField("MNC", ciGSMId.getMncString());
                 point.addField("MCC", ciGSMId.getMccString());
-                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ciGSM.getCellSignalStrength();
-                point.addField("Level",ssGSM.getLevel());
-                point.addField("AsuLevel", ssGSM.getAsuLevel());
-                point.addField("Dbm", ssGSM.getDbm());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    point.addField("RSSI", ssGSM.getRssi());
-                }
+                //CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ciGSM.getCellSignalStrength();
+                //point.addField("Level",ssGSM.getLevel());
+                //point.addField("AsuLevel", ssGSM.getAsuLevel());
+                //point.addField("Dbm", ssGSM.getDbm());
+                //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                //    point.addField("RSSI", ssGSM.getRssi());
+                //}
             }
             points.add(point);
         }
-        return  points;
+        return points;
     }
 
-    public List<CellInformation> getCellInformation(){
+    public List<CellInformation> getCellInformation() {
         List<CellInformation> ciml = new ArrayList<>();
         List<CellInfo> cil = getCellInfo();
-        for (CellInfo ci:cil) {
+        for (CellInfo ci : cil) {
             CellInformation cim = new CellInformation();
             cim.setCellConnectionStatus(ci.getCellConnectionStatus());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -256,7 +264,6 @@ public class DataProvider {
                 cim.setTac(ciNRId.getTac());
                 CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
                 cim.setLevel(ssNR.getLevel());
-                //point.addField("CQI", ssNR.getCqi());
                 cim.setCsirsrp(ssNR.getCsiRsrp());
                 cim.setCsirsrq(ssNR.getCsiRsrq());
                 cim.setCsisinr(ssNR.getCsiSinr());
@@ -266,7 +273,7 @@ public class DataProvider {
             }
             if (ci instanceof CellInfoLte) {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
-                CellIdentityLte ciLTEId= ciLTE.getCellIdentity();
+                CellIdentityLte ciLTEId = ciLTE.getCellIdentity();
                 cim.setCellType("LTE");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     cim.setBands(Arrays.toString(ciLTEId.getBands()));
@@ -296,18 +303,7 @@ public class DataProvider {
         return ciml;
     }
 
-
-    public SignalStrength getSignalStrength() {
-        if (tm != null) {
-            SignalStrength signalStrength;
-            signalStrength = tm.getSignalStrength();
-            return signalStrength;
-        } else {
-            return null;
-        }
-    }
-
-    public Point getNetworkCapabilitiesPoint(){
+    public Point getNetworkCapabilitiesPoint() {
         NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
         Point point = new Point("InterfaceThroughput");
         if (nc != null) {
@@ -326,16 +322,45 @@ public class DataProvider {
         return point;
     }
 
-
     public Point getSignalStrengthPoint() {
         Point point = new Point("SignalStrength");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
-        SignalStrength ss = getSignalStrength();
-        if(ss == null){
-            point.addField("Level", -1);
-            return point;
+        List<android.telephony.CellSignalStrength> css = tm.getSignalStrength().getCellSignalStrengths();
+        for (CellSignalStrength ss:css) {
+            if (ss instanceof CellSignalStrengthNr) {
+                CellSignalStrengthNr ssnr =  (CellSignalStrengthNr) ss;
+                addOnlyAvailablePoint(point, "Level", ssnr.getLevel());
+                addOnlyAvailablePoint(point, "CsiRSRP", ssnr.getCsiRsrp());
+                addOnlyAvailablePoint(point, "CsiRSRQ", ssnr.getCsiRsrq());
+                addOnlyAvailablePoint(point, "CsiSINR", ssnr.getSsSinr());
+                addOnlyAvailablePoint(point, "SSRSRP", ssnr.getSsRsrp());
+                addOnlyAvailablePoint(point,"SSRSRQ", ssnr.getSsRsrq());
+                addOnlyAvailablePoint(point, "SSSINR", ssnr.getSsSinr());
+            }
+            if (ss instanceof CellSignalStrengthLte) {
+                CellSignalStrengthLte ssLTE =  (CellSignalStrengthLte) ss;
+                addOnlyAvailablePoint(point,"Level", ssLTE.getLevel());
+                addOnlyAvailablePoint(point,"CQI", ssLTE.getCqi());
+                addOnlyAvailablePoint(point,"RSRP", ssLTE.getRsrp());
+                addOnlyAvailablePoint(point,"RSRQ", ssLTE.getRsrq());
+                addOnlyAvailablePoint(point,"RSSI", ssLTE.getRssi());
+                addOnlyAvailablePoint(point,"RSSNR", ssLTE.getRssnr());
+            }
+            if (ss instanceof CellSignalStrengthCdma) {
+                CellSignalStrengthCdma ssCdma =  (CellSignalStrengthCdma) ss;
+                addOnlyAvailablePoint(point, "Level", ssCdma.getLevel());
+                addOnlyAvailablePoint(point, "EvoDbm", ssCdma.getEvdoDbm());
+            }
+            if (ss instanceof CellSignalStrengthGsm) {
+                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
+                addOnlyAvailablePoint(point,"Level",ssGSM.getLevel());
+                addOnlyAvailablePoint(point,"AsuLevel", ssGSM.getAsuLevel());
+                addOnlyAvailablePoint(point,"Dbm", ssGSM.getDbm());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    addOnlyAvailablePoint(point,"RSSI", ssGSM.getRssi());
+                }
+            }
         }
-        point.addField("Level", ss.getLevel());
         return point;
     }
 

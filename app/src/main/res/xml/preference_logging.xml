@@ -3,107 +3,115 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment">
 
+    <SwitchPreferenceCompat
+        app:key="enable_logging"
+        app:summary="@string/enable_logging_summary"
+        app:title="@string/enable_logging" />
+
+    <SwitchPreferenceCompat
+        app:key="start_logging_on_boot"
+        app:summary="@string/start_logging_on_boot_summary"
+        app:title="@string/start_logging_on_boot" />
+
+    <EditTextPreference
+        android:defaultValue="1000"
+        android:inputType="number"
+        android:key="logging_interval"
+        android:title="@string/logging_interval"
+        app:summary="Logging interval in milliseconds" />
+
+    <PreferenceCategory
+        app:key="local_log_category"
+        app:title="Local logging">
 
         <SwitchPreferenceCompat
-            app:key="enable_logging"
-            app:title="@string/enable_logging"
-            app:summary="@string/enable_logging_summary"/>
-
-        <SwitchPreferenceCompat
-            app:key="start_logging_on_boot"
-            app:title="@string/start_logging_on_boot"
-            app:summary="@string/start_logging_on_boot_summary"/>
-
-        <SwitchPreferenceCompat
-            app:key="fake_location"
-            app:title="@string/fake_location"
-            app:summary="@string/fake_location_summary"/>
-
-        <EditTextPreference
-            android:defaultValue="1000"
-            android:key="logging_interval"
-            android:inputType="number"
-            android:title="@string/logging_interval"
-            app:summary="Logging interval in milliseconds"/>
-
-        <PreferenceCategory
-            app:key="local_log_category"
-            app:title="Local DB">
-
-        <SwitchPreferenceCompat
-            app:key="enable_local_log"
-            app:title="@string/enable_local_log"
+            app:key="enable_local_influx_log"
             app:summary="@string/enable_local_log_summary"
-            />
-        </PreferenceCategory>
-        <PreferenceCategory
-            app:key="influx_category"
-            app:title="Influx DB">
+            app:title="@string/enable_local_log" />
+        <SwitchPreferenceCompat
+            app:key="enable_local_file_log"
+            app:summary="@string/enable_local_file_summary"
+            app:title="@string/enable_local_file_log" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="influx_category"
+        app:title="Remote logging">
 
         <SwitchPreferenceCompat
             app:key="enable_influx"
-            app:title="@string/enable_influx"
-            app:summary="@string/enable_influx_summary"/>
+            app:summary="@string/enable_influx_summary"
+            app:title="@string/enable_influx" />
 
         <EditTextPreference
-            app:key="influx_URL"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="@string/influx_url_dialog_title"
-            app:title="@string/influx_url" />
+            app:key="influx_URL"
+            app:title="@string/influx_url"
+            app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
-            app:key="influx_org"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="@string/influx_org_dialog_title"
+            app:dependency="enable_influx"
+            app:key="influx_org"
             app:title="@string/influx_org"
-            app:dependency="enable_influx"/>
+            app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
-            app:key="influx_token"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="@string/influx_token_dialog_title"
+            app:dependency="enable_influx"
+            app:key="influx_token"
             app:title="@string/influx_token"
-            app:dependency="enable_influx"/>
+            app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
-            app:key="influx_bucket"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="@string/influx_bucket_dialog_title"
+            app:dependency="enable_influx"
+            app:key="influx_bucket"
             app:title="@string/influx_bucket"
-            app:dependency="enable_influx"/>
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="logging_category"
+        app:title="Logging content">
+
+        <SwitchPreferenceCompat
+            app:key="fake_location"
+            app:summary="@string/fake_location_summary"
+            app:title="@string/fake_location" />
+
 
         <EditTextPreference
             app:key="measurement_name"
-            app:useSimpleSummaryProvider="true"
-            app:title="@string/measurement" />
+            app:title="@string/measurement"
+            app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             app:key="tags"
-            app:useSimpleSummaryProvider="true"
+            app:summary="@string/tags_summary"
             app:title="@string/tags"
-            app:summary="@string/tags_summary"/>
+            app:useSimpleSummaryProvider="true" />
 
-        </PreferenceCategory>
-
-        <PreferenceCategory
-            app:key="logging_category"
-            app:title="Logging content">
 
         <SwitchPreferenceCompat
             app:key="influx_network_data"
             app:title="@string/influx_network_data" />
 
         <SwitchPreferenceCompat
+            app:key="log_signal_data"
+            app:title="@string/log_signal_data" />
+
+        <SwitchPreferenceCompat
             app:key="influx_cell_data"
             app:title="@string/influx_cell_data" />
 
         <SwitchPreferenceCompat
+            app:dependency="influx_cell_data"
             app:key="log_neighbour_cells"
-            app:title="@string/log_neighbour_cells"
-            app:dependency="influx_cell_data"/>
+            app:title="@string/log_neighbour_cells" />
         <SwitchPreferenceCompat
             app:key="influx_throughput_data"
             app:title="@string/influx_throughput_data" />
-        </PreferenceCategory>
+    </PreferenceCategory>
 
 </PreferenceScreen>

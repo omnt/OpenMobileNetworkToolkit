@@ -113,7 +113,9 @@ public class HomeFragment extends Fragment implements LocationListener {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getActivity().recreate();
+                //todo load fragment new
+                //getActivity().recreate();
+                System.out.println("HELLO WORLD!");
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
