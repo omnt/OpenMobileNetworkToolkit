@@ -64,9 +64,9 @@
     <string name="carrier_permissions">carrier_permission</string>
 
     <!-- Logging Preferences -->
-    <string name="enable_influx">InfluxDB 2.x log</string>
+    <string name="enable_influx">Remote InfluxDB log</string>
     <string name="influx_url">InfluxDB instance URL / IP</string>
-    <string name="influx_url_dialog_title">Set InfluxDB instance URL / IP</string>
+    <string name="influx_url_dialog_title">InfluxDB URL / IP (with protocol and port)</string>
     <string name="influx_org">InfluxDB Organization</string>
     <string name="influx_org_dialog_title">Set InfluxDB Organization</string>
     <string name="influx_token">Influx Token</string>
@@ -82,14 +82,14 @@
     <string name="tags">Tags</string>
     <string name="tags_summary">Comma separated list of tags</string>
     <string name="enable_logging">Logging</string>
-    <string name="enable_local_log">Local log</string>
+    <string name="enable_local_log">Local InfluxDB log</string>
     <string name="enable_notification_update">Enable notification update</string>
     <string name="enable_notification_update_summary">This will wake up the screen on each update</string>
     <string name="runningIndicator">running_indicator</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="enable_logging_summary">start / stop the logging service</string>
-    <string name="enable_local_log_summary">Log to a database on the device</string>
+    <string name="enable_logging_summary">Start / stop the logging service</string>
+    <string name="enable_local_log_summary">Log to a local Influx 2.x database</string>
     <string name="enable_influx_summary">Log to a remote Influx 2.x database</string>
     <string name="work_profile_management">Work Profile Management</string>
     <string name="start_logging_on_boot">Start logging on boot</string>
@@ -134,6 +134,9 @@
     <string name="influxdb">InfluxDB</string>
     <string name="special_codes">Special Codes</string>
     <string name="logging_interval">Logging Interval</string>
+    <string name="log_signal_data">Log signal data</string>
+    <string name="enable_local_file_summary">Logging to a local file</string>
+    <string name="enable_local_file_log">Log file</string>
 
     <!-- -->
 

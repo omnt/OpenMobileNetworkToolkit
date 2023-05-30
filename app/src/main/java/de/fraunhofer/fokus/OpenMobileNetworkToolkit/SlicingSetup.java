@@ -58,7 +58,8 @@ public class SlicingSetup extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getActivity().recreate();
+                // todo investigate
+                //getActivity().recreate();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });

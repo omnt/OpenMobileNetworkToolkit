@@ -90,7 +90,6 @@ public class InfluxdbConnection {
     public boolean writePoint(Point point) {
         //if (influxDBClient != null && influxDBClient.ready().getStatus() == Ready.StatusEnum.READY)  {
             try {
-                point.addTag("measurement_name", sp.getString("measurement_name", "OMNT"));
                 writeApi.writePoint(point);
             } catch (com.influxdb.exceptions.InfluxException e) {
                 Log.d(TAG, "disconnect: Error while writing points to influx DB");
