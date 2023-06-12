@@ -55,9 +55,9 @@ public class InfluxdbConnection {
                     .bufferLimit(100000)
                     .jitterInterval(10)
                     .retryInterval(500)
+                    .exponentialBase(4)
                     .build());
             Log.d(TAG, "connect: Connected to InfluxDB");
-
         } catch (com.influxdb.exceptions.InfluxException e) {
             Log.d(TAG, "connect: Can't connect to InfluxDB");
             e.printStackTrace();
@@ -67,23 +67,29 @@ public class InfluxdbConnection {
         return true;
     }
 
-    public boolean disconnect(){
-        writeApi.flush();
-        try {
-            writeApi.close();
-        } catch (com.influxdb.exceptions.InfluxException e) {
-            Log.d(TAG, "disconnect: Error while closing write API");
-            e.printStackTrace();
-            return false;
-        }
-        try {
-            influxDBClient.close();
-        } catch (com.influxdb.exceptions.InfluxException e) {
-            Log.d(TAG, "disconnect: Error while closing influx connection");
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    public void disconnect(){
+
+
+        Runnable finish = new Runnable() {
+            @Override
+            public void run() {
+                writeApi.flush();
+                try {
+                    writeApi.close();
+                } catch (com.influxdb.exceptions.InfluxException e) {
+                    Log.d(TAG, "disconnect: Error while closing write API");
+                    e.printStackTrace();
+                }
+                try {
+                    influxDBClient.close();
+                } catch (com.influxdb.exceptions.InfluxException e) {
+                    Log.d(TAG, "disconnect: Error while closing influx connection");
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread finishThread = new Thread(finish);
+        finishThread.start();
     }
 
     // Add a point to the message queue

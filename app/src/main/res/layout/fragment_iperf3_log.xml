@@ -44,9 +44,14 @@
         android:id="@+id/stats"
         android:layout_width="match_parent"
         android:layout_height="527dp"
-        android:text="TextView"
+        android:text="iPerf3 logfile Output"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display4"
+        android:textColor="#009688"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline6" />
+        app:layout_constraintTop_toTopOf="@+id/guideline6"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="166dp" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"

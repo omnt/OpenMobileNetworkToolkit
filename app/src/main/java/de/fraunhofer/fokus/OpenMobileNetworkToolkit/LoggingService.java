@@ -35,7 +35,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
-import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
@@ -46,9 +45,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -202,60 +199,54 @@ public class LoggingService extends Service {
         }
     }
 
-    private Map<String, String> getTags_map() {
-        String tags = sp.getString("tags", "").strip().replace(" ", "");
-        Map<String, String> tags_map = Collections.emptyMap();
-        try {
-            tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
-        } catch (IllegalArgumentException e) {
-            Log.d(TAG, "cant parse tags, ignoring");
+
+    private ArrayList<Point> getPoints(){
+        long time = System.currentTimeMillis();
+        Map<String, String> tags_map = dp.getTagsMap();
+        ArrayList<Point>  logPoints = new ArrayList<Point>();
+        if (sp.getBoolean("influx_network_data", false)) {
+            Point p = dp.getNetworkInformationPoint();
+            p.time(time, WritePrecision.MS);
+            p.addTags(tags_map);
+            logPoints.add(p);
         }
-        Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
-        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
-        return  tags_map_modifiable;
+
+        if (sp.getBoolean("influx_throughput_data", false)) {
+            Point p = dp.getNetworkCapabilitiesPoint();
+            p.time(time, WritePrecision.MS);
+            p.addTags(tags_map);
+            logPoints.add(p);
+        }
+
+        if (sp.getBoolean("log_signal_data", false)) {
+            Point p = dp.getSignalStrengthPoint();
+            p.time(time, WritePrecision.MS);
+            p.addTags(tags_map);
+            logPoints.add(p);
+        }
+
+        if (sp.getBoolean("influx_cell_data", false)) {
+            List<Point> ps = dp.getCellInfoPoint();
+            for (Point p : ps) {
+                p.time(time, WritePrecision.MS);
+                p.addTags(tags_map);
+            }
+            logPoints.addAll(ps);
+        }
+
+        Point p = dp.getLocationPoint();
+        p.time(time, WritePrecision.MS);
+        p.addTags(tags_map);
+        logPoints.add(p);
+        return logPoints;
     }
+
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
         @Override
         public void run() {
-            // get the current timestamp to write it to all points in this run
-            long time = System.currentTimeMillis();
-            Map<String, String> tags_map = getTags_map();
-            if (sp.getBoolean("influx_network_data", false)) {
-                Point p = dp.getNetworkInformationPoint();
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-                logFilePoints.add(p);
-            }
 
-            if (sp.getBoolean("influx_throughput_data", false)) {
-                Point p = dp.getNetworkCapabilitiesPoint();
-                p.time(time, WritePrecision.MS);
-                p.addTags(getTags_map());
-                logFilePoints.add(p);
-            }
-
-            if (sp.getBoolean("log_signal_data", false)) {
-                Point p = dp.getSignalStrengthPoint();
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-                logFilePoints.add(p);
-            }
-
-            if (sp.getBoolean("influx_cell_data", false)) {
-                List<Point> ps = dp.getCellInfoPoint();
-                for (Point p : ps) {
-                    p.time(time, WritePrecision.MS);
-                    p.addTags(tags_map);
-                }
-                logFilePoints.addAll(ps);
-            }
-
-            Point p = dp.getLocationPoint();
-            p.time(time, WritePrecision.MS);
-            p.addTags(tags_map);
-            logFilePoints.add(p);
-
+            logFilePoints.addAll(getPoints());
 
             if (logFilePoints.size() >= 100){
                 for (Point point:logFilePoints){
@@ -347,6 +338,7 @@ public class LoggingService extends Service {
                         CellIdentityNr cidNr = (CellIdentityNr) ciNr.getCellIdentity();
                         PCI = String.valueOf(cidNr.getPci());
                         CI = String.valueOf(cidNr.getNci());
+
                     }
                     if (ci instanceof CellInfoLte) {
                         CellInfoLte ciLTE = (CellInfoLte) ci;
@@ -430,36 +422,8 @@ public class LoggingService extends Service {
         @Override
         public void run() {
             // get the current timestamp to write it to all points in this run
-            long time = System.currentTimeMillis();
-            Map<String, String> tags_map = getTags_map();
-
-            List<Point> points = new ArrayList<Point>();
-            if (sp.getBoolean("influx_network_data", false)) {
-                Point p = dp.getNetworkInformationPoint();
-                points.add(p);
-            }
-
-            if (sp.getBoolean("influx_throughput_data", false)) {
-                Point p = dp.getNetworkCapabilitiesPoint();
-                points.add(p);
-            }
-
-            if (sp.getBoolean("log_signal_data", false)) {
-                Point p = dp.getSignalStrengthPoint();
-                points.add(p);
-            }
-
-            if (sp.getBoolean("influx_cell_data", false)) {
-                List<Point> ps = dp.getCellInfoPoint();
-                points.addAll(ps);
-            }
-
-            Point p = dp.getLocationPoint();
-            points.add(p);
-
+            List<Point> points = getPoints();
             for (Point point : points) {
-                point.addTags(tags_map);
-                point.time(time, WritePrecision.MS);
                 ic.writePoint(point);
             }
             ic.sendAll();

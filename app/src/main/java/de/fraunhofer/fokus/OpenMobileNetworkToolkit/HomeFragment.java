@@ -84,6 +84,16 @@ public class HomeFragment extends Fragment implements LocationListener {
         super(R.layout.fragment_home);
     }
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Sets the default uncaught exception handler. This handler is invoked
+        // in case any Thread dies due to an unhandled exception.
+        Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
+    }
+
+
     @SuppressLint("MissingPermission")
     @Override
     public View onCreateView(
@@ -115,7 +125,7 @@ public class HomeFragment extends Fragment implements LocationListener {
             public void onRefresh() {
                 //todo load fragment new
                 //getActivity().recreate();
-                System.out.println("HELLO WORLD!");
+                //System.out.println("HELLO WORLD!");
                 swipeRefreshLayout.setRefreshing(false);
             }
         });

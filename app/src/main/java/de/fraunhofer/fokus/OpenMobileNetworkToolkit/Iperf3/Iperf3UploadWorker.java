@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.LinkedList;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
@@ -154,11 +155,14 @@ public class Iperf3UploadWorker extends Worker {
                 points.add(point);
             }
         }
-
+        DataProvider dp = new DataProvider(getApplicationContext());
 
         // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
         for (Stream__1 stream : iperf3AsJson.end.streams){
             Stream udp = stream.udp;
+            if(udp == null){
+                continue;
+            }
             Point point = new Point(measurementName);
             point.addTag("bidir", String.valueOf(biDir));
 
@@ -191,6 +195,7 @@ public class Iperf3UploadWorker extends Worker {
         }
 
         for (Point point:points) {
+            point.addTags(dp.getTagsMap());
             if(!influx.writePoint(point)){
                 return Result.failure(output);
             }
