@@ -32,16 +32,21 @@ import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
@@ -147,6 +152,37 @@ public class DataProvider {
         }
         cellInfo = tm.getAllCellInfo();
         return cellInfo;
+    }
+
+    public String getIMEI(){
+        return tm.getImei();
+    }
+    public String getIMSI(){
+        return tm.getSubscriberId();
+    }
+    public Map<String, String> getTagsMap() {
+        String tags = sp.getString("tags", "").strip().replace(" ", "");
+        Map<String, String> tags_map = Collections.emptyMap();
+        try {
+            tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
+        } catch (IllegalArgumentException e) {
+            Log.d(TAG, "cant parse tags, ignoring");
+        }
+        Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
+        tags_map_modifiable.put("manufacturer", Build.MANUFACTURER);
+        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
+        tags_map_modifiable.put("model", Build.MODEL);
+        tags_map_modifiable.put("sdk_version", String.valueOf(Build.VERSION.SDK_INT));
+        tags_map_modifiable.put("android_version", Build.VERSION.RELEASE);
+        tags_map_modifiable.put("secruity_patch", Build.VERSION.SECURITY_PATCH);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            tags_map_modifiable.put("soc_model", Build.SOC_MODEL);
+        }
+        tags_map_modifiable.put("imei", getIMEI());
+        tags_map_modifiable.put("imsi", getIMSI());
+
+        tags_map_modifiable.put("radio_version", Build.getRadioVersion());
+        return  tags_map_modifiable;
     }
 
     public List<Point> getCellInfoPoint() {
