@@ -120,7 +120,7 @@ public class DataProvider {
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             return null;
         }
-        NetworkInformation netInfo = new NetworkInformation(
+        return new NetworkInformation(
                 tm.getNetworkOperatorName(),
                 tm.getSimOperatorName(),
                 tm.getNetworkSpecifier(),
@@ -129,7 +129,6 @@ public class DataProvider {
                 tm.getPhoneType(),
                 tm.getPreferredOpportunisticDataSubscription()
         );
-        return netInfo;
     }
 
     public Point getNetworkInformationPoint() {
