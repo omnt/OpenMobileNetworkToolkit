@@ -3,13 +3,13 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SRLog;
 
 public class LoggingSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static String TAG = "PreferenceSettings";
@@ -33,37 +33,37 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat implements
         switch (s) {
             case "enable_logging":
                 boolean logger = sharedPreferences.getBoolean("enable_logging", false);
-                SRLog.d(TAG, "Logger update: " + logger);
+                Log.d(TAG, "Logger update: " + logger);
                 break;
             case "enable_notification_update":
                 boolean notification = sharedPreferences.getBoolean("enable_notification_update", false);
-                SRLog.d(TAG, "Logger notification update: " + notification);
+                Log.d(TAG, "Logger notification update: " + notification);
                 break;
             case "enable_local_log":
                 boolean local_log = sharedPreferences.getBoolean("enable_local_log", false);
-                SRLog.d(TAG, "Local log update: " + local_log);
+                Log.d(TAG, "Local log update: " + local_log);
                 break;
 
             case "enable_influx":
-                SRLog.d(TAG, "Enabled Influx");
+                Log.d(TAG, "Enabled Influx");
                 break;
 
             case "influx_url":
                 String influx_url = sharedPreferences.getString("influx_url", "");
                 boolean flag;
                 if (influx_url.equals("")) {
-                    SRLog.d(TAG, "URL not specified!");
+                    Log.d(TAG, "URL not specified!");
                     Toast.makeText(getContext(), "URL not specified!", Toast.LENGTH_SHORT).show();
                     flag = false;
                 } else {
-                    SRLog.d(TAG, "URL Found: " + influx_url);
+                    Log.d(TAG, "URL Found: " + influx_url);
                     flag = true;
                 }
-                SRLog.d(TAG, "Influx URL found: " + flag);
+                Log.d(TAG, "Influx URL found: " + flag);
                 break;
         }
 
-        SRLog.d(TAG, "preference changed");
+        Log.d(TAG, "preference changed");
     }
 
 }

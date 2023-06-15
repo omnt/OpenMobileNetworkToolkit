@@ -13,6 +13,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SRLog;
 
 
 /**
@@ -185,7 +185,7 @@ public class BasicManagedProfileFragment extends Fragment implements
                             BasicDeviceAdminReceiver.getComponentName(activity), packageName);
                 } else {
                     // But we cannot disable the app since it is already disabled
-                    SRLog.e(TAG, "Cannot disable this app: " + packageName);
+                    Log.e(TAG, "Cannot disable this app: " + packageName);
                     return;
                 }
             } else {
@@ -197,7 +197,7 @@ public class BasicManagedProfileFragment extends Fragment implements
             Toast.makeText(activity, enabled ? R.string.enabled : R.string.disabled,
                     Toast.LENGTH_SHORT).show();
         } catch (PackageManager.NameNotFoundException exception){
-            SRLog.e(TAG, "The app cannot be found: " + packageName, exception);
+            Log.e(TAG, "The app cannot be found: " + packageName, exception);
         }
     }
 
@@ -254,7 +254,7 @@ public class BasicManagedProfileFragment extends Fragment implements
                         ? "From the managed account" : "From the primary account");
         try {
             startActivity(intent);
-            SRLog.d(TAG, "A sample intent was sent.");
+            Log.d(TAG, "A sample intent was sent.");
         } catch (ActivityNotFoundException e) {
             Toast.makeText(activity, R.string.activity_not_found, Toast.LENGTH_SHORT).show();
         }
@@ -282,10 +282,10 @@ public class BasicManagedProfileFragment extends Fragment implements
                 try {
                     DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
                     devicePolicyManager.setPreferentialNetworkServiceEnabled(true);
-                    SRLog.d(TAG, "setPreferentialNetworkServiceEnabled");
+                    Log.d(TAG, "setPreferentialNetworkServiceEnabled");
                     flag = true;
                 } catch (Exception exception) {
-                    SRLog.e(TAG, "setPreferentialNetworkServiceEnabled failed!");
+                    Log.e(TAG, "setPreferentialNetworkServiceEnabled failed!");
                     flag = false;
                 }
             }

@@ -14,25 +14,26 @@ import android.os.PersistableBundle;
 import android.service.carrier.CarrierIdentifier;
 import android.service.carrier.CarrierService;
 import android.telephony.CarrierConfigManager;
+import android.util.Log;
 
 public class OpenMobileNetworkToolkit extends CarrierService {
     private static final String TAG = "OpenMobileNetworkToolkit";
 
     public OpenMobileNetworkToolkit() {
-        SRLog.d(TAG, "OpenMobileNetworkToolkit Carrier Config Service created");
+        Log.d(TAG, "OpenMobileNetworkToolkit Carrier Config Service created");
     }
 
     @Override
     public PersistableBundle onLoadConfig(CarrierIdentifier id) {
         int sdk_version = Build.VERSION.SDK_INT;
-        SRLog.i(TAG, "CarrierIdentifier id " + id.toString());
+        Log.i(TAG, "CarrierIdentifier id " + id.toString());
         PersistableBundle configForSubId = new PersistableBundle();
 
         // handle things that need newer API versions
         if (sdk_version >= Build.VERSION_CODES.O_MR1) {
             configForSubId.putBoolean(CarrierConfigManager.KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL, true);
         } else {
-            SRLog.d(TAG, "KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL not available with below api level 27");
+            Log.d(TAG, "KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL not available with below api level 27");
         }
         if (sdk_version >= Build.VERSION_CODES.R) {
             configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_VIDEO_CALLING_FALLBACK_BOOL, true);
@@ -51,7 +52,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
             configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
         } else {
-            SRLog.d(TAG, " not available with below api level 30");
+            Log.d(TAG, " not available with below api level 30");
         }
         if (sdk_version >= Build.VERSION_CODES.S) {
             configForSubId.putIntArray(CarrierConfigManager.KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY, new int[]{CarrierConfigManager.CARRIER_NR_AVAILABILITY_SA, CarrierConfigManager.CARRIER_NR_AVAILABILITY_NSA});
@@ -61,7 +62,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
             configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
         } else {
-            SRLog.d(TAG, "KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY is not available with below api level 31");
+            Log.d(TAG, "KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY is not available with below api level 31");
         }
         configForSubId.putBoolean(CarrierConfigManager.KEY_FORCE_HOME_NETWORK_BOOL, true);
         configForSubId.putBoolean(CarrierConfigManager.KEY_PREFER_2G_BOOL, false);
@@ -100,7 +101,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL, true);
         configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
         configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
-        SRLog.d(TAG, "Carrier settings applied");
+        Log.d(TAG, "Carrier settings applied");
         return configForSubId;
     }
 }

@@ -11,6 +11,7 @@ import android.telephony.data.NetworkSlicingConfig;
 import android.telephony.data.RouteSelectionDescriptor;
 import android.telephony.data.TrafficDescriptor;
 import android.telephony.data.UrspRule;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -88,7 +89,7 @@ public class SlicingSetup extends Fragment {
                 @Override
                 public void onClick(View view) {
 
-                    SRLog.d(TAG, "Enterprise 1 network request: " + networkCallback.customNetworkCallback(29, 0));
+                    Log.d(TAG, "Enterprise 1 network request: " + networkCallback.customNetworkCallback(29, 0));
 
                     if (networkCallback.customNetworkCallback(29, 0)) { //CAPABILITY ENTERPRISE1)
                         tm.getNetworkSlicingConfiguration(getActivity().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
@@ -105,7 +106,7 @@ public class SlicingSetup extends Fragment {
                                     if (trafficDescriptorList != null) {
                                         for (int j = 0; i < trafficDescriptorList.size(); i++) {
                                             TrafficDescriptor trafficDescriptor = urspRule.getTrafficDescriptors().get(i);
-                                            //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                            //Log.d(TAG, "Route Selection" + routeSelectionDescriptor);
 
                                             if (trafficDescriptor != null) {
                                                 props.add("Traffic Descriptor Available");
@@ -121,26 +122,26 @@ public class SlicingSetup extends Fragment {
                                     UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
                                     List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
                                     List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
-                                    //SRLog.d(TAG, "URSP" + urspRule);
-                                    //SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
+                                    //Log.d(TAG, "URSP" + urspRule);
+                                    //Log.d(TAG, "Traffic Descriptor" + trafficDescriptor);
                                     if (routeSelectionDescriptorsList != null) {
                                         for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
                                             RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
-                                            //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                            //Log.d(TAG, "Route Selection" + routeSelectionDescriptor);
                                             List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
 
                                             if (routeSelectionDescriptor != null) {
-                                                SRLog.d(TAG, "Route Selection Descriptor Available");
+                                                Log.d(TAG, "Route Selection Descriptor Available");
                                                 List<String> dataNetworkNameList = routeSelectionDescriptor.getDataNetworkName();
 
                                                 if (dataNetworkNameList != null) {
                                                     for (int k = 0; k < dataNetworkNameList.size(); k++) {
-                                                        SRLog.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
+                                                        Log.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
                                                     }
                                                 }
-                                                SRLog.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
-                                                SRLog.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
-                                                SRLog.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
+                                                Log.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
+                                                Log.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
+                                                Log.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
 
                                                 if (networkSliceInfoList != null) {
                                                     for (int l = 0; l < networkSliceInfoList.size(); l++) {
@@ -153,7 +154,7 @@ public class SlicingSetup extends Fragment {
                                                         int mapped_plmn_service_type = networkSliceInfo.getMappedHplmnSliceServiceType();
 
                                                         sliceCreate.sliceCreate(service_type, slice_differentior, service_status);
-                                                        SRLog.d(TAG, "Slice Created for :" + service_type);
+                                                        Log.d(TAG, "Slice Created for :" + service_type);
                                                     }
                                                 }
 
@@ -191,7 +192,7 @@ public class SlicingSetup extends Fragment {
                                 if (trafficDescriptorList != null) {
                                     for (int j = 0; i < trafficDescriptorList.size(); i++) {
                                         TrafficDescriptor trafficDescriptor = urspRule.getTrafficDescriptors().get(i);
-                                        //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                        //Log.d(TAG, "Route Selection" + routeSelectionDescriptor);
 
                                         if (trafficDescriptor != null) {
                                             props.add("Traffic Descriptor Available");
@@ -207,26 +208,26 @@ public class SlicingSetup extends Fragment {
                                 UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
                                 List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
                                 List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
-                                //SRLog.d(TAG, "URSP" + urspRule);
-                                //SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
+                                //Log.d(TAG, "URSP" + urspRule);
+                                //Log.d(TAG, "Traffic Descriptor" + trafficDescriptor);
                                 if (routeSelectionDescriptorsList != null) {
                                     for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
                                         RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
-                                        //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                        //Log.d(TAG, "Route Selection" + routeSelectionDescriptor);
                                         List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
 
                                         if (routeSelectionDescriptor != null) {
-                                            SRLog.d(TAG, "Route Selection Descriptor Available");
+                                            Log.d(TAG, "Route Selection Descriptor Available");
                                             List<String> dataNetworkNameList = routeSelectionDescriptor.getDataNetworkName();
 
                                             if (dataNetworkNameList != null) {
                                                 for (int k = 0; k < dataNetworkNameList.size(); k++) {
-                                                    SRLog.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
+                                                    Log.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
                                                 }
                                             }
-                                            SRLog.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
-                                            SRLog.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
-                                            SRLog.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
+                                            Log.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
+                                            Log.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
+                                            Log.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
 
                                             if (networkSliceInfoList != null) {
                                                 for (int l = 0; l < networkSliceInfoList.size(); l++) {
@@ -239,7 +240,7 @@ public class SlicingSetup extends Fragment {
                                                     int mapped_plmn_service_type = networkSliceInfo.getMappedHplmnSliceServiceType();
 
                                                     sliceCreate.sliceCreate(service_type, slice_differentior, service_status, mapped_plmn_service_type, mapped_plmn_diff);
-                                                    SRLog.d(TAG, "Slice Created for :" + service_type);
+                                                    Log.d(TAG, "Slice Created for :" + service_type);
                                                 }
                                             }
 
@@ -276,7 +277,7 @@ public class SlicingSetup extends Fragment {
                                 if (trafficDescriptorList != null) {
                                     for (int j = 0; i < trafficDescriptorList.size(); i++) {
                                         TrafficDescriptor trafficDescriptor = urspRule.getTrafficDescriptors().get(i);
-                                        //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                        //Log.d(TAG, "Route Selection" + routeSelectionDescriptor);
 
                                         if (trafficDescriptor != null) {
                                             props.add("Traffic Descriptor Available");
@@ -292,26 +293,26 @@ public class SlicingSetup extends Fragment {
                                 UrspRule urspRule = networkSlicingConfig.getUrspRules().get(i);
                                 List<TrafficDescriptor> trafficDescriptorList = urspRule.getTrafficDescriptors();
                                 List<RouteSelectionDescriptor> routeSelectionDescriptorsList = urspRule.getRouteSelectionDescriptor();
-                                //SRLog.d(TAG, "URSP" + urspRule);
-                                //SRLog.d(TAG, "Traffic Descriptor" + trafficDescriptor);
+                                //Log.d(TAG, "URSP" + urspRule);
+                                //Log.d(TAG, "Traffic Descriptor" + trafficDescriptor);
                                 if (routeSelectionDescriptorsList != null) {
                                     for (int j = 0; i < routeSelectionDescriptorsList.size(); i++) {
                                         RouteSelectionDescriptor routeSelectionDescriptor = routeSelectionDescriptorsList.get(i);
-                                        //SRLog.d(TAG, "Route Selection" + routeSelectionDescriptor);
+                                        //Log.d(TAG, "Route Selection" + routeSelectionDescriptor);
                                         List<NetworkSliceInfo> networkSliceInfoList = routeSelectionDescriptor.getSliceInfo();
 
                                         if (routeSelectionDescriptor != null) {
-                                            SRLog.d(TAG, "Route Selection Descriptor Available");
+                                            Log.d(TAG, "Route Selection Descriptor Available");
                                             List<String> dataNetworkNameList = routeSelectionDescriptor.getDataNetworkName();
 
                                             if (dataNetworkNameList != null) {
                                                 for (int k = 0; k < dataNetworkNameList.size(); k++) {
-                                                    SRLog.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
+                                                    Log.d(TAG, "Data Network Name DNN: " + dataNetworkNameList.get(i));
                                                 }
                                             }
-                                            SRLog.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
-                                            SRLog.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
-                                            SRLog.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
+                                            Log.d(TAG, "Route Selection Precedence: " + routeSelectionDescriptor.getPrecedence());
+                                            Log.d(TAG, "Route Selection Session Type: " + routeSelectionDescriptor.getSessionType());
+                                            Log.d(TAG, "Route Selection SSC Mode: " + routeSelectionDescriptor.getSscMode());
 
                                             if (networkSliceInfoList != null) {
                                                 for (int l = 0; l < networkSliceInfoList.size(); l++) {
@@ -324,7 +325,7 @@ public class SlicingSetup extends Fragment {
                                                     int mapped_plmn_service_type = networkSliceInfo.getMappedHplmnSliceServiceType();
 
                                                     sliceCreate.sliceCreate(service_type, slice_differentior, service_status);
-                                                    SRLog.d(TAG, "Slice Created for :" + service_type);
+                                                    Log.d(TAG, "Slice Created for :" + service_type);
                                                 }
                                             }
 

@@ -9,7 +9,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
@@ -18,7 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -33,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -109,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         loggingServiceIntent = new Intent(this, LoggingService.class);
         Context context = getApplicationContext();
         if (sp.getBoolean("enable_logging", false)) {
-            SRLog.d(TAG, "Start logging service");
+            Log.d(TAG, "Start logging service");
             context.startForegroundService(loggingServiceIntent);
         }
 
@@ -117,16 +114,16 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 if (Objects.equals(key, "enable_logging")) {
                     if (prefs.getBoolean(key, false)) {
-                        SRLog.i(TAG, "Start logging service");
+                        Log.i(TAG, "Start logging service");
                         context.startForegroundService(loggingServiceIntent);
                     } else {
-                        SRLog.i(TAG, "Stop logging service");
+                        Log.i(TAG, "Stop logging service");
                         context.stopService(loggingServiceIntent);
                     }
                 }
                 if (Objects.equals(key, "carrier_Permission")) {
                     if(prefs.getBoolean(key, true)) {
-                        SRLog.i(TAG, "Carrier Permission Approved");
+                        Log.i(TAG, "Carrier Permission Approved");
                         cp = tm.hasCarrierPrivileges();
                         if(cp){
                             Toast.makeText(context, "Carrier Permission Approved!", Toast.LENGTH_SHORT).show();
@@ -134,24 +131,24 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             Toast.makeText(context,"Carrier Permissions Rejected!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        SRLog.i(TAG,"Carrier Permission Denied!");
+                        Log.i(TAG,"Carrier Permission Denied!");
                     }
                 }
                 if(Objects.equals(key,"enable_influx")) {
                     if(prefs.getBoolean(key,false)){
-                        SRLog.i(TAG, "Enabled Influx Log");
+                        Log.i(TAG, "Enabled Influx Log");
                         //Call influx logging here
 
                     } else {
-                        SRLog.i(TAG,"Stop Influx Logging");
+                        Log.i(TAG,"Stop Influx Logging");
                     }
                 }
                 if(Objects.equals(key,"influx_url")){
                     String val = prefs.getString("influx_url","");
                     if(val == ""){
-                        SRLog.i(TAG, "Influx URL unknown");
+                        Log.i(TAG, "Influx URL unknown");
                     } else {
-                        SRLog.i(TAG,"Influx URL:" + key);
+                        Log.i(TAG,"Influx URL:" + key);
                     }
                 }
             }
@@ -203,9 +200,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         if (dpm != null) {
             if (pm != null) {
-                SRLog.d(TAG, "isProfileOwnerApp:" + dpm.isProfileOwnerApp(context.getPackageName()));
-                SRLog.d(TAG, "isDeviceOwnerApp:" + dpm.isDeviceOwnerApp(context.getPackageName()));
-                SRLog.d(TAG, "Component Name: " + componentName);
+                Log.d(TAG, "isProfileOwnerApp:" + dpm.isProfileOwnerApp(context.getPackageName()));
+                Log.d(TAG, "isDeviceOwnerApp:" + dpm.isDeviceOwnerApp(context.getPackageName()));
+                Log.d(TAG, "Component Name: " + componentName);
             }
         }
 
@@ -215,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 getString(R.string.device_admin_description));
         startActivity(intent);
 
-        SRLog.d(TAG, "Is admin active: " + dpm.isAdminActive(componentName));
+        Log.d(TAG, "Is admin active: " + dpm.isAdminActive(componentName));
 
         return flag;
     }
@@ -268,21 +265,21 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         switch (i) {
             case 1: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
-                    SRLog.d(TAG, "Could not get READ_PHONE_STATE permission");
+                    Log.d(TAG, "Could not get READ_PHONE_STATE permission");
                     Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
 
                 } else {
-                    SRLog.d(TAG, "Got READ_PHONE_STATE_PERMISSIONS");
+                    Log.d(TAG, "Got READ_PHONE_STATE_PERMISSIONS");
                     Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG).show();
                 }
                 break;
             }
             case 2: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
-                    SRLog.d(TAG, "Could not get LOCATION permission");
+                    Log.d(TAG, "Could not get LOCATION permission");
                     Toast.makeText(this, "Could not get LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
-                    SRLog.d(TAG, "Got LOCATION permission");
+                    Log.d(TAG, "Got LOCATION permission");
                     Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -290,10 +287,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
             case 3: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
-                    SRLog.d(TAG, "Could not get BACKGROUND_LOCATION permission");
+                    Log.d(TAG, "Could not get BACKGROUND_LOCATION permission");
                     Toast.makeText(this, "Could not get BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
-                    SRLog.d(TAG, "Got BACKGROUND_LOCATION permission");
+                    Log.d(TAG, "Got BACKGROUND_LOCATION permission");
                     Toast.makeText(this, "Got BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
                 break;
@@ -312,34 +309,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         Toast.makeText(this, "Carrier Permissions needed for this", Toast.LENGTH_LONG).show();
     }
 
-    public void checkDrawOverlayPermission(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
-                if (null != activity) {
-                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
-                    activity.startActivityForResult(intent, Overlay_REQUEST_CODE);
-                } else {
-                    Toast.makeText(this, "Please grant \"Draw over other apps\" permission under application settings", Toast.LENGTH_LONG).show();
-                }
-            } else {
-                openFloatingWindow();
-            }
-        } else {
-            openFloatingWindow();
-        }
-    }
-
     public boolean HasCarrierPermissions() {
-        SRLog.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());
+        Log.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());
         return tm.hasCarrierPrivileges();
     }
 
-
-    private void openFloatingWindow() {
-        Intent intent = new Intent(getApplicationContext(), DebuggerService.class);
-        getApplicationContext().stopService(intent);
-        ContextCompat.startForegroundService(getApplicationContext(), intent);
-    }
 
     @Override
     public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {

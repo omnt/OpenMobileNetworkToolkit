@@ -2,11 +2,11 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.preference.PreferenceFragmentCompat;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SRLog;
 
 public class ApplicationSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener{
     public static String TAG = "PreferenceSettings";
@@ -23,7 +23,7 @@ public class ApplicationSettingsFragment extends PreferenceFragmentCompat implem
         switch (s){
             case "carrierPermission":
                 boolean cp = sharedPreferences.getBoolean("carrierPermission", false);
-                SRLog.d(TAG,"Carrier Permission update: " + cp);
+                Log.d(TAG,"Carrier Permission update: " + cp);
                 break;
         }
     }
