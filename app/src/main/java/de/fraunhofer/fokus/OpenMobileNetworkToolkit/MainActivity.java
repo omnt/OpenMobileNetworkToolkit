@@ -37,6 +37,8 @@ import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     public TelephonyManager tm;
     public PackageManager pm;
@@ -338,4 +340,26 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().stopService(intent);
         ContextCompat.startForegroundService(getApplicationContext(), intent);
     }
+
+    @Override
+    public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
+        // Instantiate the new Fragment
+        Log.d(TAG, "onPreferenceStartFragment: " + pref.getKey());
+        switch (pref.getKey()) {
+            case "app_settings":
+                navController.navigate(R.id.applicationSettingsFragment);
+                break;
+            case "log_settings":
+                navController.navigate(R.id.loggingSettingsFragment);
+                break;
+            case "5g_feature_settings":
+                navController.navigate(R.id.features5gSettingFragment);
+                break;
+            case "flag_settings":
+                navController.navigate(R.id.flagSettingFragment);
+                break;
+        }
+        return true;
+    }
+
 }

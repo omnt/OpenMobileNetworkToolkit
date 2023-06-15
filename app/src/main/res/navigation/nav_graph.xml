@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
   ~ SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
   ~
@@ -31,22 +30,21 @@
             android:id="@+id/action_HomeFragment_to_iperf3Fragment"
             app:destination="@id/fragment_iperf3_input" />
         <action
-            android:id="@+id/action_HomeFragment_to_settings_header_fragment"
-            app:destination="@+id/settingsHeaderFragment"
-            />
-        <action
             android:id="@+id/action_HomeFragment_to_influxDBFragment"
             app:destination="@id/influxDBFragment" />
         <action
             android:id="@+id/action_HomeFragment_to_specialCodeFragment"
             app:destination="@id/specialCodesFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
 
     </fragment>
     <fragment
         android:id="@+id/about_fragment"
-        android:label="@string/second_fragment_label"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.AboutFragment"
-        tools:layout="@layout/fragment_about" >
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/fragment_about">
         <action
             android:id="@+id/action_about_fragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
@@ -84,43 +82,43 @@
             android:id="@+id/action_runners_list_to_fragment_iperf3_input"
             app:destination="@id/fragment_iperf3_input" />
     </fragment>
-    <fragment
-        android:id="@+id/settingsHeaderFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsHeaderFragment"
-        android:label="SettingsHeaderFragment">
-        <action
-            android:id="@+id/action_settingsFragment_to_settingsFragment2"
-            app:destination="@id/settingsFragment" />
-        <action
-            android:id="@+id/action_settingsHeaderFragment_pop"
-            app:enterAnim="@animator/nav_default_pop_enter_anim"
-            app:exitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/settingsHeaderFragment"
-            app:popUpToInclusive="true"
-            app:popEnterAnim="@animator/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-    </fragment>
+
     <fragment
         android:id="@+id/features5gSettingFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment"
-        android:label="Features5gSettingFragment" />
+        android:label="Features5gSettingFragment">
+        <action
+            android:id="@+id/action_features5gSettingFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/applicationSettingsFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"
         android:label="ApplicationSettingsFragment"
         tools:layout="@xml/preference_application">
 
+        <action
+            android:id="@+id/action_applicationSettingsFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/flagSettingFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.FlagSettingFragment"
         android:label="FlagSettingFragment"
-        tools:layout="@xml/preference_flag"/>
+        tools:layout="@xml/preference_flag">
+        <action
+            android:id="@+id/action_flagSettingFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/loggingSettingsFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"
         android:label="LoggingSettingsFragment"
-        tools:layout="@xml/preference_logging"/>
+        tools:layout="@xml/preference_logging">
+        <action
+            android:id="@+id/action_loggingSettingsFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/settingsFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment"
@@ -128,8 +126,7 @@
         tools:layout="@xml/preference">
         <action
             android:id="@+id/action_settingsFragment2_to_applicationSettingsFragment"
-            app:destination="@id/applicationSettingsFragment"
-            />
+            app:destination="@id/applicationSettingsFragment" />
         <action
             android:id="@+id/action_settingsFragment2_to_features5gSettingFragment"
             app:destination="@id/features5gSettingFragment" />
@@ -139,11 +136,14 @@
         <action
             android:id="@+id/action_settingsFragment2_to_loggingSettingsFragment"
             app:destination="@id/loggingSettingsFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
     </fragment>
     <fragment
         android:id="@+id/influxDBFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxDBFragment"
-        android:label="InfluxDBFragment" >
+        android:label="InfluxDBFragment">
         <action
             android:id="@+id/action_influxDBFragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
@@ -151,7 +151,7 @@
     <fragment
         android:id="@+id/specialCodesFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SpecialCodesFragment"
-        android:label="SpecialCodeFragment" >
+        android:label="SpecialCodeFragment">
         <action
             android:id="@+id/action_specialCodeFragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />

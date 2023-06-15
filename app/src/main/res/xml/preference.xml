@@ -4,20 +4,24 @@
     android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment">
     <Preference
         app:title="Application Settings"
+        app:key="app_settings"
         android:icon="@drawable/ic_baseline_app_settings_alt_24"
-        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"/>
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"/>
     <Preference
         app:title="Log Settings"
+        app:key="log_settings"
         android:icon="@drawable/ic_baseline_code_24"
-        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"/>
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"/>
     <Preference
         app:title="5G Feature Settings"
+        app:key="5g_feature_settings"
         android:icon="@drawable/ic_baseline_5g_24"
-        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment"/>
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment"/>
 
     <Preference
         app:title="Flag Settings"
+        app:key="flag_settings"
         android:icon="@drawable/ic_baseline_outlined_flag_24"
-        android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.FlagSettingFragment"/>
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.FlagSettingFragment"/>
 
 </PreferenceScreen>
