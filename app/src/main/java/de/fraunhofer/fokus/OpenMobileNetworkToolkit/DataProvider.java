@@ -154,10 +154,19 @@ public class DataProvider {
     }
 
     public String getIMEI(){
-        return tm.getImei();
+        if (tm.hasCarrierPrivileges()) {
+            return tm.getImei();
+        } else {
+            return "";
+        }
     }
+
     public String getIMSI(){
-        return tm.getSubscriberId();
+        if (tm.hasCarrierPrivileges()) {
+            return tm.getSubscriberId();
+        } else {
+            return "";
+        }
     }
     public Map<String, String> getTagsMap() {
         String tags = sp.getString("tags", "").strip().replace(" ", "");
@@ -177,9 +186,10 @@ public class DataProvider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             tags_map_modifiable.put("soc_model", Build.SOC_MODEL);
         }
-        tags_map_modifiable.put("imei", getIMEI());
-        tags_map_modifiable.put("imsi", getIMSI());
-
+        if (tm.hasCarrierPrivileges()) {
+            tags_map_modifiable.put("imei", getIMEI());
+            tags_map_modifiable.put("imsi", getIMSI());
+        }
         tags_map_modifiable.put("radio_version", Build.getRadioVersion());
         return  tags_map_modifiable;
     }
@@ -218,15 +228,6 @@ public class DataProvider {
                 point.addField("MCC", ciNRId.getMccString());
                 point.addField("PCI", ciNRId.getPci());
                 point.addField("TAC", ciNRId.getTac());
-                //   CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
-                //   point.addField("Level", ssNR.getLevel());
-                //   //point.addField("CQI", ssNR.getCqi());
-                //   point.addField("CsiRSRP", ssNR.getCsiRsrp());
-                //   point.addField("CsiRSRQ", ssNR.getCsiRsrq());
-                //   point.addField("CsiSINR", ssNR.getCsiSinr());
-                //   point.addField("SSRSRP", ssNR.getSsRsrp());
-                //   point.addField("SSRSRQ", ssNR.getSsRsrq());
-                //   point.addField("SSSINR", ssNR.getSsSinr());
             }
             if (ci instanceof CellInfoLte) {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
@@ -243,13 +244,6 @@ public class DataProvider {
                 point.addField("MCC", ciLTEId.getMccString());
                 point.addField("PCI", ciLTEId.getPci());
                 point.addField("TAC", ciLTEId.getTac());
-                //CellSignalStrengthLte ssLTE = ciLTE.getCellSignalStrength();
-                //point.addField("Level", ssLTE.getLevel());
-                //point.addField("CQI", ssLTE.getCqi());
-                //point.addField("RSRP", ssLTE.getRsrp());
-                //point.addField("RSRQ", ssLTE.getRsrq());
-                //point.addField("RSSI", ssLTE.getRssi());
-                //point.addField("RSSNR", ssLTE.getRssnr());
             }
             if (ci instanceof CellInfoCdma) {
                 point.addField("CellType", "CDMA");
@@ -263,13 +257,6 @@ public class DataProvider {
                 point.addField("ARFCN", ciGSMId.getArfcn());
                 point.addField("MNC", ciGSMId.getMncString());
                 point.addField("MCC", ciGSMId.getMccString());
-                //CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ciGSM.getCellSignalStrength();
-                //point.addField("Level",ssGSM.getLevel());
-                //point.addField("AsuLevel", ssGSM.getAsuLevel());
-                //point.addField("Dbm", ssGSM.getDbm());
-                //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                //    point.addField("RSSI", ssGSM.getRssi());
-                //}
             }
             points.add(point);
         }
