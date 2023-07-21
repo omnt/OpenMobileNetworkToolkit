@@ -171,10 +171,12 @@ public class DataProvider {
     public Map<String, String> getTagsMap() {
         String tags = sp.getString("tags", "").strip().replace(" ", "");
         Map<String, String> tags_map = Collections.emptyMap();
-        try {
-            tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
-        } catch (IllegalArgumentException e) {
-            Log.d(TAG, "cant parse tags, ignoring");
+        if (!tags.isEmpty()) {
+            try {
+                tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
+            } catch (IllegalArgumentException e) {
+                Log.d(TAG, "cant parse tags, ignoring");
+            }
         }
         Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
         tags_map_modifiable.put("manufacturer", Build.MANUFACTURER);
