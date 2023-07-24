@@ -81,13 +81,13 @@ public class LoggingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Logging service created");
+        Log.d(TAG, "onCreate: Logging service created");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "Start logging service.");
+        Log.d(TAG, "onStartCommand: Start logging service.");
         dp = new DataProvider(this);
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
@@ -126,7 +126,6 @@ public class LoggingService extends Service {
                             Log.i(TAG, "Not all influx settings are present in preferences");
                             Toast.makeText(getApplicationContext(), "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
                             prefs.edit().putBoolean("enable_influx", false).apply();
-                            Log.d(TAG, getPackageName() + "_preferences");
                         } else {
                             setupRemoteInfluxDB();
                         }
@@ -180,14 +179,7 @@ public class LoggingService extends Service {
 
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "Stop logging service.");
-
-
-        // Stop foreground service and remove the notification.
-        stopForeground(true);
-
-        // Stop the foreground service.
-        stopSelf();
+        Log.d(TAG, "onDestroy: Stop logging service");
         if (sp.getBoolean("enable_influx", false)) {
             stopRemoteInfluxDB();
         }
@@ -197,6 +189,12 @@ public class LoggingService extends Service {
         if (sp.getBoolean("enable_local_influx_log", false)) {
             stopLocalInfluxDB();
         }
+
+        // Stop foreground service and remove the notification.
+        stopForeground(true);
+
+        // Stop the foreground service.
+        stopSelf();
     }
 
 
@@ -206,34 +204,49 @@ public class LoggingService extends Service {
         ArrayList<Point>  logPoints = new ArrayList<Point>();
         if (sp.getBoolean("influx_network_data", false)) {
             Point p = dp.getNetworkInformationPoint();
-            p.time(time, WritePrecision.MS);
-            p.addTags(tags_map);
-            logPoints.add(p);
+            if (p.hasFields()) {
+                p.time(time, WritePrecision.MS);
+                p.addTags(tags_map);
+                logPoints.add(p);
+            } else {
+                Log.w(TAG,"Point without fields from getNetworkInformationPoint");
+            }
         }
 
         if (sp.getBoolean("influx_throughput_data", false)) {
             Point p = dp.getNetworkCapabilitiesPoint();
-            p.time(time, WritePrecision.MS);
-            p.addTags(tags_map);
-            logPoints.add(p);
+            if (p.hasFields()) {
+                p.time(time, WritePrecision.MS);
+                p.addTags(tags_map);
+                logPoints.add(p);
+            }else {
+                Log.w(TAG,"Point without fields from getNetworkCapabilitiesPoint");
+            }
         }
 
         if (sp.getBoolean("log_signal_data", false)) {
             Point p = dp.getSignalStrengthPoint();
-            p.time(time, WritePrecision.MS);
-            p.addTags(tags_map);
-            logPoints.add(p);
+            if (p.hasFields()) {
+                p.time(time, WritePrecision.MS);
+                p.addTags(tags_map);
+                logPoints.add(p);
+            } else {
+                Log.w(TAG,"Point without fields from getSignalStrengthPoint");
+            }
         }
 
         if (sp.getBoolean("influx_cell_data", false)) {
             List<Point> ps = dp.getCellInfoPoint();
             for (Point p : ps) {
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-            }
+                if (p.hasFields()) {
+                    p.time(time, WritePrecision.MS);
+                    p.addTags(tags_map);
+                }
+                else {
+                    Log.w(TAG,"Point without fields getCellInfoPoint");
+                }            }
             logPoints.addAll(ps);
         }
-
         Point p = dp.getLocationPoint();
         p.time(time, WritePrecision.MS);
         p.addTags(tags_map);
@@ -369,7 +382,7 @@ public class LoggingService extends Service {
 
 
     // Handle local on-device influxDB
-    private final Runnable localInfluxLogUpdate = new Runnable() {
+    private final Runnable localInfluxUpdate = new Runnable() {
         @Override
         public void run() {
             long ts = System.currentTimeMillis();
@@ -395,12 +408,9 @@ public class LoggingService extends Service {
     private void setupLocalInfluxDB() {
         Log.d(TAG, "setupLocalInfluxDB");
         lic = InfluxdbConnections.getLicInstance(getApplicationContext());
-        if (lic.connect()) {
-            localInfluxHandler = new Handler(Looper.myLooper());
-            localInfluxHandler.post(RemoteInfluxUpdate);
-        } else {
-            Log.i(TAG, "can't start local influx logging, connect to database not successful");
-        }
+        Objects.requireNonNull(lic).open_write_api();
+        localInfluxHandler = new Handler(Looper.myLooper());
+        localInfluxHandler.post(localInfluxUpdate);
     }
 
     private void stopLocalInfluxDB() {
@@ -426,7 +436,7 @@ public class LoggingService extends Service {
             for (Point point : points) {
                 ic.writePoint(point);
             }
-            ic.sendAll();
+            ic.flush();
             remoteInfluxHandler.postDelayed(this, interval);
         }
     };
@@ -435,12 +445,9 @@ public class LoggingService extends Service {
     private void setupRemoteInfluxDB() {
         Log.d(TAG, "setupRemoteInfluxDB");
         ic = InfluxdbConnections.getRicInstance(getApplicationContext());
-        if (ic.connect()) {
-            remoteInfluxHandler = new Handler(Looper.myLooper());
-            remoteInfluxHandler.post(RemoteInfluxUpdate);
-        } else {
-            Log.i(TAG, "can't start remote influx logging, connect to database not successful");
-        }
+        Objects.requireNonNull(ic).open_write_api();
+        remoteInfluxHandler = new Handler(Looper.myLooper());
+        remoteInfluxHandler.post(RemoteInfluxUpdate);
     }
 
     private void stopRemoteInfluxDB() {

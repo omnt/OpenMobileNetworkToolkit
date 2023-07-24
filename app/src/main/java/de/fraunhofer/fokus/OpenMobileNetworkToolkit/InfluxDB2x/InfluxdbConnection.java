@@ -34,7 +34,6 @@ public class InfluxdbConnection {
     private InfluxDBClient influxDBClient;
     private WriteApi writeApi;
     SharedPreferences sp;
-    SharedPreferences.OnSharedPreferenceChangeListener listener;
 
     public InfluxdbConnection(String URL, String token, String org, String bucket, Context context) {
             this.token = token.toCharArray();
@@ -43,11 +42,12 @@ public class InfluxdbConnection {
             this.bucket = bucket;
             this.context = context;
             sp = PreferenceManager.getDefaultSharedPreferences(context);
+            influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
     }
 
-    public boolean connect() {
+    public void open_write_api(){
         try {
-            influxDBClient = InfluxDBClientFactory.create(url, token, org, bucket);
+            influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
             writeApi = influxDBClient.makeWriteApi(WriteOptions.builder()
                     .batchSize(1000)
                     .flushInterval(1000)
@@ -57,56 +57,53 @@ public class InfluxdbConnection {
                     .retryInterval(500)
                     .exponentialBase(4)
                     .build());
-            Log.d(TAG, "connect: Connected to InfluxDB");
         } catch (com.influxdb.exceptions.InfluxException e) {
             Log.d(TAG, "connect: Can't connect to InfluxDB");
             e.printStackTrace();
-            return false;
-
         }
-        return true;
     }
 
+
     public void disconnect(){
-
-
-        Runnable finish = new Runnable() {
-            @Override
-            public void run() {
-                writeApi.flush();
-                try {
-                    writeApi.close();
-                } catch (com.influxdb.exceptions.InfluxException e) {
-                    Log.d(TAG, "disconnect: Error while closing write API");
-                    e.printStackTrace();
-                }
-                try {
-                    influxDBClient.close();
-                } catch (com.influxdb.exceptions.InfluxException e) {
-                    Log.d(TAG, "disconnect: Error while closing influx connection");
-                    e.printStackTrace();
-                }
+        // make sure we a instance of the client. This can happen on an app resume
+        if (influxDBClient != null) {
+            Log.d(TAG, "disconnect: Flushing Influx write API if possible");
+            flush();
+            try {
+                Log.d(TAG, "disconnect: Closing Influx write API");
+                writeApi.close();
+            } catch (com.influxdb.exceptions.InfluxException e) {
+                Log.d(TAG, "disconnect: Error while closing write API");
+                e.printStackTrace();
             }
-        };
-        Thread finishThread = new Thread(finish);
-        finishThread.start();
+            try {
+                Log.d(TAG, "disconnect: Closing influx connection");
+                influxDBClient.close();
+            } catch (com.influxdb.exceptions.InfluxException e) {
+                Log.d(TAG, "disconnect: Error while closing influx connection");
+                e.printStackTrace();
+            }
+        } else {
+            Log.d(TAG, "disconnect() was called on not existing instance of the influx client");
+        }
     }
 
     // Add a point to the message queue
     public boolean writePoint(Point point) {
-        //if (influxDBClient != null && influxDBClient.ready().getStatus() == Ready.StatusEnum.READY)  {
+        // only add the point if the database is reachable
+        if (influxDBClient != null && influxDBClient.ping())  {
             try {
                 writeApi.writePoint(point);
             } catch (com.influxdb.exceptions.InfluxException e) {
-                Log.d(TAG, "disconnect: Error while writing points to influx DB");
+                Log.d(TAG, "writePoint: Error while writing points to influx DB");
                 e.printStackTrace();
                 return false;
             }
             return true;
-        //} else {
-        //    Log.d(TAG, "influx client not ready");
-        //    return false;
-        //}
+        } else {
+            Log.d(TAG, "writePoint: InfluxDB not reachable");
+            return false;
+        }
     }
 
     // Setup a local database and store credentials
@@ -120,21 +117,29 @@ public class InfluxdbConnection {
                 or.username("omnt");
                 or.token("1234567890"); //todo generate a token
                 influxDBClient.onBoarding(or);
-                Log.d(TAG, "Database onboarding successfully");
+                Log.d(TAG, "setup: Database onboarding successfully");
                 return true;
             } else {
-                Log.d(TAG, "Database was already onboarded");
+                Log.d(TAG, "setup: Database was already onboarded");
                 return false;
             }
-
         } catch (com.influxdb.exceptions.InfluxException e){
             return false;
         }
     }
 
-    public void sendAll(){
-        writeApi.flush();
+    // If we can reach the influxDB call flush on the write API
+    public boolean flush(){
+        if (influxDBClient.ping()) {
+            writeApi.flush();
+            return true;
+        } else {
+            return false;
+        }
     }
 
+    public boolean ping(){
+        return influxDBClient.ping();
+    }
 }
 
