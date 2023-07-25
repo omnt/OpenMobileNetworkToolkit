@@ -1,4 +1,4 @@
-image: dockerhub.fokus.fraunhofer.de:5000/ngni/gitlab-ci-android/builder:20.04
+image: dockerhub.fokus.fraunhofer.de:5000/ngni/gitlab-ci-android/builder:22.04
 
 #variables:
 
