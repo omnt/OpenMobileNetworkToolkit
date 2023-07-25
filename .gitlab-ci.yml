@@ -1,5 +1,6 @@
-image: dockerhub.fokus.fraunhofer.de:5000/ngni/gitlab-ci-android/builder:22.04
-entrypoint: [ '/bin/bash', '-c', 'ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+image: 
+  name: dockerhub.fokus.fraunhofer.de:5000/ngni/gitlab-ci-android/builder:22.04
+  entrypoint: [ '/bin/bash', '-c', 'ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
 
 #variables:
 
