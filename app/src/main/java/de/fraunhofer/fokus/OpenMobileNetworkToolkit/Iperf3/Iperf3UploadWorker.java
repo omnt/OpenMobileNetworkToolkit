@@ -97,7 +97,7 @@ public class Iperf3UploadWorker extends Worker {
     public Result doWork() {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
-        if(!influx.connect()){
+        if(!influx.ping()){
             return Result.failure();
         }
         BufferedReader br = null;
@@ -202,7 +202,7 @@ public class Iperf3UploadWorker extends Worker {
         }
 
 
-        influx.sendAll();
+        influx.flush();
 
         output = new Data.Builder().putBoolean("iperf3_upload", true).build();
         return Result.success(output);

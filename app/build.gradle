@@ -60,7 +60,7 @@ android {
 dependencies {
     implementation 'androidx.preference:preference:1.2.0'
     implementation 'androidx.work:work-runtime:2.8.1'
-    def room_version = "2.5.1"
+    def room_version = "2.5.2"
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
@@ -81,7 +81,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation "androidx.recyclerview:recyclerview:1.3.0"
-    implementation "com.influxdb:influxdb-client-java:6.4.0"
+    implementation "com.influxdb:influxdb-client-java:6.9.0"
 }
 
 configurations.implementation {

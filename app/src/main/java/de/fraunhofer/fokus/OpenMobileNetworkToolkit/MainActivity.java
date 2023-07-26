@@ -134,23 +134,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         Log.i(TAG,"Carrier Permission Denied!");
                     }
                 }
-                if(Objects.equals(key,"enable_influx")) {
-                    if(prefs.getBoolean(key,false)){
-                        Log.i(TAG, "Enabled Influx Log");
-                        //Call influx logging here
-
-                    } else {
-                        Log.i(TAG,"Stop Influx Logging");
-                    }
-                }
-                if(Objects.equals(key,"influx_url")){
-                    String val = prefs.getString("influx_url","");
-                    if(val == ""){
-                        Log.i(TAG, "Influx URL unknown");
-                    } else {
-                        Log.i(TAG,"Influx URL:" + key);
-                    }
-                }
             }
         };
 

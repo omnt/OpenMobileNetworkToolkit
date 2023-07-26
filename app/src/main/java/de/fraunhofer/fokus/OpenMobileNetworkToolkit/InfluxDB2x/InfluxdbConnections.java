@@ -32,18 +32,18 @@ public class InfluxdbConnections {
         return ric;
     }
 
+    //todo Remote setting are currently hardcoded and should be generated
     public static InfluxdbConnection getLicInstance(Context context){
         if(lic == null){
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-            String url = sp.getString("influx_URL", "");
-            String org = sp.getString("influx_org", "");
-            String bucket = sp.getString("influx_bucket", "");
-            String token = sp.getString("influx_token", "");
+            String url = "http://127.0.0.1:8086";
+            String org = "omnt";
+            String bucket = "omnt";
+            String token = "1234567890";
             if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
                 Log.e(TAG, "Influx parameters incomplete, can't setup logging");
                 return null;
             }
-
             lic = new InfluxdbConnection(url, token, org, bucket, context);
         }
         return lic;
