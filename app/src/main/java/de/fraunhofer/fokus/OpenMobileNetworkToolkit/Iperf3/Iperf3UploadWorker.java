@@ -148,10 +148,8 @@ public class Iperf3UploadWorker extends Worker {
                 point.addField("lost_percent", stream.lostPercent);
 
                 long tmpTimestamp = timestamp + (long) (stream.end * 1000);
-                Log.d(TAG, "doWork: "+tmpTimestamp);
                 point.time(tmpTimestamp, WritePrecision.MS);
 
-                Log.d(TAG, "doWork: "+point.toLineProtocol());
                 points.add(point);
             }
         }
@@ -190,10 +188,8 @@ public class Iperf3UploadWorker extends Worker {
             point.addField("packets", udp.packets);
             point.addField("lost_percent", udp.lostPercent);
             point.addField("out_of_order", udp.outOfOrder);
-            Log.d(TAG, "doWork: "+point.toLineProtocol());
             points.add(point);
         }
-
         for (Point point:points) {
             point.addTags(dp.getTagsMap());
             if(!influx.writePoint(point)){

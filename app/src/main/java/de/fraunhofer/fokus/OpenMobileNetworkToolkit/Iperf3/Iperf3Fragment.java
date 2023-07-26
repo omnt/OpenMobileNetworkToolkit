@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -272,8 +273,7 @@ public class Iperf3Fragment extends Fragment {
 
             iperf3BiDir.setChecked(savedInstanceState.getBoolean("iperf3BiDir"));
 
-            iperf3Reverse.setChecked(savedInstanceState.getBoolean("iperf3BiDir"));
-            iperf3BiDir.setChecked(savedInstanceState.getBoolean("iperf3Reverse"));
+            iperf3Reverse.setChecked(savedInstanceState.getBoolean("iperf3Reverse"));
             iperf3Json.setChecked(savedInstanceState.getBoolean("iperf3Json"));
             iperf3OneOff.setChecked(savedInstanceState.getBoolean("iperf3OneOff"));
             protocolSpinner.setSelection(savedInstanceState.getInt("iperf3IdxProtocol"));
@@ -289,9 +289,8 @@ public class Iperf3Fragment extends Fragment {
             iperf3EtStreams.setText(preferences.getString("iperf3Streams", null));
 
             iperf3BiDir.setChecked(preferences.getBoolean("iperf3BiDir", false));
-            iperf3Reverse.setChecked(preferences.getBoolean("iperf3BiDir", false));
-            iperf3BiDir.setChecked(preferences.getBoolean("iperf3Reverse", false));
-            iperf3Json.setChecked(preferences.getBoolean("iperf3Json", false));
+            iperf3Reverse.setChecked(preferences.getBoolean("iperf3Reverse", false));
+            iperf3Json.setChecked(preferences.getBoolean("iperf3Json", true));
             iperf3OneOff.setChecked(preferences.getBoolean("iperf3OneOff", false));
             protocolSpinner.setSelection(preferences.getInt("iperf3IdxProtocol", 0));
             iperf3ModeSpinner.setSelection(preferences.getInt("iperf3IdxMode",0));
@@ -333,6 +332,7 @@ public class Iperf3Fragment extends Fragment {
             return true;
         return false;
     }
+
 
     public void executeIperfCommand(View view) {
         String[] command = parseInput().split(" ");
@@ -408,7 +408,7 @@ public class Iperf3Fragment extends Fragment {
                 progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
             }
             if (iperf3ListFragment != null)
-                iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
+                iperf3ListFragment.updateIperf3ListAdapter();
         });
         iperf3WM.getWorkInfoByIdLiveData(iperf3UP.getId()).observeForever(workInfo -> {
             boolean iperf3_upload;
@@ -416,7 +416,7 @@ public class Iperf3Fragment extends Fragment {
             Log.d(TAG, "onChanged: iperf3_upload: " + iperf3_upload);
             iperf3RunResultDao.updateUpload(iperf3WorkerID, iperf3_upload);
             if (iperf3ListFragment != null)
-                iperf3ListFragment.getIperf3ListAdapter().notifyDataSetChanged();
+                iperf3ListFragment.updateIperf3ListAdapter();
         });
 
 
@@ -545,7 +545,6 @@ public class Iperf3Fragment extends Fragment {
         outState.putString("iperf3Bytes", iperf3EtBytes.getText().toString());
         outState.putString("iperf3Streams", iperf3EtStreams.getText().toString());
 
-        outState.putBoolean("iperf3BiDir", iperf3BiDir.isChecked());
         outState.putInt("iperf3IdxProtocol", protocolSpinner.getSelectedItemPosition());
         outState.putBoolean("iperf3BiDir", iperf3BiDir.isChecked());
         outState.putBoolean("iperf3Reverse", iperf3Reverse.isChecked());
