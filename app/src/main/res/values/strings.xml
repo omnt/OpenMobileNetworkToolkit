@@ -137,6 +137,7 @@
     <string name="log_signal_data">Log signal data</string>
     <string name="enable_local_file_summary">Logging to a local file</string>
     <string name="enable_local_file_log">Log file</string>
+    <string name="upload">upload</string>
 
     <!-- -->
 

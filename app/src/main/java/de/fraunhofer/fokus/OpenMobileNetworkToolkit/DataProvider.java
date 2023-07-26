@@ -34,6 +34,7 @@ import android.telephony.CellSignalStrengthNr;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
@@ -69,6 +70,7 @@ public class DataProvider {
         lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(context);
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ct.getSystemService(Context.CARRIER_CONFIG_SERVICE);
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -86,7 +88,12 @@ public class DataProvider {
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return null;
         }
-        Location lastLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location lastLocation = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            lastLocation = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
+        } else {
+            lastLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
         return lastLocation;
     }
 
