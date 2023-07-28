@@ -1,6 +1,10 @@
-<androidx.cardview.widget.CardView android:layout_width="fill_parent"
+<androidx.cardview.widget.CardView
+    android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/cardview_dark_background"
+    android:id="@+id/cardviewholder">
     <RelativeLayout
         android:orientation="vertical"
         android:layout_width="match_parent"

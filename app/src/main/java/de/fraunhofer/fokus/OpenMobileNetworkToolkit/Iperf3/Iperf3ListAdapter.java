@@ -11,10 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
-import androidx.lifecycle.LiveData;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -50,8 +48,10 @@ public class Iperf3ListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return position;
+        return (long) position;
     }
+
+
 
     @SuppressLint("SetTextI18n")
     @Override

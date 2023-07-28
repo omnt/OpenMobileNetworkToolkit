@@ -20,7 +20,7 @@ public class Stream {
     public Float seconds;
     @SerializedName("bytes")
     @Expose
-    public Integer bytes;
+    public Long bytes;
     @SerializedName("bits_per_second")
     @Expose
     public Float bitsPerSecond;

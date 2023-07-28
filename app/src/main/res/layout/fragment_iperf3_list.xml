@@ -5,11 +5,32 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:exported="true"
-    tools:context=".Iperf3.Iperf3ListFragment" >
+    tools:context=".Iperf3.Iperf3ListFragment"
+    android:background="?android:attr/selectableItemBackground">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/iperf3_upload_button"
+            android:layout_width="106dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="end|bottom"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="40dp"
+            android:contentDescription="@string/upload"
+            android:src="@drawable/ic_upload"
+            android:visibility="invisible" />
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/runners_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            >
 
         </androidx.recyclerview.widget.RecyclerView>
+
 </RelativeLayout>
