@@ -350,12 +350,12 @@ public class HomeFragment extends Fragment implements LocationListener {
 
     @Override
     public void onProviderDisabled(@NonNull String provider) {
-        Log.d(TAG, provider + " disable");
+        Log.d(TAG, String.format("%s is disabled", provider));
     }
 
     @Override
     public void onProviderEnabled(@NonNull String provider) {
-        Log.d("Tag", provider + "enable");
+        Log.d(TAG, String.format("%s is enabled", provider));
     }
 
     @Override

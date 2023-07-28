@@ -66,17 +66,110 @@ public class LoggingService extends Service {
     InfluxdbConnection lic; // local influxDB
     DataProvider dp;
     SharedPreferences sp;
+    SharedPreferences.OnSharedPreferenceChangeListener listener;
     private Handler notificationHandler;
     private Handler remoteInfluxHandler;
     private Handler localInfluxHandler;
     private Handler localFileHandler;
     private List<Point> logFilePoints;
-    private File logfile;
     private FileOutputStream stream;
-
-
     private int interval;
-    SharedPreferences.OnSharedPreferenceChangeListener listener;
+    // Handle local on-device logging to logfile
+    private final Runnable localFileUpdate = new Runnable() {
+        @Override
+        public void run() {
+            logFilePoints.addAll(getPoints());
+            if (logFilePoints.size() >= 100) {
+                for (Point point : logFilePoints) {
+                    try {
+                        stream.write((point.toLineProtocol() + "\n").getBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                logFilePoints.clear();
+                try {
+                    stream.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            localFileHandler.postDelayed(this, interval);
+        }
+    };
+    // Handle notification bar update
+    private final Runnable notification_updater = new Runnable() {
+        @Override
+        public void run() {
+            List<CellInfo> cil = dp.getCellInfo();
+            String OperatorName = "Not registered";
+            String PCI = "";
+            String CI = "";
+            for (CellInfo ci : cil) {
+                if (ci.isRegistered()) { //we only care for the serving cell
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
+                    } else {
+                        OperatorName = ""; // todo use old API here
+                    }
+                    if (ci instanceof CellInfoNr) {
+                        CellInfoNr ciNr = (CellInfoNr) ci;
+                        CellIdentityNr cidNr = (CellIdentityNr) ciNr.getCellIdentity();
+                        PCI = String.valueOf(cidNr.getPci());
+                        CI = String.valueOf(cidNr.getNci());
+
+                    }
+                    if (ci instanceof CellInfoLte) {
+                        CellInfoLte ciLTE = (CellInfoLte) ci;
+                        PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
+                        CI = String.valueOf(ciLTE.getCellIdentity().getCi());
+                    }
+                }
+            }
+
+            builder.setContentText(new StringBuilder().append(OperatorName).append(" PCI: ").append(PCI).append(" CI: ").append(CI));
+            nm.notify(1, builder.build());
+            notificationHandler.postDelayed(this, interval);
+        }
+    };
+
+    // Handle local on-device influxDB
+    private final Runnable localInfluxUpdate = new Runnable() {
+        @Override
+        public void run() {
+            long ts = System.currentTimeMillis();
+            // write network information
+            if (sp.getBoolean("influx_network_data", false)) {
+
+            }
+            // write signal strength information
+            if (sp.getBoolean("influx_signal_data", false)) { // user settings here
+
+            }
+            // write cell information
+            if (sp.getBoolean("influx_cell_data", false)) {
+
+            }
+            // always add location information
+            ic.writePoint(dp.getLocationPoint());
+
+            remoteInfluxHandler.postDelayed(this, interval);
+        }
+    };
+
+    // Handle remote on-server influxdb update
+    private final Runnable RemoteInfluxUpdate = new Runnable() {
+        @Override
+        public void run() {
+            // get the current timestamp to write it to all points in this run
+            List<Point> points = getPoints();
+            for (Point point : points) {
+                ic.writePoint(point);
+            }
+            ic.flush();
+            remoteInfluxHandler.postDelayed(this, interval);
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -153,7 +246,6 @@ public class LoggingService extends Service {
                 } else if (Objects.equals(key, "logging_interval")) {
                     interval = Integer.parseInt(sp.getString("logging_interval", "1000"));
                 }
-
             }
         };
         sp.registerOnSharedPreferenceChangeListener(listener);
@@ -197,11 +289,10 @@ public class LoggingService extends Service {
         stopSelf();
     }
 
-
-    private ArrayList<Point> getPoints(){
+    private ArrayList<Point> getPoints() {
         long time = System.currentTimeMillis();
         Map<String, String> tags_map = dp.getTagsMap();
-        ArrayList<Point>  logPoints = new ArrayList<Point>();
+        ArrayList<Point> logPoints = new ArrayList<Point>();
         if (sp.getBoolean("influx_network_data", false)) {
             Point p = dp.getNetworkInformationPoint();
             if (p.hasFields()) {
@@ -209,7 +300,7 @@ public class LoggingService extends Service {
                 p.addTags(tags_map);
                 logPoints.add(p);
             } else {
-                Log.w(TAG,"Point without fields from getNetworkInformationPoint");
+                Log.w(TAG, "Point without fields from getNetworkInformationPoint");
             }
         }
 
@@ -219,8 +310,8 @@ public class LoggingService extends Service {
                 p.time(time, WritePrecision.MS);
                 p.addTags(tags_map);
                 logPoints.add(p);
-            }else {
-                Log.w(TAG,"Point without fields from getNetworkCapabilitiesPoint");
+            } else {
+                Log.w(TAG, "Point without fields from getNetworkCapabilitiesPoint");
             }
         }
 
@@ -231,7 +322,7 @@ public class LoggingService extends Service {
                 p.addTags(tags_map);
                 logPoints.add(p);
             } else {
-                Log.w(TAG,"Point without fields from getSignalStrengthPoint");
+                Log.w(TAG, "Point without fields from getSignalStrengthPoint");
             }
         }
 
@@ -241,10 +332,10 @@ public class LoggingService extends Service {
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
                     p.addTags(tags_map);
+                } else {
+                    Log.w(TAG, "Point without fields getCellInfoPoint");
                 }
-                else {
-                    Log.w(TAG,"Point without fields getCellInfoPoint");
-                }            }
+            }
             logPoints.addAll(ps);
         }
         Point p = dp.getLocationPoint();
@@ -253,33 +344,6 @@ public class LoggingService extends Service {
         logPoints.add(p);
         return logPoints;
     }
-
-    // Handle local on-device logging to logfile
-    private final Runnable localFileUpdate = new Runnable() {
-        @Override
-        public void run() {
-
-            logFilePoints.addAll(getPoints());
-
-            if (logFilePoints.size() >= 100){
-                for (Point point:logFilePoints){
-                    try {
-                        stream.write((point.toLineProtocol() + "\n").getBytes());
-                    }  catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                logFilePoints.clear();
-                try {
-                    stream.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            localFileHandler.postDelayed(this, interval);
-        }
-    };
 
     private void setupLocalFile() {
         Log.d(TAG, "setupLocalFile");
@@ -298,7 +362,7 @@ public class LoggingService extends Service {
         Date now = new Date();
         String filename = path + formatter.format(now) + ".txt";
         Log.d(TAG, "logfile: " + filename);
-        logfile = new File(filename);
+        File logfile = new File(filename);
         try {
             logfile.createNewFile();
         } catch (IOException e) {
@@ -313,7 +377,7 @@ public class LoggingService extends Service {
             e.printStackTrace();
         }
 
-        localFileHandler = new Handler(Looper.myLooper());
+        localFileHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         localFileHandler.post(localFileUpdate);
     }
 
@@ -331,45 +395,9 @@ public class LoggingService extends Service {
         }
     }
 
-    // Handle notification bar update
-    private final Runnable notification_updater = new Runnable() {
-        @Override
-        public void run() {
-            List<CellInfo> cil = dp.getCellInfo();
-            String OperatorName = "Not registered";
-            String PCI = "";
-            String CI = "";
-            for (CellInfo ci : cil) {
-                if (ci.isRegistered()) { //we only care for the serving cell
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
-                    } else {
-                        OperatorName = ""; // todo use old API here
-                    }
-                    if (ci instanceof CellInfoNr) {
-                        CellInfoNr ciNr = (CellInfoNr) ci;
-                        CellIdentityNr cidNr = (CellIdentityNr) ciNr.getCellIdentity();
-                        PCI = String.valueOf(cidNr.getPci());
-                        CI = String.valueOf(cidNr.getNci());
-
-                    }
-                    if (ci instanceof CellInfoLte) {
-                        CellInfoLte ciLTE = (CellInfoLte) ci;
-                        PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
-                        CI = String.valueOf(ciLTE.getCellIdentity().getCi());
-                    }
-                }
-            }
-
-            builder.setContentText(new StringBuilder().append(OperatorName).append(" PCI: ").append(PCI).append(" CI: ").append(CI));
-            nm.notify(1, builder.build());
-            notificationHandler.postDelayed(this, interval);
-        }
-    };
-
     private void setupNotificationUpdate() {
         Log.d(TAG, "setupNotificationUpdate");
-        notificationHandler = new Handler(Looper.myLooper());
+        notificationHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         notificationHandler.post(notification_updater);
     }
 
@@ -380,36 +408,11 @@ public class LoggingService extends Service {
         nm.notify(1, builder.build());
     }
 
-
-    // Handle local on-device influxDB
-    private final Runnable localInfluxUpdate = new Runnable() {
-        @Override
-        public void run() {
-            long ts = System.currentTimeMillis();
-            // write network information
-            if (sp.getBoolean("influx_network_data", false)) {
-
-            }
-            // write signal strength information
-            if (sp.getBoolean("influx_signal_data", false)) { // user settings here
-
-            }
-            // write cell information
-            if (sp.getBoolean("influx_cell_data", false)) {
-
-            }
-            // always add location information
-            ic.writePoint(dp.getLocationPoint());
-
-            remoteInfluxHandler.postDelayed(this, interval);
-        }
-    };
-
     private void setupLocalInfluxDB() {
         Log.d(TAG, "setupLocalInfluxDB");
         lic = InfluxdbConnections.getLicInstance(getApplicationContext());
         Objects.requireNonNull(lic).open_write_api();
-        localInfluxHandler = new Handler(Looper.myLooper());
+        localInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         localInfluxHandler.post(localInfluxUpdate);
     }
 
@@ -427,26 +430,11 @@ public class LoggingService extends Service {
         }
     }
 
-    // Handle remote on-server influxdb update
-    private final Runnable RemoteInfluxUpdate = new Runnable() {
-        @Override
-        public void run() {
-            // get the current timestamp to write it to all points in this run
-            List<Point> points = getPoints();
-            for (Point point : points) {
-                ic.writePoint(point);
-            }
-            ic.flush();
-            remoteInfluxHandler.postDelayed(this, interval);
-        }
-    };
-
-
     private void setupRemoteInfluxDB() {
         Log.d(TAG, "setupRemoteInfluxDB");
         ic = InfluxdbConnections.getRicInstance(getApplicationContext());
         Objects.requireNonNull(ic).open_write_api();
-        remoteInfluxHandler = new Handler(Looper.myLooper());
+        remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
     }
 

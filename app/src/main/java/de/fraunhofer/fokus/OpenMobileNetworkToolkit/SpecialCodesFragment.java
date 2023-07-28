@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,15 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class SpecialCodesFragment extends Fragment {
-    private static final String TAG = "SPECIAL_CODES";
-    private View v;
-    private Button android_testing;
-    private Button mediatek_ims;
-    private Button sony_service;
-    private Button nokia_enable_sa;
-    private Button samsung_ims;
-    private Button huawei_projects;
-    private Button custom_special_code;
     private TextView special_code;
     TelephonyManager tm;
     boolean cp = false;
@@ -44,20 +34,20 @@ public class SpecialCodesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
-        v = inflater.inflate(R.layout.fragment_special_codes, parent, false);
-        android_testing = v.findViewById(R.id.bt_android_testing);
+        View v = inflater.inflate(R.layout.fragment_special_codes, parent, false);
+        Button android_testing = v.findViewById(R.id.bt_android_testing);
         android_testing.setOnClickListener(this::buttonHandler);
-        mediatek_ims = v.findViewById(R.id.bt_mediatek_ims);
+        Button mediatek_ims = v.findViewById(R.id.bt_mediatek_ims);
         mediatek_ims.setOnClickListener(this::buttonHandler);
-        sony_service = v.findViewById(R.id.bt_sony_service);
+        Button sony_service = v.findViewById(R.id.bt_sony_service);
         sony_service.setOnClickListener(this::buttonHandler);
-        nokia_enable_sa = v.findViewById(R.id.bt_nokia_enable_SA);
+        Button nokia_enable_sa = v.findViewById(R.id.bt_nokia_enable_SA);
         nokia_enable_sa.setOnClickListener(this::buttonHandler);
-        samsung_ims = v.findViewById(R.id.bt_samsung_ims);
+        Button samsung_ims = v.findViewById(R.id.bt_samsung_ims);
         samsung_ims.setOnClickListener(this::buttonHandler);
-        huawei_projects = v.findViewById(R.id.bt_huawei_project);
+        Button huawei_projects = v.findViewById(R.id.bt_huawei_project);
         huawei_projects.setOnClickListener(this::buttonHandler);
-        custom_special_code = v.findViewById(R.id.bt_custom_special_code);
+        Button custom_special_code = v.findViewById(R.id.bt_custom_special_code);
         custom_special_code.setOnClickListener(this::buttonHandler);
         special_code = v.findViewById(R.id.tv_special_code);
         return v;
@@ -66,8 +56,8 @@ public class SpecialCodesFragment extends Fragment {
     @Override
     public void onCreate (@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        if (getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
-            tm = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        if (requireContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+            tm = (TelephonyManager) requireContext().getSystemService(Context.TELEPHONY_SERVICE);
             cp = tm.hasCarrierPrivileges();
         }
     }
@@ -75,7 +65,6 @@ public class SpecialCodesFragment extends Fragment {
     @Override
     public void onViewCreated (@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -108,4 +97,3 @@ public class SpecialCodesFragment extends Fragment {
         }
     }
 }
-
