@@ -21,7 +21,6 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CellIdentity;
 import android.telephony.CellIdentityCdma;
@@ -54,34 +53,41 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
 public class HomeFragment extends Fragment implements LocationListener {
+    private static final String TAG = "HomeFragment";
     public CarrierConfigManager ccm;
-    private PersistableBundle cc;
-    private ConnectivityManager cm;
     public ConnectivityManager connectivityManager;
     public TelephonyManager tm;
     public PackageManager pm;
     public LocationManager lm;
     SharedPreferences sharedPreferences;
-
-
+    boolean feature_telephony;
+    TextView txtLat;
     private boolean cp;
     private MainActivity ma;
-    private static final String TAG = "HomeFragment";
-    boolean feature_telephony;
-
-    TextView txtLat;
-    String lat;
-    String provider;
-    protected String latitude,longitude;
-    protected boolean gps_enabled,network_enabled;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     public HomeFragment() {
         super(R.layout.fragment_home);
+    }
+
+    public static ArrayList<String> getIPs(ArrayList<String> props) {
+        try {
+            List<NetworkInterface> networkInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface networkInterface : networkInterfaces) {
+                List<InetAddress> iNets = Collections.list(networkInterface.getInetAddresses());
+                for (InetAddress iNet : iNets) {
+                    props.add(networkInterface.getDisplayName() + "\t\t" + iNet.getHostAddress().split("%")[0]);
+                }
+            }
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        }
+        return props;
     }
 
     @Override
@@ -93,17 +99,15 @@ public class HomeFragment extends Fragment implements LocationListener {
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
     }
 
-
     @SuppressLint("MissingPermission")
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup parent,
+            @NonNull LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState
     ) {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        Boolean carrierPermission = sharedPreferences.getBoolean("carrierPermission",false);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         ma = (MainActivity) getActivity();
-        pm = ma.pm;
+        pm = Objects.requireNonNull(ma).pm;
         feature_telephony = ma.feature_telephony;
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ma.getSystemService(Context.CARRIER_CONFIG_SERVICE);
@@ -113,13 +117,13 @@ public class HomeFragment extends Fragment implements LocationListener {
 
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
 
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             lm = (LocationManager) ma.getSystemService(Context.LOCATION_SERVICE);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         } else {
             Log.d(TAG, "onCreateView: No Location Permissions");
         }
-        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.home_fragment);
+        swipeRefreshLayout = view.findViewById(R.id.home_fragment);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -132,37 +136,12 @@ public class HomeFragment extends Fragment implements LocationListener {
         return view;
     }
 
-    public static ArrayList<String> getIPs(ArrayList<String> props){
-        try {
-            List<NetworkInterface> networkInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for(NetworkInterface networkInterface: networkInterfaces) {
-                List<InetAddress> iNets = Collections.list(networkInterface.getInetAddresses());
-                for(InetAddress iNet: iNets){
-                    props.add(networkInterface.getDisplayName()+"\t\t"+iNet.getHostAddress().split("%")[0]);
-                }
-            }
-        } catch (SocketException ex) {
-            ex.printStackTrace();
-        }
-
-        return props;
-    }
-
     @SuppressLint({"MissingPermission", "HardwareIds"})
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
         boolean feature_phone_state = (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
-
-
-        /*TrafficDescriptor trafficDescriptor = new TrafficDescriptor.Builder()
-                .build();
-        String osAppID = (trafficDescriptor.getOsAppId()).toString();
-        String dataNetworkName = (trafficDescriptor.getDataNetworkName());
-        props.add("OSiD: " +trafficDescriptor.getOsAppId());
-        props.add("DNN ID: " +trafficDescriptor.getDataNetworkName());*/
 
         ArrayList<String> props = new ArrayList<String>();
         props.add("\n \n ## Device ##");
@@ -197,8 +176,8 @@ public class HomeFragment extends Fragment implements LocationListener {
         props.add("\n \n ## Permissions ##");
         props.add("Carrier Permissions: " + cp);
         props.add("READ_PHONE_STATE: " + feature_phone_state);
-        props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
-        props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
+        props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
+        props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
 
 
         props.add("\n \n ## Interfaces ##");
@@ -223,7 +202,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         else if (phone_type == 3)
             props.add("Phone Type: SIP");
         if (feature_phone_state) {
-            props.add("Registered PLMN: " + NetworkCallback.getPLMN(getContext()));
+            props.add("Registered PLMN: " + NetworkCallback.getPLMN(requireContext()));
         }
         if (feature_phone_state && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -278,20 +257,17 @@ public class HomeFragment extends Fragment implements LocationListener {
         }
     }
 
+    // todo rework this to use the dataprovider / move code there
     private String cellInfo() {
         StringBuilder cellInfoBuilder = new StringBuilder();
         String allCellInfo = "";
         Set<CellIdentity> seenCellTowers = new HashSet<>();
         if (ActivityCompat.checkSelfPermission(ma, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             List<CellInfo> cellInfoList = tm.getAllCellInfo();
-
-
-
             for (CellInfo cellInfo : cellInfoList) {
                 if (cellInfo instanceof CellInfoGsm) {
                     CellIdentityGsm cellIdentity = ((CellInfoGsm) cellInfo).getCellIdentity();
-
-                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                    if (!seenCellTowers.contains(cellIdentity)) {
                         seenCellTowers.add(cellIdentity);
                         cellInfoBuilder.append("Cell Identity (GSM): ");
                         cellInfoBuilder.append(cellIdentity.getCid());
@@ -308,7 +284,7 @@ public class HomeFragment extends Fragment implements LocationListener {
                     // Add more cell identity information as needed
                 } else if (cellInfo instanceof CellInfoCdma) {
                     CellIdentityCdma cellIdentity = ((CellInfoCdma) cellInfo).getCellIdentity();
-                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                    if (!seenCellTowers.contains(cellIdentity)) {
                         seenCellTowers.add(cellIdentity);
                         cellInfoBuilder.append("Cell Identity (CDMA): ");
                         cellInfoBuilder.append(cellIdentity.getBasestationId());
@@ -325,8 +301,7 @@ public class HomeFragment extends Fragment implements LocationListener {
                     // e.g. cellIdentity.getBasestationId(), cellIdentity.getSystemId(), cellIdentity.getNetworkId(), etc.
                 } else if (cellInfo instanceof CellInfoLte) {
                     CellIdentityLte cellIdentity = ((CellInfoLte) cellInfo).getCellIdentity();
-
-                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                    if (!seenCellTowers.contains(cellIdentity)) {
                         seenCellTowers.add(cellIdentity);
                         cellInfoBuilder.append("Cell Identity (LTE): ");
                         cellInfoBuilder.append(cellIdentity.getCi());
@@ -343,8 +318,7 @@ public class HomeFragment extends Fragment implements LocationListener {
                     // e.g. cellIdentity.getCi(), cellIdentity.getMcc(), cellIdentity.getMnc(), etc.
                 } else if (cellInfo instanceof CellInfoWcdma) {
                     CellIdentityWcdma cellIdentity = ((CellInfoWcdma) cellInfo).getCellIdentity();
-
-                    if(cellIdentity != null && !seenCellTowers.contains(cellIdentity)) {
+                    if (!seenCellTowers.contains(cellIdentity)) {
                         seenCellTowers.add(cellIdentity);
                         cellInfoBuilder.append("Cell Identity (WCDMA): ");
                         cellInfoBuilder.append(cellIdentity.getCid());
@@ -366,28 +340,26 @@ public class HomeFragment extends Fragment implements LocationListener {
         return allCellInfo;
     }
 
+    // todo use data provider here
     @Override
-    public void onLocationChanged(Location location) {
-        txtLat = (TextView) ma.findViewById(R.id.location_view);
+    public void onLocationChanged(@NonNull Location location) {
+        txtLat = ma.findViewById(R.id.location_view);
         if (txtLat != null)
-            txtLat.setText("Latitude:" + location.getLatitude() + ", Longitude:" + location.getLongitude());
+            txtLat.setText(String.format("Latitude:%s, Longitude:%s", location.getLatitude(), location.getLongitude()));
     }
 
     @Override
-    public void onProviderDisabled(String provider) {
-        Log.d("Latitude","disable");
+    public void onProviderDisabled(@NonNull String provider) {
+        Log.d(TAG, provider + " disable");
     }
 
     @Override
-    public void onProviderEnabled(String provider) {
-        Log.d("Latitude","enable");
+    public void onProviderEnabled(@NonNull String provider) {
+        Log.d("Tag", provider + "enable");
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
     }
-
-
-
 }
