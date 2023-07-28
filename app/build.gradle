@@ -19,12 +19,12 @@ android {
             keyAlias 'key0'
         }
     }
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "de.fraunhofer.fokus.OpenMobileNetworkToolkit"
         minSdk 29
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -81,7 +81,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation "androidx.recyclerview:recyclerview:1.3.0"
-    implementation "com.influxdb:influxdb-client-java:6.9.0"
+    implementation "com.influxdb:influxdb-client-java:6.10.0"
 }
 
 configurations.implementation {
