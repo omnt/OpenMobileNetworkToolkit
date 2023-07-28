@@ -52,8 +52,9 @@ android {
     buildFeatures {
         viewBinding true
     }
-    buildToolsVersion '32.1.0-rc1'
+    buildToolsVersion '34.0.0'
     namespace 'de.fraunhofer.fokus.OpenMobileNetworkToolkit'
+    ndkVersion '25.2.9519653'
 }
 
 
