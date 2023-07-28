@@ -142,7 +142,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
         boolean feature_phone_state = (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
         boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
-
+        Context context = requireContext();
         ArrayList<String> props = new ArrayList<String>();
         props.add("\n \n ## Device ##");
         props.add("Model: " + Build.MODEL);
@@ -176,8 +176,8 @@ public class HomeFragment extends Fragment implements LocationListener {
         props.add("\n \n ## Permissions ##");
         props.add("Carrier Permissions: " + cp);
         props.add("READ_PHONE_STATE: " + feature_phone_state);
-        props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
-        props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
+        props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
+        props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
 
 
         props.add("\n \n ## Interfaces ##");
@@ -202,7 +202,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         else if (phone_type == 3)
             props.add("Phone Type: SIP");
         if (feature_phone_state) {
-            props.add("Registered PLMN: " + NetworkCallback.getPLMN(requireContext()));
+            props.add("Registered PLMN: " + NetworkCallback.getPLMN(context));
         }
         if (feature_phone_state && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -219,27 +219,27 @@ public class HomeFragment extends Fragment implements LocationListener {
             props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
         }
 
-        props.add("Default Network: " + NetworkCallback.getCurrentNetwork(getContext()));
-        props.add("Interface Name: " + NetworkCallback.getInterfaceName(getContext()));
+        props.add("Default Network: " + NetworkCallback.getCurrentNetwork(context));
+        props.add("Interface Name: " + NetworkCallback.getInterfaceName(context));
         props.add("Network counter: " + GlobalVars.counter);
-        props.add("Default DNS: " + NetworkCallback.getDefaultDNS(getContext()));
-        props.add("Enterprise Capability: " + NetworkCallback.getEnterpriseCapability(getContext()));
-        props.add("Validated Capability: " + NetworkCallback.getValidity(getContext()));
-        props.add("Internet Capability: " + NetworkCallback.getInternet(getContext()));
-        props.add("IMS Capability: " + NetworkCallback.getIMS(getContext()));
-        props.add("Capabilities: \n" + NetworkCallback.getNetworkCapabilitylist(getContext()));
+        props.add("Default DNS: " + NetworkCallback.getDefaultDNS(context));
+        props.add("Enterprise Capability: " + NetworkCallback.getEnterpriseCapability(context));
+        props.add("Validated Capability: " + NetworkCallback.getValidity(context));
+        props.add("Internet Capability: " + NetworkCallback.getInternet(context));
+        props.add("IMS Capability: " + NetworkCallback.getIMS(context));
+        props.add("Capabilities: \n" + NetworkCallback.getNetworkCapabilitylist(context));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(getContext()));
+            props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(context));
         }
         props.add("Cell Information: " + cellInfo());
 
         // Network Slicing
-        props.add("TM Slice: " + NetworkCallback.getConfigurationTM(getContext()));
-        props.add("Slice Info: " + NetworkCallback.getNetworkSlicingInfo(getContext()));
-        props.add("Slice Config: " + NetworkCallback.getNetworkSlicingConfig(getContext()));
+        props.add("TM Slice: " + NetworkCallback.getConfigurationTM(context));
+        props.add("Slice Info: " + NetworkCallback.getNetworkSlicingInfo(context));
+        props.add("Slice Config: " + NetworkCallback.getNetworkSlicingConfig(context));
         // Routing and Traffic
-        props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(getContext()));
-        props.add("Traffic Descriptor: " + NetworkCallback.getTrafficDescriptor(getContext()));
+        props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(context));
+        props.add("Traffic Descriptor: " + NetworkCallback.getTrafficDescriptor(context));
         if (cp) { // todo try root privileges or more fine granular permission
             props.add("\n \n ## Device Identification Information ##");
             props.add("IMEI: " + tm.getImei());
