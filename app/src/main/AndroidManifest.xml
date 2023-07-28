@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
   ~ SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
   ~
@@ -18,47 +17,54 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS"/>
-    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS" />
+    <uses-permission
+        android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.SEND_SMS"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE_PERMISSION"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
-        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-        <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.OpenMobileNetworkToolkit"
-            android:exported="true"
+        android:theme="@style/Theme.AppCompat.NoActionBar"
+        android:usesCleartextTraffic="true">
+        <service
+            android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.OpenMobileNetworkToolkit"
             android:enabled="true"
+            android:exported="true"
             android:label="@string/service_name"
             android:permission="android.permission.BIND_CARRIER_SERVICES">
             <intent-filter>
                 <action android:name="android.service.carrier.CarrierService" />
-                <action android:name="android.service.carrier.ConfigService"/>
+                <action android:name="android.service.carrier.ConfigService" />
             </intent-filter>
-            <meta-data android:name="android.service.carrier.LONG_LIVED_BINDING"
+            <meta-data
+                android:name="android.service.carrier.LONG_LIVED_BINDING"
                 android:value="true" />
         </service>
-        <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService"
-            android:foregroundServiceType="location"/>
+        <service
+            android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService"
+            android:foregroundServiceType="location" />
+
         <receiver
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingServiceOnBootReceiver"
-            android:label="StartLoggingServiceAtBootReceiver"
-            android:exported="true">
+            android:exported="true"
+            android:label="StartLoggingServiceAtBootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
         <activity
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity"
             android:exported="true"
@@ -71,8 +77,7 @@
 
         <activity
             android:name=".WorkProfile.WorkProfileActivity"
-            android:label="@string/work_profile_management">
-        </activity>
+            android:label="@string/work_profile_management" />
 
         <activity
             android:name=".WorkProfile.EnableProfileActivity"
@@ -80,8 +85,8 @@
 
         <activity
             android:name=".WorkProfile.ProvisioningSuccessActivity"
-            android:label="@string/work_profile_management"
-            android:exported="true">
+            android:exported="true"
+            android:label="@string/work_profile_management">
             <intent-filter>
                 <action android:name="android.app.action.PROVISIONING_SUCCESSFUL" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -91,9 +96,9 @@
         <receiver
             android:name=".WorkProfile.BasicDeviceAdminReceiver"
             android:description="@string/work_profile_management"
+            android:exported="true"
             android:label="@string/app_name"
-            android:permission="android.permission.BIND_DEVICE_ADMIN"
-            android:exported="true">
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/basic_device_admin_receiver" />
