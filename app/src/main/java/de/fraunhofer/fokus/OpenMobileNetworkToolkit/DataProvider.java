@@ -1,6 +1,6 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -8,6 +8,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -17,7 +18,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.TrafficStats;
 import android.os.Build;
-import android.telephony.CarrierConfigManager;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
 import android.telephony.CellIdentityNr;
@@ -34,7 +34,6 @@ import android.telephony.CellSignalStrengthNr;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
@@ -48,36 +47,33 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 
 public class DataProvider {
-    private CarrierConfigManager ccm;
-    private ConnectivityManager cm;
-    public LocationManager lm;
-    private TelephonyManager tm;
-    private PackageManager pm;
     private static final String TAG = "DataProvider";
-    private boolean feature_telephony;
-    private Context ct;
-    private SharedPreferences sp;
-
+    private final Context ct;
+    private final SharedPreferences sp;
+    public LocationManager lm;
+    private ConnectivityManager cm;
+    private TelephonyManager tm;
 
     public DataProvider(Context context) {
         ct = context;
-        pm = ct.getPackageManager();
+        PackageManager pm = ct.getPackageManager();
         lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(context);
-        feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
 
         if (feature_telephony) {
-            ccm = (CarrierConfigManager) ct.getSystemService(Context.CARRIER_CONFIG_SERVICE);
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
             tm = (TelephonyManager) ct.getSystemService(Context.TELEPHONY_SERVICE);
         }
     }
-    // Filter values before adding them as we dont need to log not available information
+
+    // Filter values before adding them as we don't need to log not available information
     public void addOnlyAvailablePoint(Point point, String key, int value) {
         if (value != CellInfo.UNAVAILABLE) {
             point.addField(key, value);
@@ -88,7 +84,7 @@ public class DataProvider {
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return null;
         }
-        Location lastLocation = null;
+        Location lastLocation;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             lastLocation = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
         } else {
@@ -121,7 +117,6 @@ public class DataProvider {
         }
         return point;
     }
-
 
     public NetworkInformation getNetworkInformation() {
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -160,7 +155,7 @@ public class DataProvider {
         return cellInfo;
     }
 
-    public String getIMEI(){
+    public String getIMEI() {
         if (tm.hasCarrierPrivileges()) {
             return tm.getImei();
         } else {
@@ -168,13 +163,16 @@ public class DataProvider {
         }
     }
 
-    public String getIMSI(){
+    // We suppress the linter warning as we need IMSI even that not recommended for most apps.
+    @SuppressLint("HardwareIds")
+    public String getIMSI() {
         if (tm.hasCarrierPrivileges()) {
             return tm.getSubscriberId();
         } else {
             return "";
         }
     }
+
     public Map<String, String> getTagsMap() {
         String tags = sp.getString("tags", "").strip().replace(" ", "");
         Map<String, String> tags_map = Collections.emptyMap();
@@ -200,7 +198,7 @@ public class DataProvider {
             tags_map_modifiable.put("imsi", getIMSI());
         }
         tags_map_modifiable.put("radio_version", Build.getRadioVersion());
-        return  tags_map_modifiable;
+        return tags_map_modifiable;
     }
 
     public List<Point> getCellInfoPoint() {
@@ -272,6 +270,7 @@ public class DataProvider {
         return points;
     }
 
+    // Currently not used in favor of getCellInfoPoint but capt for future use when refactor home fragment
     public List<CellInformation> getCellInformation() {
         List<CellInformation> ciml = new ArrayList<>();
         List<CellInfo> cil = getCellInfo();
@@ -356,50 +355,42 @@ public class DataProvider {
     public Point getSignalStrengthPoint() {
         Point point = new Point("SignalStrength");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
-        List<android.telephony.CellSignalStrength> css = tm.getSignalStrength().getCellSignalStrengths();
-        for (CellSignalStrength ss:css) {
+        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
+        for (CellSignalStrength ss : css) {
             if (ss instanceof CellSignalStrengthNr) {
-                CellSignalStrengthNr ssnr =  (CellSignalStrengthNr) ss;
+                CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
                 addOnlyAvailablePoint(point, "Level", ssnr.getLevel());
                 addOnlyAvailablePoint(point, "CsiRSRP", ssnr.getCsiRsrp());
                 addOnlyAvailablePoint(point, "CsiRSRQ", ssnr.getCsiRsrq());
                 addOnlyAvailablePoint(point, "CsiSINR", ssnr.getSsSinr());
                 addOnlyAvailablePoint(point, "SSRSRP", ssnr.getSsRsrp());
-                addOnlyAvailablePoint(point,"SSRSRQ", ssnr.getSsRsrq());
+                addOnlyAvailablePoint(point, "SSRSRQ", ssnr.getSsRsrq());
                 addOnlyAvailablePoint(point, "SSSINR", ssnr.getSsSinr());
             }
             if (ss instanceof CellSignalStrengthLte) {
-                CellSignalStrengthLte ssLTE =  (CellSignalStrengthLte) ss;
-                addOnlyAvailablePoint(point,"Level", ssLTE.getLevel());
-                addOnlyAvailablePoint(point,"CQI", ssLTE.getCqi());
-                addOnlyAvailablePoint(point,"RSRP", ssLTE.getRsrp());
-                addOnlyAvailablePoint(point,"RSRQ", ssLTE.getRsrq());
-                addOnlyAvailablePoint(point,"RSSI", ssLTE.getRssi());
-                addOnlyAvailablePoint(point,"RSSNR", ssLTE.getRssnr());
+                CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
+                addOnlyAvailablePoint(point, "Level", ssLTE.getLevel());
+                addOnlyAvailablePoint(point, "CQI", ssLTE.getCqi());
+                addOnlyAvailablePoint(point, "RSRP", ssLTE.getRsrp());
+                addOnlyAvailablePoint(point, "RSRQ", ssLTE.getRsrq());
+                addOnlyAvailablePoint(point, "RSSI", ssLTE.getRssi());
+                addOnlyAvailablePoint(point, "RSSNR", ssLTE.getRssnr());
             }
             if (ss instanceof CellSignalStrengthCdma) {
-                CellSignalStrengthCdma ssCdma =  (CellSignalStrengthCdma) ss;
+                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
                 addOnlyAvailablePoint(point, "Level", ssCdma.getLevel());
                 addOnlyAvailablePoint(point, "EvoDbm", ssCdma.getEvdoDbm());
             }
             if (ss instanceof CellSignalStrengthGsm) {
                 CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
-                addOnlyAvailablePoint(point,"Level",ssGSM.getLevel());
-                addOnlyAvailablePoint(point,"AsuLevel", ssGSM.getAsuLevel());
-                addOnlyAvailablePoint(point,"Dbm", ssGSM.getDbm());
+                addOnlyAvailablePoint(point, "Level", ssGSM.getLevel());
+                addOnlyAvailablePoint(point, "AsuLevel", ssGSM.getAsuLevel());
+                addOnlyAvailablePoint(point, "Dbm", ssGSM.getDbm());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    addOnlyAvailablePoint(point,"RSSI", ssGSM.getRssi());
+                    addOnlyAvailablePoint(point, "RSSI", ssGSM.getRssi());
                 }
             }
         }
         return point;
-    }
-
-    public ArrayList<String> GetSliceInformation(){
-        return null;
-    }
-
-    public ArrayList<String> GetWifiInformation(){
-        return null;
     }
 }
