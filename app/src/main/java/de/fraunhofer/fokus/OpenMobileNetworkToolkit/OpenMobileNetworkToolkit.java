@@ -51,6 +51,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL, true);
             configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
             configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
+            configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
         } else {
             Log.d(TAG, " not available with below api level 30");
         }
@@ -99,7 +100,6 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         configForSubId.putInt(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_MODE_INT, 1);
         configForSubId.putInt(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT, 1);
         configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL, true);
-        configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
         configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
         Log.d(TAG, "Carrier settings applied");
         return configForSubId;
