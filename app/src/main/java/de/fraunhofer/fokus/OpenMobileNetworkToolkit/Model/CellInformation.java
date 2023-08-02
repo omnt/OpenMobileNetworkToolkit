@@ -7,14 +7,10 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model;
 
-import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
 
 // https://developer.android.com/reference/android/telephony/CellIdentityLte
-@Entity(tableName = "cell_info")
+
 public class CellInformation {
-    @PrimaryKey
     private long timeStamp;
     private String cellType;
     private String alphaLong;
@@ -43,10 +39,13 @@ public class CellInformation {
     private int ssrsrp;
     private int ssrsrq;
     private int sssinr;
+    private int dbm;
+    private int asuLevel;
+    private String mcc;
+    private int arfcn;
 
     public CellInformation() {}
 
-    @Ignore
     public CellInformation(long timeStamp, String cellType, String bands, long ci, String mnc, int pci, int tac, int level) {
         this.timeStamp = timeStamp;
         this.cellType = cellType;
@@ -56,6 +55,38 @@ public class CellInformation {
         this.pci = pci;
         this.tac = tac;
         this.level = level;
+    }
+
+    public int getARFCN() {
+        return arfcn;
+    }
+
+    public void setARFCN(int arfcn) {
+        this.arfcn = arfcn;
+    }
+
+    public String getMcc() {
+        return mcc;
+    }
+
+    public void setMcc(String mcc) {
+        this.mcc = mcc;
+    }
+
+    public int getAsuLevel() {
+        return asuLevel;
+    }
+
+    public void setAsuLevel(int asuLevel) {
+        this.asuLevel = asuLevel;
+    }
+
+    public int getDbm() {
+        return dbm;
+    }
+
+    public void setDbm(int dbm) {
+        this.dbm = dbm;
     }
 
     public int getCellConnectionStatus() {
@@ -78,16 +109,16 @@ public class CellInformation {
         return csirsrp;
     }
 
+    public void setCsirsrp(int csirsrp) {
+        this.csirsrp = csirsrp;
+    }
+
     public String getAlphaLong() {
         return alphaLong;
     }
 
     public void setAlphaLong(String alphaLong) {
         this.alphaLong = alphaLong;
-    }
-
-    public void setCsirsrp(int csirsrp) {
-        this.csirsrp = csirsrp;
     }
 
     public int getCsirsrq() {
@@ -242,20 +273,6 @@ public class CellInformation {
         this.rssnr = rssnr;
     }
 
-    public int getEarfcn() {
-        return earfcn;
-    }
 
-    public void setEarfcn(int earfcn) {
-        this.earfcn = earfcn;
-    }
-
-    public int getNrarfcn() {
-        return nrarfcn;
-    }
-
-    public void setNrarfcn(int nrarfcn) {
-        this.nrarfcn = nrarfcn;
-    }
 
 }

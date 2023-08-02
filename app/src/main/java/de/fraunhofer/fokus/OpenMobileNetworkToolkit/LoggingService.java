@@ -30,8 +30,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
@@ -71,9 +73,12 @@ public class LoggingService extends Service {
     private Handler remoteInfluxHandler;
     private Handler localInfluxHandler;
     private Handler localFileHandler;
+    private Handler requestCellInfoUpdateHandler;
     private List<Point> logFilePoints;
     private FileOutputStream stream;
     private int interval;
+    private Context context;
+
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
         @Override
@@ -101,7 +106,7 @@ public class LoggingService extends Service {
     private final Runnable notification_updater = new Runnable() {
         @Override
         public void run() {
-            List<CellInfo> cil = dp.getCellInfo();
+            List<CellInfo> cil = dp.getAllCellInfo();
             String OperatorName = "Not registered";
             String PCI = "";
             String CI = "";
@@ -132,7 +137,20 @@ public class LoggingService extends Service {
             notificationHandler.postDelayed(this, interval);
         }
     };
-
+    private final Runnable requestCellInfoUpdate = new Runnable() {
+        @Override
+        public void run() {
+            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
+                    @Override
+                    public void onCellInfo(@NonNull List<CellInfo> list) {
+                        //for now we do nothing here, but we should add an setting to switch the logging
+                    }
+                });
+            }
+            requestCellInfoUpdateHandler.postDelayed(this, interval);
+        }
+    };
     // Handle local on-device influxDB
     private final Runnable localInfluxUpdate = new Runnable() {
         @Override
@@ -156,7 +174,6 @@ public class LoggingService extends Service {
             remoteInfluxHandler.postDelayed(this, interval);
         }
     };
-
     // Handle remote on-server influxdb update
     private final Runnable RemoteInfluxUpdate = new Runnable() {
         @Override
@@ -171,20 +188,23 @@ public class LoggingService extends Service {
         }
     };
 
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate: Logging service created");
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: Start logging service.");
+        Log.d(TAG, "onStartCommand: Start logging service");
+
+        // setup class variables
         dp = new DataProvider(this);
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
         sp = PreferenceManager.getDefaultSharedPreferences(this);
+        context = this;
         interval = Integer.parseInt(sp.getString("logging_interval", "1000"));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
@@ -192,23 +212,23 @@ public class LoggingService extends Service {
             cp = tm.hasCarrierPrivileges();
         }
 
-        // create intent
+        // create intent for notifications
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(this, 0, notificationIntent,
-                        PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
-        // create notification
-        builder =
-                new NotificationCompat.Builder(this, "OMNT_notification_channel")
-                        .setContentTitle(getText(R.string.loggin_notifaction))
-                        .setSmallIcon(R.mipmap.ic_launcher_foreground)
-                        .setColor(Color.WHITE)
-                        .setContentIntent(pendingIntent)
-                        // prevent to swipe the notification away
-                        .setOngoing(true)
-                        // don't wait 10 seconds to show the notification
-                        .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // create notification
+            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(getText(R.string.loggin_notifaction)).setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE).setContentIntent(pendingIntent)
+                    // prevent to swipe the notification away
+                    .setOngoing(true)
+                    // don't wait 10 seconds to show the notification
+                    .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        } else {
+            // create notification
+            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(getText(R.string.loggin_notifaction)).setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE).setContentIntent(pendingIntent)
+                    // prevent to swipe the notification away
+                    .setOngoing(true);
+        }
 
         // create preferences listener
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -250,7 +270,7 @@ public class LoggingService extends Service {
         };
         sp.registerOnSharedPreferenceChangeListener(listener);
 
-        // Start foreground service.
+        // Start foreground service and setup logging targets
         startForeground(1, builder.build());
 
         if (sp.getBoolean("enable_notification_update", false)) {
@@ -260,12 +280,19 @@ public class LoggingService extends Service {
         if (sp.getBoolean("enable_influx", false)) {
             setupRemoteInfluxDB();
         }
+
         if (sp.getBoolean("enable_local_file_log", false)) {
             setupLocalFile();
         }
+
         if (sp.getBoolean("enable_local_influx_log", false)) {
             setupLocalFile();
         }
+
+        // we need to ask android to update the cell information to update the cached values
+        requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
+
         return START_STICKY;
     }
 
@@ -327,7 +354,7 @@ public class LoggingService extends Service {
         }
 
         if (sp.getBoolean("influx_cell_data", false)) {
-            List<Point> ps = dp.getCellInfoPoint();
+            List<Point> ps = dp.getAllCellInfoPoint();
             for (Point p : ps) {
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);

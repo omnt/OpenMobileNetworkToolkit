@@ -34,6 +34,8 @@ public class SpecialCodesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
+        tm = (TelephonyManager) requireContext().getSystemService(Context.TELEPHONY_SERVICE);
+        cp = tm.hasCarrierPrivileges();
         View v = inflater.inflate(R.layout.fragment_special_codes, parent, false);
         Button android_testing = v.findViewById(R.id.bt_android_testing);
         android_testing.setOnClickListener(this::buttonHandler);
@@ -50,6 +52,19 @@ public class SpecialCodesFragment extends Fragment {
         Button custom_special_code = v.findViewById(R.id.bt_custom_special_code);
         custom_special_code.setOnClickListener(this::buttonHandler);
         special_code = v.findViewById(R.id.tv_special_code);
+
+        if (!cp) {
+            android_testing.setEnabled(false);
+            mediatek_ims.setEnabled(false);
+            sony_service.setEnabled(false);
+            nokia_enable_sa.setEnabled(false);
+            samsung_ims.setEnabled(false);
+            huawei_projects.setEnabled(false);
+            custom_special_code.setEnabled(false);
+            TextView tv = v.findViewById(R.id.special_code_warning);
+            tv.setText("Carrier Permissions needed to dial special codes, try to dial code in system dialer");
+        }
+
         return v;
     }
 
@@ -93,7 +108,7 @@ public class SpecialCodesFragment extends Fragment {
                     tm.sendDialerSpecialCode(special_code.getText().toString());
             }
         } else {
-            Toast.makeText(getContext(), "Carrier Permissions needed, try to dial code system dialer", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Carrier Permissions needed, try to dial code in system dialer", Toast.LENGTH_LONG).show();
         }
     }
 }

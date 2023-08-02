@@ -219,6 +219,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.special_codes:
                 navController.navigate(R.id.specialCodesFragment);
                 break;
+            case R.id.subscritions:
+                navController.navigate(R.id.subscriptionsFragment);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -237,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         super.onRequestPermissionsResult(i, strArr, iArr);
         switch (i) {
             case 1: {
-                if (iArr.length <= 0 || iArr[0] != 0) {
+                if (iArr.length == 0 || iArr[0] != 0) {
                     Log.d(TAG, "Could not get READ_PHONE_STATE permission");
                     Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
 
@@ -259,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
 
             case 3: {
-                if (iArr.length <= 0 || iArr[0] != 0) {
+                if (iArr.length == 0 || iArr[0] != 0) {
                     Log.d(TAG, "Could not get BACKGROUND_LOCATION permission");
                     Toast.makeText(this, "Could not get BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
