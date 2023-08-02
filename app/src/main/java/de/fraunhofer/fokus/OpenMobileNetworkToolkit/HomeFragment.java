@@ -15,46 +15,43 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.CarrierConfigManager;
-import android.telephony.CellIdentity;
-import android.telephony.CellIdentityCdma;
-import android.telephony.CellIdentityGsm;
-import android.telephony.CellIdentityLte;
-import android.telephony.CellIdentityWcdma;
-import android.telephony.CellInfo;
-import android.telephony.CellInfoCdma;
-import android.telephony.CellInfoGsm;
-import android.telephony.CellInfoLte;
-import android.telephony.CellInfoWcdma;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
 
 
 public class HomeFragment extends Fragment implements LocationListener {
@@ -70,30 +67,22 @@ public class HomeFragment extends Fragment implements LocationListener {
     private boolean cp;
     private MainActivity ma;
     private SwipeRefreshLayout swipeRefreshLayout;
+    boolean feature_admin;
+    boolean feature_phone_state;
+    boolean work_profile;
+    DataProvider dp;
 
+    Context context;
     public HomeFragment() {
         super(R.layout.fragment_home);
     }
 
-    public static ArrayList<String> getIPs(ArrayList<String> props) {
-        try {
-            List<NetworkInterface> networkInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface networkInterface : networkInterfaces) {
-                List<InetAddress> iNets = Collections.list(networkInterface.getInetAddresses());
-                for (InetAddress iNet : iNets) {
-                    props.add(networkInterface.getDisplayName() + "\t\t" + iNet.getHostAddress().split("%")[0]);
-                }
-            }
-        } catch (SocketException ex) {
-            ex.printStackTrace();
-        }
-        return props;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        context = requireContext();
         // Sets the default uncaught exception handler. This handler is invoked
         // in case any Thread dies due to an unhandled exception.
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
@@ -108,6 +97,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         ma = (MainActivity) getActivity();
         pm = Objects.requireNonNull(ma).pm;
+        dp = new DataProvider(requireContext());
         feature_telephony = ma.feature_telephony;
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ma.getSystemService(Context.CARRIER_CONFIG_SERVICE);
@@ -124,238 +114,263 @@ public class HomeFragment extends Fragment implements LocationListener {
             Log.d(TAG, "onCreateView: No Location Permissions");
         }
         swipeRefreshLayout = view.findViewById(R.id.home_fragment);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                //todo load fragment new
-                //getActivity().recreate();
-                //System.out.println("HELLO WORLD!");
-                swipeRefreshLayout.setRefreshing(false);
-            }
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            LinearLayout ll = requireView().findViewById(R.id.home_layout);
+            ll.removeAllViews();
+            ll.addView(get_cell_card_view(),0);
+            ll.addView(get_network_card_view(),1);
+            ll.addView(get_device_card_view(),2);
+            ll.addView(get_features_card_view(),3);
+            ll.addView(get_permissions_card_view(),4);
+            ll.addView(get_interfaces_card_view(),5);
+            ll.addView(get_location_card_view(),6);
+            swipeRefreshLayout.setRefreshing(false);
         });
+        SubscriptionManager sm = (SubscriptionManager) ma.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        List<SubscriptionInfo> list = sm.getActiveSubscriptionInfoList();
+        Log.d(TAG, "lol" + list);
         return view;
     }
 
-    @SuppressLint({"MissingPermission", "HardwareIds"})
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        boolean feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
-        boolean feature_phone_state = (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
-        boolean work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
+        feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
+        feature_phone_state = (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
+        work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
+        LinearLayout ll = requireView().findViewById(R.id.home_layout);
+        ll.addView(get_cell_card_view(),0);
+        ll.addView(get_network_card_view(),1);
+        ll.addView(get_device_card_view(),2);
+        ll.addView(get_features_card_view(),3);
+        ll.addView(get_permissions_card_view(),4);
+        ll.addView(get_interfaces_card_view(),5);
+        ll.addView(get_location_card_view(),6);
+    }
+
+    private CardView cardView_from_table_builder(String title, TableLayout tl) {
+        CardView cv = new CardView(requireContext());
+        cv.setRadius(15);
+        cv.setContentPadding(20,20,20,20);
+        cv.setUseCompatPadding(true);
+        tl.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
+                .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        tl.setStretchAllColumns(true);
+        TextView title_view = new TextView(requireContext());
+        title_view.setTypeface(null, Typeface.BOLD);
+        title_view.setText(title);
+        title_view.setPadding(0,0,0,20);
+        tl.addView(title_view,0);
+        cv.addView(tl);
+        return cv;
+    }
+
+    private TableRow rowBuilder(String column1, String column2){
         Context context = requireContext();
-        ArrayList<String> props = new ArrayList<String>();
-        props.add("\n \n ## Device ##");
-        props.add("Model: " + Build.MODEL);
-        props.add("Manufacturer: " + Build.MANUFACTURER);
+        TableRow tr = new TableRow(context);
+        tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
+                .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        tr.setPadding(2,2,2,2);
+        //r.setBackgroundColor(Color.parseColor("#959aa3"));
+        //tr.setBackgroundColor(Color.parseColor("#959aa3"));
+        //tr.setBackgroundTintList(tv, );
+        TextView tv1 = new TextView(context);
+        tv1.setPadding(20,0,20,0);
+        //tv1.setBackgroundColor(Color.parseColor("#3b3a3a"));
+        TextView tv2 = new TextView(context);
+        tv2.setPadding(0,0,0,0);
+        //tv2.setBackgroundColor(Color.parseColor("#3b3a3a"));
+        tv1.append(column1);
+        tv2.append(Objects.requireNonNullElse(column2, "N/A"));
+        tr.addView(tv1);
+        tr.addView(tv2);
+        return tr;
+    }
+
+    @SuppressLint({"MissingPermission", "HardwareIds"})
+    private CardView get_device_card_view() {
+        DeviceInformation di = dp.getDeviceInformation();
+        TableLayout tl = new TableLayout(context);
+        tl.addView(rowBuilder("Model", di.getModel()));
+        tl.addView(rowBuilder("Manufacturer", di.getManufacturer()));
+        tl.addView(rowBuilder("SOC Manufacturer", di.getSOCManufacturer()));
+        tl.addView(rowBuilder("SOC Model", di.getSOCModel()));
+        tl.addView(rowBuilder("Radio Version", di.getRadioVersion()));
+        tl.addView(rowBuilder("Supported Modem Count", di.getSupportedModemCount()));
+        tl.addView(rowBuilder("Android SDK", di.getAndroidSDK()));
+        tl.addView(rowBuilder("Android Release", di.getAndroidRelease()));
+        tl.addView(rowBuilder("Device Software Version", di.getDeviceSoftwareVersion()));
+        tl.addView(rowBuilder("Security Patch Level", di.getSecurityPatchLevel()));
+        tl.addView(rowBuilder("IMEI", di.getIMEI()));
+        tl.addView(rowBuilder("MEID", di.getMEID()));
+        tl.addView(rowBuilder("SIM Serial Number", di.getSimSerial()));
+        tl.addView(rowBuilder("Subscriber ID", di.getSubscriberId()));
+        tl.addView(rowBuilder("Network Access Identifier", di.getNetworkAccessIdentifier()));
+        tl.addView(rowBuilder("Subscription ID", di.getSubscriptionId()));
+        return cardView_from_table_builder("Device Information", tl);
+    }
+
+    private CardView get_features_card_view() {
+        TableLayout tl = new TableLayout(context);
+        tl.addView(rowBuilder("Feature Telephony", String.valueOf(feature_telephony)));
+        tl.addView(rowBuilder("Work Profile", String.valueOf(work_profile)));
+        tl.addView(rowBuilder("Feature Admin", String.valueOf(feature_admin)));
+        // todo move this somewhere useful
+        //props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            props.add("SOC Manufacturer: " + Build.SOC_MANUFACTURER);
-            props.add("SOC Model: " + Build.SOC_MODEL);
-        }
-        props.add("Radio Version: " + Build.getRadioVersion());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            props.add("Supported Modem Count: " + tm.getSupportedModemCount());
-        }
-        props.add("Android SDK: " + Build.VERSION.SDK_INT);
-        props.add("Android Release: " + Build.VERSION.RELEASE);
-        if (feature_phone_state) {
-            props.add("Device Software version: " + tm.getDeviceSoftwareVersion());
-        }
-        props.add("\n \n ## Features ##");
-        props.add("Feature Telephony: " + feature_telephony);
-        props.add("Work Profile: " + work_profile);
-        props.add("Feature Admin: " + feature_admin);
-        props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            boolean sc = pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED);
-            props.add("Slicing Config supported: " + sc);
+            tl.addView(rowBuilder("Slicing Config supported",String.valueOf(pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            props.add("Radio Interface Capability Slicing Config: " + tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED));
+            tl.addView(rowBuilder("Slicing Config", String.valueOf(tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED))));
         }
+        return cardView_from_table_builder("Device Features", tl);
+    }
 
-        props.add("\n \n ## Permissions ##");
-        props.add("Carrier Permissions: " + cp);
-        props.add("READ_PHONE_STATE: " + feature_phone_state);
-        props.add("ACCESS_FINE_LOCATION: " + (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
-        props.add("ACCESS_BACKGROUND_LOCATION: " + (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED));
+    private CardView get_permissions_card_view() {
+        TableLayout tl = new TableLayout(context);
+        tl.addView(rowBuilder("Carrier Permissions", String.valueOf(cp)));
+        tl.addView(rowBuilder("READ_PHONE_STATE", String.valueOf(feature_phone_state)));
+        tl.addView(rowBuilder("ACCESS_FINE_LOCATION", String.valueOf(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)));
+        tl.addView(rowBuilder("ACCESS_BACKGROUND_LOCATION", String.valueOf(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)));
+        return cardView_from_table_builder("App Permission", tl);
+    }
 
+    private CardView get_location_card_view() {
+        TableLayout tl = new TableLayout(context);
+        Location loc = dp.getLocation();
+        tl.addView(rowBuilder("Longitude", String.valueOf(loc.getLongitude())));
+        tl.addView(rowBuilder("Latitude", String.valueOf(loc.getLatitude())));
+        tl.addView(rowBuilder("Altitude", String.valueOf(loc.getAltitude())));
+        tl.addView(rowBuilder("Provider", String.valueOf(loc.getProvider())));
+        tl.addView(rowBuilder("Accuracy", String.valueOf(loc.getAccuracy())));
+        return cardView_from_table_builder("Location", tl);
+    }
 
-        props.add("\n \n ## Interfaces ##");
-        props = getIPs(props);
-
-        props.add("\n \n ## Network ##");
-        props.add("Network Operator: " + tm.getNetworkOperatorName());
-        props.add("Sim Operator Name: " + tm.getSimOperatorName());
-        props.add("Network Specifier: " + tm.getNetworkSpecifier());
-        props.add("DataState: " + tm.getDataState());
-        if (feature_phone_state) {
-            props.add("DataNetworkType: " + tm.getDataNetworkType()); // todo print useful  strings
+    private CardView get_interfaces_card_view() {
+        TableLayout tl = new TableLayout(context);
+        List<NetworkInterfaceInformation> niil = dp.getNetworkInterfaceInformation();
+        for (NetworkInterfaceInformation nii : niil){
+            tl.addView(rowBuilder(nii.getInterfaceName(), nii.getAddress()));
         }
-        props.add("SignalStrength: " + tm.getSignalStrength());
-        int phone_type = tm.getPhoneType();
-        if (phone_type == 0)
-            props.add("Phone Type: None");
-        else if (phone_type == 1)
-            props.add("Phone Type: GSM");
-        else if (phone_type == 2)
-            props.add("Phone Type: CDMA");
-        else if (phone_type == 3)
-            props.add("Phone Type: SIP");
-        if (feature_phone_state) {
-            props.add("Registered PLMN: " + NetworkCallback.getPLMN(context));
-        }
+        return cardView_from_table_builder("Network Interfaces", tl);
+    }
+
+    @SuppressLint("MissingPermission")
+    private CardView get_network_card_view() {
+        NetworkInformation ni = dp.getNetworkInformation();
+        TableLayout tl = new TableLayout(context);
+        tl.addView(rowBuilder("Network Operator", ni.getNetworkOperatorName()));
+        tl.addView(rowBuilder("Sim Operator Name", ni.getSimOperatorName()));
+        tl.addView(rowBuilder("Network Specifier", ni.getNetworkSpecifier()));
+        tl.addView(rowBuilder("DataState", ni.getDataStateString()));
+        tl.addView(rowBuilder("Data Network Type", ni.getDataNetworkTypeString()));
+        tl.addView(rowBuilder("Phone Type", ni.getPhoneTypeString()));
+        tl.addView(rowBuilder("PODS ID", String.valueOf(ni.getPreferredOpportunisticDataSubscriptionId())));
         if (feature_phone_state && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                props.add("Equivalent Home PLMNs: " + tm.getEquivalentHomePlmns());
-
-                StringBuilder tmp = new StringBuilder();
-                for (String plnm : tm.getForbiddenPlmns()) {
-                    tmp.append(plnm).append(" ");
-                }
-                props.add("Forbidden PLMNs: " + tmp);
+                tl.addView(rowBuilder("Equivalent Home PLMNs", tm.getEquivalentHomePlmns().toString().replace("[","").replace("]","").replace(", ","\n")));
+                tl.addView(rowBuilder("Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[","").replace("]","").replace(", ","\n")));
             }
         }
-        if (feature_phone_state) {
-            props.add("Preferred Opportunistic Data Subscription ID: " + tm.getPreferredOpportunisticDataSubscription());
+        Network network = NetworkCallback.getCurrentNetwork(context);
+        if (network != null) {
+            tl.addView(rowBuilder("Default Network", network.toString()));
+        } else {
+            tl.addView(rowBuilder("Default Network", "N/A"));
         }
 
-        props.add("Default Network: " + NetworkCallback.getCurrentNetwork(context));
-        props.add("Interface Name: " + NetworkCallback.getInterfaceName(context));
-        props.add("Network counter: " + GlobalVars.counter);
-        props.add("Default DNS: " + NetworkCallback.getDefaultDNS(context));
-        props.add("Enterprise Capability: " + NetworkCallback.getEnterpriseCapability(context));
-        props.add("Validated Capability: " + NetworkCallback.getValidity(context));
-        props.add("Internet Capability: " + NetworkCallback.getInternet(context));
-        props.add("IMS Capability: " + NetworkCallback.getIMS(context));
-        props.add("Capabilities: \n" + NetworkCallback.getNetworkCapabilitylist(context));
+        tl.addView(rowBuilder("Interface Name", NetworkCallback.getInterfaceName(context)));
+        tl.addView(rowBuilder("Network counter", String.valueOf(GlobalVars.counter)));
+        tl.addView(rowBuilder("Default DNS", NetworkCallback.getDefaultDNS(context).toString().replace("[","").replace("]","").replace(", ","\n")));
+        tl.addView(rowBuilder("Enterprise Capability", String.valueOf(NetworkCallback.getEnterpriseCapability(context))));
+        tl.addView(rowBuilder("Validated Capability", String.valueOf(NetworkCallback.getValidity(context))));
+        tl.addView(rowBuilder("Internet Capability", String.valueOf(NetworkCallback.getInternet(context))));
+        tl.addView(rowBuilder("IMS Capability", String.valueOf(NetworkCallback.getIMS(context))));
+        tl.addView(rowBuilder("Capabilities",  NetworkCallback.getNetworkCapabilitylist(context)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            props.add("Enterprise ID: " + NetworkCallback.getEnterpriseIds(context));
+            tl.addView(rowBuilder("Enterprise ID", String.valueOf(NetworkCallback.getEnterpriseIds(context))));
         }
-        props.add("Cell Information: " + cellInfo());
-
         // Network Slicing
-        props.add("TM Slice: " + NetworkCallback.getConfigurationTM(context));
-        props.add("Slice Info: " + NetworkCallback.getNetworkSlicingInfo(context));
-        props.add("Slice Config: " + NetworkCallback.getNetworkSlicingConfig(context));
+        tl.addView(rowBuilder("TM Slice", String.valueOf(NetworkCallback.getConfigurationTM(context))));
+        tl.addView(rowBuilder("Slice Info", String.valueOf(NetworkCallback.getNetworkSlicingInfo(context))));
+        tl.addView(rowBuilder("Slice Config", String.valueOf(NetworkCallback.getNetworkSlicingConfig(context))));
         // Routing and Traffic
-        props.add("Route Descriptor: " + NetworkCallback.getRouteSelectionDescriptor(context));
-        props.add("Traffic Descriptor: " + NetworkCallback.getTrafficDescriptor(context));
-        if (cp) { // todo try root privileges or more fine granular permission
-            props.add("\n \n ## Device Identification Information ##");
-            props.add("IMEI: " + tm.getImei());
-            props.add("MEID: " + tm.getMeid());
-            props.add("SimSerial: " + tm.getSimSerialNumber());
-            props.add("SubscriberId: " + tm.getSubscriberId());
-            props.add("Network Access Identifier: " + tm.getNai());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                props.add("SubscriptionId: " + tm.getSubscriptionId());
-            }
-        }
-        TextView main_infos = getView().findViewById(R.id.main_infos);
-        for (String prop : props) {
-            main_infos.append(prop + "\n");
-        }
+        tl.addView(rowBuilder("Route Descriptor", String.valueOf(NetworkCallback.getRouteSelectionDescriptor(context))));
+        tl.addView(rowBuilder("Traffic Descriptor", String.valueOf(NetworkCallback.getTrafficDescriptor(context))));
+        return cardView_from_table_builder("Network Information", tl);
     }
 
-    // todo rework this to use the dataprovider / move code there
-    private String cellInfo() {
-        StringBuilder cellInfoBuilder = new StringBuilder();
-        String allCellInfo = "";
-        Set<CellIdentity> seenCellTowers = new HashSet<>();
-        if (ActivityCompat.checkSelfPermission(ma, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            List<CellInfo> cellInfoList = tm.getAllCellInfo();
-            for (CellInfo cellInfo : cellInfoList) {
-                if (cellInfo instanceof CellInfoGsm) {
-                    CellIdentityGsm cellIdentity = ((CellInfoGsm) cellInfo).getCellIdentity();
-                    if (!seenCellTowers.contains(cellIdentity)) {
-                        seenCellTowers.add(cellIdentity);
-                        cellInfoBuilder.append("Cell Identity (GSM): ");
-                        cellInfoBuilder.append(cellIdentity.getCid());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("MCC: ");
-                        cellInfoBuilder.append(cellIdentity.getMcc());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("MNC: ");
-                        cellInfoBuilder.append(cellIdentity.getMnc());
-                        cellInfoBuilder.append("\n");
-                    }
-                    // Display cell identity information for GSM network
-                    // e.g. cellIdentity.getCid(), cellIdentity.getMcc(), cellIdentity.getMnc(), etc.
-                    // Add more cell identity information as needed
-                } else if (cellInfo instanceof CellInfoCdma) {
-                    CellIdentityCdma cellIdentity = ((CellInfoCdma) cellInfo).getCellIdentity();
-                    if (!seenCellTowers.contains(cellIdentity)) {
-                        seenCellTowers.add(cellIdentity);
-                        cellInfoBuilder.append("Cell Identity (CDMA): ");
-                        cellInfoBuilder.append(cellIdentity.getBasestationId());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("System ID: ");
-                        cellInfoBuilder.append(cellIdentity.getSystemId());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("Network ID: ");
-                        cellInfoBuilder.append(cellIdentity.getNetworkId());
-                        cellInfoBuilder.append("\n");
-                    }
-                    // Add more cell identity information as needed
-                    // Display cell identity information for CDMA network
-                    // e.g. cellIdentity.getBasestationId(), cellIdentity.getSystemId(), cellIdentity.getNetworkId(), etc.
-                } else if (cellInfo instanceof CellInfoLte) {
-                    CellIdentityLte cellIdentity = ((CellInfoLte) cellInfo).getCellIdentity();
-                    if (!seenCellTowers.contains(cellIdentity)) {
-                        seenCellTowers.add(cellIdentity);
-                        cellInfoBuilder.append("Cell Identity (LTE): ");
-                        cellInfoBuilder.append(cellIdentity.getCi());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("MCC: ");
-                        cellInfoBuilder.append(cellIdentity.getMcc());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("MNC: ");
-                        cellInfoBuilder.append(cellIdentity.getMnc());
-                        cellInfoBuilder.append("\n");
-                    }
-                    // Add more cell identity information as needed
-                    // Display cell identity information for LTE network
-                    // e.g. cellIdentity.getCi(), cellIdentity.getMcc(), cellIdentity.getMnc(), etc.
-                } else if (cellInfo instanceof CellInfoWcdma) {
-                    CellIdentityWcdma cellIdentity = ((CellInfoWcdma) cellInfo).getCellIdentity();
-                    if (!seenCellTowers.contains(cellIdentity)) {
-                        seenCellTowers.add(cellIdentity);
-                        cellInfoBuilder.append("Cell Identity (WCDMA): ");
-                        cellInfoBuilder.append(cellIdentity.getCid());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("MCC: ");
-                        cellInfoBuilder.append(cellIdentity.getMcc());
-                        cellInfoBuilder.append("\n");
-                        cellInfoBuilder.append("MNC: ");
-                        cellInfoBuilder.append(cellIdentity.getMnc());
-                        cellInfoBuilder.append("\n");
-                    }
-                    // Add more cell identity information as needed
-                    // Display cell identity information for WCDMA network
-                    // e.g. cellIdentity.getCid(), cellIdentity.getMcc(), cellIdentity.getMnc(), etc.
-                }
+    private CardView get_cell_card_view(){
+        TableLayout tl = new TableLayout(context);
+        List<CellInformation> cil = dp.getCellInformation();
+        int cell = 1;
+        for (CellInformation ci : cil) {
+            TableRow title = rowBuilder("Cell " + cell, "");
+            if (cell > 1) {
+                title.setPadding(0,20,0,0);
             }
-            allCellInfo = cellInfoBuilder.toString();
+            ++cell;
+            TextView tv = (TextView) title.getChildAt(0);
+            tv.setTypeface(Typeface.DEFAULT_BOLD);
+            tl.addView(title);
+
+            tl.addView(rowBuilder("Alpha Long", ci.getAlphaLong()));
+            tl.addView(rowBuilder("Cell Type", ci.getCellType()));
+            tl.addView(rowBuilder("Registered", String.valueOf(ci.isRegistered())));
+            tl.addView(rowBuilder("bands", ci.getBands().replace("[","").replace("]","").replace(", ","\n")));
+            tl.addView(rowBuilder("CI", String.valueOf(ci.getCi())));
+            tl.addView(rowBuilder("MNC", ci.getMnc()));
+            tl.addView(rowBuilder("MCC", ci.getMcc()));
+            tl.addView(rowBuilder("ARFCN", String.valueOf(ci.getARFCN())));
+            tl.addView(rowBuilder("Level", String.valueOf(ci.getLevel())));
+            tl.addView(rowBuilder("RSSI", String.valueOf(ci.getRssi())));
+            tl.addView(rowBuilder("dBm", String.valueOf(ci.getDbm())));
+            tl.addView(rowBuilder("ASU Level", String.valueOf(ci.getAsuLevel())));
+            tl.addView(rowBuilder("Cell Connection Status", String.valueOf(ci.getCellConnectionStatus())));
+
+            // Stuff not available in GSM
+            if (!Objects.equals(ci.getCellType(), "GSM")) {
+                tl.addView(rowBuilder("PCI", String.valueOf(ci.getPci())));
+                tl.addView(rowBuilder("TAC", String.valueOf(ci.getTac())));
+
+            }
+            // Stuff only available in LTE
+            if (Objects.equals(ci.getCellType(), "LTE")) {
+                tl.addView(rowBuilder("CQI", String.valueOf(ci.getCqi())));
+                tl.addView(rowBuilder("RSRQ", String.valueOf(ci.getRsrq())));
+                tl.addView(rowBuilder("RSRP", String.valueOf(ci.getRsrp())));
+                tl.addView(rowBuilder("RSSNR", String.valueOf(ci.getRssnr())));
+            }
+            // Stuff only available in NR
+            if (Objects.equals(ci.getCellType(), "NR")) {
+                tl.addView(rowBuilder("CsiRSRP", String.valueOf(ci.getCsirsrp())));
+                tl.addView(rowBuilder("CsiRSRQ", String.valueOf(ci.getCsirsrq())));
+                tl.addView(rowBuilder("SsRSRP", String.valueOf(ci.getSsrsrp())));
+                tl.addView(rowBuilder("SsRSRQ", String.valueOf(ci.getSsrsrp())));
+                tl.addView(rowBuilder("SsSinr", String.valueOf(ci.getSssinr())));
+            }
+
         }
-        return allCellInfo;
+        if (tl.getChildCount() == 0){
+            tl.addView(rowBuilder("No cells available",""));
+        }
+        return cardView_from_table_builder("Cell Information", tl);
     }
 
-    // todo use data provider here
     @Override
     public void onLocationChanged(@NonNull Location location) {
-        txtLat = ma.findViewById(R.id.location_view);
-        if (txtLat != null)
-            txtLat.setText(String.format("Latitude:%s, Longitude:%s", location.getLatitude(), location.getLongitude()));
+        //txtLat = ma.findViewById(R.id.location_view);
+        //if (txtLat != null)
+        //    txtLat.setText(String.format("Latitude: %s \nLongitude: %s", location.getLatitude(), location.getLongitude()));
     }
 
     @Override
     public void onProviderDisabled(@NonNull String provider) {
-        Log.d(TAG, provider + " disable");
+        Log.d(TAG, String.format("%s is disabled", provider));
     }
 
     @Override
     public void onProviderEnabled(@NonNull String provider) {
-        Log.d("Tag", provider + "enable");
+        Log.d(TAG, String.format("%s is enabled", provider));
     }
 
     @Override

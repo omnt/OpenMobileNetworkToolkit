@@ -19,35 +19,14 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
+            android:id="@+id/home_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/main_infos"
-                style="@style/Widget.AppCompat.TextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:emojiCompatEnabled="true" />
-
-            <TextView
-                android:id="@+id/location_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:padding="5dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-
-        </LinearLayout>
+            android:orientation="vertical"/>
     </ScrollView>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

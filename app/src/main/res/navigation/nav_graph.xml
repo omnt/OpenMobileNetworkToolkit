@@ -38,6 +38,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_subscriptionsFragment"
+            app:destination="@id/subscriptionsFragment" />
 
     </fragment>
     <fragment
@@ -154,6 +157,15 @@
         android:label="SpecialCodeFragment">
         <action
             android:id="@+id/action_specialCodeFragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/subscriptionsFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SubscriptionsFragment"
+        android:label="fragment_subscriptions"
+        tools:layout="@layout/fragment_subscriptions" >
+        <action
+            android:id="@+id/action_subscriptionsFragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
 
