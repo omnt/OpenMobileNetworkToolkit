@@ -320,7 +320,12 @@ public class HomeFragment extends Fragment implements LocationListener {
             tl.addView(rowBuilder("Alpha Long", ci.getAlphaLong()));
             tl.addView(rowBuilder("Cell Type", ci.getCellType()));
             tl.addView(rowBuilder("Registered", String.valueOf(ci.isRegistered())));
-            tl.addView(rowBuilder("bands", ci.getBands().replace("[","").replace("]","").replace(", ","\n")));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                String bands = ci.getBands();
+                if (bands != null) {
+                    tl.addView(rowBuilder("bands", ci.getBands().replace("[", "").replace("]", "").replace(", ", "\n")));
+                }
+            }
             tl.addView(rowBuilder("CI", String.valueOf(ci.getCi())));
             tl.addView(rowBuilder("MNC", ci.getMnc()));
             tl.addView(rowBuilder("MCC", ci.getMcc()));
