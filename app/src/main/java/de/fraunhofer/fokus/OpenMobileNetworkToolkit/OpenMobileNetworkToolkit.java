@@ -1,6 +1,6 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -29,12 +29,12 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         Log.i(TAG, "CarrierIdentifier id " + id.toString());
         PersistableBundle configForSubId = new PersistableBundle();
 
-        // handle things that need newer API versions
+        // API 27
         if (sdk_version >= Build.VERSION_CODES.O_MR1) {
             configForSubId.putBoolean(CarrierConfigManager.KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL, true);
-        } else {
-            Log.d(TAG, "KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL not available with below api level 27");
         }
+
+        // API 30
         if (sdk_version >= Build.VERSION_CODES.R) {
             configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_VIDEO_CALLING_FALLBACK_BOOL, true);
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, true);
@@ -51,9 +51,10 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL, true);
             configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
             configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
-        } else {
-            Log.d(TAG, " not available with below api level 30");
+            configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
         }
+
+        // API 31
         if (sdk_version >= Build.VERSION_CODES.S) {
             configForSubId.putIntArray(CarrierConfigManager.KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY, new int[]{CarrierConfigManager.CARRIER_NR_AVAILABILITY_SA, CarrierConfigManager.CARRIER_NR_AVAILABILITY_NSA});
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL, false);
@@ -61,9 +62,9 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL, true);
             configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
             configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
-        } else {
-            Log.d(TAG, "KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY is not available with below api level 31");
         }
+
+        // API <= 29
         configForSubId.putBoolean(CarrierConfigManager.KEY_FORCE_HOME_NETWORK_BOOL, true);
         configForSubId.putBoolean(CarrierConfigManager.KEY_PREFER_2G_BOOL, false);
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_SETTINGS_ENABLE_BOOL, true);
@@ -99,8 +100,8 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         configForSubId.putInt(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_MODE_INT, 1);
         configForSubId.putInt(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT, 1);
         configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL, true);
-        configForSubId.putBoolean(Manifest.permission.READ_PRECISE_PHONE_STATE, true);
         configForSubId.putBoolean(Manifest.permission.READ_PHONE_STATE, true);
+
         Log.d(TAG, "Carrier settings applied");
         return configForSubId;
     }

@@ -47,8 +47,10 @@ public class InfluxDBFragment extends Fragment {
         Button setupBtn = view.findViewById(R.id.fragment_influxdb);
         TextView localDbStatus = view.findViewById(R.id.local_db_status);
         result_layout = view.findViewById(R.id.result_layout);
+        //localDbStatus.setText("lol");
+        TextView warning = view.findViewById(R.id.influx_view_warning);
+        warning.setText("This feature is still under development an requires a InfluxDB running on the phone");
 
-        localDbStatus.setText("lol");
         setupBtn.setOnClickListener(this::setupInfluxDB);
         showLastEntries(view);
         return view;

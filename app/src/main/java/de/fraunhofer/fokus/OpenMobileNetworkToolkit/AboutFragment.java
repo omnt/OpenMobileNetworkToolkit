@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.Objects;
+
 public class AboutFragment extends Fragment
 
 {
@@ -31,7 +33,7 @@ public class AboutFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView about_text = getView().findViewById(R.id.about_text_box);
+        TextView about_text = requireView().findViewById(R.id.about_text_box);
         about_text.append(getString(R.string.appinfo));
         about_text.append("\n\n");
         about_text.append("https://github.com/omnt/OpenMobileNetworkToolkit");

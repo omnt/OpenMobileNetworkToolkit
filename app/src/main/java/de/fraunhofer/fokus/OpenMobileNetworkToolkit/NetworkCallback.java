@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NetworkCallback {
-    private static final String TAG = "FLABS";
+    private static final String TAG = "NETWORK_CALLBACK";
     public HomeFragment homeFragment = new HomeFragment();
     private Context context;
 
@@ -79,6 +79,7 @@ public class NetworkCallback {
         if (network != null) {
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
             LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
+            assert linkProperties != null;
             interfaceName = linkProperties.getInterfaceName();
         } else {
             interfaceName = "null";
@@ -87,15 +88,17 @@ public class NetworkCallback {
     }
 
     public static Boolean getNetworkCapabilities(Context context) {
-        Boolean enterprise = false;
+        boolean enterprise = false;
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = connectivityManager.getActiveNetwork();
         if (network != null) {
             NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
             Log.d(TAG, "Network Capabilities: " + networkCapabilities);
             if (networkCapabilities != null) {
-                enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
-                if (enterprise = true) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    enterprise = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
+                }
+                if (enterprise) {
                     Log.d(TAG, "Enterprise Capabilities available for Network!");
                 }
             }

@@ -1,6 +1,6 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -33,7 +33,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -45,25 +44,16 @@ import java.util.Objects;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
-
     public TelephonyManager tm;
     public PackageManager pm;
     protected Context context;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
-
     public boolean cp = false;
     public boolean feature_telephony = false;
-
     Intent loggingServiceIntent;
-
-
     private static final String TAG = "MainActivity";
-    public final static int Overlay_REQUEST_CODE = 251;
     NavController navController;
-    private AppBarConfiguration appBarConfiguration;
-
-
 
     //@SuppressLint("MissingPermission")
     @Override
@@ -82,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         setSupportActionBar(toolbar);
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-        navController = navHostFragment.getNavController();
+        navController = Objects.requireNonNull(navHostFragment).getNavController();
 
         //allow HTTP / insecure connections for the influxDB client
         // todo this should be a setting in the settings dialog
@@ -158,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }
         if (!permissions.isEmpty()){
-            String[] perms = permissions.toArray(new String[permissions.size()]);
+            String[] perms = permissions.toArray(new String[0]);
             ActivityCompat.requestPermissions(this, perms , 1337);
         }
     }
@@ -195,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 getString(R.string.device_admin_description));
         startActivity(intent);
 
-        Log.d(TAG, "Is admin active: " + dpm.isAdminActive(componentName));
+        Log.d(TAG, "Is admin active: " + Objects.requireNonNull(dpm).isAdminActive(componentName));
 
         return flag;
     }
@@ -229,6 +219,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.special_codes:
                 navController.navigate(R.id.specialCodesFragment);
                 break;
+            case R.id.subscritions:
+                navController.navigate(R.id.subscriptionsFragment);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -236,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     @Override
     public boolean onSupportNavigateUp() {
         navController.navigate(R.id.HomeFragment);
-        //NavController navController = Navigation.findNavController(this, R.id.home_fragment);
+        // NavController navController = Navigation.findNavController(this, R.id.home_fragment);
         //return NavigationUI.navigateUp(navController, appBarConfiguration)
         //        || super.onSupportNavigateUp();
         return true;
@@ -247,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         super.onRequestPermissionsResult(i, strArr, iArr);
         switch (i) {
             case 1: {
-                if (iArr.length <= 0 || iArr[0] != 0) {
+                if (iArr.length == 0 || iArr[0] != 0) {
                     Log.d(TAG, "Could not get READ_PHONE_STATE permission");
                     Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
 
@@ -269,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
 
             case 3: {
-                if (iArr.length <= 0 || iArr[0] != 0) {
+                if (iArr.length == 0 || iArr[0] != 0) {
                     Log.d(TAG, "Could not get BACKGROUND_LOCATION permission");
                     Toast.makeText(this, "Could not get BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
@@ -287,19 +280,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
-
-    public void NoCarrierToast() {
-        Toast.makeText(this, "Carrier Permissions needed for this", Toast.LENGTH_LONG).show();
-    }
-
     public boolean HasCarrierPermissions() {
         Log.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());
         return tm.hasCarrierPrivileges();
     }
 
-
     @Override
-    public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
+    public boolean onPreferenceStartFragment(@NonNull PreferenceFragmentCompat caller, Preference pref) {
         // Instantiate the new Fragment
         Log.d(TAG, "onPreferenceStartFragment: " + pref.getKey());
         switch (pref.getKey()) {
@@ -318,5 +305,4 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         return true;
     }
-
 }
