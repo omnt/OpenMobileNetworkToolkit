@@ -74,6 +74,9 @@
         <action
             android:id="@+id/action_fragment_iperf3_input_to_runners_list"
             app:destination="@id/runners_list" />
+        <action
+            android:id="@+id/action_fragment_iperf3_input_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/runners_list"
