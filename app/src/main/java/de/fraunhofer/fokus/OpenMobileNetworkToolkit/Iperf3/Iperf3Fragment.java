@@ -313,8 +313,7 @@ public class Iperf3Fragment extends Fragment {
 
             iperf3BiDir.setChecked(savedInstanceState.getBoolean(IPERF3BIDIR));
 
-            iperf3Reverse.setChecked(savedInstanceState.getBoolean(IPERF3BIDIR));
-            iperf3BiDir.setChecked(savedInstanceState.getBoolean(IPERF3REVERSE));
+            iperf3Reverse.setChecked(savedInstanceState.getBoolean(IPERF3REVERSE));
             iperf3Json.setChecked(savedInstanceState.getBoolean(IPERF3JSON));
             iperf3OneOff.setChecked(savedInstanceState.getBoolean(IPERF3ONEOFF));
             protocolSpinner.setSelection(savedInstanceState.getInt(IPERF3IDXPROTOCOL));
@@ -330,8 +329,7 @@ public class Iperf3Fragment extends Fragment {
             iperf3EtStreams.setText(preferences.getString(IPERF3STREAMS, null));
 
             iperf3BiDir.setChecked(preferences.getBoolean(IPERF3BIDIR, false));
-            iperf3Reverse.setChecked(preferences.getBoolean(IPERF3BIDIR, false));
-            iperf3BiDir.setChecked(preferences.getBoolean(IPERF3REVERSE, false));
+            iperf3Reverse.setChecked(preferences.getBoolean(IPERF3REVERSE, false));
             iperf3Json.setChecked(preferences.getBoolean(IPERF3JSON, false));
             iperf3OneOff.setChecked(preferences.getBoolean(IPERF3ONEOFF, false));
             protocolSpinner.setSelection(preferences.getInt(IPERF3IDXPROTOCOL, 0));
@@ -586,7 +584,6 @@ public class Iperf3Fragment extends Fragment {
 
         outState.putBoolean(IPERF3BIDIR, iperf3BiDir.isChecked());
         outState.putInt(IPERF3IDXPROTOCOL, protocolSpinner.getSelectedItemPosition());
-        outState.putBoolean(IPERF3BIDIR, iperf3BiDir.isChecked());
         outState.putBoolean(IPERF3REVERSE, iperf3Reverse.isChecked());
         outState.putBoolean(IPERF3JSON, iperf3Json.isChecked());
         outState.putBoolean(IPERF3ONEOFF, iperf3OneOff.isChecked());
