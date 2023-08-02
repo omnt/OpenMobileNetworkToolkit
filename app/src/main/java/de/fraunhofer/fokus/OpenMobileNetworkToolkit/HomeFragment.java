@@ -354,7 +354,7 @@ public class HomeFragment extends Fragment implements LocationListener {
                 tl.addView(rowBuilder("CsiRSRP", String.valueOf(ci.getCsirsrp())));
                 tl.addView(rowBuilder("CsiRSRQ", String.valueOf(ci.getCsirsrq())));
                 tl.addView(rowBuilder("SsRSRP", String.valueOf(ci.getSsrsrp())));
-                tl.addView(rowBuilder("SsRSRQ", String.valueOf(ci.getSsrsrp())));
+                tl.addView(rowBuilder("SsRSRQ", String.valueOf(ci.getSsrsrq())));
                 tl.addView(rowBuilder("SsSinr", String.valueOf(ci.getSssinr())));
             }
 
