@@ -80,7 +80,7 @@ public class SlicingSetup extends Fragment {
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         TelephonyManager tm = ma.tm;
         NetworkCallback networkCallback = new NetworkCallback(getActivity().getApplicationContext());
-        networkCallback.setHasCarrierPrivilages(true);
+        networkCallback.setHasCarrierPrivilages(tm.hasCarrierPrivileges());
         SliceCreate sliceCreate = new SliceCreate();
         ma.getOrganization(getContext());
         ArrayList<String> props = new ArrayList<String>();
@@ -176,8 +176,8 @@ public class SlicingSetup extends Fragment {
                     props.add("Carrier Permissions: " + HasCarrierPrivilages);
                     props.add("Feature Telephony: " + feature_telephony);
                     props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
-                    props.add("Enterprise Capability: " + NetworkCallback.getEnterpriseCapability(getContext()));
-                    props.add("TM Slice: " + NetworkCallback.getConfigurationTM(getContext()));
+                    //props.add("Enterprise Capability: " + nc.getEnterpriseCapability(getContext()));
+                    //props.add("TM Slice: " + nc.getConfigurationTM(getContext()));
                     tm.getNetworkSlicingConfiguration(getActivity().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
                         @Override
                         public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
@@ -261,8 +261,8 @@ public class SlicingSetup extends Fragment {
                     props.add("Carrier Permissions: " + HasCarrierPrivilages);
                     props.add("Feature Telephony: " + feature_telephony);
                     props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
-                    props.add("Enterprise Capability: " + NetworkCallback.getEnterpriseCapability(getContext()));
-                    props.add("TM Slice: " + NetworkCallback.getConfigurationTM(getContext()));
+                    //props.add("Enterprise Capability: " + NetworkCallback.getEnterpriseCapability(getContext()));
+                    //props.add("TM Slice: " + NetworkCallback.getConfigurationTM(getContext()));
                     tm.getNetworkSlicingConfiguration(getActivity().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
                         @Override
                         public void onResult(@NonNull NetworkSlicingConfig networkSlicingConfig) {
@@ -350,7 +350,7 @@ public class SlicingSetup extends Fragment {
             props.add("Feature Telephony: " + feature_telephony);
 
             props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
-            props.add("Enterprise Capability: " +NetworkCallback.getEnterpriseCapability(getContext()));
+            //props.add("Enterprise Capability: " +NetworkCallback.getEnterpriseCapability(getContext()));
             /*props.add("TM Slice: " +NetworkCallback.getConfigurationTM(getContext()));
             props.add("Slice Info: " +NetworkCallback.getNetworkSlicingInfo(getContext()));
             props.add("Slice Config: " +NetworkCallback.getNetworkSlicingConfig(getContext()));

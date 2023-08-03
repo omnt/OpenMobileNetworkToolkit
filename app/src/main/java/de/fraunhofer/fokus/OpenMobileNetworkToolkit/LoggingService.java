@@ -178,11 +178,7 @@ public class LoggingService extends Service {
     private final Runnable RemoteInfluxUpdate = new Runnable() {
         @Override
         public void run() {
-            // get the current timestamp to write it to all points in this run
-            List<Point> points = getPoints();
-            for (Point point : points) {
-                ic.writePoint(point);
-            }
+            ic.writePoints(getPoints());
             ic.flush();
             remoteInfluxHandler.postDelayed(this, interval);
         }
