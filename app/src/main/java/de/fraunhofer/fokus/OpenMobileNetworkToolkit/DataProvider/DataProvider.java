@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
@@ -31,10 +32,15 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
+import android.telephony.SignalStrength;
+import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.google.common.base.Splitter;
@@ -54,32 +60,73 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.FeatureInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SliceInformation;
 
-public class DataProvider {
+@RequiresApi(api = Build.VERSION_CODES.S)
+public class DataProvider implements LocationListener, TelephonyCallback.CellInfoListener {
     private static final String TAG = "DataProvider";
     private final Context ct;
     private final SharedPreferences sp;
-    public LocationManager lm;
-    boolean feature_phone_state;
+    private LocationManager lm;
+    private boolean feature_phone_state;
     private ConnectivityManager cm;
     private boolean cp;
     private TelephonyManager tm;
+    private List<CellInformation> ci = new ArrayList<>();
+    private DeviceInformation di = new DeviceInformation();
+    private FeatureInformation fi = new FeatureInformation();
+    private LocationInformation li;
+    private NetworkInformation ni = new NetworkInformation();
+    private NetworkInterfaceInformation nii = new NetworkInterfaceInformation();
+    SliceInformation si = new SliceInformation();
 
     public DataProvider(Context context) {
         ct = context;
         PackageManager pm = ct.getPackageManager();
-        lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         feature_phone_state = (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
 
+        // we can only relay on some APIs if this is a phone.
         if (feature_telephony) {
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
             tm = (TelephonyManager) ct.getSystemService(Context.TELEPHONY_SERVICE);
             cp = tm.hasCarrierPrivileges();
         }
+
+        // We need location permission otherwise logging is useless
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
+            if (lm.isLocationEnabled()) {
+                Log.d(TAG, "Location Provider " + lm.getProviders(true).toString());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    lm.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, this);
+                    Location loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
+                    if (loc != null) {
+                        onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER)));
+                    }
+                } else {
+                    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                    onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)));
+                }
+                li = new LocationInformation(); // empty LocationInformation to be filled by callback
+            } else {
+                Log.d(TAG,"GPS is disabled");
+            }
+        } else {
+            Log.d(TAG, "DataProvider: No Location Permissions");
+            // todo we need to handle this in more details as we can't run without it
+        }
+
+        // initialize internal state
+        refreshNetworkInformation();
+        refreshDeviceInformation();
+        onCellInfoChanged(getAllCellInfo());
+
     }
 
     // Filter values before adding them as we don't need to log not available information
@@ -90,17 +137,8 @@ public class DataProvider {
     }
 
     // return location object if available
-    public Location getLocation() {
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return null;
-        }
-        Location lastLocation;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            lastLocation = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
-        } else {
-            lastLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        }
-        return lastLocation;
+    public LocationInformation getLocation() {
+        return li;
     }
 
     // return location as influx point
@@ -113,41 +151,37 @@ public class DataProvider {
             point.addField("altitude", 34.0);
             point.addField("speed", 0.0);
         } else {
-            Location loc = getLocation();
-            if (loc != null) {
-                point.addField("longitude", loc.getLongitude());
-                point.addField("latitude", loc.getLatitude());
-                point.addField("altitude", loc.getAltitude());
-                point.addField("speed", loc.getSpeed());
-            } else {
-                point.addField("longitude", 0.0);
-                point.addField("latitude", 0.0);
-                point.addField("altitude", 0.0);
-                point.addField("speed", 0.0);
-            }
+            point.addField("longitude", li.getLongitude());
+            point.addField("latitude", li.getLatitude());
+            point.addField("altitude", li.getAltitude());
+            point.addField("speed", li.getSpeed());
+            point.addField("provider", li.getProvider());
+            point.addField("accuracy", li.getAccuracy());
         }
         return point;
     }
 
     // return a network Information Object
-    public NetworkInformation getNetworkInformation() {
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            return null;
+    public void refreshNetworkInformation() {
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            ni = new NetworkInformation(
+                    tm.getNetworkOperatorName(),
+                    tm.getSimOperatorName(),
+                    tm.getNetworkSpecifier(),
+                    tm.getDataState(),
+                    tm.getDataNetworkType(),
+                    tm.getPhoneType(),
+                    tm.getPreferredOpportunisticDataSubscription()
+            );
         }
-        return new NetworkInformation(
-                tm.getNetworkOperatorName(),
-                tm.getSimOperatorName(),
-                tm.getNetworkSpecifier(),
-                tm.getDataState(),
-                tm.getDataNetworkType(),
-                tm.getPhoneType(),
-                tm.getPreferredOpportunisticDataSubscription()
-        );
+    }
+
+    public NetworkInformation getNetworkInformation() {
+        return ni;
     }
 
     // return network information as influx point
     public Point getNetworkInformationPoint() {
-        NetworkInformation ni = getNetworkInformation();
         Point point = new Point("NetworkInformation");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
         point.addField("NetworkOperatorName", ni.getNetworkOperatorName());
@@ -305,9 +339,12 @@ public class DataProvider {
     }
 
     // return a deviceInformation object with device specific information
-    @SuppressLint("MissingPermission")
     public DeviceInformation getDeviceInformation(){
-        DeviceInformation di = new DeviceInformation();
+        return di;
+    }
+
+    @SuppressLint({"MissingPermission", "HardwareIds"})
+    public void refreshDeviceInformation(){
         di.setModel(Build.MODEL);
         di.setManufacturer(Build.MANUFACTURER);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -325,7 +362,7 @@ public class DataProvider {
         }
         if (cp) { // todo try root privileges or more fine granular permission
             di.setIMEI(tm.getImei());
-            di.setMEID(tm.getMeid());
+            //di.setMEID(tm.getMeid()); // Disabled for now as it results in a lot of warnings on some devices
             di.setSimSerial(tm.getSimSerialNumber());
             di.setSubscriberId(tm.getSubscriberId());
             di.setNetworkAccessIdentifier(tm.getNai());
@@ -334,7 +371,6 @@ public class DataProvider {
             }
         }
         di.setSecurityPatchLevel(Build.VERSION.SECURITY_PATCH);
-        return di;
     }
 
     public List<NetworkInterfaceInformation> getNetworkInterfaceInformation() {
@@ -358,9 +394,94 @@ public class DataProvider {
 
     // Currently not used in favor of getCellInfoPoint but capt for future use when refactor home fragment
     public List<CellInformation> getCellInformation() {
+        return ci;
+    }
+
+    public Point getNetworkCapabilitiesPoint() {
+        NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        Point point = new Point("InterfaceThroughput");
+        if (nc != null) {
+            int downSpeed = nc.getLinkDownstreamBandwidthKbps();
+            int upSpeed = nc.getLinkUpstreamBandwidthKbps();
+            point.addField("downSpeed_kbps", downSpeed);
+            point.addField("upSpeed_kbps", upSpeed);
+            point.time(System.currentTimeMillis(), WritePrecision.MS);
+        } else {
+            point.addField("downSpeed_kbps", -1);
+            point.addField("upSpeed_kbps", -1);
+            point.time(System.currentTimeMillis(), WritePrecision.MS);
+        }
+        point.addField("MobileTxBytes", TrafficStats.getMobileTxBytes());
+        point.addField("MobileRxBytes", TrafficStats.getMobileRxBytes());
+        return point;
+    }
+
+    public Point getSignalStrengthPoint() {
+        Point point = new Point("SignalStrength");
+        point.time(System.currentTimeMillis(), WritePrecision.MS);
+        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
+        for (CellSignalStrength ss : css) {
+            if (ss instanceof CellSignalStrengthNr) {
+                CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
+                addOnlyAvailablePoint(point, "Level", ssnr.getLevel());
+                addOnlyAvailablePoint(point, "CsiRSRP", ssnr.getCsiRsrp());
+                addOnlyAvailablePoint(point, "CsiRSRQ", ssnr.getCsiRsrq());
+                addOnlyAvailablePoint(point, "CsiSINR", ssnr.getSsSinr());
+                addOnlyAvailablePoint(point, "SSRSRP", ssnr.getSsRsrp());
+                addOnlyAvailablePoint(point, "SSRSRQ", ssnr.getSsRsrq());
+                addOnlyAvailablePoint(point, "SSSINR", ssnr.getSsSinr());
+            }
+            if (ss instanceof CellSignalStrengthLte) {
+                CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
+                addOnlyAvailablePoint(point, "Level", ssLTE.getLevel());
+                addOnlyAvailablePoint(point, "CQI", ssLTE.getCqi());
+                addOnlyAvailablePoint(point, "RSRP", ssLTE.getRsrp());
+                addOnlyAvailablePoint(point, "RSRQ", ssLTE.getRsrq());
+                addOnlyAvailablePoint(point, "RSSI", ssLTE.getRssi());
+                addOnlyAvailablePoint(point, "RSSNR", ssLTE.getRssnr());
+            }
+            if (ss instanceof CellSignalStrengthCdma) {
+                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
+                addOnlyAvailablePoint(point, "Level", ssCdma.getLevel());
+                addOnlyAvailablePoint(point, "EvoDbm", ssCdma.getEvdoDbm());
+            }
+            if (ss instanceof CellSignalStrengthGsm) {
+                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
+                addOnlyAvailablePoint(point, "Level", ssGSM.getLevel());
+                addOnlyAvailablePoint(point, "AsuLevel", ssGSM.getAsuLevel());
+                addOnlyAvailablePoint(point, "Dbm", ssGSM.getDbm());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    addOnlyAvailablePoint(point, "RSSI", ssGSM.getRssi());
+                }
+            }
+        }
+        return point;
+    }
+
+    // Callbacks for location
+    public void onLocationChanged(@NonNull Location location) {
+        if (li != null) {
+            li.setLatitude(location.getLatitude());
+            li.setLongitude(location.getLongitude());
+            li.setAltitude(location.getAltitude());
+            li.setProvider(location.getProvider());
+            li.setAccuracy(location.getAccuracy());
+            li.setSpeed(location.getSpeed());
+        }
+    }
+
+    public void onProviderDisabled(@NonNull String provider) {
+        Log.d(TAG, String.format("%s is disabled", provider));
+    }
+
+    public void onProviderEnabled(@NonNull String provider) {
+        Log.d(TAG, String.format("%s is enabled", provider));
+    }
+
+    @Override
+    public void onCellInfoChanged(@NonNull List<CellInfo> list) {
         List<CellInformation> ciml = new ArrayList<>();
-        List<CellInfo> cil = getAllCellInfo();
-        for (CellInfo ci : cil) {
+        for (CellInfo ci : list) {
             CellInformation cim = new CellInformation();
             cim.setCellConnectionStatus(ci.getCellConnectionStatus());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -435,67 +556,6 @@ public class DataProvider {
             }
             ciml.add(cim);
         }
-        return ciml;
-    }
-
-    public Point getNetworkCapabilitiesPoint() {
-        NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
-        Point point = new Point("InterfaceThroughput");
-        if (nc != null) {
-            int downSpeed = nc.getLinkDownstreamBandwidthKbps();
-            int upSpeed = nc.getLinkUpstreamBandwidthKbps();
-            point.addField("downSpeed_kbps", downSpeed);
-            point.addField("upSpeed_kbps", upSpeed);
-            point.time(System.currentTimeMillis(), WritePrecision.MS);
-        } else {
-            point.addField("downSpeed_kbps", -1);
-            point.addField("upSpeed_kbps", -1);
-            point.time(System.currentTimeMillis(), WritePrecision.MS);
-        }
-        point.addField("MobileTxBytes", TrafficStats.getMobileTxBytes());
-        point.addField("MobileRxBytes", TrafficStats.getMobileRxBytes());
-        return point;
-    }
-
-    public Point getSignalStrengthPoint() {
-        Point point = new Point("SignalStrength");
-        point.time(System.currentTimeMillis(), WritePrecision.MS);
-        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
-        for (CellSignalStrength ss : css) {
-            if (ss instanceof CellSignalStrengthNr) {
-                CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
-                addOnlyAvailablePoint(point, "Level", ssnr.getLevel());
-                addOnlyAvailablePoint(point, "CsiRSRP", ssnr.getCsiRsrp());
-                addOnlyAvailablePoint(point, "CsiRSRQ", ssnr.getCsiRsrq());
-                addOnlyAvailablePoint(point, "CsiSINR", ssnr.getSsSinr());
-                addOnlyAvailablePoint(point, "SSRSRP", ssnr.getSsRsrp());
-                addOnlyAvailablePoint(point, "SSRSRQ", ssnr.getSsRsrq());
-                addOnlyAvailablePoint(point, "SSSINR", ssnr.getSsSinr());
-            }
-            if (ss instanceof CellSignalStrengthLte) {
-                CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
-                addOnlyAvailablePoint(point, "Level", ssLTE.getLevel());
-                addOnlyAvailablePoint(point, "CQI", ssLTE.getCqi());
-                addOnlyAvailablePoint(point, "RSRP", ssLTE.getRsrp());
-                addOnlyAvailablePoint(point, "RSRQ", ssLTE.getRsrq());
-                addOnlyAvailablePoint(point, "RSSI", ssLTE.getRssi());
-                addOnlyAvailablePoint(point, "RSSNR", ssLTE.getRssnr());
-            }
-            if (ss instanceof CellSignalStrengthCdma) {
-                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
-                addOnlyAvailablePoint(point, "Level", ssCdma.getLevel());
-                addOnlyAvailablePoint(point, "EvoDbm", ssCdma.getEvdoDbm());
-            }
-            if (ss instanceof CellSignalStrengthGsm) {
-                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
-                addOnlyAvailablePoint(point, "Level", ssGSM.getLevel());
-                addOnlyAvailablePoint(point, "AsuLevel", ssGSM.getAsuLevel());
-                addOnlyAvailablePoint(point, "Dbm", ssGSM.getDbm());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    addOnlyAvailablePoint(point, "RSSI", ssGSM.getRssi());
-                }
-            }
-        }
-        return point;
+        ci = ciml;
     }
 }

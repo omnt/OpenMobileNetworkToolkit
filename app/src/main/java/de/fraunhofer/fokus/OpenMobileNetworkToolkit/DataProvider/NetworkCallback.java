@@ -1,4 +1,11 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
+/*
+ * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -31,6 +38,10 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.HomeFragment;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 
 public class NetworkCallback {
     private static final String TAG = "NETWORK_CALLBACK";

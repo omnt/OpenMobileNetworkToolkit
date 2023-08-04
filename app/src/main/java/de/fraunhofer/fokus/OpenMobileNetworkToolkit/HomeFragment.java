@@ -16,8 +16,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -39,7 +37,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -48,13 +45,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
 
 
-public class HomeFragment extends Fragment implements LocationListener {
+public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
     public CarrierConfigManager ccm;
     public ConnectivityManager connectivityManager;
@@ -107,12 +107,6 @@ public class HomeFragment extends Fragment implements LocationListener {
 
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
 
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            lm = (LocationManager) ma.getSystemService(Context.LOCATION_SERVICE);
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        } else {
-            Log.d(TAG, "onCreateView: No Location Permissions");
-        }
         swipeRefreshLayout = view.findViewById(R.id.home_fragment);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             LinearLayout ll = requireView().findViewById(R.id.home_layout);
@@ -186,7 +180,6 @@ public class HomeFragment extends Fragment implements LocationListener {
         return tr;
     }
 
-    @SuppressLint({"MissingPermission", "HardwareIds"})
     private CardView get_device_card_view() {
         DeviceInformation di = dp.getDeviceInformation();
         TableLayout tl = new TableLayout(context);
@@ -236,11 +229,12 @@ public class HomeFragment extends Fragment implements LocationListener {
 
     private CardView get_location_card_view() {
         TableLayout tl = new TableLayout(context);
-        Location loc = dp.getLocation();
+        LocationInformation loc = dp.getLocation();
         if (loc != null) {
             tl.addView(rowBuilder("Longitude", String.valueOf(loc.getLongitude())));
             tl.addView(rowBuilder("Latitude", String.valueOf(loc.getLatitude())));
             tl.addView(rowBuilder("Altitude", String.valueOf(loc.getAltitude())));
+            tl.addView(rowBuilder("Speed", String.valueOf(loc.getSpeed())));
             tl.addView(rowBuilder("Provider", String.valueOf(loc.getProvider())));
             tl.addView(rowBuilder("Accuracy", String.valueOf(loc.getAccuracy())));
         } else {
@@ -365,24 +359,6 @@ public class HomeFragment extends Fragment implements LocationListener {
         }
         return cardView_from_table_builder("Cell Information", tl);
     }
-
-    @Override
-    public void onLocationChanged(@NonNull Location location) {
-        //txtLat = ma.findViewById(R.id.location_view);
-        //if (txtLat != null)
-        //    txtLat.setText(String.format("Latitude: %s \nLongitude: %s", location.getLatitude(), location.getLongitude()));
-    }
-
-    @Override
-    public void onProviderDisabled(@NonNull String provider) {
-        Log.d(TAG, String.format("%s is disabled", provider));
-    }
-
-    @Override
-    public void onProviderEnabled(@NonNull String provider) {
-        Log.d(TAG, String.format("%s is enabled", provider));
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
