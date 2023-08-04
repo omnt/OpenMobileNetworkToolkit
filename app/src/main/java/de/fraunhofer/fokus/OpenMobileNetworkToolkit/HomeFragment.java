@@ -261,6 +261,7 @@ public class HomeFragment extends Fragment implements LocationListener {
     @SuppressLint("MissingPermission")
     private CardView get_network_card_view() {
         NetworkInformation ni = dp.getNetworkInformation();
+        NetworkCallback nc = new NetworkCallback(context);
         TableLayout tl = new TableLayout(context);
         tl.addView(rowBuilder("Network Operator", ni.getNetworkOperatorName()));
         tl.addView(rowBuilder("Sim Operator Name", ni.getSimOperatorName()));
@@ -275,31 +276,31 @@ public class HomeFragment extends Fragment implements LocationListener {
                 tl.addView(rowBuilder("Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[","").replace("]","").replace(", ","\n")));
             }
         }
-        Network network = NetworkCallback.getCurrentNetwork(context);
+        Network network = nc.getCurrentNetwork(context);
         if (network != null) {
             tl.addView(rowBuilder("Default Network", network.toString()));
         } else {
             tl.addView(rowBuilder("Default Network", "N/A"));
         }
 
-        tl.addView(rowBuilder("Interface Name", NetworkCallback.getInterfaceName(context)));
+        tl.addView(rowBuilder("Interface Name", nc.getInterfaceName(context)));
         tl.addView(rowBuilder("Network counter", String.valueOf(GlobalVars.counter)));
-        tl.addView(rowBuilder("Default DNS", NetworkCallback.getDefaultDNS(context).toString().replace("[","").replace("]","").replace(", ","\n")));
-        tl.addView(rowBuilder("Enterprise Capability", String.valueOf(NetworkCallback.getEnterpriseCapability(context))));
-        tl.addView(rowBuilder("Validated Capability", String.valueOf(NetworkCallback.getValidity(context))));
-        tl.addView(rowBuilder("Internet Capability", String.valueOf(NetworkCallback.getInternet(context))));
-        tl.addView(rowBuilder("IMS Capability", String.valueOf(NetworkCallback.getIMS(context))));
-        tl.addView(rowBuilder("Capabilities",  NetworkCallback.getNetworkCapabilitylist(context)));
+        tl.addView(rowBuilder("Default DNS", nc.getDefaultDNS(context).toString().replace("[","").replace("]","").replace(", ","\n")));
+        tl.addView(rowBuilder("Enterprise Capability", String.valueOf(nc.getEnterpriseCapability(context))));
+        tl.addView(rowBuilder("Validated Capability", String.valueOf(nc.getValidity(context))));
+        tl.addView(rowBuilder("Internet Capability", String.valueOf(nc.getInternet(context))));
+        tl.addView(rowBuilder("IMS Capability", String.valueOf(nc.getIMS(context))));
+        tl.addView(rowBuilder("Capabilities",  nc.getNetworkCapabilitylist(context)));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            tl.addView(rowBuilder("Enterprise ID", String.valueOf(NetworkCallback.getEnterpriseIds(context))));
+            tl.addView(rowBuilder("Enterprise ID", String.valueOf(nc.getEnterpriseIds(context))));
         }
         // Network Slicing
-        tl.addView(rowBuilder("TM Slice", String.valueOf(NetworkCallback.getConfigurationTM(context))));
-        tl.addView(rowBuilder("Slice Info", String.valueOf(NetworkCallback.getNetworkSlicingInfo(context))));
-        tl.addView(rowBuilder("Slice Config", String.valueOf(NetworkCallback.getNetworkSlicingConfig(context))));
+        tl.addView(rowBuilder("TM Slice", String.valueOf(nc.getConfigurationTM(context))));
+        tl.addView(rowBuilder("Slice Info", String.valueOf(nc.getNetworkSlicingInfo(context))));
+        tl.addView(rowBuilder("Slice Config", String.valueOf(nc.getNetworkSlicingConfig(context))));
         // Routing and Traffic
-        tl.addView(rowBuilder("Route Descriptor", String.valueOf(NetworkCallback.getRouteSelectionDescriptor(context))));
-        tl.addView(rowBuilder("Traffic Descriptor", String.valueOf(NetworkCallback.getTrafficDescriptor(context))));
+        tl.addView(rowBuilder("Route Descriptor", String.valueOf(nc.getRouteSelectionDescriptor(context))));
+        tl.addView(rowBuilder("Traffic Descriptor", String.valueOf(nc.getTrafficDescriptor(context))));
         return cardView_from_table_builder("Network Information", tl);
     }
 

@@ -21,6 +21,8 @@ import com.influxdb.client.WriteOptions;
 import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.client.write.Point;
 
+import java.util.List;
+
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 
@@ -102,6 +104,25 @@ public class InfluxdbConnection {
             return true;
         } else {
             Log.d(TAG, "writePoint: InfluxDB not reachable");
+            return false;
+        }
+    }
+
+    public boolean writePoints(List<Point> points) {
+        // only add the point if the database is reachable
+        if (influxDBClient != null && influxDBClient.ping())  {
+            try {
+                for (Point point : points){
+                    writeApi.writePoint(point);
+                }
+            } catch (com.influxdb.exceptions.InfluxException e) {
+                Log.d(TAG, "writePointa: Error while writing points to influx DB");
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        } else {
+            Log.d(TAG, "writePoints: InfluxDB not reachable");
             return false;
         }
     }
