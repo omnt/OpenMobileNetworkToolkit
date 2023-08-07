@@ -54,10 +54,6 @@ android {
         debug {
             signingConfig signingConfigs.camp23
         }
-        camp23 {
-        signingConfig signingConfigs.camp23
-            debuggable true
-        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

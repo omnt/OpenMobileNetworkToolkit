@@ -122,7 +122,7 @@ public class InfluxdbConnection {
             @Override
             public void run() {
                 try {
-                    if (influxDBClient != null && InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(50)) {
+                    if (influxDBClient != null && InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(200)) {
                         try {
                             for (Point point : points) {
                                 writeApi.writePoint(point);

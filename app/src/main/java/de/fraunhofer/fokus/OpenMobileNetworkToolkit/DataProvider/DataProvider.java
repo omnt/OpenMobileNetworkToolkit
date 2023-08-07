@@ -1,6 +1,6 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -58,12 +58,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.FeatureInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SliceInformation;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
@@ -71,6 +73,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     private static final String TAG = "DataProvider";
     private final Context ct;
     private final SharedPreferences sp;
+    SliceInformation si = new SliceInformation();
     private LocationManager lm;
     private boolean feature_phone_state;
     private ConnectivityManager cm;
@@ -82,11 +85,11 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     private LocationInformation li;
     private NetworkInformation ni = new NetworkInformation();
     private NetworkInterfaceInformation nii = new NetworkInterfaceInformation();
-    SliceInformation si = new SliceInformation();
 
     public DataProvider(Context context) {
         ct = context;
         PackageManager pm = ct.getPackageManager();
+        lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         feature_phone_state = (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
@@ -182,6 +185,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
 
     // return network information as influx point
     public Point getNetworkInformationPoint() {
+        NetworkInformation ni = getNetworkInformation();
         Point point = new Point("NetworkInformation");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
         point.addField("NetworkOperatorName", ni.getNetworkOperatorName());
@@ -239,6 +243,16 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 point.addField("MCC", ciNRId.getMccString());
                 point.addField("PCI", ciNRId.getPci());
                 point.addField("TAC", ciNRId.getTac());
+
+                CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
+                point.addField("Level", ssNR.getLevel());
+                point.addField(GlobalVars.CSIRSRP, ssNR.getCsiRsrp());
+                point.addField(GlobalVars.CSIRSRQ, ssNR.getCsiRsrq());
+                point.addField(GlobalVars.CSISINR, ssNR.getCsiSinr());
+                point.addField(GlobalVars.SSRSRP, ssNR.getSsRsrp());
+                point.addField(GlobalVars.SSRSRQ, ssNR.getSsRsrq());
+                point.addField(GlobalVars.SSSINR, ssNR.getSsSinr());
+                point.addField(GlobalVars.AsuLevel, ssNR.getAsuLevel());
             }
             if (ci instanceof CellInfoLte) {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
@@ -362,7 +376,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         }
         if (cp) { // todo try root privileges or more fine granular permission
             di.setIMEI(tm.getImei());
-            //di.setMEID(tm.getMeid()); // Disabled for now as it results in a lot of warnings on some devices
+            di.setMEID(tm.getMeid());
             di.setSimSerial(tm.getSimSerialNumber());
             di.setSubscriberId(tm.getSubscriberId());
             di.setNetworkAccessIdentifier(tm.getNai());
@@ -557,5 +571,54 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
             ciml.add(cim);
         }
         ci = ciml;
+    }
+
+    public ArrayList<SignalStrengthInformation> getSignalStrength() {
+        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
+        ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
+        for (CellSignalStrength ss : css) {
+            SignalStrengthInformation signalStrengthInformation = new SignalStrengthInformation(System.currentTimeMillis());
+            if (ss instanceof CellSignalStrengthNr) {
+                CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
+                signalStrengthInformation.setLevel(ssnr.getLevel());
+                signalStrengthInformation.setCsiRSRP(ssnr.getCsiRsrp());
+                signalStrengthInformation.setCsiRSRQ(ssnr.getCsiRsrq());
+                signalStrengthInformation.setCsiSINR(ssnr.getCsiSinr());
+                signalStrengthInformation.setSSRSRP(ssnr.getSsRsrp());
+                signalStrengthInformation.setSSRSRQ(ssnr.getSsRsrq());
+                signalStrengthInformation.setSSSINR(ssnr.getSsSinr());
+                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.NR);
+            }
+            if (ss instanceof CellSignalStrengthLte) {
+                CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
+                signalStrengthInformation.setLevel(ssLTE.getLevel());
+                signalStrengthInformation.setCQI(ssLTE.getCqi());
+
+                signalStrengthInformation.setRSRQ(ssLTE.getRsrq());
+                signalStrengthInformation.setRSRQ(ssLTE.getRsrp());
+                signalStrengthInformation.setRSSI(ssLTE.getRssi());
+                signalStrengthInformation.setRSSNR(ssLTE.getRssnr());
+                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.LTE);
+            }
+            if (ss instanceof CellSignalStrengthCdma) {
+                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
+                signalStrengthInformation.setLevel(ssCdma.getLevel());
+                signalStrengthInformation.setEvoDbm(ssCdma.getEvdoDbm());
+                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.CDMA);
+            }
+            if (ss instanceof CellSignalStrengthGsm) {
+                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
+                signalStrengthInformation.setLevel(ssGSM.getLevel());
+                signalStrengthInformation.setAsuLevel(ssGSM.getAsuLevel());
+                signalStrengthInformation.setDbm(ssGSM.getDbm());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    signalStrengthInformation.setRSSI(ssGSM.getRssi());
+                }
+                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.GSM);
+            }
+            signalStrengthInformations.add(signalStrengthInformation);
+
+        }
+        return signalStrengthInformations;
     }
 }
