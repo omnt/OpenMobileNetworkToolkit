@@ -35,7 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
@@ -43,15 +42,15 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 
 public class HomeFragment extends Fragment implements LocationListener {
@@ -117,13 +116,14 @@ public class HomeFragment extends Fragment implements LocationListener {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             LinearLayout ll = requireView().findViewById(R.id.home_layout);
             ll.removeAllViews();
-            ll.addView(get_cell_card_view(),0);
-            ll.addView(get_network_card_view(),1);
-            ll.addView(get_device_card_view(),2);
-            ll.addView(get_features_card_view(),3);
-            ll.addView(get_permissions_card_view(),4);
-            ll.addView(get_interfaces_card_view(),5);
-            ll.addView(get_location_card_view(),6);
+            ll.addView(get_cell_card_view(), 0);
+            ll.addView(get_signalstrength_card_view(), 1);
+            ll.addView(get_network_card_view(), 2);
+            ll.addView(get_device_card_view(), 3);
+            ll.addView(get_features_card_view(), 4);
+            ll.addView(get_permissions_card_view(), 5);
+            ll.addView(get_interfaces_card_view(), 6);
+            ll.addView(get_location_card_view(), 7);
             swipeRefreshLayout.setRefreshing(false);
         });
         SubscriptionManager sm = (SubscriptionManager) ma.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
@@ -133,18 +133,21 @@ public class HomeFragment extends Fragment implements LocationListener {
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
-        feature_phone_state = (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
-        work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
-        LinearLayout ll = requireView().findViewById(R.id.home_layout);
-        ll.addView(get_cell_card_view(),0);
-        ll.addView(get_network_card_view(),1);
-        ll.addView(get_device_card_view(),2);
-        ll.addView(get_features_card_view(),3);
-        ll.addView(get_permissions_card_view(),4);
-        ll.addView(get_interfaces_card_view(),5);
-        ll.addView(get_location_card_view(),6);
+      super.onViewCreated(view, savedInstanceState);
+      feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
+      feature_phone_state =
+          (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) ==
+              PackageManager.PERMISSION_GRANTED);
+      work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
+      LinearLayout ll = requireView().findViewById(R.id.home_layout);
+      ll.addView(get_cell_card_view(), 0);
+      ll.addView(get_signalstrength_card_view(), 1);
+      ll.addView(get_network_card_view(), 2);
+      ll.addView(get_device_card_view(), 3);
+      ll.addView(get_features_card_view(), 4);
+      ll.addView(get_permissions_card_view(), 5);
+      ll.addView(get_interfaces_card_view(), 6);
+      ll.addView(get_location_card_view(), 7);
     }
 
     private CardView cardView_from_table_builder(String title, TableLayout tl) {
@@ -209,21 +212,75 @@ public class HomeFragment extends Fragment implements LocationListener {
         return cardView_from_table_builder("Device Information", tl);
     }
 
-    private CardView get_features_card_view() {
-        TableLayout tl = new TableLayout(context);
-        tl.addView(rowBuilder("Feature Telephony", String.valueOf(feature_telephony)));
-        tl.addView(rowBuilder("Work Profile", String.valueOf(work_profile)));
-        tl.addView(rowBuilder("Feature Admin", String.valueOf(feature_admin)));
-        // todo move this somewhere useful
-        //props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            tl.addView(rowBuilder("Slicing Config supported",String.valueOf(pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))));
+    @SuppressLint({"MissingPermission", "HardwareIds"})
+    private CardView get_signalstrength_card_view() {
+      ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrength();
+      TableLayout tl = new TableLayout(context);
+      if (signalStrengthInformations.isEmpty()) {
+        tl.addView(rowBuilder("No Signal Strength available", ""));
+      }
+      for (SignalStrengthInformation signalStrengthInformation : signalStrengthInformations) {
+        TextView textView = new TextView(getContext());
+        if(signalStrengthInformation.getConnectionType()==null){
+          continue;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            tl.addView(rowBuilder("Slicing Config", String.valueOf(tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED))));
+        textView.setText(signalStrengthInformation.getConnectionType().toString());
+        tl.addView(textView);
+        switch (signalStrengthInformation.getConnectionType()) {
+          case NR:
+            tl.addView(rowBuilder(GlobalVars.Level,
+                String.valueOf(signalStrengthInformation.getLevel())));
+            tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(signalStrengthInformation.getCsiRSRP())));
+            tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(signalStrengthInformation.getCsiRSRQ())));
+            tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(signalStrengthInformation.getCsiSINR())));
+            tl.addView(rowBuilder(GlobalVars.SSRSRP, String.valueOf(signalStrengthInformation.getSSRSRP())));
+            tl.addView(rowBuilder(GlobalVars.SSRSRQ, String.valueOf(signalStrengthInformation.getSSRSRQ())));
+            tl.addView(rowBuilder(GlobalVars.SSSINR, String.valueOf(signalStrengthInformation.getSSSINR())));
+            break;
+          case GSM:
+            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
+            tl.addView(
+                rowBuilder("AsuLevel", String.valueOf(signalStrengthInformation.getAsuLevel())));
+            tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(signalStrengthInformation.getDbm())));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+              tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));
+            }
+            break;
+          case LTE:
+            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
+            tl.addView(rowBuilder(GlobalVars.RSRP, String.valueOf(signalStrengthInformation.getRSRP())));
+            tl.addView(rowBuilder(GlobalVars.RSRQ, String.valueOf(signalStrengthInformation.getRSRQ())));
+            tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));
+            tl.addView(rowBuilder(GlobalVars.RSSNR, String.valueOf(signalStrengthInformation.getRSSNR())));
+            tl.addView(rowBuilder(GlobalVars.CQI, String.valueOf(signalStrengthInformation.getCQI())));
+            break;
+          case CDMA:
+            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
+            tl.addView(rowBuilder(GlobalVars.EvoDbm, String.valueOf(signalStrengthInformation.getEvoDbm())));
+            break;
         }
-        return cardView_from_table_builder("Device Features", tl);
+      }
+
+      return cardView_from_table_builder("Signal Strength Information", tl);
     }
+
+  private CardView get_features_card_view() {
+    TableLayout tl = new TableLayout(context);
+    tl.addView(rowBuilder("Feature Telephony", String.valueOf(feature_telephony)));
+    tl.addView(rowBuilder("Work Profile", String.valueOf(work_profile)));
+    tl.addView(rowBuilder("Feature Admin", String.valueOf(feature_admin)));
+    // todo move this somewhere useful
+    //props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      tl.addView(rowBuilder("Slicing Config supported", String.valueOf(
+          pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))));
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      tl.addView(rowBuilder("Slicing Config", String.valueOf(
+          tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED))));
+    }
+    return cardView_from_table_builder("Device Features", tl);
+  }
 
     private CardView get_permissions_card_view() {
         TableLayout tl = new TableLayout(context);
@@ -331,10 +388,10 @@ public class HomeFragment extends Fragment implements LocationListener {
             tl.addView(rowBuilder("MNC", ci.getMnc()));
             tl.addView(rowBuilder("MCC", ci.getMcc()));
             tl.addView(rowBuilder("ARFCN", String.valueOf(ci.getARFCN())));
-            tl.addView(rowBuilder("Level", String.valueOf(ci.getLevel())));
-            tl.addView(rowBuilder("RSSI", String.valueOf(ci.getRssi())));
-            tl.addView(rowBuilder("dBm", String.valueOf(ci.getDbm())));
-            tl.addView(rowBuilder("ASU Level", String.valueOf(ci.getAsuLevel())));
+            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(ci.getLevel())));
+            tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(ci.getRssi())));
+            tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(ci.getDbm())));
+            tl.addView(rowBuilder(GlobalVars.AsuLevel, String.valueOf(ci.getAsuLevel())));
             tl.addView(rowBuilder("Cell Connection Status", String.valueOf(ci.getCellConnectionStatus())));
 
             // Stuff not available in GSM
@@ -345,18 +402,18 @@ public class HomeFragment extends Fragment implements LocationListener {
             }
             // Stuff only available in LTE
             if (Objects.equals(ci.getCellType(), "LTE")) {
-                tl.addView(rowBuilder("CQI", String.valueOf(ci.getCqi())));
-                tl.addView(rowBuilder("RSRQ", String.valueOf(ci.getRsrq())));
-                tl.addView(rowBuilder("RSRP", String.valueOf(ci.getRsrp())));
-                tl.addView(rowBuilder("RSSNR", String.valueOf(ci.getRssnr())));
+                tl.addView(rowBuilder(GlobalVars.CQI, String.valueOf(ci.getCqi())));
+                tl.addView(rowBuilder(GlobalVars.RSRQ, String.valueOf(ci.getRsrq())));
+                tl.addView(rowBuilder(GlobalVars.RSRP, String.valueOf(ci.getRsrp())));
+                tl.addView(rowBuilder(GlobalVars.RSSNR, String.valueOf(ci.getRssnr())));
             }
             // Stuff only available in NR
             if (Objects.equals(ci.getCellType(), "NR")) {
-                tl.addView(rowBuilder("CsiRSRP", String.valueOf(ci.getCsirsrp())));
-                tl.addView(rowBuilder("CsiRSRQ", String.valueOf(ci.getCsirsrq())));
-                tl.addView(rowBuilder("SsRSRP", String.valueOf(ci.getSsrsrp())));
-                tl.addView(rowBuilder("SsRSRQ", String.valueOf(ci.getSsrsrp())));
-                tl.addView(rowBuilder("SsSinr", String.valueOf(ci.getSssinr())));
+                tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(ci.getCsirsrp())));
+                tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(ci.getCsirsrq())));
+                tl.addView(rowBuilder(GlobalVars.SSRSRP, String.valueOf(ci.getSsrsrp())));
+                tl.addView(rowBuilder(GlobalVars.SSRSRQ, String.valueOf(ci.getSsrsrq())));
+                tl.addView(rowBuilder(GlobalVars.SSSINR, String.valueOf(ci.getSssinr())));
             }
 
         }
