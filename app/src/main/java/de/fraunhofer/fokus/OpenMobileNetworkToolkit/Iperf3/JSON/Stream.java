@@ -1,4 +1,3 @@
-
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON;
 
 import com.google.gson.annotations.Expose;

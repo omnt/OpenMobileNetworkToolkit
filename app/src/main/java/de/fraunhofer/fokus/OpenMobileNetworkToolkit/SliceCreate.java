@@ -8,9 +8,9 @@ public class SliceCreate {
     public NetworkSliceInfo sliceCreate(int serviceType, int sliceDiff) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                    .setSliceServiceType(serviceType)
-                    .setSliceDifferentiator(sliceDiff)
-                    .build();
+                .setSliceServiceType(serviceType)
+                .setSliceDifferentiator(sliceDiff)
+                .build();
             return sliceInfo;
         } else {
             return null;
@@ -20,25 +20,26 @@ public class SliceCreate {
     public NetworkSliceInfo sliceCreate(int serviceType, int sliceDiff, int status) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                    .setSliceServiceType(serviceType)
-                    .setSliceDifferentiator(sliceDiff)
-                    .setStatus(status)
-                    .build();
+                .setSliceServiceType(serviceType)
+                .setSliceDifferentiator(sliceDiff)
+                .setStatus(status)
+                .build();
             return sliceInfo;
         } else {
             return null;
         }
     }
 
-    public NetworkSliceInfo sliceCreate(int serviceType, int sliceDiff, int status, int mapped_hplmn_service_type, int mapped_hplmn_diff){
+    public NetworkSliceInfo sliceCreate(int serviceType, int sliceDiff, int status,
+                                        int mapped_hplmn_service_type, int mapped_hplmn_diff) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                    .setMappedHplmnSliceDifferentiator(mapped_hplmn_diff)
-                    .setMappedHplmnSliceServiceType(mapped_hplmn_service_type)
-                    .setSliceServiceType(serviceType)
-                    .setSliceDifferentiator(sliceDiff)
-                    .setStatus(status)
-                    .build();
+                .setMappedHplmnSliceDifferentiator(mapped_hplmn_diff)
+                .setMappedHplmnSliceServiceType(mapped_hplmn_service_type)
+                .setSliceServiceType(serviceType)
+                .setSliceDifferentiator(sliceDiff)
+                .setStatus(status)
+                .build();
 
             return sliceInfo;
         } else {
@@ -58,9 +59,9 @@ public class SliceCreate {
     public void sliceCreateMapped(int serviceType, int sliceDiff) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             NetworkSliceInfo sliceInfo = new NetworkSliceInfo.Builder()
-                    .setMappedHplmnSliceServiceType(serviceType)
-                    .setMappedHplmnSliceDifferentiator(sliceDiff)
-                    .build();
+                .setMappedHplmnSliceServiceType(serviceType)
+                .setMappedHplmnSliceDifferentiator(sliceDiff)
+                .build();
         }
     }
 }

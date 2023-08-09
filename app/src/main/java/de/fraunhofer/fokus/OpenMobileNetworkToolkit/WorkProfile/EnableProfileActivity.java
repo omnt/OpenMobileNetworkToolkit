@@ -2,10 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class EnableProfileActivity extends AppCompatActivity {
@@ -15,7 +12,7 @@ public class EnableProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         final PostProvisioningHelper helper = new PostProvisioningHelper(this);
-        if(!helper.isDone()) {
+        if (!helper.isDone()) {
             // Important: After the profile has been created, the MDM must enable it for corporate
             // apps to become visible in the launcher.
             helper.completeProvisioning();

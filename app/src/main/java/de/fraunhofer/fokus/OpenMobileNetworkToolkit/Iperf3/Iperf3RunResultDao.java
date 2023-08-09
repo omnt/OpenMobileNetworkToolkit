@@ -7,9 +7,6 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
-
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.List;
 
 @Dao
@@ -29,7 +26,7 @@ public interface Iperf3RunResultDao {
     @Insert
     void insertAll(Iperf3RunResult... iperf3RunResults);
 
-    @Insert (onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Iperf3RunResult iperf3RunResult);
 
     @Query("UPDATE iperf3_result_database SET result=:result WHERE uid=:uid")

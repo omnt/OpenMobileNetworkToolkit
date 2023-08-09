@@ -7,8 +7,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model;
 
-public class NetworkInterfaceInformation
-{
+public class NetworkInterfaceInformation {
     private String interfaceName;
     private String address;
 

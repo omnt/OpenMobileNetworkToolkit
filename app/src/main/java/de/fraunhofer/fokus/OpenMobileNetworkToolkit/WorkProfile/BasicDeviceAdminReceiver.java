@@ -4,10 +4,18 @@ import android.app.admin.DeviceAdminReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-
 import androidx.annotation.NonNull;
 
 public class BasicDeviceAdminReceiver extends DeviceAdminReceiver {
+    /**
+     * Generates a {@link ComponentName} that is used throughout the app.
+     *
+     * @return a {@link ComponentName}
+     */
+    public static ComponentName getComponentName(Context context) {
+        return new ComponentName(context.getApplicationContext(), BasicDeviceAdminReceiver.class);
+    }
+
     /**
      * Called on the new profile when managed profile provisioning has completed. Managed profile
      * provisioning is the process of setting up the device so that it has a separate profile which
@@ -24,14 +32,5 @@ public class BasicDeviceAdminReceiver extends DeviceAdminReceiver {
             launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(launch);
         }
-    }
-
-    /**
-     * Generates a {@link ComponentName} that is used throughout the app.
-     *
-     * @return a {@link ComponentName}
-     */
-    public static ComponentName getComponentName(Context context) {
-        return new ComponentName(context.getApplicationContext(), BasicDeviceAdminReceiver.class);
     }
 }

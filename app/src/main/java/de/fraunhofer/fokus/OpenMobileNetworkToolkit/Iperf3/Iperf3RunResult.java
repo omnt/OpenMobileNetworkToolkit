@@ -5,7 +5,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-
 import java.sql.Timestamp;
 
 @Entity(tableName = "iperf3_result_database")
@@ -27,7 +26,8 @@ public class Iperf3RunResult {
     @TypeConverters({Iperf3InputConverter.class})
     public Iperf3Fragment.Iperf3Input input;
 
-    public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Fragment.Iperf3Input input, Timestamp timestamp){
+    public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Fragment.Iperf3Input input,
+                           Timestamp timestamp) {
         this.uid = uid;
         this.result = result;
         this.uploaded = upload;

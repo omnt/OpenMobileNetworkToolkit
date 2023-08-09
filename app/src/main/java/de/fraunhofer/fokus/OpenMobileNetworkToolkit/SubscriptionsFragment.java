@@ -19,12 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
 import java.util.List;
 
 /**
@@ -35,6 +33,7 @@ import java.util.List;
 public class SubscriptionsFragment extends Fragment {
 
     String TAG = "Subscriptions";
+
     public SubscriptionsFragment() {
         // Required empty public constructor
     }
@@ -59,12 +58,14 @@ public class SubscriptionsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_subscriptions, container, false);
     }
 
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         Context context = requireContext();
 
-        if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context,
+            android.Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             Activity activity = (Activity) context;
-            SubscriptionManager sm = (SubscriptionManager) activity.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+            SubscriptionManager sm = (SubscriptionManager) activity.getSystemService(
+                Context.TELEPHONY_SUBSCRIPTION_SERVICE);
             List<SubscriptionInfo> list = null;
             if (android.os.Build.VERSION.SDK_INT >= 30) {
                 list = sm.getCompleteActiveSubscriptionInfoList();
@@ -75,13 +76,13 @@ public class SubscriptionsFragment extends Fragment {
             for (SubscriptionInfo info : list) {
                 CardView cv = new CardView(context);
                 cv.setRadius(15);
-                cv.setContentPadding(20,10,10,0);
+                cv.setContentPadding(20, 10, 10, 0);
                 cv.setUseCompatPadding(true);
                 TextView title = new TextView(context);
-                title.append("SIM Slot " + String.valueOf(info.getSimSlotIndex()));
+                title.append("SIM Slot " + info.getSimSlotIndex());
                 title.setTypeface(Typeface.DEFAULT_BOLD);
                 TextView tv = new TextView(context);
-                tv.append(info.toString().replace(" ", "\n").replace("{","").replace("}",""));
+                tv.append(info.toString().replace(" ", "\n").replace("{", "").replace("}", ""));
                 LinearLayout ll_inner = new LinearLayout(context);
                 ll_inner.addView(title);
                 ll_inner.addView(tv);

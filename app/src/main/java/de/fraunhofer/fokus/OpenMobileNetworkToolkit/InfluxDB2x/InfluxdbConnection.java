@@ -11,54 +11,51 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-
 import androidx.preference.PreferenceManager;
-
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.WriteOptions;
 import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.client.write.Point;
-
-import java.util.List;
-
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
+import java.util.List;
 
 
 public class InfluxdbConnection {
     private final static String TAG = "InfluxDBConnection";
-    private char[] token;
-    private String org;
-    private String bucket;
-    private String url;
-    private Context context;
+    SharedPreferences sp;
+    private final char[] token;
+    private final String org;
+    private final String bucket;
+    private final String url;
+    private final Context context;
     private InfluxDBClient influxDBClient;
     private WriteApi writeApi;
-    SharedPreferences sp;
 
-    public InfluxdbConnection(String URL, String token, String org, String bucket, Context context) {
-            this.token = token.toCharArray();
-            this.org = org;
-            this.url = URL;
-            this.bucket = bucket;
-            this.context = context;
-            sp = PreferenceManager.getDefaultSharedPreferences(context);
-            influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
+    public InfluxdbConnection(String URL, String token, String org, String bucket,
+                              Context context) {
+        this.token = token.toCharArray();
+        this.org = org;
+        this.url = URL;
+        this.bucket = bucket;
+        this.context = context;
+        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
     }
 
-    public void open_write_api(){
+    public void open_write_api() {
         try {
             influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
             writeApi = influxDBClient.makeWriteApi(WriteOptions.builder()
-                    .batchSize(1000)
-                    .flushInterval(1000)
-                    .backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST)
-                    .bufferLimit(100000)
-                    .jitterInterval(10)
-                    .retryInterval(500)
-                    .exponentialBase(4)
-                    .build());
+                .batchSize(1000)
+                .flushInterval(1000)
+                .backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST)
+                .bufferLimit(100000)
+                .jitterInterval(10)
+                .retryInterval(500)
+                .exponentialBase(4)
+                .build());
         } catch (com.influxdb.exceptions.InfluxException e) {
             Log.d(TAG, "connect: Can't connect to InfluxDB");
             e.printStackTrace();
@@ -66,7 +63,7 @@ public class InfluxdbConnection {
     }
 
 
-    public void disconnect(){
+    public void disconnect() {
         // make sure we a instance of the client. This can happen on an app resume
         if (influxDBClient != null) {
             Log.d(TAG, "disconnect: Flushing Influx write API if possible");
@@ -93,7 +90,7 @@ public class InfluxdbConnection {
     // Add a point to the message queue
     public boolean writePoint(Point point) {
         // only add the point if the database is reachable
-        if (influxDBClient != null && influxDBClient.ping())  {
+        if (influxDBClient != null && influxDBClient.ping()) {
             try {
                 writeApi.writePoint(point);
             } catch (com.influxdb.exceptions.InfluxException e) {
@@ -110,9 +107,9 @@ public class InfluxdbConnection {
 
     public boolean writePoints(List<Point> points) {
         // only add the point if the database is reachable
-        if (influxDBClient != null && influxDBClient.ping())  {
+        if (influxDBClient != null && influxDBClient.ping()) {
             try {
-                for (Point point : points){
+                for (Point point : points) {
                     writeApi.writePoint(point);
                 }
             } catch (com.influxdb.exceptions.InfluxException e) {
@@ -128,7 +125,7 @@ public class InfluxdbConnection {
     }
 
     // Setup a local database and store credentials
-    public  boolean setup() {
+    public boolean setup() {
         try {
             if (influxDBClient.isOnboardingAllowed()) {
                 OnboardingRequest or = new OnboardingRequest();
@@ -144,13 +141,13 @@ public class InfluxdbConnection {
                 Log.d(TAG, "setup: Database was already onboarded");
                 return false;
             }
-        } catch (com.influxdb.exceptions.InfluxException e){
+        } catch (com.influxdb.exceptions.InfluxException e) {
             return false;
         }
     }
 
     // If we can reach the influxDB call flush on the write API
-    public boolean flush(){
+    public boolean flush() {
         if (influxDBClient.ping()) {
             writeApi.flush();
             return true;
@@ -159,7 +156,7 @@ public class InfluxdbConnection {
         }
     }
 
-    public boolean ping(){
+    public boolean ping() {
         return influxDBClient.ping();
     }
 }

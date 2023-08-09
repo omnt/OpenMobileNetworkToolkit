@@ -10,15 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.fragment.app.Fragment;
-
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3LogFragment extends Fragment {
 
@@ -40,7 +37,6 @@ public class Iperf3LogFragment extends Fragment {
     private TextView wrapper;
 
 
-
     public Iperf3LogFragment() {
         // Required empty public constructor
     }
@@ -52,12 +48,23 @@ public class Iperf3LogFragment extends Fragment {
         this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
     }
 
-    private Runnable logUpdate = new Runnable() {
+    private void setFields(Iperf3RunResult iperf3RunResult) {
+        headliner.setText(iperf3RunResult.input.measurementName);
+
+        leftFirst.setImageDrawable(Iperf3Utils.getDrawable(getContext(), iperf3RunResult.result));
+        rightFirst.setText("Uploaded \n" + iperf3RunResult.uploaded);
+        leftSecond.setText("Remote host \n" + iperf3RunResult.input.iperf3IP);
+        rightSecond.setText("Run ID \n" + iperf3RunResult.uid);
+        leftThird.setText("Time \n" + iperf3RunResult.input.timestamp);
+        rightThird.setText("");
+
+        wrapper.setText(iperf3RunResult.input.iperf3Command);
+    }    private final Runnable logUpdate = new Runnable() {
         @Override
         public void run() {
             StringBuilder text = new StringBuilder();
             Iperf3RunResult iperf3RunResult = db.iperf3RunResultDao().getRunResult(uid);
-            Log.d(TAG, "run: "+iperf3RunResult.result);
+            Log.d(TAG, "run: " + iperf3RunResult.result);
 
             try {
                 BufferedReader br = new BufferedReader(new FileReader(file));
@@ -76,27 +83,14 @@ public class Iperf3LogFragment extends Fragment {
             }
             setFields(iperf3RunResult);
 
-            if(iperf3RunResult.result != -100){
+            if (iperf3RunResult.result != -100) {
                 logHandler.removeCallbacks(logUpdate);
                 return;
             }
 
-            logHandler.postDelayed(this,1000);
+            logHandler.postDelayed(this, 1000);
         }
     };
-
-    private void setFields(Iperf3RunResult iperf3RunResult){
-        headliner.setText(iperf3RunResult.input.measurementName);
-
-        leftFirst.setImageDrawable(Iperf3Utils.getDrawable(getContext(), iperf3RunResult.result));
-        rightFirst.setText("Uploaded \n"+iperf3RunResult.uploaded);
-        leftSecond.setText("Remote host \n"+iperf3RunResult.input.iperf3IP);
-        rightSecond.setText("Run ID \n"+iperf3RunResult.uid);
-        leftThird.setText("Time \n"+iperf3RunResult.input.timestamp);
-        rightThird.setText("");
-
-        wrapper.setText(iperf3RunResult.input.iperf3Command);
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -104,7 +98,8 @@ public class Iperf3LogFragment extends Fragment {
         v = inflater.inflate(R.layout.fragment_iperf3_log, container, false);
         logView = v.findViewById(R.id.stats);
         logView.setMovementMethod(new ScrollingMovementMethod());
-        Iperf3RunResult iperf3RunResult = db.iperf3RunResultDao().getRunResult(this.getArguments().getString("uid"));
+        Iperf3RunResult iperf3RunResult =
+            db.iperf3RunResultDao().getRunResult(this.getArguments().getString("uid"));
 
         headliner = v.findViewById(R.id.headliner);
         leftFirst = v.findViewById(R.id.leftFirst);
@@ -119,15 +114,17 @@ public class Iperf3LogFragment extends Fragment {
 
         file = new File(iperf3RunResult.input.iperf3LogFilePath);
         uid = iperf3RunResult.uid;
-        Log.d(TAG, "onCreateView: "+file.getAbsolutePath());
+        Log.d(TAG, "onCreateView: " + file.getAbsolutePath());
 
         logHandler = new Handler(Looper.myLooper());
         logHandler.post(logUpdate);
         return v;
     }
 
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         logHandler.removeCallbacks(logUpdate);
     }
+
+
 }

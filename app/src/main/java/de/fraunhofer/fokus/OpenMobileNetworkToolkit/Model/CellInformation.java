@@ -44,9 +44,11 @@ public class CellInformation {
     private String mcc;
     private int arfcn;
 
-    public CellInformation() {}
+    public CellInformation() {
+    }
 
-    public CellInformation(long timeStamp, String cellType, String bands, long ci, String mnc, int pci, int tac, int level) {
+    public CellInformation(long timeStamp, String cellType, String bands, long ci, String mnc,
+                           int pci, int tac, int level) {
         this.timeStamp = timeStamp;
         this.cellType = cellType;
         this.bands = bands;
@@ -272,7 +274,6 @@ public class CellInformation {
     public void setRssnr(int rssnr) {
         this.rssnr = rssnr;
     }
-
 
 
 }
