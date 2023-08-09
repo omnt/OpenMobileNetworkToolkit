@@ -19,21 +19,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class SpecialCodesFragment extends Fragment {
-    private TextView special_code;
     TelephonyManager tm;
     boolean cp = false;
+    private TextView special_code;
+
     public SpecialCodesFragment() {
         super(R.layout.fragment_special_codes);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState){
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         tm = (TelephonyManager) requireContext().getSystemService(Context.TELEPHONY_SERVICE);
         cp = tm.hasCarrierPrivileges();
         View v = inflater.inflate(R.layout.fragment_special_codes, parent, false);
@@ -62,28 +62,30 @@ public class SpecialCodesFragment extends Fragment {
             huawei_projects.setEnabled(false);
             custom_special_code.setEnabled(false);
             TextView tv = v.findViewById(R.id.special_code_warning);
-            tv.setText("Carrier Permissions needed to dial special codes, try to dial code in system dialer");
+            tv.setText(
+                "Carrier Permissions needed to dial special codes, try to dial code in system dialer");
         }
 
         return v;
     }
 
     @Override
-    public void onCreate (@Nullable Bundle savedInstanceState){
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (requireContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
+        if (requireContext().getPackageManager()
+            .hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
             tm = (TelephonyManager) requireContext().getSystemService(Context.TELEPHONY_SERVICE);
             cp = tm.hasCarrierPrivileges();
         }
     }
 
     @Override
-    public void onViewCreated (@NonNull View view, @Nullable Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
     }
 
     @SuppressLint("NonConstantResourceId")
-    private void buttonHandler(View view){
+    private void buttonHandler(View view) {
         if (cp) {
             switch (view.getId()) {
                 case R.id.bt_android_testing:
@@ -108,7 +110,9 @@ public class SpecialCodesFragment extends Fragment {
                     tm.sendDialerSpecialCode(special_code.getText().toString());
             }
         } else {
-            Toast.makeText(getContext(), "Carrier Permissions needed, try to dial code in system dialer", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(),
+                    "Carrier Permissions needed, try to dial code in system dialer", Toast.LENGTH_LONG)
+                .show();
         }
     }
 }

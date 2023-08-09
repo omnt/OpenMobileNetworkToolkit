@@ -3,12 +3,8 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import android.icu.text.SimpleDateFormat;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,14 +17,16 @@ import java.util.Locale;
 
 public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = "GlobalExceptionHandler";
-    private Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
+    private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
+
     public GlobalExceptionHandler() {
         this.uncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
     }
 
     @Override
     public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/debug/";
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            .getAbsolutePath() + "/omnt/debug/";
         try {
             Files.createDirectories(Paths.get(path));
         } catch (IOException ioException) {

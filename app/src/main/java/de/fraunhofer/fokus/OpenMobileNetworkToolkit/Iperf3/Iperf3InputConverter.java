@@ -2,7 +2,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import androidx.room.ProvidedTypeConverter;
 import androidx.room.TypeConverter;
-
 import com.google.gson.Gson;
 
 @ProvidedTypeConverter

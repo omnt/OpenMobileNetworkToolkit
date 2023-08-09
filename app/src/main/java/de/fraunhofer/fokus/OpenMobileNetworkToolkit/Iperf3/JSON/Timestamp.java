@@ -1,4 +1,3 @@
-
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON;
 
 

@@ -21,11 +21,9 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 
@@ -35,8 +33,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
  * and wiping out all the data in the profile.
  */
 public class BasicManagedProfileFragment extends Fragment implements
-        View.OnClickListener,
-        CompoundButton.OnCheckedChangeListener {
+    View.OnClickListener,
+    CompoundButton.OnCheckedChangeListener {
 
     /**
      * Tag for logging.
@@ -82,16 +80,17 @@ public class BasicManagedProfileFragment extends Fragment implements
             } else {
                 packageFlags = PackageManager.MATCH_UNINSTALLED_PACKAGES;
             }
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, packageFlags);
+            ApplicationInfo applicationInfo =
+                packageManager.getApplicationInfo(packageName, packageFlags);
             // Return false if the app is not installed in this profile
             if (0 == (applicationInfo.flags & ApplicationInfo.FLAG_INSTALLED)) {
                 return false;
             }
             // Check if the app is not hidden in this profile
             DevicePolicyManager devicePolicyManager =
-                    (DevicePolicyManager) activity.getSystemService(Activity.DEVICE_POLICY_SERVICE);
+                (DevicePolicyManager) activity.getSystemService(Activity.DEVICE_POLICY_SERVICE);
             return !devicePolicyManager.isApplicationHidden(
-                    BasicDeviceAdminReceiver.getComponentName(activity), packageName);
+                BasicDeviceAdminReceiver.getComponentName(activity), packageName);
         } catch (PackageManager.NameNotFoundException exception) {
             return false;
         }
@@ -118,7 +117,7 @@ public class BasicManagedProfileFragment extends Fragment implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.enable_forwarding: {
                 enableForwarding();
                 break;
@@ -141,12 +140,9 @@ public class BasicManagedProfileFragment extends Fragment implements
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        switch (buttonView.getId()) {
-            case R.id.preferential_switch: {
-                setPreferentialEnabled();
-                mPreferentialNetwork = isChecked;
-                break;
-            }
+        if (buttonView.getId() == R.id.preferential_switch) {
+            setPreferentialEnabled();
+            mPreferentialNetwork = isChecked;
         }
     }
 
@@ -157,32 +153,33 @@ public class BasicManagedProfileFragment extends Fragment implements
      * @param enabled     Pass true to enable the app.
      */
 
-    private void setAppEnabled(String packageName, boolean enabled){
+    private void setAppEnabled(String packageName, boolean enabled) {
         Activity activity = getActivity();
-        if(null == activity) {
+        if (null == activity) {
             return;
         }
         PackageManager packageManager = activity.getPackageManager();
         DevicePolicyManager devicePolicyManager =
-                (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
 
         try {
             int packageFlags;
-            if(Build.VERSION.SDK_INT < 24){
+            if (Build.VERSION.SDK_INT < 24) {
                 //noinspection deprecation
                 packageFlags = PackageManager.GET_UNINSTALLED_PACKAGES;
             } else {
                 packageFlags = PackageManager.MATCH_UNINSTALLED_PACKAGES;
             }
-            ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, packageFlags);
+            ApplicationInfo applicationInfo =
+                packageManager.getApplicationInfo(packageName, packageFlags);
             // Here, we check the ApplicationInfo of the target app, and see if the flags have
             // ApplicationInfo.FLAG_INSTALLED turned on using bitwise operation.
             if (0 == (applicationInfo.flags & ApplicationInfo.FLAG_INSTALLED)) {
                 // If the app is not installed in this profile, we can enable it by
                 // DPM.enableSystemApp
-                if(enabled) {
+                if (enabled) {
                     devicePolicyManager.enableSystemApp(
-                            BasicDeviceAdminReceiver.getComponentName(activity), packageName);
+                        BasicDeviceAdminReceiver.getComponentName(activity), packageName);
                 } else {
                     // But we cannot disable the app since it is already disabled
                     Log.e(TAG, "Cannot disable this app: " + packageName);
@@ -192,11 +189,11 @@ public class BasicManagedProfileFragment extends Fragment implements
                 // If the app is already installed, we can enable or disable it by
                 // DPM.setApplicationHidden
                 devicePolicyManager.setApplicationHidden(
-                        BasicDeviceAdminReceiver.getComponentName(activity), packageName, !enabled);
+                    BasicDeviceAdminReceiver.getComponentName(activity), packageName, !enabled);
             }
             Toast.makeText(activity, enabled ? R.string.enabled : R.string.disabled,
-                    Toast.LENGTH_SHORT).show();
-        } catch (PackageManager.NameNotFoundException exception){
+                Toast.LENGTH_SHORT).show();
+        } catch (PackageManager.NameNotFoundException exception) {
             Log.e(TAG, "The app cannot be found: " + packageName, exception);
         }
     }
@@ -210,14 +207,14 @@ public class BasicManagedProfileFragment extends Fragment implements
             return;
         }
         DevicePolicyManager manager =
-                (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
         try {
             IntentFilter filter = new IntentFilter(Intent.ACTION_SEND);
             filter.addDataType("text/plain");
             filter.addDataType("image/jpeg");
             // This is how you can register an IntentFilter as allowed pattern of Intent forwarding
             manager.addCrossProfileIntentFilter(BasicDeviceAdminReceiver.getComponentName(activity),
-                    filter, FLAG_MANAGED_CAN_ACCESS_PARENT | FLAG_PARENT_CAN_ACCESS_MANAGED);
+                filter, FLAG_MANAGED_CAN_ACCESS_PARENT | FLAG_PARENT_CAN_ACCESS_MANAGED);
         } catch (IntentFilter.MalformedMimeTypeException e) {
             e.printStackTrace();
         }
@@ -232,7 +229,7 @@ public class BasicManagedProfileFragment extends Fragment implements
             return;
         }
         DevicePolicyManager manager =
-                (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
         manager.clearCrossProfileIntentFilters(BasicDeviceAdminReceiver.getComponentName(activity));
     }
 
@@ -246,12 +243,12 @@ public class BasicManagedProfileFragment extends Fragment implements
             return;
         }
         DevicePolicyManager manager =
-                (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TEXT,
-                manager.isProfileOwnerApp(activity.getApplicationContext().getPackageName())
-                        ? "From the managed account" : "From the primary account");
+            manager.isProfileOwnerApp(activity.getApplicationContext().getPackageName())
+                ? "From the managed account" : "From the primary account");
         try {
             startActivity(intent);
             Log.d(TAG, "A sample intent was sent.");
@@ -269,7 +266,7 @@ public class BasicManagedProfileFragment extends Fragment implements
             return;
         }
         DevicePolicyManager manager =
-                (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
         manager.wipeData(0);
         // The screen turns off here
     }
@@ -280,7 +277,9 @@ public class BasicManagedProfileFragment extends Fragment implements
             Context context = getContext();
             if (context != null) {
                 try {
-                    DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+                    DevicePolicyManager devicePolicyManager =
+                        (DevicePolicyManager) context.getSystemService(
+                            Context.DEVICE_POLICY_SERVICE);
                     devicePolicyManager.setPreferentialNetworkServiceEnabled(true);
                     Log.d(TAG, "setPreferentialNetworkServiceEnabled");
                     flag = true;

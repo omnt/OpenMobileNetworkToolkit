@@ -3,7 +3,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Udp{
+public class Udp {
     @SerializedName("socket")
     @Expose
     public Integer socket;
