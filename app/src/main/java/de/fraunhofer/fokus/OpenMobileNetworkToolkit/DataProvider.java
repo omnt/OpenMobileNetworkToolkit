@@ -33,14 +33,16 @@ import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
-
 import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -51,12 +53,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
 
 public class DataProvider {
     private static final String TAG = "DataProvider";
@@ -74,7 +70,9 @@ public class DataProvider {
         lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
         boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
-        feature_phone_state = (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
+        feature_phone_state =
+            (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) ==
+                PackageManager.PERMISSION_GRANTED);
 
         if (feature_telephony) {
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -92,7 +90,10 @@ public class DataProvider {
 
     // return location object if available
     public Location getLocation() {
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) !=
+            PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
             return null;
         }
         Location lastLocation;
@@ -132,17 +133,18 @@ public class DataProvider {
 
     // return a network Information Object
     public NetworkInformation getNetworkInformation() {
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) !=
+            PackageManager.PERMISSION_GRANTED) {
             return null;
         }
         return new NetworkInformation(
-                tm.getNetworkOperatorName(),
-                tm.getSimOperatorName(),
-                tm.getNetworkSpecifier(),
-                tm.getDataState(),
-                tm.getDataNetworkType(),
-                tm.getPhoneType(),
-                tm.getPreferredOpportunisticDataSubscription()
+            tm.getNetworkOperatorName(),
+            tm.getSimOperatorName(),
+            tm.getNetworkSpecifier(),
+            tm.getDataState(),
+            tm.getDataNetworkType(),
+            tm.getPhoneType(),
+            tm.getPreferredOpportunisticDataSubscription()
         );
     }
 
@@ -156,14 +158,16 @@ public class DataProvider {
         point.addField("SimOperatorName", ni.getSimOperatorName());
         point.addField("DataState", ni.getDataState());
         point.addField("PhoneType", ni.getPhoneType());
-        point.addField("PreferredOpportunisticDataSubscriptionId", ni.getPreferredOpportunisticDataSubscriptionId());
+        point.addField("PreferredOpportunisticDataSubscriptionId",
+            ni.getPreferredOpportunisticDataSubscriptionId());
         return point;
     }
 
     // return all cell information as a list. This list also contains not available cells
     public List<CellInfo> getAllCellInfo() {
         List<CellInfo> cellInfo;
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) !=
+            PackageManager.PERMISSION_GRANTED) {
             return null;
         } else {
             cellInfo = tm.getAllCellInfo();
@@ -188,7 +192,8 @@ public class DataProvider {
             Point point = new Point("CellInformation");
             point.time(ts, WritePrecision.MS);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                point.addField("OperatorAlphaLong", (String) ci.getCellIdentity().getOperatorAlphaLong());
+                point.addField("OperatorAlphaLong",
+                    (String) ci.getCellIdentity().getOperatorAlphaLong());
             }
             point.addField("CellConnectionStatus", ci.getCellConnectionStatus());
             point.addField("IsRegistered", ci.isRegistered());
@@ -351,7 +356,8 @@ public class DataProvider {
     public List<NetworkInterfaceInformation> getNetworkInterfaceInformation() {
         List<NetworkInterfaceInformation> niil = new ArrayList<>();
         try {
-            List<NetworkInterface> networkInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            List<NetworkInterface> networkInterfaces =
+                Collections.list(NetworkInterface.getNetworkInterfaces());
             for (NetworkInterface networkInterface : networkInterfaces) {
                 List<InetAddress> iNets = Collections.list(networkInterface.getInetAddresses());
                 for (InetAddress iNet : iNets) {
@@ -469,10 +475,12 @@ public class DataProvider {
     }
 
     public ArrayList<SignalStrengthInformation> getSignalStrength() {
-        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
+        List<android.telephony.CellSignalStrength> css =
+            Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
         ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
         for (CellSignalStrength ss : css) {
-            SignalStrengthInformation signalStrengthInformation = new SignalStrengthInformation(System.currentTimeMillis());
+            SignalStrengthInformation signalStrengthInformation =
+                new SignalStrengthInformation(System.currentTimeMillis());
             if (ss instanceof CellSignalStrengthNr) {
                 CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
                 signalStrengthInformation.setLevel(ssnr.getLevel());
@@ -482,7 +490,8 @@ public class DataProvider {
                 signalStrengthInformation.setSSRSRP(ssnr.getSsRsrp());
                 signalStrengthInformation.setSSRSRQ(ssnr.getSsRsrq());
                 signalStrengthInformation.setSSSINR(ssnr.getSsSinr());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.NR);
+                signalStrengthInformation.setConnectionType(
+                    SignalStrengthInformation.connectionTypes.NR);
             }
             if (ss instanceof CellSignalStrengthLte) {
                 CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
@@ -493,13 +502,15 @@ public class DataProvider {
                 signalStrengthInformation.setRSRQ(ssLTE.getRsrp());
                 signalStrengthInformation.setRSSI(ssLTE.getRssi());
                 signalStrengthInformation.setRSSNR(ssLTE.getRssnr());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.LTE);
+                signalStrengthInformation.setConnectionType(
+                    SignalStrengthInformation.connectionTypes.LTE);
             }
             if (ss instanceof CellSignalStrengthCdma) {
                 CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
                 signalStrengthInformation.setLevel(ssCdma.getLevel());
                 signalStrengthInformation.setEvoDbm(ssCdma.getEvdoDbm());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.CDMA);
+                signalStrengthInformation.setConnectionType(
+                    SignalStrengthInformation.connectionTypes.CDMA);
             }
             if (ss instanceof CellSignalStrengthGsm) {
                 CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
@@ -509,7 +520,8 @@ public class DataProvider {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     signalStrengthInformation.setRSSI(ssGSM.getRssi());
                 }
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.GSM);
+                signalStrengthInformation.setConnectionType(
+                    SignalStrengthInformation.connectionTypes.GSM);
             }
             signalStrengthInformations.add(signalStrengthInformation);
 
@@ -520,7 +532,8 @@ public class DataProvider {
     public Point getSignalStrengthPoint() {
         Point point = new Point("SignalStrength");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
-        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
+        List<android.telephony.CellSignalStrength> css =
+            Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
         for (CellSignalStrength ss : css) {
             if (ss instanceof CellSignalStrengthNr) {
                 CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;

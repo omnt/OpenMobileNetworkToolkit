@@ -10,11 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class SetupProfileFragment extends Fragment {
@@ -28,16 +26,16 @@ public class SetupProfileFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
+        @NonNull LayoutInflater inflater,
+        @Nullable ViewGroup container,
+        @Nullable Bundle savedInstanceState
     ) {
         return inflater.inflate(R.layout.setup_profile_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        view.findViewById(R.id.set_up_profile).setOnClickListener((v) ->  provisionManagedProfile());
+        view.findViewById(R.id.set_up_profile).setOnClickListener((v) -> provisionManagedProfile());
     }
 
     /**
@@ -46,41 +44,41 @@ public class SetupProfileFragment extends Fragment {
      */
     private void provisionManagedProfile() {
         Activity activity = getActivity();
-        if(null == activity){
+        if (null == activity) {
             return;
         }
 
         Intent intent = new Intent(DevicePolicyManager.ACTION_PROVISION_MANAGED_PROFILE);
 
         // Use a different intent extra below M to configure the admin component.
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             intent.putExtra(
-                    DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME,
-                    activity.getApplicationContext().getPackageName()
+                DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME,
+                activity.getApplicationContext().getPackageName()
             );
         } else {
             final ComponentName componentName = new ComponentName(activity,
-                    BasicDeviceAdminReceiver.class.getName());
+                BasicDeviceAdminReceiver.class.getName());
             intent.putExtra(
-                    DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME,
-                    componentName
+                DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME,
+                componentName
             );
         }
 
-        if(intent.resolveActivity(activity.getPackageManager()) != null){
+        if (intent.resolveActivity(activity.getPackageManager()) != null) {
             startActivityForResult(intent, REQUEST_PROVISION_MANAGED_PROFILE);
             activity.finish();
         } else {
             Toast.makeText(activity, "Device provisioning is not enabled. Stopping.",
-                    Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if(requestCode == REQUEST_PROVISION_MANAGED_PROFILE){
-            if(requestCode == Activity.RESULT_OK){
+        if (requestCode == REQUEST_PROVISION_MANAGED_PROFILE) {
+            if (requestCode == Activity.RESULT_OK) {
                 Toast.makeText(getActivity(), "Provisioning done.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), "Provisioning failed.", Toast.LENGTH_SHORT).show();

@@ -9,23 +9,15 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.core.content.res.ResourcesCompat;
-
-import java.util.ArrayList;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import java.util.ArrayList;
 
 public class Iperf3ListAdapter extends BaseAdapter {
     Context context;
     LayoutInflater inflater;
     Iperf3ResultsDataBase db;
     ArrayList<String> uids;
-
-    public void setUids(ArrayList<String> uids) {
-        this.uids = uids;
-    }
-
 
     public Iperf3ListAdapter(Context context, ArrayList<String> uids) {
         this.context = context;
@@ -34,7 +26,9 @@ public class Iperf3ListAdapter extends BaseAdapter {
         this.uids = uids;
     }
 
-
+    public void setUids(ArrayList<String> uids) {
+        this.uids = uids;
+    }
 
     @Override
     public int getCount() {
@@ -52,7 +46,6 @@ public class Iperf3ListAdapter extends BaseAdapter {
     }
 
 
-
     @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -64,16 +57,18 @@ public class Iperf3ListAdapter extends BaseAdapter {
         TextView iperf3State = convertView.findViewById(R.id.iperf3State);
         ImageView icon = convertView.findViewById(R.id.iperf3RunningIndicator);
 
-        Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
+        Drawable drawable =
+            ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_error_outline, null);
 
         Iperf3RunResult test = (Iperf3RunResult) getItem(position);
 
         command.setText(test.input.measurementName);
-        iperf3State.setText(""+test.result);
-        if(test.result == -100)
+        iperf3State.setText("" + test.result);
+        if (test.result == -100) {
             iperf3State.setText("RUN");
+        }
         timestamp.setText(test.input.timestamp.toString());
-        uploaded.setText("Uploaded: "+ test.uploaded);
+        uploaded.setText("Uploaded: " + test.uploaded);
 
         drawable = Iperf3Utils.getDrawable(context, test.result);
         icon.setImageDrawable(drawable);

@@ -24,7 +24,12 @@ public class DeviceInformation {
     private String SubscriberId;
     private String NetworkAccessIdentifier;
     private String SubscriptionId;
-    public DeviceInformation(String model, String manufacturer, String SOCManufacturer, String SOCModel, String radioVersion, String supportedModemCount, String androidSDK, String androidRelease, String deviceSoftwareVersion, String IMEI, String MEID, String simSerial, String subscriberId, String networkAccessIdentifier, String subscriptionId) {
+
+    public DeviceInformation(String model, String manufacturer, String SOCManufacturer,
+                             String SOCModel, String radioVersion, String supportedModemCount,
+                             String androidSDK, String androidRelease, String deviceSoftwareVersion,
+                             String IMEI, String MEID, String simSerial, String subscriberId,
+                             String networkAccessIdentifier, String subscriptionId) {
         Model = model;
         Manufacturer = manufacturer;
         this.SOCManufacturer = SOCManufacturer;
@@ -41,7 +46,9 @@ public class DeviceInformation {
         NetworkAccessIdentifier = networkAccessIdentifier;
         SubscriptionId = subscriptionId;
     }
-    public DeviceInformation(){}
+
+    public DeviceInformation() {
+    }
 
     public String getSecurityPatchLevel() {
         return SecurityPatchLevel;
