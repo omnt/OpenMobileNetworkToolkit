@@ -18,6 +18,12 @@ android {
             keyPassword 'phoenix2020'
             keyAlias 'key0'
         }
+        camp23 {
+            storeFile file('/home/derpeter/projects/c3gsm/ccc.keystore')
+            storePassword 'changeit'
+            keyAlias 'ccc'
+            keyPassword 'changeit'
+        }
     }
     compileSdk 34
 
@@ -43,6 +49,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.camp23
+        }
+        camp23 {
+        signingConfig signingConfigs.camp23
+            debuggable true
         }
     }
     compileOptions {

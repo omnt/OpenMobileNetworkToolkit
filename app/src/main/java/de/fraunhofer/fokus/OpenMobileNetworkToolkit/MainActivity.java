@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -26,31 +27,35 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity
-    implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
-    private static final String TAG = "MainActivity";
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
+
+public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     public TelephonyManager tm;
     public PackageManager pm;
-    public boolean cp = false;
-    public boolean feature_telephony = false;
     protected Context context;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
+    public boolean cp = false;
+    public boolean feature_telephony = false;
     Intent loggingServiceIntent;
+    private static final String TAG = "MainActivity";
     NavController navController;
 
     //@SuppressLint("MissingPermission")
@@ -69,9 +74,7 @@ public class MainActivity extends AppCompatActivity
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
-        NavHostFragment navHostFragment =
-            (NavHostFragment) getSupportFragmentManager().findFragmentById(
-                R.id.fragmentContainerView);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = Objects.requireNonNull(navHostFragment).getNavController();
 
         //allow HTTP / insecure connections for the influxDB client
@@ -85,8 +88,7 @@ public class MainActivity extends AppCompatActivity
         CharSequence name = getString(R.string.channel_name);
         String description = getString(R.string.channel_description);
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        NotificationChannel channel =
-            new NotificationChannel("OMNT_notification_channel", name, importance);
+        NotificationChannel channel = new NotificationChannel("OMNT_notification_channel", name, importance);
         channel.setDescription(description);
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this
@@ -113,18 +115,16 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 if (Objects.equals(key, "carrier_Permission")) {
-                    if (prefs.getBoolean(key, true)) {
+                    if(prefs.getBoolean(key, true)) {
                         Log.i(TAG, "Carrier Permission Approved");
                         cp = tm.hasCarrierPrivileges();
-                        if (cp) {
-                            Toast.makeText(context, "Carrier Permission Approved!",
-                                Toast.LENGTH_SHORT).show();
+                        if(cp){
+                            Toast.makeText(context, "Carrier Permission Approved!", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(context, "Carrier Permissions Rejected!",
-                                Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context,"Carrier Permissions Rejected!", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Log.i(TAG, "Carrier Permission Denied!");
+                        Log.i(TAG,"Carrier Permission Denied!");
                     }
                 }
             }
@@ -135,27 +135,33 @@ public class MainActivity extends AppCompatActivity
         // check permissions
         // todo handle waiting for permissions
         List<String> permissions = new ArrayList<String>();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) !=
-            PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
             permissions.add(Manifest.permission.READ_PHONE_STATE);
         }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-            PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting FINE_LOCATION Permission");
             permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
         }
         // on android 13 an newer we need to ask for permission to show the notification
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Requesting POST_NOTIFICATIONS Permission");
                 permissions.add(Manifest.permission.POST_NOTIFICATIONS);
             }
         }
-        if (!permissions.isEmpty()) {
+        if (!permissions.isEmpty()){
             String[] perms = permissions.toArray(new String[0]);
-            ActivityCompat.requestPermissions(this, perms, 1337);
+            ActivityCompat.requestPermissions(this, perms , 1337);
+        }
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            if (!lm.isLocationEnabled()) {
+                // todo spawn an info window and explain to the user whats happening
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                context.startActivity(intent);
+            }
         }
     }
 
@@ -166,15 +172,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public ComponentName getComponentName(Context context) {
+     public ComponentName getComponentName(Context context) {
         return new ComponentName(context.getApplicationContext(), NetworkCallback.class);
     }
 
     public boolean getOrganization(Context context) {
         boolean flag = false;
 
-        DevicePolicyManager dpm =
-            (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         PackageManager pm = context.getPackageManager();
         ComponentName componentName = getComponentName(context);
 
@@ -189,7 +194,7 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
         intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-            getString(R.string.device_admin_description));
+                getString(R.string.device_admin_description));
         startActivity(intent);
 
         Log.d(TAG, "Is admin active: " + Objects.requireNonNull(dpm).isAdminActive(componentName));
@@ -249,21 +254,18 @@ public class MainActivity extends AppCompatActivity
             case 1: {
                 if (iArr.length == 0 || iArr[0] != 0) {
                     Log.d(TAG, "Could not get READ_PHONE_STATE permission");
-                    Toast.makeText(this, "Could not get READ_PHONE_STATE permission ",
-                        Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
 
                 } else {
                     Log.d(TAG, "Got READ_PHONE_STATE_PERMISSIONS");
-                    Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG)
-                        .show();
+                    Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG).show();
                 }
                 break;
             }
             case 2: {
                 if (iArr.length <= 0 || iArr[0] != 0) {
                     Log.d(TAG, "Could not get LOCATION permission");
-                    Toast.makeText(this, "Could not get LOCATION permissions", Toast.LENGTH_LONG)
-                        .show();
+                    Toast.makeText(this, "Could not get LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
                     Log.d(TAG, "Got LOCATION permission");
                     Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
@@ -274,35 +276,29 @@ public class MainActivity extends AppCompatActivity
             case 3: {
                 if (iArr.length == 0 || iArr[0] != 0) {
                     Log.d(TAG, "Could not get BACKGROUND_LOCATION permission");
-                    Toast.makeText(this, "Could not get BACKGROUND_LOCATION permissions",
-                        Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Could not get BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 } else {
                     Log.d(TAG, "Got BACKGROUND_LOCATION permission");
-                    Toast.makeText(this, "Got BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG)
-                        .show();
+                    Toast.makeText(this, "Got BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
                 }
                 break;
             }
             case 1337:
                 // we need to request background location after we got foreground. todo add more checks here if the user said yes
-                if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION) !=
-                    PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
-                    ActivityCompat.requestPermissions(this,
-                        new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
                 }
         }
     }
 
     public boolean HasCarrierPermissions() {
-        Log.d(TAG, "Carrier Privileges: " + tm.hasCarrierPrivileges());
+        Log.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());
         return tm.hasCarrierPrivileges();
     }
 
     @Override
-    public boolean onPreferenceStartFragment(@NonNull PreferenceFragmentCompat caller,
-                                             Preference pref) {
+    public boolean onPreferenceStartFragment(@NonNull PreferenceFragmentCompat caller, Preference pref) {
         // Instantiate the new Fragment
         Log.d(TAG, "onPreferenceStartFragment: " + pref.getKey());
         switch (pref.getKey()) {

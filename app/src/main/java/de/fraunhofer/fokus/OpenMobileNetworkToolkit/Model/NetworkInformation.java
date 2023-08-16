@@ -1,23 +1,17 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model;
 
 import android.telephony.TelephonyManager;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 
-@Entity
 public class NetworkInformation {
-    private final String networkOperatorName;
-    private final String simOperatorName;
-    private final String networkSpecifier;
-    private final int dataState;
-    private final int dataNetworkType;
-    private final int phoneType;
-    private final int preferredOpportunisticDataSubscriptionId;
-    @PrimaryKey
+    private String networkOperatorName;
+    private String simOperatorName;
+    private String networkSpecifier;
+    private int dataState;
+    private int dataNetworkType;
+    private int phoneType;
+    private int preferredOpportunisticDataSubscriptionId;
     private long timeStamp;
-    public NetworkInformation(String networkOperatorName, String simOperatorName,
-                              String networkSpecifier, int dataState, int dataNetworkType,
-                              int phoneType, int preferredOpportunisitcDataSubscitptionId) {
+    public NetworkInformation(String networkOperatorName, String simOperatorName, String networkSpecifier, int dataState, int dataNetworkType, int phoneType, int preferredOpportunisitcDataSubscitptionId) {
         this.networkOperatorName = networkOperatorName;
         this.simOperatorName = simOperatorName;
         this.networkSpecifier = networkSpecifier;
@@ -27,18 +21,7 @@ public class NetworkInformation {
         this.preferredOpportunisticDataSubscriptionId = preferredOpportunisitcDataSubscitptionId;
         this.timeStamp = System.currentTimeMillis();
     }
-    public NetworkInformation(String networkOperatorName, String simOperatorName,
-                              String networkSpecifier, int dataState, int dataNetworkType,
-                              int phoneType, int preferredOpportunisitcDataSubscitptionId,
-                              long timeStamp) {
-        this.networkOperatorName = networkOperatorName;
-        this.simOperatorName = simOperatorName;
-        this.networkSpecifier = networkSpecifier;
-        this.dataState = dataState;
-        this.dataNetworkType = dataNetworkType;
-        this.phoneType = phoneType;
-        this.preferredOpportunisticDataSubscriptionId = preferredOpportunisitcDataSubscitptionId;
-        this.timeStamp = timeStamp;
+    public NetworkInformation() {
     }
 
     public long getTimeStamp() {
@@ -75,7 +58,7 @@ public class NetworkInformation {
 
     public String getPhoneTypeString() {
         String phoneTypeString = "N/A";
-        switch (phoneType) {
+        switch (phoneType){
             case 0:
                 phoneTypeString = "None";
                 break;
@@ -94,7 +77,7 @@ public class NetworkInformation {
 
     public String getDataStateString() {
         String dataStateString = "N/A";
-        switch (dataState) {
+        switch (dataState){
             case TelephonyManager.DATA_DISCONNECTED:
                 dataStateString = "Disconnected";
                 break;
@@ -119,9 +102,9 @@ public class NetworkInformation {
 
     public String getDataNetworkTypeString() {
         String dataNetworkTypeString = "N/A";
-        switch (dataNetworkType) {
+        switch (dataNetworkType){
             case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-                dataNetworkTypeString = "Unknown";
+                dataNetworkTypeString =  "Unknown";
                 break;
             case TelephonyManager.NETWORK_TYPE_GPRS:
                 dataNetworkTypeString = "GPRS";

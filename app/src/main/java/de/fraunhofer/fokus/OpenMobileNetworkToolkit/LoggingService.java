@@ -29,15 +29,16 @@ import android.telephony.CellInfoNr;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
+
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -45,12 +46,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
@@ -73,6 +79,8 @@ public class LoggingService extends Service {
     private List<Point> logFilePoints;
     private FileOutputStream stream;
     private int interval;
+    private Context context;
+
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
         @Override
@@ -126,11 +134,23 @@ public class LoggingService extends Service {
                 }
             }
 
-            builder.setContentText(
-                new StringBuilder().append(OperatorName).append(" PCI: ").append(PCI)
-                    .append(" CI: ").append(CI));
+            builder.setContentText(new StringBuilder().append(OperatorName).append(" PCI: ").append(PCI).append(" CI: ").append(CI));
             nm.notify(1, builder.build());
             notificationHandler.postDelayed(this, interval);
+        }
+    };
+    private final Runnable requestCellInfoUpdate = new Runnable() {
+        @Override
+        public void run() {
+            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
+                    @Override
+                    public void onCellInfo(@NonNull List<CellInfo> list) {
+                        //for now we do nothing here, but we should add an setting to switch the logging
+                    }
+                });
+            }
+            requestCellInfoUpdateHandler.postDelayed(this, interval);
         }
     };
     // Handle local on-device influxDB
@@ -151,7 +171,13 @@ public class LoggingService extends Service {
 
             }
             // always add location information
-            ic.writePoint(dp.getLocationPoint());
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        ic.writePoints(new ArrayList<>(Collections.singleton(dp.getLocationPoint())));
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 
             remoteInfluxHandler.postDelayed(this, interval);
         }
@@ -160,29 +186,16 @@ public class LoggingService extends Service {
     private final Runnable RemoteInfluxUpdate = new Runnable() {
         @Override
         public void run() {
-            ic.writePoints(getPoints());
+            try {
+                ic.writePoints(getPoints());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             ic.flush();
             remoteInfluxHandler.postDelayed(this, interval);
         }
     };
-    private Context context;
-    private final Runnable requestCellInfoUpdate = new Runnable() {
-        @Override
-        public void run() {
-            if (ActivityCompat.checkSelfPermission(context,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
-                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(),
-                    new TelephonyManager.CellInfoCallback() {
-                        @Override
-                        public void onCellInfo(@NonNull List<CellInfo> list) {
-                            //for now we do nothing here, but we should add an setting to switch the logging
-                        }
-                    });
-            }
-            requestCellInfoUpdateHandler.postDelayed(this, interval);
-        }
-    };
+
 
     @Override
     public void onCreate() {
@@ -209,27 +222,18 @@ public class LoggingService extends Service {
 
         // create intent for notifications
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent =
-            PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // create notification
-            builder =
-                new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(
-                        getText(R.string.loggin_notifaction))
-                    .setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE)
-                    .setContentIntent(pendingIntent)
+            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(getText(R.string.loggin_notifaction)).setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE).setContentIntent(pendingIntent)
                     // prevent to swipe the notification away
                     .setOngoing(true)
                     // don't wait 10 seconds to show the notification
                     .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
         } else {
             // create notification
-            builder =
-                new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(
-                        getText(R.string.loggin_notifaction))
-                    .setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE)
-                    .setContentIntent(pendingIntent)
+            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(getText(R.string.loggin_notifaction)).setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE).setContentIntent(pendingIntent)
                     // prevent to swipe the notification away
                     .setOngoing(true);
         }
@@ -239,13 +243,9 @@ public class LoggingService extends Service {
             public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
                 if (Objects.equals(key, "enable_influx")) {
                     if (prefs.getBoolean(key, false)) {
-                        if (prefs.getString("influx_URL", "").isEmpty() ||
-                            prefs.getString("influx_org", "").isEmpty() ||
-                            prefs.getString("influx_token", "").isEmpty() ||
-                            prefs.getString("influx_bucket", "").isEmpty()) {
+                        if (prefs.getString("influx_URL", "").isEmpty() || prefs.getString("influx_org", "").isEmpty() || prefs.getString("influx_token", "").isEmpty() || prefs.getString("influx_bucket", "").isEmpty()) {
                             Log.i(TAG, "Not all influx settings are present in preferences");
-                            Toast.makeText(getApplicationContext(),
-                                "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
                             prefs.edit().putBoolean("enable_influx", false).apply();
                         } else {
                             setupRemoteInfluxDB();
@@ -385,8 +385,7 @@ public class LoggingService extends Service {
         logFilePoints = new ArrayList<Point>();
 
         // build log file path
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            .getAbsolutePath() + "/omnt/log/";
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/log/";
         try {
             Files.createDirectories(Paths.get(path));
         } catch (IOException e) {
@@ -409,8 +408,7 @@ public class LoggingService extends Service {
         try {
             stream = new FileOutputStream(logfile);
         } catch (FileNotFoundException e) {
-            Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT)
-                .show();
+            Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
 

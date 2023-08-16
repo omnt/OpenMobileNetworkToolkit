@@ -19,6 +19,11 @@ import com.influxdb.client.WriteOptions;
 import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.client.write.Point;
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
+
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 
@@ -88,8 +93,11 @@ public class InfluxdbConnection {
     }
 
     // Add a point to the message queue
-    public boolean writePoint(Point point) {
+    public boolean writePoint(Point point) throws IOException {
+        //InetAddress[] addresses = InetAddress.getAllByName("www.google.com");
         // only add the point if the database is reachable
+        //InetAddress.getByName(url.split(":")[0]).isReachable(1);
+        //if (influxDBClient != null && influxDBClient.ping()) {
         if (influxDBClient != null && influxDBClient.ping()) {
             try {
                 writeApi.writePoint(point);
@@ -105,9 +113,11 @@ public class InfluxdbConnection {
         }
     }
 
-    public boolean writePoints(List<Point> points) {
+    public boolean writePoints(List<Point> points) throws IOException {
         // only add the point if the database is reachable
-        if (influxDBClient != null && influxDBClient.ping()) {
+        //InetAddress.getByName(url.split(":")[0]).isReachable(1);
+        //if (influxDBClient != null && influxDBClient.ping()) {
+        if (influxDBClient != null && InetAddress.getByName(url.split(":")[0]).isReachable(1)) {
             try {
                 for (Point point : points) {
                     writeApi.writePoint(point);

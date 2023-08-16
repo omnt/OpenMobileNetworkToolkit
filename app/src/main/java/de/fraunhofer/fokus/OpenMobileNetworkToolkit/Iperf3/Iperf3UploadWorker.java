@@ -2,46 +2,52 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
 import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedList;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream__1;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.LinkedList;
 
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private final SharedPreferences sp;
-    private final String logFilePath;
-    private final String measurementName;
-    private final String ip;
+    private SharedPreferences sp;
+    private String logFilePath;
+    private String measurementName;
+    private String ip;
 
     private String port;
     private String bandwidth;
     private String duration;
     private String intervalIperf;
     private String bytes;
-    private final String protocol;
+    private String protocol;
 
-    private final boolean rev;
-    private final boolean biDir;
-    private final boolean oneOff;
-    private final boolean client;
+    private boolean rev;
+    private boolean biDir;
+    private boolean oneOff;
+    private boolean client;
 
     public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -51,14 +57,13 @@ public class Iperf3UploadWorker extends Worker {
         measurementName = getInputData().getString("measurementName");
 
         port = getInputData().getString("port");
-        if (port == null) {
+        if(port == null)
             port = "5201";
-        }
         protocol = getInputData().getString("protocol");
         bandwidth = getInputData().getString("bandwidth");
 
-        if (bandwidth == null) {
-            if (protocol.equals("TCP")) {
+        if(bandwidth == null){
+            if(protocol.equals("TCP")) {
                 bandwidth = "unlimited";
             } else {
                 bandwidth = "1000";
@@ -66,16 +71,14 @@ public class Iperf3UploadWorker extends Worker {
         }
 
         duration = getInputData().getString("duration");
-        if (duration == null) {
+        if(duration == null)
             duration = "10";
-        }
         intervalIperf = getInputData().getString("interval");
-        if (intervalIperf == null) {
+        if(intervalIperf == null)
             intervalIperf = "1";
-        }
         bytes = getInputData().getString("bytes");
-        if (bytes == null) {
-            if (protocol.equals("TCP")) {
+        if(bytes == null){
+            if(protocol.equals("TCP")) {
                 bytes = "8";
             } else {
                 bytes = "1470";
@@ -83,22 +86,20 @@ public class Iperf3UploadWorker extends Worker {
         }
 
         rev = getInputData().getBoolean("rev", false);
-        biDir = getInputData().getBoolean("biDir", false);
-        oneOff = getInputData().getBoolean("oneOff", false);
-        client = getInputData().getBoolean("client", false);
+        biDir = getInputData().getBoolean("biDir",false);
+        oneOff = getInputData().getBoolean("oneOff",false);
+        client = getInputData().getBoolean("client",false);
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
-
-    private void setup() {
+    private void setup(){
         influx = InfluxdbConnections.getRicInstance(getApplicationContext());
     }
-
     @NonNull
     @Override
     public Result doWork() {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
-        if (!influx.ping()) {
+        if(!influx.ping()){
             return Result.failure();
         }
         BufferedReader br = null;
@@ -109,18 +110,18 @@ public class Iperf3UploadWorker extends Worker {
             return Result.failure(output);
         }
         Root iperf3AsJson = new Gson().fromJson(br, Root.class);
-        long timestamp = iperf3AsJson.start.timestamp.timesecs.longValue() * 1000;
-        Log.d(TAG, "doWork: " + timestamp);
+        long timestamp = iperf3AsJson.start.timestamp.timesecs.longValue()*1000;
+        Log.d(TAG, "doWork: "+timestamp);
 
         String role = "server";
-        if (iperf3AsJson.start.connectingTo != null) {
+        if(iperf3AsJson.start.connectingTo != null){
             role = "client";
         }
 
 
         LinkedList<Point> points = new LinkedList<Point>();
-        for (Interval interval : iperf3AsJson.intervals) {
-            for (Stream stream : interval.streams) {
+        for (Interval interval: iperf3AsJson.intervals) {
+            for (Stream stream: interval.streams){
                 Point point = new Point(measurementName);
                 point.addTag("bidir", String.valueOf(biDir));
                 point.addTag("sender", String.valueOf(stream.sender));
@@ -132,8 +133,7 @@ public class Iperf3UploadWorker extends Worker {
                 point.addTag("reversed", String.valueOf(rev));
                 point.addTag("oneOff", String.valueOf(oneOff));
                 point.addTag("connectingToHost", iperf3AsJson.start.connectingTo.host);
-                point.addTag("connectingToPort",
-                    String.valueOf(iperf3AsJson.start.connectingTo.port));
+                point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
                 point.addTag("bandwith", bandwidth);
                 point.addTag("duration", duration);
                 point.addTag("bytes", bytes);
@@ -155,12 +155,15 @@ public class Iperf3UploadWorker extends Worker {
                 points.add(point);
             }
         }
-        DataProvider dp = new DataProvider(getApplicationContext());
+        DataProvider dp = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            dp = new DataProvider(getApplicationContext());
+        }
 
         // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
-        for (Stream__1 stream : iperf3AsJson.end.streams) {
+        for (Stream__1 stream : iperf3AsJson.end.streams){
             Stream udp = stream.udp;
-            if (udp == null) {
+            if(udp == null){
                 continue;
             }
             Point point = new Point(measurementName);
@@ -192,11 +195,16 @@ public class Iperf3UploadWorker extends Worker {
             point.addField("out_of_order", udp.outOfOrder);
             points.add(point);
         }
-        for (Point point : points) {
-            point.addTags(dp.getTagsMap());
-            if (!influx.writePoint(point)) {
-                return Result.failure(output);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                for (Point point:points) {
+                    point.addTags(dp.getTagsMap());
+                }
+
             }
+            influx.writePoints(points);
+        } catch (IOException e) {
+            return Result.failure(output);
         }
 
 
