@@ -117,21 +117,33 @@ public class InfluxdbConnection {
         // only add the point if the database is reachable
         //InetAddress.getByName(url.split(":")[0]).isReachable(1);
         //if (influxDBClient != null && influxDBClient.ping()) {
-        if (influxDBClient != null && InetAddress.getByName(url.split(":")[0]).isReachable(1)) {
-            try {
-                for (Point point : points) {
-                    writeApi.writePoint(point);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (influxDBClient != null && InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(50)) {
+                        try {
+                            for (Point point : points) {
+                                writeApi.writePoint(point);
+                            }
+                        } catch (com.influxdb.exceptions.InfluxException e) {
+                            Log.d(TAG, "writePoint: Error while writing points to influx DB");
+                            e.printStackTrace();
+                            //return false;
+                        }
+                        //return true;
+                    } else {
+                        Log.d(TAG, "writePoints: InfluxDB not reachable: " + url.split(":")[1].replace("//",""));
+                        //return false;
+                    }
                 }
-            } catch (com.influxdb.exceptions.InfluxException e) {
-                Log.d(TAG, "writePointa: Error while writing points to influx DB");
-                e.printStackTrace();
-                return false;
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
-            return true;
-        } else {
-            Log.d(TAG, "writePoints: InfluxDB not reachable");
-            return false;
-        }
+        }).start();
+        return true;
     }
 
     // Setup a local database and store credentials
@@ -158,12 +170,20 @@ public class InfluxdbConnection {
 
     // If we can reach the influxDB call flush on the write API
     public boolean flush() {
-        if (influxDBClient.ping()) {
-            writeApi.flush();
-            return true;
-        } else {
-            return false;
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(50)) {
+                        writeApi.flush();
+                    }
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }).start();
+        return true;
     }
 
     public boolean ping() {
