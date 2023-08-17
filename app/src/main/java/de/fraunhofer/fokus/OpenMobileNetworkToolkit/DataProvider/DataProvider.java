@@ -106,6 +106,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
             lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
             if (lm.isLocationEnabled()) {
                 Log.d(TAG, "Location Provider " + lm.getProviders(true).toString());
+                li = new LocationInformation(); // empty LocationInformation to be filled by callback
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     lm.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, this);
                     Location loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
@@ -116,7 +117,6 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                     lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
                     onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)));
                 }
-                li = new LocationInformation(); // empty LocationInformation to be filled by callback
             } else {
                 Log.d(TAG,"GPS is disabled");
             }
@@ -212,7 +212,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     public List<Point> getAllCellInfoPoint() {
         List<Point> points = new ArrayList<>();
         long ts = System.currentTimeMillis();
-        boolean nc = sp.getBoolean("log_neighbour_cells", false);
+        boolean nc = sp.getBoolean("log_neili.ghbour_cells", false);
 
         List<CellInfo> cil = getAllCellInfo();
         for (CellInfo ci : cil) {
@@ -475,14 +475,12 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
 
     // Callbacks for location
     public void onLocationChanged(@NonNull Location location) {
-        if (li != null) {
-            li.setLatitude(location.getLatitude());
-            li.setLongitude(location.getLongitude());
-            li.setAltitude(location.getAltitude());
-            li.setProvider(location.getProvider());
-            li.setAccuracy(location.getAccuracy());
-            li.setSpeed(location.getSpeed());
-        }
+        li.setLatitude(location.getLatitude());
+        li.setLongitude(location.getLongitude());
+        li.setAltitude(location.getAltitude());
+        li.setProvider(location.getProvider());
+        li.setAccuracy(location.getAccuracy());
+        li.setSpeed(location.getSpeed());
     }
 
     public void onProviderDisabled(@NonNull String provider) {
