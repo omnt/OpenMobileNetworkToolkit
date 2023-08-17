@@ -252,6 +252,7 @@ public class HomeFragment extends Fragment {
         tl.addView(rowBuilder("Security Patch Level", di.getSecurityPatchLevel()));
         tl.addView(rowBuilder("IMEI", di.getIMEI()));
         tl.addView(rowBuilder("MEID", di.getMEID()));
+        tl.addView(rowBuilder("IMSI", di.getIMSI()));
         tl.addView(rowBuilder("SIM Serial Number", di.getSimSerial()));
         tl.addView(rowBuilder("Subscriber ID", di.getSubscriberId()));
         tl.addView(rowBuilder("Network Access Identifier", di.getNetworkAccessIdentifier()));

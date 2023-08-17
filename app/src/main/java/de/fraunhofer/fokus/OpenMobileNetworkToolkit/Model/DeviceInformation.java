@@ -19,17 +19,13 @@ public class DeviceInformation {
     private String DeviceSoftwareVersion;
     private String SecurityPatchLevel;
     private String IMEI;
+    private String IMSI;
     private String MEID;
     private String SimSerial;
     private String SubscriberId;
     private String NetworkAccessIdentifier;
     private String SubscriptionId;
-
-    public DeviceInformation(String model, String manufacturer, String SOCManufacturer,
-                             String SOCModel, String radioVersion, String supportedModemCount,
-                             String androidSDK, String androidRelease, String deviceSoftwareVersion,
-                             String IMEI, String MEID, String simSerial, String subscriberId,
-                             String networkAccessIdentifier, String subscriptionId) {
+    public DeviceInformation(String model, String manufacturer, String SOCManufacturer, String SOCModel, String radioVersion, String supportedModemCount, String androidSDK, String androidRelease, String deviceSoftwareVersion, String IMEI, String MEID, String IMSI, String simSerial, String subscriberId, String networkAccessIdentifier, String subscriptionId) {
         Model = model;
         Manufacturer = manufacturer;
         this.SOCManufacturer = SOCManufacturer;
@@ -41,13 +37,21 @@ public class DeviceInformation {
         DeviceSoftwareVersion = deviceSoftwareVersion;
         this.IMEI = IMEI;
         this.MEID = MEID;
+        this.IMSI = IMSI;
         SimSerial = simSerial;
         SubscriberId = subscriberId;
         NetworkAccessIdentifier = networkAccessIdentifier;
         SubscriptionId = subscriptionId;
     }
-
     public DeviceInformation() {
+    }
+
+    public String getIMSI() {
+        return IMSI;
+    }
+
+    public void setIMSI(String IMSI) {
+        this.IMSI = IMSI;
     }
 
     public String getSecurityPatchLevel() {

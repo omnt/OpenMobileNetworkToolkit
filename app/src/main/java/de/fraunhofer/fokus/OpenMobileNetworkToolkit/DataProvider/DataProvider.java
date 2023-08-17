@@ -377,6 +377,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         if (cp) { // todo try root privileges or more fine granular permission
             di.setIMEI(tm.getImei());
             di.setMEID(tm.getMeid());
+            di.setIMSI(getIMSI());
             di.setSimSerial(tm.getSimSerialNumber());
             di.setSubscriberId(tm.getSubscriberId());
             di.setNetworkAccessIdentifier(tm.getNai());
