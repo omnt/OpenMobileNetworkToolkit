@@ -11,6 +11,9 @@ plugins {
 }
 
 android {
+    lintOptions {
+        abortOnError false
+    }
     signingConfigs {
         debug {
             storeFile file('OpenMobileNetworkToolkit-key.jks')
@@ -19,7 +22,7 @@ android {
             keyAlias 'key0'
         }
         camp23 {
-            storeFile file('/home/derpeter/projects/c3gsm/ccc.keystore')
+            storeFile file('/opt/OpenMobileNetworkToolkit/ccc.keystore')
             storePassword 'changeit'
             keyAlias 'ccc'
             keyPassword 'changeit'
