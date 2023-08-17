@@ -212,7 +212,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     public List<Point> getAllCellInfoPoint() {
         List<Point> points = new ArrayList<>();
         long ts = System.currentTimeMillis();
-        boolean nc = sp.getBoolean("log_neili.ghbour_cells", false);
+        boolean nc = sp.getBoolean("log_neilighbour_cells", false);
 
         List<CellInfo> cil = getAllCellInfo();
         for (CellInfo ci : cil) {
