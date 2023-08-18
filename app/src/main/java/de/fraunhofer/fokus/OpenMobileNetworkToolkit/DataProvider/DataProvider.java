@@ -122,11 +122,11 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                     lm.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, this);
                     Location loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
                     if (loc != null) {
-                        //onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER)));
+                        onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER)));
                     }
                 } else {
                     lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                    //onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)));
+                    onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)));
                 }
             } else {
                 Log.d(TAG, "GPS is disabled");
@@ -142,10 +142,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 if (locationResult == null) {
                     return;
                 }
-                //for (Location location : locationResult.getLocations()) {
-                //    onLocationChanged(location);
-                //}
-                onLocationChanged(locationResult.getLocations().get(0));
+                onLocationChanged(locationResult.getLastLocation());
             }
         };
         startLocationUpdates();
