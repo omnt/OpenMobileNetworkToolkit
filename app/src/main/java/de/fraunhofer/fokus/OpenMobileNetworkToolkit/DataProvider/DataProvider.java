@@ -48,6 +48,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.Priority;
 import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -146,6 +147,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 onLocationChanged(locationResult.getLocations().get(0));
             }
         };
+        startLocationUpdates();
 
 
         // initialize internal state
@@ -516,7 +518,12 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     }
 
     private void startLocationUpdates() {
-        LocationRequest locationRequest = new LocationRequest();
+        LocationRequest locationRequest = new LocationRequest.Builder(200)
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .build();
+
+
+
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             flpc.requestLocationUpdates(locationRequest,
                     locationCallback,
