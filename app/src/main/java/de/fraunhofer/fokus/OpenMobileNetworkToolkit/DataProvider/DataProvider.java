@@ -19,6 +19,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.TrafficStats;
 import android.os.Build;
+import android.os.Looper;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellIdentityLte;
 import android.telephony.CellIdentityNr;
@@ -43,6 +44,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -85,6 +90,9 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     private LocationInformation li;
     private NetworkInformation ni = new NetworkInformation();
     private NetworkInterfaceInformation nii = new NetworkInterfaceInformation();
+    private FusedLocationProviderClient flpc;
+    private LocationCallback locationCallback;
+
 
     public DataProvider(Context context) {
         ct = context;
@@ -105,25 +113,40 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
             if (lm.isLocationEnabled()) {
-                Log.d(TAG, "Location Provider " + lm.getProviders(true).toString());
+                Log.d(TAG, "Location Provider " + lm.getProviders(true));
                 li = new LocationInformation(); // empty LocationInformation to be filled by callback
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
                     lm.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, this);
                     Location loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
                     if (loc != null) {
-                        onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER)));
+                        //onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER)));
                     }
                 } else {
                     lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                    onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)));
+                    //onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)));
                 }
             } else {
-                Log.d(TAG,"GPS is disabled");
+                Log.d(TAG, "GPS is disabled");
             }
         } else {
             Log.d(TAG, "DataProvider: No Location Permissions");
             // todo we need to handle this in more details as we can't run without it
         }
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                //for (Location location : locationResult.getLocations()) {
+                //    onLocationChanged(location);
+                //}
+                onLocationChanged(locationResult.getLocations().get(0));
+            }
+        };
+
 
         // initialize internal state
         refreshNetworkInformation();
@@ -353,12 +376,12 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     }
 
     // return a deviceInformation object with device specific information
-    public DeviceInformation getDeviceInformation(){
+    public DeviceInformation getDeviceInformation() {
         return di;
     }
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
-    public void refreshDeviceInformation(){
+    public void refreshDeviceInformation() {
         di.setModel(Build.MODEL);
         di.setManufacturer(Build.MANUFACTURER);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -483,12 +506,22 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         li.setSpeed(location.getSpeed());
     }
 
+
     public void onProviderDisabled(@NonNull String provider) {
         Log.d(TAG, String.format("%s is disabled", provider));
     }
 
     public void onProviderEnabled(@NonNull String provider) {
         Log.d(TAG, String.format("%s is enabled", provider));
+    }
+
+    private void startLocationUpdates() {
+        LocationRequest locationRequest = new LocationRequest();
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            flpc.requestLocationUpdates(locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper());
+        }
     }
 
     @Override
