@@ -344,7 +344,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             tags_map_modifiable.put("soc_model", di.getSOCModel());
         }
-        if (tm.hasCarrierPrivileges()) {
+        if (cp) {
             tags_map_modifiable.put("imei", di.getIMEI());
             tags_map_modifiable.put("imsi", getIMSI());
         }
