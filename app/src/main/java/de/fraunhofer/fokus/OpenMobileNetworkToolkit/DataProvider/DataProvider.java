@@ -48,6 +48,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
@@ -237,7 +238,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     public List<Point> getAllCellInfoPoint() {
         List<Point> points = new ArrayList<>();
         long ts = System.currentTimeMillis();
-        boolean nc = sp.getBoolean("log_neilighbour_cells", false);
+        boolean nc = sp.getBoolean("log_neighbour_cells", false);
 
         List<CellInfo> cil = getAllCellInfo();
         for (CellInfo ci : cil) {
@@ -521,10 +522,8 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         LocationRequest locationRequest = new LocationRequest.Builder(200)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build();
-
-
-
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        flpc = LocationServices.getFusedLocationProviderClient(ct);
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             flpc.requestLocationUpdates(locationRequest,
                     locationCallback,
                     Looper.getMainLooper());
