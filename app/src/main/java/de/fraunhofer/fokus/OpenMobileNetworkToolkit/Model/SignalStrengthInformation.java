@@ -24,6 +24,9 @@ public class SignalStrengthInformation {
         this.timestamp = timestamp;
     }
 
+    public SignalStrengthInformation() {
+    }
+
     public connectionTypes getConnectionType() {
         return this.connectionType;
     }

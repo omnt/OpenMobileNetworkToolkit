@@ -146,7 +146,7 @@ public class LoggingService extends Service {
                 tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
                     @Override
                     public void onCellInfo(@NonNull List<CellInfo> list) {
-                        //for now we do nothing here, but we should add an setting to switch the logging
+                        dp.onCellInfoChanged(list);
                     }
                 });
             }

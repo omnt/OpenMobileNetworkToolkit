@@ -33,6 +33,7 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
+import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
@@ -612,51 +613,57 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     }
 
     public ArrayList<SignalStrengthInformation> getSignalStrength() {
-        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
-        ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
-        for (CellSignalStrength ss : css) {
-            SignalStrengthInformation signalStrengthInformation = new SignalStrengthInformation(System.currentTimeMillis());
-            if (ss instanceof CellSignalStrengthNr) {
-                CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
-                signalStrengthInformation.setLevel(ssnr.getLevel());
-                signalStrengthInformation.setCsiRSRP(ssnr.getCsiRsrp());
-                signalStrengthInformation.setCsiRSRQ(ssnr.getCsiRsrq());
-                signalStrengthInformation.setCsiSINR(ssnr.getCsiSinr());
-                signalStrengthInformation.setSSRSRP(ssnr.getSsRsrp());
-                signalStrengthInformation.setSSRSRQ(ssnr.getSsRsrq());
-                signalStrengthInformation.setSSSINR(ssnr.getSsSinr());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.NR);
-            }
-            if (ss instanceof CellSignalStrengthLte) {
-                CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
-                signalStrengthInformation.setLevel(ssLTE.getLevel());
-                signalStrengthInformation.setCQI(ssLTE.getCqi());
-
-                signalStrengthInformation.setRSRQ(ssLTE.getRsrq());
-                signalStrengthInformation.setRSRQ(ssLTE.getRsrp());
-                signalStrengthInformation.setRSSI(ssLTE.getRssi());
-                signalStrengthInformation.setRSSNR(ssLTE.getRssnr());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.LTE);
-            }
-            if (ss instanceof CellSignalStrengthCdma) {
-                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
-                signalStrengthInformation.setLevel(ssCdma.getLevel());
-                signalStrengthInformation.setEvoDbm(ssCdma.getEvdoDbm());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.CDMA);
-            }
-            if (ss instanceof CellSignalStrengthGsm) {
-                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
-                signalStrengthInformation.setLevel(ssGSM.getLevel());
-                signalStrengthInformation.setAsuLevel(ssGSM.getAsuLevel());
-                signalStrengthInformation.setDbm(ssGSM.getDbm());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    signalStrengthInformation.setRSSI(ssGSM.getRssi());
+        SignalStrength signalStrength = tm.getSignalStrength();
+        if (signalStrength != null) {
+            List<android.telephony.CellSignalStrength> css = signalStrength.getCellSignalStrengths();
+            ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
+            for (CellSignalStrength ss : css) {
+                SignalStrengthInformation signalStrengthInformation = new SignalStrengthInformation(System.currentTimeMillis());
+                if (ss instanceof CellSignalStrengthNr) {
+                    CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
+                    signalStrengthInformation.setLevel(ssnr.getLevel());
+                    signalStrengthInformation.setCsiRSRP(ssnr.getCsiRsrp());
+                    signalStrengthInformation.setCsiRSRQ(ssnr.getCsiRsrq());
+                    signalStrengthInformation.setCsiSINR(ssnr.getCsiSinr());
+                    signalStrengthInformation.setSSRSRP(ssnr.getSsRsrp());
+                    signalStrengthInformation.setSSRSRQ(ssnr.getSsRsrq());
+                    signalStrengthInformation.setSSSINR(ssnr.getSsSinr());
+                    signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.NR);
                 }
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.GSM);
-            }
-            signalStrengthInformations.add(signalStrengthInformation);
+                if (ss instanceof CellSignalStrengthLte) {
+                    CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
+                    signalStrengthInformation.setLevel(ssLTE.getLevel());
+                    signalStrengthInformation.setCQI(ssLTE.getCqi());
 
+                    signalStrengthInformation.setRSRQ(ssLTE.getRsrq());
+                    signalStrengthInformation.setRSRQ(ssLTE.getRsrp());
+                    signalStrengthInformation.setRSSI(ssLTE.getRssi());
+                    signalStrengthInformation.setRSSNR(ssLTE.getRssnr());
+                    signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.LTE);
+                }
+                if (ss instanceof CellSignalStrengthCdma) {
+                    CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
+                    signalStrengthInformation.setLevel(ssCdma.getLevel());
+                    signalStrengthInformation.setEvoDbm(ssCdma.getEvdoDbm());
+                    signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.CDMA);
+                }
+                if (ss instanceof CellSignalStrengthGsm) {
+                    CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
+                    signalStrengthInformation.setLevel(ssGSM.getLevel());
+                    signalStrengthInformation.setAsuLevel(ssGSM.getAsuLevel());
+                    signalStrengthInformation.setDbm(ssGSM.getDbm());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        signalStrengthInformation.setRSSI(ssGSM.getRssi());
+                    }
+                    signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.GSM);
+                }
+                signalStrengthInformations.add(signalStrengthInformation);
+
+            }
+            return signalStrengthInformations;
+        } else {
+            ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
+            return signalStrengthInformations;
         }
-        return signalStrengthInformations;
     }
 }
