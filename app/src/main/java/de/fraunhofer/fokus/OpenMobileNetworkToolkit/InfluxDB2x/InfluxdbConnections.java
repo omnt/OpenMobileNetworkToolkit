@@ -3,6 +3,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Toast;
 import androidx.preference.PreferenceManager;
 
 public class InfluxdbConnections {
@@ -23,6 +24,7 @@ public class InfluxdbConnections {
             String token = sp.getString("influx_token", "");
             if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
                 Log.e(TAG, "Influx parameters incomplete, can't setup logging");
+                Toast.makeText(context, "Influx Parameter not correctly set!", Toast.LENGTH_LONG).show();
                 return null;
             }
 

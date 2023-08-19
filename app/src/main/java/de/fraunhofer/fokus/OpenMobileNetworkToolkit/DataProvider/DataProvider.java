@@ -142,7 +142,10 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 if (locationResult == null) {
                     return;
                 }
-                onLocationChanged(locationResult.getLastLocation());
+                //for (Location location : locationResult.getLocations()) {
+                //    onLocationChanged(location);
+                //}
+                onLocationChanged(locationResult.getLocations().get(0));
             }
         };
         startLocationUpdates();

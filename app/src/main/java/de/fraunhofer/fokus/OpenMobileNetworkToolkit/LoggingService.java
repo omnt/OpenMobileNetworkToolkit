@@ -468,6 +468,10 @@ public class LoggingService extends Service {
     private void setupRemoteInfluxDB() {
         Log.d(TAG, "setupRemoteInfluxDB");
         ic = InfluxdbConnections.getRicInstance(getApplicationContext());
+        if(ic == null){
+            stopRemoteInfluxDB();
+            return;
+        }
         Objects.requireNonNull(ic).open_write_api();
         remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
