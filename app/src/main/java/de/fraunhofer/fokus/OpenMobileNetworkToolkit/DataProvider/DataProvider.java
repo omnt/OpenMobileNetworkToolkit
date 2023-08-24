@@ -533,6 +533,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
 
     @Override
     public void onCellInfoChanged(@NonNull List<CellInfo> list) {
+        if(list == null) return;
         List<CellInformation> ciml = new ArrayList<>();
         for (CellInfo ci : list) {
             CellInformation cim = new CellInformation();
