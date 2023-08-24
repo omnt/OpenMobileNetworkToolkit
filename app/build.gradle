@@ -21,12 +21,6 @@ android {
             keyPassword 'phoenix2020'
             keyAlias 'key0'
         }
-        camp23 {
-            storeFile file('/opt/OpenMobileNetworkToolkit/ccc.keystore')
-            storePassword 'changeit'
-            keyAlias 'ccc'
-            keyPassword 'changeit'
-        }
     }
     compileSdk 34
 
@@ -52,10 +46,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.camp23
+            signingConfig signingConfigs.debug
         }
         debug {
-            signingConfig signingConfigs.camp23
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
