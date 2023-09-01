@@ -32,13 +32,22 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.preference.PreferenceManager;
 
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingWorker;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -57,6 +66,8 @@ import java.util.concurrent.Executors;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
@@ -78,8 +89,14 @@ public class LoggingService extends Service {
     private Handler requestCellInfoUpdateHandler;
     private List<Point> logFilePoints;
     private FileOutputStream stream;
+    private FileOutputStream ping_stream;
     private int interval;
     private Context context;
+    private Handler pingLogging;
+    private String pingInput;
+    private WorkManager wm;
+    private ArrayList<OneTimeWorkRequest> pingWRs;
+
 
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
@@ -219,6 +236,8 @@ public class LoggingService extends Service {
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             cp = tm.hasCarrierPrivileges();
         }
+        wm = WorkManager.getInstance(context);
+
 
         // create intent for notifications
         Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -296,7 +315,15 @@ public class LoggingService extends Service {
         if (sp.getBoolean("enable_local_influx_log", false)) {
             setupLocalFile();
         }
-
+        if(intent.getBooleanExtra("ping", false)){
+            if(intent.getBooleanExtra("ping_stop", false)){
+                stopPing();
+            } else {
+                pingInput = intent.getStringExtra("input");
+                pingWRs = new ArrayList<>();
+                setupPing();
+            }
+        }
         // we need to ask android to update the cell information to update the cached values
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
@@ -490,6 +517,131 @@ public class LoggingService extends Service {
             ic.disconnect();
         }
     }
+
+
+    private final Runnable pingUpdate = new Runnable() {
+        @Override
+        public void run() {
+
+            Data data = new Data.Builder()
+                .putString("input", pingInput)
+                .build();
+            OneTimeWorkRequest pingWR =
+                new OneTimeWorkRequest.Builder(PingWorker.class)
+                    .setInputData(data)
+                    .addTag("Ping").build();
+            pingWRs.add(pingWR);
+
+            wm.beginWith(pingWR).enqueue();
+            Observer observer = new Observer() {
+                @RequiresApi(api = Build.VERSION_CODES.S)
+                @Override
+                public void onChanged(Object o) {
+                    WorkInfo workInfo = (WorkInfo) o;
+                    WorkInfo.State state = workInfo.getState();
+                    Log.d(TAG, "onChanged: "+state.toString());
+                    if(state == WorkInfo.State.RUNNING) {
+                        String line = workInfo.getProgress().getString("ping_line");
+                        if(line == null) return;
+                        Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+)\\] (\\d+ bytes from (\\S+|\\d+\\.\\d+\\.\\d+\\.\\d+)): icmp_seq=(\\d+) ttl=(\\d+) time=([\\d.]+) ms");
+                        Matcher matcher = pattern.matcher(line);
+                        if(matcher.find()){
+                            double rtt = Double.parseDouble(matcher.group(6));
+                            Intent intent = new Intent("ping_rtt");
+                            intent.putExtra("ping_rtt", rtt);
+                            sendBroadcast(intent);
+                        }
+                        return;
+                    }
+                    if(state == WorkInfo.State.ENQUEUED) return;
+                    if(state == WorkInfo.State.CANCELLED) return;
+                    if(state == WorkInfo.State.FAILED) {
+                        pingLogging.postDelayed(pingUpdate, 1000);
+                        return;
+                    }
+
+
+                    String[] strings = workInfo.getOutputData().getStringArray("output");
+                    Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+)\\] (\\d+ bytes from (\\S+|\\d+\\.\\d+\\.\\d+\\.\\d+)): icmp_seq=(\\d+) ttl=(\\d+) time=([\\d.]+) ms");
+                    for (String line : strings) {
+                        Matcher matcher = pattern.matcher(line);
+                        if (matcher.find()) {
+                            Double unixTimestamp = Double.parseDouble(matcher.group(1));
+                            int icmpSeq = Integer.parseInt(matcher.group(4));
+                            int ttl = Integer.parseInt(matcher.group(5));
+                            double rtt = Double.parseDouble(matcher.group(6));
+
+                            // Create an InfluxDB point with the Unix timestamp
+                            Point point = Point.measurement("Ping")
+                                .time(unixTimestamp, WritePrecision.MS)
+                                .addTag("icmp_seq", String.valueOf(icmpSeq))
+                                .addTags(dp.getTagsMap())
+                                .addTag("ttl", String.valueOf(ttl))
+                                .addField("rtt", rtt);
+                            Intent intent = new Intent("ping_rtt");
+                            intent.putExtra("ping_rtt", rtt);
+                            sendBroadcast(intent);
+                            try {
+                                ping_stream.write((point.toLineProtocol() + "\n").getBytes());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
+                        }
+                    }
+                    wm.getWorkInfoByIdLiveData(pingWR.getId()).removeObserver(this);
+                    pingLogging.postDelayed(pingUpdate, 100);
+                }
+            };
+            wm.getWorkInfoByIdLiveData(pingWR.getId()).observeForever(observer);
+        }
+    };
+
+    private void setupPing(){
+        Log.d(TAG, "setupLocalFile");
+
+        // build log file path
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/ping/";
+        try {
+            Files.createDirectories(Paths.get(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // create the log file
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US);
+        Date now = new Date();
+        String filename = path + formatter.format(now) + ".txt";
+        Log.d(TAG, "logfile: " + filename);
+        File logfile = new File(filename);
+        try {
+            logfile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // get an output stream
+        try {
+            ping_stream = new FileOutputStream(logfile);
+        } catch (FileNotFoundException e) {
+            Toast.makeText(context, "logfile not created", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+        pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        pingLogging.post(pingUpdate);
+    }
+
+    private void stopPing(){
+        pingLogging.removeCallbacks(pingUpdate);
+        for (OneTimeWorkRequest oneTimeWorkRequest:pingWRs){
+            wm.cancelWorkById(oneTimeWorkRequest.getId());
+        }
+        pingWRs = new ArrayList<>();
+    }
+
+
+
 
     @Nullable
     @Override

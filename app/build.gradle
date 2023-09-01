@@ -92,6 +92,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0"
     implementation "com.influxdb:influxdb-client-java:6.10.0"
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.github.anastr:speedviewlib:1.6.0'
 }
 
 configurations.implementation {

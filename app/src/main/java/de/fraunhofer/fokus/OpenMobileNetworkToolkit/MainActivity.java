@@ -234,6 +234,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.subscritions:
                 navController.navigate(R.id.subscriptionsFragment);
                 break;
+            case R.id.ping:
+                navController.navigate(R.id.ping_fragment);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

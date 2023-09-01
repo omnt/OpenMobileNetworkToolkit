@@ -25,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionInfo;
@@ -47,8 +48,21 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3UploadWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Worker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingWorker;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -67,6 +81,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 
 public class HomeFragment extends Fragment {
@@ -94,12 +109,12 @@ public class HomeFragment extends Fragment {
 
 
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = requireContext();
-        // Sets the default uncaught exception handler. This handler is invoked
-        // in case any Thread dies due to an unhandled exception.
+
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
     }
 

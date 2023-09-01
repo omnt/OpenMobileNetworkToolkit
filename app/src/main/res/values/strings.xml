@@ -138,6 +138,8 @@
     <string name="enable_local_file_log">Log file</string>
     <string name="upload">upload</string>
     <string name="subscritions">Subscritions</string>
+    <string name="action_ping">Ping</string>
+    <string name="ping_run_continuously">run continuously</string>
 
     <!-- -->
 

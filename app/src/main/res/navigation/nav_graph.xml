@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_subscriptionsFragment"
             app:destination="@id/subscriptionsFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_ping_fragment"
+            app:destination="@id/ping_fragment" />
 
     </fragment>
     <fragment
@@ -50,6 +53,18 @@
         tools:layout="@layout/fragment_about">
         <action
             android:id="@+id/action_about_fragment_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/ping_fragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.PingFragment"
+        android:label="@string/action_ping"
+        tools:layout="@layout/fragment_ping">
+
+        <action
+            android:id="@+id/action_ping_fragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
 
