@@ -11,6 +11,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,6 +45,7 @@ import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import com.google.common.collect.Sets;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
@@ -61,6 +63,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
@@ -239,6 +243,20 @@ public class LoggingService extends Service {
         wm = WorkManager.getInstance(context);
 
 
+
+
+        if(intent.getBooleanExtra("ping", false)){
+            if(intent.getBooleanExtra("ping_stop", false)){
+                stopPing();
+                return START_STICKY;
+            } else {
+                pingInput = intent.getStringExtra("input");
+                pingWRs = new ArrayList<>();
+                setupPing();
+                return START_STICKY;
+            }
+        }
+
         // create intent for notifications
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -315,15 +333,7 @@ public class LoggingService extends Service {
         if (sp.getBoolean("enable_local_influx_log", false)) {
             setupLocalFile();
         }
-        if(intent.getBooleanExtra("ping", false)){
-            if(intent.getBooleanExtra("ping_stop", false)){
-                stopPing();
-            } else {
-                pingInput = intent.getStringExtra("input");
-                pingWRs = new ArrayList<>();
-                setupPing();
-            }
-        }
+
         // we need to ask android to update the cell information to update the cached values
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
@@ -546,15 +556,41 @@ public class LoggingService extends Service {
                         Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+)\\] (\\d+ bytes from (\\S+|\\d+\\.\\d+\\.\\d+\\.\\d+)): icmp_seq=(\\d+) ttl=(\\d+) time=([\\d.]+) ms");
                         Matcher matcher = pattern.matcher(line);
                         if(matcher.find()){
+                            Double unixTimestamp = Double.parseDouble(matcher.group(1));
+                            int icmpSeq = Integer.parseInt(matcher.group(4));
+                            int ttl = Integer.parseInt(matcher.group(5));
                             double rtt = Double.parseDouble(matcher.group(6));
                             Intent intent = new Intent("ping_rtt");
+                            intent.putExtra("ping_running", true);
                             intent.putExtra("ping_rtt", rtt);
                             sendBroadcast(intent);
+
+                            // Create an InfluxDB point with the Unix timestamp
+                            Point point = Point.measurement("Ping")
+                                .time(unixTimestamp, WritePrecision.NS)
+                                .addTags(dp.getTagsMap())
+                                .addField("icmp_seq", String.valueOf(icmpSeq))
+                                .addTag("ttl", String.valueOf(ttl))
+                                .addField("rtt", rtt);
+                            try {
+                                ping_stream.write((point.toLineProtocol() + "\n").getBytes());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
+
                         }
                         return;
                     }
                     if(state == WorkInfo.State.ENQUEUED) return;
-                    if(state == WorkInfo.State.CANCELLED) return;
+                    if(state == WorkInfo.State.CANCELLED) {
+                        try {
+                            ping_stream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
+                    };
                     if(state == WorkInfo.State.FAILED) {
                         pingLogging.postDelayed(pingUpdate, 1000);
                         return;
@@ -578,9 +614,6 @@ public class LoggingService extends Service {
                                 .addTags(dp.getTagsMap())
                                 .addTag("ttl", String.valueOf(ttl))
                                 .addField("rtt", rtt);
-                            Intent intent = new Intent("ping_rtt");
-                            intent.putExtra("ping_rtt", rtt);
-                            sendBroadcast(intent);
                             try {
                                 ping_stream.write((point.toLineProtocol() + "\n").getBytes());
                             } catch (IOException e) {
@@ -590,7 +623,7 @@ public class LoggingService extends Service {
                         }
                     }
                     wm.getWorkInfoByIdLiveData(pingWR.getId()).removeObserver(this);
-                    pingLogging.postDelayed(pingUpdate, 100);
+                    pingLogging.postDelayed(pingUpdate, 1000);
                 }
             };
             wm.getWorkInfoByIdLiveData(pingWR.getId()).observeForever(observer);
@@ -634,9 +667,17 @@ public class LoggingService extends Service {
 
     private void stopPing(){
         pingLogging.removeCallbacks(pingUpdate);
-        for (OneTimeWorkRequest oneTimeWorkRequest:pingWRs){
-            wm.cancelWorkById(oneTimeWorkRequest.getId());
+        try {
+            ping_stream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+
+        wm.cancelAllWorkByTag("Ping");
+        Intent intent = new Intent("ping_rtt");
+        intent.putExtra("ping_rtt", 0);
+        intent.putExtra("ping_running", false);
+        sendBroadcast(intent);
         pingWRs = new ArrayList<>();
     }
 

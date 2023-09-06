@@ -24,11 +24,19 @@ public class PingWorker extends Worker {
     String host;
     Runtime runtime;
     private ArrayList<String> lines;
+    private Process pingProcess;
     public PingWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         runtime = Runtime.getRuntime();
     }
 
+    @Override
+    public void onStopped() {
+        super.onStopped();
+        Log.d(TAG, "onStopped: worker stopped!");
+        if(pingProcess.isAlive()) pingProcess.destroy();
+
+    }
 
     @NonNull
     @Override
@@ -42,7 +50,7 @@ public class PingWorker extends Worker {
                 .append("-D ")
                 .append(getInputData().getString("input"));
 
-            Process pingProcess = runtime.exec(stringBuilder.toString());
+            pingProcess = runtime.exec(stringBuilder.toString());
 
             BufferedReader outputReader =
                 new BufferedReader(new InputStreamReader(pingProcess.getInputStream()));
@@ -52,6 +60,13 @@ public class PingWorker extends Worker {
                 setProgressAsync(new Data.Builder().putString("ping_line", line).build());
             }
 
+            data = new Data.Builder().putStringArray("output", lines.toArray(new String[0]))
+                .build();
+
+            if(isStopped()){
+                Log.d(TAG, "doWork: got cancelled because Worker got stopped!");
+                return Result.success(data);
+            }
 
 
             int result = pingProcess.waitFor();

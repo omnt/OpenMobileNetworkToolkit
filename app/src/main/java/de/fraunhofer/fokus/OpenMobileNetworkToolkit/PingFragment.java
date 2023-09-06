@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +30,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import com.github.anastr.speedviewlib.SpeedView;
+import com.github.anastr.speedviewlib.TubeSpeedometer;
+import com.github.anastr.speedviewlib.components.Style;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
@@ -53,26 +57,19 @@ public class PingFragment extends Fragment {
     private Handler pingLogging;
     private FileOutputStream stream;
     private EditText input;
-    private SpeedView pingSpeed;
+    private TubeSpeedometer pingSpeed;
     public PingFragment() {
-        // Required empty public constructor
-
     }
-    public static PingFragment newInstance(String param1, String param2) {
-        PingFragment fragment = new PingFragment();
-        return fragment;
-    }
-
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-     }
+      }
     private void setupPing(){
         input.setEnabled(false);
         Intent pingStart = new Intent(getContext(), LoggingService.class);
         pingStart.putExtra("input", input.getText().toString());
         pingStart.putExtra("ping", true);
-        pingStart.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getContext().startService(pingStart);
 
     }
@@ -80,11 +77,12 @@ public class PingFragment extends Fragment {
         Intent pingStart = new Intent(getContext(), LoggingService.class);
         pingStart.putExtra("ping", true);
         pingStart.putExtra("ping_stop", true);
-
         pingStart.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getContext().startService(pingStart);
-        input.setEnabled(true);
+    }
 
+    private void handleInput(boolean ping_running){
+        input.setEnabled(!ping_running);
     }
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
@@ -96,32 +94,48 @@ public class PingFragment extends Fragment {
         aSwitch = verticalLL.findViewById(R.id.ping_switch);
         input = verticalLL.findViewById(R.id.ping_input);
 
+        WorkManager wm = WorkManager.getInstance(requireContext());
+
+
+        SharedPreferences sp = getContext().getSharedPreferences("Ping", Context.MODE_PRIVATE);
+
+
         pingSpeed = horizontalLL1.findViewById(R.id.pingSpeed);
+        pingSpeed.makeSections(3, Color.CYAN, Style.BUTT);
+        pingSpeed.getSections().get(0).setColor(Color.GREEN);
+        pingSpeed.getSections().get(1).setColor(Color.BLUE);
+        pingSpeed.getSections().get(2).setColor(Color.RED);
         pingSpeed.setSpeedTextColor(R.color.white);
         pingSpeed.setUnitTextColor(R.color.white);
         pingSpeed.setUnit("ms");
         pingSpeed.setMinSpeed(0);
         pingSpeed.setMaxSpeed(100);
         pingSpeed.setTextColor(R.color.white);
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                double rtt = intent.getExtras().getDouble("ping_rtt");
-                pingSpeed.speedTo((float) rtt);
-
-            }
-        };
-        requireActivity().registerReceiver(receiver, new IntentFilter("ping_rtt"));
+        pingSpeed.setUnitUnderSpeedText(true);
+        aSwitch.setChecked(sp.getBoolean("switch", false));
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Log.d(TAG, "onCheckedChanged: "+b);
                 if(b) setupPing();
                 else stopPing();
+                sp.edit().putBoolean("switch", b).apply();
             }
         });
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                double rtt = intent.getExtras().getDouble("ping_rtt");
+                pingSpeed.speedTo((float) rtt);
+                boolean ping_running = intent.getExtras().getBoolean("ping_running");
+                handleInput(ping_running);
+            }
+        };
+        requireActivity().registerReceiver(receiver, new IntentFilter("ping_rtt"));
+
         return v;
     }
+
+
 
 }

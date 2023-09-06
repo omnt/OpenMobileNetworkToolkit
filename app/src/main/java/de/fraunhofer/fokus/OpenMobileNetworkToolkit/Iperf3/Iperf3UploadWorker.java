@@ -11,14 +11,18 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
@@ -28,6 +32,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream__1;
+import java.util.Map;
 
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
@@ -43,6 +48,9 @@ public class Iperf3UploadWorker extends Worker {
     private String intervalIperf;
     private String bytes;
     private String protocol;
+
+    private DeviceInformation di = new DeviceInformation();
+
 
     private boolean rev;
     private boolean biDir;
@@ -94,6 +102,33 @@ public class Iperf3UploadWorker extends Worker {
     private void setup(){
         influx = InfluxdbConnections.getRicInstance(getApplicationContext());
     }
+
+
+    public Map<String, String> getTagsMap() {
+        String tags = sp.getString("tags", "").strip().replace(" ", "");
+        Map<String, String> tags_map = Collections.emptyMap();
+        if (!tags.isEmpty()) {
+            try {
+                tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
+            } catch (IllegalArgumentException e) {
+                Log.d(TAG, "cant parse tags, ignoring");
+            }
+        }
+        Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
+        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
+        tags_map_modifiable.put("manufacturer", di.getManufacturer());
+        tags_map_modifiable.put("model", di.getModel());
+        tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));
+        tags_map_modifiable.put("android_version", di.getAndroidRelease());
+        tags_map_modifiable.put("secruity_patch", di.getSecurityPatchLevel());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            tags_map_modifiable.put("soc_model", di.getSOCModel());
+        }
+        tags_map_modifiable.put("radio_version", Build.getRadioVersion());
+        return tags_map_modifiable;
+    }
+
+
     @NonNull
     @Override
     public Result doWork() {
@@ -155,10 +190,6 @@ public class Iperf3UploadWorker extends Worker {
                 points.add(point);
             }
         }
-        DataProvider dp = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            dp = new DataProvider(getApplicationContext());
-        }
 
         // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
         for (Stream__1 stream : iperf3AsJson.end.streams){
@@ -198,7 +229,7 @@ public class Iperf3UploadWorker extends Worker {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 for (Point point:points) {
-                    point.addTags(dp.getTagsMap());
+                    point.addTags(getTagsMap());
                 }
 
             }
