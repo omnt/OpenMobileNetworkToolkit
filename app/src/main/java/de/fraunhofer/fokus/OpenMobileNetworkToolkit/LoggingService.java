@@ -527,7 +527,11 @@ public class LoggingService extends Service {
             ic.disconnect();
         }
     }
-
+    private long unixTimestampWithMicrosToMillis(double timestampWithMicros) {
+        long seconds = (long) timestampWithMicros;
+        long microseconds = (long) ((timestampWithMicros - seconds) * 1e6);
+        return seconds * 1000 + microseconds / 1000;
+    }
 
     private final Runnable pingUpdate = new Runnable() {
         @Override
@@ -556,7 +560,7 @@ public class LoggingService extends Service {
                         Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+)\\] (\\d+ bytes from (\\S+|\\d+\\.\\d+\\.\\d+\\.\\d+)): icmp_seq=(\\d+) ttl=(\\d+) time=([\\d.]+) ms");
                         Matcher matcher = pattern.matcher(line);
                         if(matcher.find()){
-                            Double unixTimestamp = Double.parseDouble(matcher.group(1));
+                            long unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
                             int icmpSeq = Integer.parseInt(matcher.group(4));
                             int ttl = Integer.parseInt(matcher.group(5));
                             double rtt = Double.parseDouble(matcher.group(6));
@@ -567,10 +571,10 @@ public class LoggingService extends Service {
 
                             // Create an InfluxDB point with the Unix timestamp
                             Point point = Point.measurement("Ping")
-                                .time(unixTimestamp, WritePrecision.NS)
+                                .time(unixTimestamp, WritePrecision.MS)
                                 .addTags(dp.getTagsMap())
-                                .addField("icmp_seq", String.valueOf(icmpSeq))
-                                .addTag("ttl", String.valueOf(ttl))
+                                .addField("icmp_seq", icmpSeq)
+                                .addField("ttl", ttl)
                                 .addField("rtt", rtt);
                             try {
                                 ping_stream.write((point.toLineProtocol() + "\n").getBytes());
@@ -666,9 +670,9 @@ public class LoggingService extends Service {
     }
 
     private void stopPing(){
-        pingLogging.removeCallbacks(pingUpdate);
+        if(pingLogging != null)  pingLogging.removeCallbacks(pingUpdate);
         try {
-            ping_stream.close();
+            if (ping_stream != null) ping_stream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

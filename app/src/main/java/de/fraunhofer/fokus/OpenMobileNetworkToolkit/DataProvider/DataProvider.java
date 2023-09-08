@@ -468,7 +468,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 addOnlyAvailablePoint(point, "Level", ssnr.getLevel());
                 addOnlyAvailablePoint(point, "CsiRSRP", ssnr.getCsiRsrp());
                 addOnlyAvailablePoint(point, "CsiRSRQ", ssnr.getCsiRsrq());
-                addOnlyAvailablePoint(point, "CsiSINR", ssnr.getSsSinr());
+                addOnlyAvailablePoint(point, "CsiSINR", ssnr.getCsiSinr());
                 addOnlyAvailablePoint(point, "SSRSRP", ssnr.getSsRsrp());
                 addOnlyAvailablePoint(point, "SSRSRQ", ssnr.getSsRsrq());
                 addOnlyAvailablePoint(point, "SSSINR", ssnr.getSsSinr());

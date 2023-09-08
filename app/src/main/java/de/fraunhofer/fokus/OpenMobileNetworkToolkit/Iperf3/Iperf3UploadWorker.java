@@ -191,41 +191,43 @@ public class Iperf3UploadWorker extends Worker {
             }
         }
 
-        // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
-        for (Stream__1 stream : iperf3AsJson.end.streams){
-            Stream udp = stream.udp;
-            if(udp == null){
-                continue;
+        if(iperf3AsJson.end.streams != null) {
+            for (Stream__1 stream : iperf3AsJson.end.streams){
+                Stream udp = stream.udp;
+                if(udp == null){
+                    continue;
+                }
+                Point point = new Point(measurementName);
+                point.addTag("bidir", String.valueOf(biDir));
+
+                point.addTag("sender", String.valueOf(udp.sender));
+                point.addTag("role", role);
+                point.addTag("socket", String.valueOf(udp.socket));
+                point.addTag("protocol", protocol);
+                point.addTag("interval", intervalIperf);
+                point.addTag("version", iperf3AsJson.start.version);
+                point.addTag("reversed", String.valueOf(rev));
+                point.addTag("oneOff", String.valueOf(oneOff));
+                point.addTag("connectingToHost", iperf3AsJson.start.connectingTo.host);
+                point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
+                point.addTag("bandwith", bandwidth);
+                point.addTag("duration", duration);
+                point.addTag("bytes", bytes);
+
+                point.addField("start", udp.start);
+                point.addField("end", udp.end);
+                point.addField("seconds", udp.seconds);
+                point.addField("bytes", udp.bytes);
+                point.addField("bits_per_second", udp.bitsPerSecond);
+                point.addField("jitter_ms", udp.jitterMs);
+                point.addField("lost_packets", udp.lostPackets);
+                point.addField("packets", udp.packets);
+                point.addField("lost_percent", udp.lostPercent);
+                point.addField("out_of_order", udp.outOfOrder);
+                points.add(point);
             }
-            Point point = new Point(measurementName);
-            point.addTag("bidir", String.valueOf(biDir));
-
-            point.addTag("sender", String.valueOf(udp.sender));
-            point.addTag("role", role);
-            point.addTag("socket", String.valueOf(udp.socket));
-            point.addTag("protocol", protocol);
-            point.addTag("interval", intervalIperf);
-            point.addTag("version", iperf3AsJson.start.version);
-            point.addTag("reversed", String.valueOf(rev));
-            point.addTag("oneOff", String.valueOf(oneOff));
-            point.addTag("connectingToHost", iperf3AsJson.start.connectingTo.host);
-            point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
-            point.addTag("bandwith", bandwidth);
-            point.addTag("duration", duration);
-            point.addTag("bytes", bytes);
-
-            point.addField("start", udp.start);
-            point.addField("end", udp.end);
-            point.addField("seconds", udp.seconds);
-            point.addField("bytes", udp.bytes);
-            point.addField("bits_per_second", udp.bitsPerSecond);
-            point.addField("jitter_ms", udp.jitterMs);
-            point.addField("lost_packets", udp.lostPackets);
-            point.addField("packets", udp.packets);
-            point.addField("lost_percent", udp.lostPercent);
-            point.addField("out_of_order", udp.outOfOrder);
-            points.add(point);
         }
+        // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 for (Point point:points) {
