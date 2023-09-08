@@ -11,9 +11,6 @@ plugins {
 }
 
 android {
-    lintOptions {
-        abortOnError false
-    }
     signingConfigs {
         debug {
             storeFile file('OpenMobileNetworkToolkit-key.jks')
@@ -62,6 +59,9 @@ android {
     buildToolsVersion '34.0.0'
     namespace 'de.fraunhofer.fokus.OpenMobileNetworkToolkit'
     ndkVersion '25.2.9519653'
+    lint {
+        abortOnError false
+    }
 }
 
 
