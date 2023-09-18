@@ -156,6 +156,8 @@ public class Iperf3UploadWorker extends Worker {
 
         LinkedList<Point> points = new LinkedList<Point>();
         for (Interval interval: iperf3AsJson.intervals) {
+            int idInterval = iperf3AsJson.intervals.indexOf(interval);
+            long tmpTimestamp = timestamp + (long) (interval.sum.end * 1000);
             for (Stream stream: interval.streams){
                 Point point = new Point(measurementName);
                 point.addTag("bidir", String.valueOf(biDir));
@@ -172,6 +174,8 @@ public class Iperf3UploadWorker extends Worker {
                 point.addTag("bandwith", bandwidth);
                 point.addTag("duration", duration);
                 point.addTag("bytes", bytes);
+                point.addTag("streams", String.valueOf(interval.streams.size()));
+                point.addTag("streamIdx", String.valueOf(interval.streams.indexOf(stream)));
 
 
                 point.addField("bits_per_second", stream.bitsPerSecond);
@@ -184,7 +188,6 @@ public class Iperf3UploadWorker extends Worker {
                 point.addField("lost_packets", stream.lostPackets);
                 point.addField("lost_percent", stream.lostPercent);
 
-                long tmpTimestamp = timestamp + (long) (stream.end * 1000);
                 point.time(tmpTimestamp, WritePrecision.MS);
 
                 points.add(point);

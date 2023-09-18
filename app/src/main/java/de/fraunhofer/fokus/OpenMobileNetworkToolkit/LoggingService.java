@@ -563,6 +563,7 @@ public class LoggingService extends Service {
                             long unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
                             int icmpSeq = Integer.parseInt(matcher.group(4));
                             int ttl = Integer.parseInt(matcher.group(5));
+                            String host = matcher.group(3);
                             double rtt = Double.parseDouble(matcher.group(6));
                             Intent intent = new Intent("ping_rtt");
                             intent.putExtra("ping_running", true);
@@ -573,6 +574,7 @@ public class LoggingService extends Service {
                             Point point = Point.measurement("Ping")
                                 .time(unixTimestamp, WritePrecision.MS)
                                 .addTags(dp.getTagsMap())
+                                .addTag("toHost", host)
                                 .addField("icmp_seq", icmpSeq)
                                 .addField("ttl", ttl)
                                 .addField("rtt", rtt);
@@ -623,6 +625,13 @@ public class LoggingService extends Service {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+
+                            try {
+                                ic.writePoint(point);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                             Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
                         }
                     }
