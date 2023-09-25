@@ -410,14 +410,29 @@ public class LoggingService extends Service {
             }
             logPoints.addAll(ps);
         }
+        if (sp.getBoolean("influx_ip_address_data", false)) {
+            List<Point> ps = dp.getNetworkInterfaceInformationPoints();
+            for (Point p : ps) {
+                if (p.hasFields()) {
+                    p.time(time, WritePrecision.MS);
+                    p.addTags(tags_map);
+                } else {
+                    Log.w(TAG, "Point without fields getCellInfoPoint");
+                }
+            }
+            logPoints.addAll(ps);
+        }
+
+        if (sp.getBoolean("influx_battery_data", false)) {
+            Point bp = dp.getBatteryInformationPoint();
+            bp.time(time, WritePrecision.MS);
+            logPoints.add(bp);
+        }
 
         Point p = dp.getLocationPoint();
         p.time(time, WritePrecision.MS);
         p.addTags(tags_map);
         logPoints.add(p);
-        Point bp = dp.getBatteryInformationPoint();
-        bp.time(time, WritePrecision.MS);
-        logPoints.add(bp);
         return logPoints;
     }
 

@@ -442,6 +442,32 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         return niil;
     }
 
+    public List<Point> getNetworkInterfaceInformationPoints() {
+        List<Point> points = new ArrayList<>();
+        try {
+            List<NetworkInterface> networkInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface networkInterface : networkInterfaces) {
+                List<InetAddress> iNets = Collections.list(networkInterface.getInetAddresses());
+                int i = 0;
+                for (InetAddress iNet : iNets) {
+                    String ifname = networkInterface.getDisplayName();
+                    if (!Objects.equals(ifname, "lo") && !Objects.equals(ifname, "dummy0")) {
+                        Point point = new Point("IPAddressInformation");
+                        point.time(System.currentTimeMillis(), WritePrecision.MS);
+                        point.addTag("interface_name", ifname);
+                        point.addTag("address_index", String.valueOf(i));
+                        i++;
+                        point.addField("address", iNet.getHostAddress());
+                        points.add(point);
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            ex.printStackTrace();
+        }
+        return points;
+    }
+
     // Currently not used in favor of getCellInfoPoint but capt for future use when refactor home fragment
     public List<CellInformation> getCellInformation() {
         return ci;

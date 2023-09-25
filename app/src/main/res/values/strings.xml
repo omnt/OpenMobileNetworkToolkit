@@ -75,6 +75,8 @@
     <string name="influx_throughput_data">Log throughput information</string>
     <string name="influx_cell_data">Log cell information</string>
     <string name="influx_signal_data">Log signal information</string>
+    <string name="influx_ip_address_data">Log IP addresses</string>
+    <string name="influx_battery_data">Log battery information</string>
     <string name="influx_bucket">InfluxDB bucket</string>
     <string name="influx_bucket_dialog_title">Set InfluxDB bucket</string>
     <string name="measurement">Measurement name</string>
@@ -85,8 +87,6 @@
     <string name="enable_notification_update">Enable notification update</string>
     <string name="enable_notification_update_summary">This will wake up the screen on each update</string>
     <string name="runningIndicator">running_indicator</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="enable_logging_summary">Start / stop the logging service</string>
     <string name="enable_local_log_summary">Log to a local Influx 2.x database</string>
     <string name="enable_influx_summary">Log to a remote Influx 2.x database</string>
