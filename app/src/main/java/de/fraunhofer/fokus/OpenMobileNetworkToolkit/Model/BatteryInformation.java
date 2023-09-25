@@ -10,6 +10,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model;
 public class BatteryInformation {
     private int scale;
     private int level;
+    private int charge_type;
 
     public int getScale() {
         return scale;
@@ -34,8 +35,6 @@ public class BatteryInformation {
     public void setCharge_type(int charge_type) {
         this.charge_type = charge_type;
     }
-
-    private int charge_type;
 
     public double getPercent() {
         return level * 100 / (double) scale;
