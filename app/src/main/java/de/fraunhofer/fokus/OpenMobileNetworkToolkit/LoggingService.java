@@ -410,10 +410,14 @@ public class LoggingService extends Service {
             }
             logPoints.addAll(ps);
         }
+
         Point p = dp.getLocationPoint();
         p.time(time, WritePrecision.MS);
         p.addTags(tags_map);
         logPoints.add(p);
+        Point bp = dp.getBatteryInformationPoint();
+        bp.time(time, WritePrecision.MS);
+        logPoints.add(bp);
         return logPoints;
     }
 

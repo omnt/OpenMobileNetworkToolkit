@@ -7,9 +7,13 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import static android.content.Context.BATTERY_SERVICE;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -18,6 +22,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.TrafficStats;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Looper;
 import android.telephony.CellIdentityGsm;
@@ -33,7 +38,6 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
-import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
@@ -67,6 +71,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.BatteryInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.FeatureInformation;
@@ -95,7 +100,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     private NetworkInterfaceInformation nii = new NetworkInterfaceInformation();
     private FusedLocationProviderClient flpc;
     private LocationCallback locationCallback;
-
+    private BatteryInformation bi = new BatteryInformation();
 
     public DataProvider(Context context) {
         ct = context;
@@ -111,6 +116,9 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
             tm = (TelephonyManager) ct.getSystemService(Context.TELEPHONY_SERVICE);
             cp = tm.hasCarrierPrivileges();
         }
+
+        BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+        refreshBatteryInfo();
 
         // We need location permission otherwise logging is useless
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -510,7 +518,6 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         li.setSpeed(location.getSpeed());
     }
 
-
     public void onProviderDisabled(@NonNull String provider) {
         Log.d(TAG, String.format("%s is disabled", provider));
     }
@@ -666,5 +673,29 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
             ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
             return signalStrengthInformations;
         }
+    }
+
+    public void refreshBatteryInfo() {
+            IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = ct.registerReceiver(null, iFilter);
+            bi.setLevel(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1);
+            bi.setScale(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1);
+            bi.setCharge_type(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1) : -1);
+    }
+
+    public BatteryInformation getBatteryInformation() {
+        refreshBatteryInfo();
+        return bi;
+    }
+
+    public Point getBatteryInformationPoint() {
+        refreshBatteryInfo();
+        Point point = new Point("BatteryInformation");
+        point.time(System.currentTimeMillis(), WritePrecision.MS);
+        point.addField("Level", bi.getLevel());
+        point.addField("Scale", bi.getScale());
+        point.addField("Percent", bi.getPercent());
+        point.addField("Charge Type", bi.getCharge_type());
+        return point;
     }
 }
