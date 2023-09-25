@@ -608,7 +608,7 @@ public class LoggingService extends Service {
                     for (String line : strings) {
                         Matcher matcher = pattern.matcher(line);
                         if (matcher.find()) {
-                            Double unixTimestamp = Double.parseDouble(matcher.group(1));
+                            long unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
                             int icmpSeq = Integer.parseInt(matcher.group(4));
                             int ttl = Integer.parseInt(matcher.group(5));
                             double rtt = Double.parseDouble(matcher.group(6));
