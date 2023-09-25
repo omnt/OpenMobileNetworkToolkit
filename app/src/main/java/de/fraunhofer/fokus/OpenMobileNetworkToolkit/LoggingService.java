@@ -583,6 +583,12 @@ public class LoggingService extends Service {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                            try {
+                                ic.writePoint(point);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                             Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
 
                         }
@@ -602,39 +608,6 @@ public class LoggingService extends Service {
                         return;
                     }
 
-
-                    String[] strings = workInfo.getOutputData().getStringArray("output");
-                    Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+)\\] (\\d+ bytes from (\\S+|\\d+\\.\\d+\\.\\d+\\.\\d+)): icmp_seq=(\\d+) ttl=(\\d+) time=([\\d.]+) ms");
-                    for (String line : strings) {
-                        Matcher matcher = pattern.matcher(line);
-                        if (matcher.find()) {
-                            long unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
-                            int icmpSeq = Integer.parseInt(matcher.group(4));
-                            int ttl = Integer.parseInt(matcher.group(5));
-                            double rtt = Double.parseDouble(matcher.group(6));
-
-                            // Create an InfluxDB point with the Unix timestamp
-                            Point point = Point.measurement("Ping")
-                                .time(unixTimestamp, WritePrecision.MS)
-                                .addTag("icmp_seq", String.valueOf(icmpSeq))
-                                .addTags(dp.getTagsMap())
-                                .addTag("ttl", String.valueOf(ttl))
-                                .addField("rtt", rtt);
-                            try {
-                                ping_stream.write((point.toLineProtocol() + "\n").getBytes());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            try {
-                                ic.writePoint(point);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
-                        }
-                    }
                     wm.getWorkInfoByIdLiveData(pingWR.getId()).removeObserver(this);
                     pingLogging.postDelayed(pingUpdate, 1000);
                 }
