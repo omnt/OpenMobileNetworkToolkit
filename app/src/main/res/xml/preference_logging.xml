@@ -112,6 +112,18 @@
         <SwitchPreferenceCompat
             app:key="influx_throughput_data"
             app:title="@string/influx_throughput_data" />
+        <SwitchPreference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
+            android:title="@string/influx_battery_data"
+            app:key="influx_battery_data" />
+        <SwitchPreference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
+            android:title="@string/influx_ip_address_data"
+            app:key="influx_ip_address_data" />
     </PreferenceCategory>
 
 </PreferenceScreen>
