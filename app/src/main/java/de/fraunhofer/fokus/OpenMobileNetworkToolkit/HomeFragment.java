@@ -1,7 +1,8 @@
 
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -18,15 +19,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.Typeface;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
@@ -48,23 +45,8 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import androidx.work.Data;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
-import com.google.android.gms.location.FusedLocationProviderClient;
-
-import com.google.android.material.progressindicator.LinearProgressIndicator;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResult;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3UploadWorker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Worker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingWorker;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -77,11 +59,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 
 public class HomeFragment extends Fragment {

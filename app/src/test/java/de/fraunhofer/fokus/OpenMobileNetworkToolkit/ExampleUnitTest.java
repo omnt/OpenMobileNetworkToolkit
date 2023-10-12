@@ -1,15 +1,16 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Example local unit test, which will execute on the development machine (host).

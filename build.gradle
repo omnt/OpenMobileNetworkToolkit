@@ -1,4 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+
 buildscript {
     repositories {
         google()
@@ -13,6 +15,18 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
+
+
+
+plugins {
+    id("org.spdx.sbom") version "0.2.0"
+}
+
+configurations {
+    runtimeClasspath
+}
+
+
 
 task clean(type: Delete) {
     delete rootProject.buildDir

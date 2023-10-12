@@ -1,6 +1,7 @@
 <!--
-  ~ SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
-  ~ SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+  ~ SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~ SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
   ~
   ~ SPDX-License-Identifier: apache2
   -->
@@ -26,7 +27,7 @@
     <string name="previous">Previous</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="service_name" />
+    <string name="service_name">OMNMT</string>
     <string name="slicing">Slicing</string>
     <string name="Log">Debug Log</string>
     <string name="device_admin_description">I need your permission</string>

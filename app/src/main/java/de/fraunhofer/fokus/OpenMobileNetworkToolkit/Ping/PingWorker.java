@@ -1,22 +1,25 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import android.content.Context;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import com.influxdb.client.domain.WritePrecision;
-import com.influxdb.client.write.Point;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class PingWorker extends Worker {
 

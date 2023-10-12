@@ -1,6 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -19,10 +20,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+
 import java.util.List;
 
 /**

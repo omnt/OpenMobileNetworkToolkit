@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import androidx.lifecycle.LiveData;
@@ -7,6 +15,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
+
 import java.util.List;
 
 @Dao

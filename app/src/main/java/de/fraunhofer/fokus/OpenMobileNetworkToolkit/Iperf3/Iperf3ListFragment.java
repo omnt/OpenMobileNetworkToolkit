@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 //from https://codeburst.io/android-swipe-menu-with-recyclerview-8f28a235ff28
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
@@ -10,6 +18,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.selection.SelectionTracker;
@@ -17,11 +26,14 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkManager;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SwipeController;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SwipeControllerActions;
-import java.util.ArrayList;
 
 
 public class Iperf3ListFragment extends Fragment {

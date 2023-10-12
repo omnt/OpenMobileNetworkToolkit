@@ -1,9 +1,19 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.icu.text.SimpleDateFormat;
 import android.os.Environment;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -1,5 +1,6 @@
 /*
  * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
  * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
@@ -38,6 +39,7 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
+import android.telephony.PhysicalChannelConfig;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
@@ -82,7 +84,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformat
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SliceInformation;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
-public class DataProvider implements LocationListener, TelephonyCallback.CellInfoListener {
+public class DataProvider implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener {
     private static final String TAG = "DataProvider";
     private final Context ct;
     private final SharedPreferences sp;
@@ -164,6 +166,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         refreshNetworkInformation();
         refreshDeviceInformation();
         onCellInfoChanged(getAllCellInfo());
+        //tm.registerTelephonyCallback(context.getMainExecutor(), onPhysicalChannelConfigChanged);
 
     }
 
@@ -723,5 +726,10 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         point.addField("Percent", bi.getPercent());
         point.addField("Charge Type", bi.getCharge_type());
         return point;
+    }
+
+    @Override
+    public void onPhysicalChannelConfigChanged(@NonNull List<PhysicalChannelConfig> list) {
+        Log.d(TAG, list.toString());
     }
 }

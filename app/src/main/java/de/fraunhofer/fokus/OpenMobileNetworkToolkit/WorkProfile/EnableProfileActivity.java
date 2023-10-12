@@ -1,8 +1,18 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class EnableProfileActivity extends AppCompatActivity {

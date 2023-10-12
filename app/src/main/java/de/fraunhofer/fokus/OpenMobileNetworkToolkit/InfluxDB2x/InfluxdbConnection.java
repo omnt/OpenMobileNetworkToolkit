@@ -1,6 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -11,20 +12,21 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+
 import androidx.preference.PreferenceManager;
+
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.WriteOptions;
 import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.client.write.Point;
-import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
+
+import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 
 public class InfluxdbConnection {

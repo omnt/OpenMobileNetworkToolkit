@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.SharedPreferences;
@@ -17,6 +25,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -30,9 +39,10 @@ import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.common.util.concurrent.ListenableFuture;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -40,6 +50,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Fragment extends Fragment {
     private static final String TAG = "iperf3InputFragment";

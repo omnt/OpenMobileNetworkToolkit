@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.annotation.SuppressLint;
@@ -12,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -21,11 +30,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3RecyclerViewAdapter
     extends RecyclerView.Adapter<Iperf3RecyclerViewAdapter.ViewHolder> {

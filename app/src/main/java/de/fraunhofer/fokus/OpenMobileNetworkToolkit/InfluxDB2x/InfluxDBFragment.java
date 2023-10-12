@@ -1,6 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2021 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2021 Fraunhofer FOKUS
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
  *
  * SPDX-License-Identifier: apache2
  */
@@ -16,15 +17,19 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
+
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.QueryApi;
 import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
 import java.util.List;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class InfluxDBFragment extends Fragment {
     LinearLayout result_layout;

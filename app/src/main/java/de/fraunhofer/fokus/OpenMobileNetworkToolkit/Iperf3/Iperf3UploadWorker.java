@@ -1,3 +1,11 @@
+/*
+ * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *
+ * SPDX-License-Identifier: apache2
+ */
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
@@ -16,7 +24,6 @@ import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -24,15 +31,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream__1;
-import java.util.Map;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
 
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
