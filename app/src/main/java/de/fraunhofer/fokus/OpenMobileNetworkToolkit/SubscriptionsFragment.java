@@ -69,29 +69,35 @@ public class SubscriptionsFragment extends Fragment {
             Activity activity = (Activity) context;
             SubscriptionManager sm = (SubscriptionManager) activity.getSystemService(
                 Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-            List<SubscriptionInfo> list = null;
+            List<SubscriptionInfo> list;
             if (android.os.Build.VERSION.SDK_INT >= 30) {
                 list = sm.getCompleteActiveSubscriptionInfoList();
             } else {
                 list = sm.getActiveSubscriptionInfoList();
             }
             LinearLayout ll = view.findViewById(R.id.subscriptions_linear_layout);
-            for (SubscriptionInfo info : list) {
-                CardView cv = new CardView(context);
-                cv.setRadius(15);
-                cv.setContentPadding(20, 10, 10, 0);
-                cv.setUseCompatPadding(true);
-                TextView title = new TextView(context);
-                title.append("SIM Slot " + info.getSimSlotIndex());
-                title.setTypeface(Typeface.DEFAULT_BOLD);
-                TextView tv = new TextView(context);
-                tv.append(info.toString().replace(" ", "\n").replace("{", "").replace("}", ""));
-                LinearLayout ll_inner = new LinearLayout(context);
-                ll_inner.addView(title);
-                ll_inner.addView(tv);
-                ll_inner.setOrientation(LinearLayout.VERTICAL);
-                cv.addView(ll_inner);
-                ll.addView(cv);
+            if (list.isEmpty()){
+                TextView msg = new TextView(context);
+                msg.append("No UICC/eUICC found");
+                ll.addView(msg);
+            } else {
+                for (SubscriptionInfo info : list) {
+                    CardView cv = new CardView(context);
+                    cv.setRadius(15);
+                    cv.setContentPadding(20, 10, 10, 0);
+                    cv.setUseCompatPadding(true);
+                    TextView title = new TextView(context);
+                    title.append("SIM Slot " + info.getSimSlotIndex());
+                    title.setTypeface(Typeface.DEFAULT_BOLD);
+                    TextView tv = new TextView(context);
+                    tv.append(info.toString().replace(" ", "\n").replace("{", "").replace("}", ""));
+                    LinearLayout ll_inner = new LinearLayout(context);
+                    ll_inner.addView(title);
+                    ll_inner.addView(tv);
+                    ll_inner.setOrientation(LinearLayout.VERTICAL);
+                    cv.addView(ll_inner);
+                    ll.addView(cv);
+                }
             }
         }
     }
