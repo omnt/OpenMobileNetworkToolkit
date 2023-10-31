@@ -498,7 +498,14 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     public Point getSignalStrengthPoint() {
         Point point = new Point("SignalStrength");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
-        List<android.telephony.CellSignalStrength> css = Objects.requireNonNull(tm.getSignalStrength()).getCellSignalStrengths();
+
+        List<CellSignalStrength> css = null;
+        // On some devices we get here a null object if no SIM card is inserted in the phone.
+        try {
+            css = tm.getSignalStrength().getCellSignalStrengths();
+        } catch (Exception e) {
+            return point;
+        }
         for (CellSignalStrength ss : css) {
             if (ss instanceof CellSignalStrengthNr) {
                 CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
