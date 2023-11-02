@@ -8,7 +8,8 @@
 plugins {
     id 'com.android.application'
     id 'androidx.navigation.safeargs'
-    id("org.spdx.sbom") version "0.2.0"
+    // Disabled until 0.4.0 is released. until than local builds a required
+    //id("org.spdx.sbom") version "0.4.0"
 }
 
 android {
@@ -65,52 +66,52 @@ android {
     }
 }
 
-spdxSbom {
-    targets {
-        // create a target named "release",
-        // this is used for the task name (spdxSbomForRelease)
-        // and output file (release.spdx.json)
-        create("release") {
-            // use a different configuration (or multiple configurations)
-            configurations = ['releaseRuntimeClasspath']
-
-            // provide scm info (usually from your CI)
-            scm {
-                uri.set("my-scm-repository")
-                revision.set("asdfasdfasdf...")
-            }
-
-            // adjust properties of the document
-            document {
-                name.set("OMNT-SPDX")
-                namespace.set("https://my.org/spdx/<some UUID>")
-                creator.set("Person:NGNI")
-                packageSupplier.set("Organization:Fraunhofer FOKUS NGNI")
-
-                // add an uber package on the document between the document and the
-                // root module of the project being analyzed, you probably don't need this
-                // but it's available if you want to describe the artifact in a special way
-                //uberPackage {
-                //    // you must set all or none of these
-                //    name.set("goose")
-                //    version.set("1.2.3")
-                //    supplier.set("Organization:loosebazooka industries")
-                //}
-            }
-            // optionally have multiple targets
-            // create("another") {
-            // }
-        }
-    }
-}
+//spdxSbom {
+//    targets {
+//        // create a target named "release",
+//        // this is used for the task name (spdxSbomForRelease)
+//        // and output file (release.spdx.json)
+//        create("release") {
+//            // use a different configuration (or multiple configurations)
+//            configurations = ['releaseRuntimeClasspath']
+//
+//            // provide scm info (usually from your CI)
+//            scm {
+//                uri.set("my-scm-repository")
+//                revision.set("asdfasdfasdf...")
+//            }
+//
+//            // adjust properties of the document
+//            document {
+//                name.set("OMNT-SPDX")
+//                namespace.set("https://my.org/spdx/<some UUID>")
+//                creator.set("Person:NGNI")
+//                packageSupplier.set("Organization:Fraunhofer FOKUS NGNI")
+//
+//                // add an uber package on the document between the document and the
+//                // root module of the project being analyzed, you probably don't need this
+//                // but it's available if you want to describe the artifact in a special way
+//                //uberPackage {
+//                //    // you must set all or none of these
+//                //    name.set("goose")
+//                //    version.set("1.2.3")
+//                //    supplier.set("Organization:loosebazooka industries")
+//                //}
+//            }
+//            // optionally have multiple targets
+//            // create("another") {
+//            // }
+//        }
+//    }
+//}
 
 dependencies {
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.work:work-runtime:2.8.1'
-    def room_version = "2.5.2"
+    def room_version = "2.6.0"
 
     implementation "androidx.room:room-runtime:$room_version"
-    annotationProcessor "androidx.room:room-compiler:2.5.2"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.guava:guava:32.1.3-jre'
     implementation 'androidx.concurrent:concurrent-futures:1.1.0'
@@ -126,7 +127,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation 'com.influxdb:influxdb-client-java:6.10.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'

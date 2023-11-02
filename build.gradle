@@ -18,8 +18,8 @@ buildscript {
 
 
 
-plugins {
-    id("org.spdx.sbom") version "0.2.0"
+/*plugins {
+    id("org.spdx.sbom") version "0.4.0"
 }
 
 
@@ -60,9 +60,11 @@ spdxSbom {
             // }
         }
     }
-}
+}*/
+
 configurations {
     runtimeClasspath
+    releaseRuntimeClasspath
 }
 
 
