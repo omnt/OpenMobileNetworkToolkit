@@ -63,20 +63,12 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformat
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
-    public CarrierConfigManager ccm;
     public ConnectivityManager connectivityManager;
     public TelephonyManager tm;
     public PackageManager pm;
-    public LocationManager lm;
-    SharedPreferences sharedPreferences;
-    boolean feature_telephony;
-    TextView txtLat;
     private boolean cp;
-    private MainActivity ma;
+    private GlobalVars gv;
     private SwipeRefreshLayout swipeRefreshLayout;
-    boolean feature_admin;
-    boolean feature_phone_state;
-    boolean work_profile;
     DataProvider dp;
 
     Context context;
@@ -99,19 +91,18 @@ public class HomeFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
-        ma = (MainActivity) getActivity();
-        //pm = Objects.requireNonNull(ma).pm;
-        pm = ma.pm;
+        gv = GlobalVars.getInstance();
+
+        pm = gv.getPm();
         //dp = new DataProvider(requireContext());
-        dp = ma.dp;
-        feature_telephony = ma.feature_telephony;
-        if (feature_telephony) {
-            ccm = (CarrierConfigManager) ma.getSystemService(Context.CARRIER_CONFIG_SERVICE);
+        dp = gv.get_dp();
+        if (gv.isFeature_telephony()) {
             //cp = ma.HasCarrierPermissions();
-            cp = ma.cp;
+            cp = gv.isCarrier_permissions();
             //tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
-            tm = ma.tm;
+            tm = gv.getTm();
         }
+
 
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
 
@@ -129,13 +120,13 @@ public class HomeFragment extends Fragment {
             ll.addView(get_location_card_view(), 7);
             swipeRefreshLayout.setRefreshing(false);
         });
-        SubscriptionManager sm = (SubscriptionManager) ma.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-        List<SubscriptionInfo> list = sm.getActiveSubscriptionInfoList();
+        //SubscriptionManager sm = (SubscriptionManager) ma.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        //List<SubscriptionInfo> list = sm.getActiveSubscriptionInfoList();
 
 
         PackageInfo info;
         try {
-            info = ma.getPackageManager().getPackageInfo("de.fraunhofer.fokus.OpenMobileNetworkToolkit", PackageManager.GET_SIGNING_CERTIFICATES);
+            info = pm.getPackageInfo("de.fraunhofer.fokus.OpenMobileNetworkToolkit", PackageManager.GET_SIGNING_CERTIFICATES);
             //for (Signature signature : info.signingInfo()) {
             //    MessageDigest md;
             //    md = MessageDigest.getInstance("SHA");
@@ -177,11 +168,6 @@ public class HomeFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
       super.onViewCreated(view, savedInstanceState);
-      feature_admin = pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN);
-      feature_phone_state =
-          (ActivityCompat.checkSelfPermission(ma, Manifest.permission.READ_PHONE_STATE) ==
-              PackageManager.PERMISSION_GRANTED);
-      work_profile = pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS);
       LinearLayout ll = requireView().findViewById(R.id.home_layout);
       ll.addView(get_cell_card_view(), 0);
       ll.addView(get_signalstrength_card_view(), 1);
@@ -310,9 +296,9 @@ public class HomeFragment extends Fragment {
 
   private CardView get_features_card_view() {
     TableLayout tl = new TableLayout(context);
-    tl.addView(rowBuilder("Feature Telephony", String.valueOf(feature_telephony)));
-    tl.addView(rowBuilder("Work Profile", String.valueOf(work_profile)));
-    tl.addView(rowBuilder("Feature Admin", String.valueOf(feature_admin)));
+    tl.addView(rowBuilder("Feature Telephony", String.valueOf(gv.isFeature_telephony())));
+    tl.addView(rowBuilder("Work Profile", String.valueOf(gv.isFeature_work_profile())));
+    tl.addView(rowBuilder("Feature Admin", String.valueOf(gv.isFeature_admin())));
     // todo move this somewhere useful
     //props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -329,7 +315,7 @@ public class HomeFragment extends Fragment {
     private CardView get_permissions_card_view() {
         TableLayout tl = new TableLayout(context);
         tl.addView(rowBuilder("Carrier Permissions", String.valueOf(cp)));
-        tl.addView(rowBuilder("READ_PHONE_STATE", String.valueOf(feature_phone_state)));
+        tl.addView(rowBuilder("READ_PHONE_STATE", String.valueOf(gv.isFeature_phone_state())));
         tl.addView(rowBuilder("ACCESS_FINE_LOCATION", String.valueOf(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)));
         tl.addView(rowBuilder("ACCESS_BACKGROUND_LOCATION", String.valueOf(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)));
         return cardView_from_table_builder("App Permission", tl);
@@ -372,7 +358,7 @@ public class HomeFragment extends Fragment {
         tl.addView(rowBuilder("Data Network Type", ni.getDataNetworkTypeString()));
         tl.addView(rowBuilder("Phone Type", ni.getPhoneTypeString()));
         tl.addView(rowBuilder("PODS ID", String.valueOf(ni.getPreferredOpportunisticDataSubscriptionId())));
-        if (feature_phone_state && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+        if (gv.isFeature_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 tl.addView(rowBuilder("Equivalent Home PLMNs", tm.getEquivalentHomePlmns().toString().replace("[","").replace("]","").replace(", ","\n")));
                 tl.addView(rowBuilder("Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[","").replace("]","").replace(", ","\n")));

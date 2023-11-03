@@ -8,6 +8,11 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import android.content.pm.PackageManager;
+import android.telephony.CarrierConfigManager;
+import android.telephony.SubscriptionManager;
+import android.telephony.TelephonyManager;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 
 public class GlobalVars {
@@ -46,6 +51,74 @@ public class GlobalVars {
     }
 
     private boolean carrier_permissions;
+
+    public TelephonyManager getTm() {
+        return tm;
+    }
+
+    public void setTm(TelephonyManager tm) {
+        this.tm = tm;
+    }
+
+    public CarrierConfigManager getCcm() {
+        return ccm;
+    }
+
+    public void setCcm(CarrierConfigManager ccm) {
+        this.ccm = ccm;
+    }
+
+    private CarrierConfigManager ccm;
+    private TelephonyManager tm;
+
+    public PackageManager getPm() {
+        return pm;
+    }
+
+    public SubscriptionManager getSm() {
+        return sm;
+    }
+
+    public void setSm(SubscriptionManager sm) {
+        this.sm = sm;
+    }
+
+    private SubscriptionManager sm;
+    public void setPm(PackageManager pm) {
+        this.pm = pm;
+    }
+
+    private PackageManager pm;
+
+    public boolean isFeature_admin() {
+        return feature_admin;
+    }
+
+    public void setFeature_admin(boolean feature_admin) {
+        this.feature_admin = feature_admin;
+    }
+
+    private boolean feature_admin;
+
+    public boolean isFeature_phone_state() {
+        return feature_phone_state;
+    }
+
+    public boolean isFeature_work_profile() {
+        return feature_work_profile;
+    }
+
+    public void setFeature_work_profile(boolean feature_work_profile) {
+        this.feature_work_profile = feature_work_profile;
+    }
+
+    private boolean feature_work_profile;
+
+    public void setFeature_phone_state(boolean feature_phone_state) {
+        this.feature_phone_state = feature_phone_state;
+    }
+
+    private boolean feature_phone_state;
 
     public static int counter = 0;
     public static boolean isNetworkConnected = false;

@@ -26,6 +26,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.provider.Settings;
+import android.telephony.CarrierConfigManager;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
@@ -71,12 +73,22 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         GlobalVars gv = GlobalVars.getInstance();
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         pm = getPackageManager();
+        gv.setPm(pm);
+        gv.setFeature_phone_state(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) ==
+                PackageManager.PERMISSION_GRANTED);
+        gv.setFeature_admin(pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN));
+        gv.setFeature_work_profile(pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
             gv.setFeature_telephony(feature_telephony);
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            gv.setTm(tm);
+            gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
             cp = HasCarrierPermissions();
             gv.setCarrier_permissions(cp);
+            if (cp) {
+                gv.setCcm((CarrierConfigManager) getSystemService(Context.CARRIER_CONFIG_SERVICE));
+            }
         }
         dp = new DataProvider(this);
         gv.set_dp(dp);
