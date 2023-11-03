@@ -8,6 +8,8 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import static android.content.Context.RECEIVER_NOT_EXPORTED;
+
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,6 +19,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
 
 import com.github.anastr.speedviewlib.TubeSpeedometer;
@@ -43,6 +48,9 @@ public class PingFragment extends Fragment {
     private FileOutputStream stream;
     private EditText input;
     private TubeSpeedometer pingSpeed;
+
+
+    private SharedPreferences sp;
     public PingFragment() {
     }
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -66,6 +74,26 @@ public class PingFragment extends Fragment {
         getContext().startService(pingStart);
     }
 
+
+    private void saveTextInputToSharedPreferences(EditText field, String name) {
+        field.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                sp.edit().putString(name, field.getText().toString()).apply();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+    }
+
     private void handleInput(boolean ping_running){
         input.setEnabled(!ping_running);
     }
@@ -74,30 +102,33 @@ public class PingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_ping, container, false);
+
+        sp = getContext().getSharedPreferences("Ping", Context.MODE_PRIVATE);
         verticalLL = v.findViewById(R.id.ping_vertical_ll);
         horizontalLL1 = verticalLL.findViewById(R.id.ping_horizontal1_ll);
         aSwitch = verticalLL.findViewById(R.id.ping_switch);
         input = verticalLL.findViewById(R.id.ping_input);
-
+        input.setText(sp.getString("ping_input", "-w 5 8.8.88"));
         WorkManager wm = WorkManager.getInstance(requireContext());
 
 
-        SharedPreferences sp = getContext().getSharedPreferences("Ping", Context.MODE_PRIVATE);
 
+        saveTextInputToSharedPreferences(input, "ping_input");
 
         pingSpeed = horizontalLL1.findViewById(R.id.pingSpeed);
         pingSpeed.makeSections(3, Color.CYAN, Style.BUTT);
         pingSpeed.getSections().get(0).setColor(Color.GREEN);
         pingSpeed.getSections().get(1).setColor(Color.BLUE);
         pingSpeed.getSections().get(2).setColor(Color.RED);
-        pingSpeed.setSpeedTextColor(R.color.white);
-        pingSpeed.setUnitTextColor(R.color.white);
+        pingSpeed.setSpeedTextColor(R.color.material_dynamic_tertiary70);
+        pingSpeed.setUnitTextColor(R.color.material_dynamic_tertiary70);
         pingSpeed.setUnit("ms");
         pingSpeed.setMinSpeed(0);
         pingSpeed.setMaxSpeed(100);
         pingSpeed.setTextColor(R.color.white);
         pingSpeed.setUnitUnderSpeedText(true);
         aSwitch.setChecked(sp.getBoolean("switch", false));
+
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -116,7 +147,7 @@ public class PingFragment extends Fragment {
                 handleInput(ping_running);
             }
         };
-        requireActivity().registerReceiver(receiver, new IntentFilter("ping_rtt"));
+        requireActivity().registerReceiver(receiver, new IntentFilter("ping_rtt"), Context.RECEIVER_EXPORTED);
 
         return v;
     }
