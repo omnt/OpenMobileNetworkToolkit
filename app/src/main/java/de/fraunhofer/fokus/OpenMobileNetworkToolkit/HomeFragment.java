@@ -84,9 +84,6 @@ public class HomeFragment extends Fragment {
         super(R.layout.fragment_home);
     }
 
-
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,15 +98,19 @@ public class HomeFragment extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState
     ) {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         ma = (MainActivity) getActivity();
-        pm = Objects.requireNonNull(ma).pm;
-        dp = new DataProvider(requireContext());
+        //pm = Objects.requireNonNull(ma).pm;
+        pm = ma.pm;
+        //dp = new DataProvider(requireContext());
+        dp = ma.dp;
         feature_telephony = ma.feature_telephony;
         if (feature_telephony) {
             ccm = (CarrierConfigManager) ma.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-            cp = ma.HasCarrierPermissions();
-            tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
+            //cp = ma.HasCarrierPermissions();
+            cp = ma.cp;
+            //tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
+            tm = ma.tm;
         }
 
         View view = inflater.inflate(R.layout.fragment_home, parent, false);

@@ -8,9 +8,47 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+
 public class GlobalVars {
-        public static int counter = 0;
-        public static boolean isNetworkConnected = false;
+    private GlobalVars(){}
+    private static GlobalVars instance;
+    public static synchronized GlobalVars getInstance(){
+        if(instance==null){
+            instance=new GlobalVars();
+        }
+        return instance;
+    }
+    private DataProvider dp;
+    public void set_dp(DataProvider dataProvider) {
+        dp = dataProvider;
+    }
+    public DataProvider get_dp() {
+        return dp;
+    }
+
+    public boolean isFeature_telephony() {
+        return feature_telephony;
+    }
+
+    public void setFeature_telephony(boolean feature_telephony) {
+        this.feature_telephony = feature_telephony;
+    }
+
+    private boolean feature_telephony;
+
+    public boolean isCarrier_permissions() {
+        return carrier_permissions;
+    }
+
+    public void setCarrier_permissions(boolean carrier_permissions) {
+        this.carrier_permissions = carrier_permissions;
+    }
+
+    private boolean carrier_permissions;
+
+    public static int counter = 0;
+    public static boolean isNetworkConnected = false;
 
     public static String Level = "Level";
     public static String CSIRSRP = "CsiRSRP";

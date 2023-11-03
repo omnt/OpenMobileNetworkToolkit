@@ -11,6 +11,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
@@ -46,13 +47,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     public TelephonyManager tm;
     public PackageManager pm;
-    protected Context context;
+    //protected Context context;
+    public DataProvider dp;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
     public boolean cp = false;
@@ -65,13 +68,19 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GlobalVars gv = GlobalVars.getInstance();
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         pm = getPackageManager();
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
+            gv.setFeature_telephony(feature_telephony);
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             cp = HasCarrierPermissions();
+            gv.setCarrier_permissions(cp);
         }
+        dp = new DataProvider(this);
+        gv.set_dp(dp);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("");
@@ -171,8 +180,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                                 getApplicationContext().startActivity(intent);
                             }
                         })
-
-                        // A null listener allows the button to dismiss the dialog and take no further action.
                         .setNegativeButton(R.string.dialog_no_location_fake, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 sp.edit().putBoolean("fake_location", true).apply();
@@ -180,7 +187,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         })
                         .setIcon(android.R.drawable.ic_dialog_map)
                         .show();
-                //StartLocationDialogFragment().show(supportFragmentManager, "Location_DIALOG");
+            } else {
+                Log.i(TAG, "location API is disabled but fake location enabled");
             }
         }
     }

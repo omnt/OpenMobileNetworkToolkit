@@ -19,7 +19,6 @@ import android.util.Log;
 
 public class OpenMobileNetworkToolkit extends CarrierService {
     private static final String TAG = "OpenMobileNetworkToolkit";
-
     public OpenMobileNetworkToolkit() {
         Log.d(TAG, "OpenMobileNetworkToolkit Carrier Config Service created");
     }

@@ -100,7 +100,6 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     private LocationInformation li;
     private NetworkInformation ni = new NetworkInformation();
     private NetworkInterfaceInformation nii = new NetworkInterfaceInformation();
-    private FusedLocationProviderClient flpc;
     private LocationCallback locationCallback;
     private BatteryInformation bi = new BatteryInformation();
 
@@ -571,7 +570,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         LocationRequest locationRequest = new LocationRequest.Builder(200)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .build();
-        flpc = LocationServices.getFusedLocationProviderClient(ct);
+        FusedLocationProviderClient flpc = LocationServices.getFusedLocationProviderClient(ct);
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             flpc.requestLocationUpdates(locationRequest,
                     locationCallback,

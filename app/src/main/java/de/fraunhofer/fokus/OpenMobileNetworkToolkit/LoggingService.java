@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -81,6 +82,7 @@ public class LoggingService extends Service {
     DataProvider dp;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
+    //private MainActivity ma;
     private Handler notificationHandler;
     private Handler remoteInfluxHandler;
     private Handler localInfluxHandler;
@@ -222,9 +224,9 @@ public class LoggingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Start logging service");
-
+        GlobalVars gv = GlobalVars.getInstance();
         // setup class variables
-        dp = new DataProvider(this);
+        dp = gv.get_dp();
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
         sp = PreferenceManager.getDefaultSharedPreferences(this);
@@ -236,9 +238,6 @@ public class LoggingService extends Service {
             cp = tm.hasCarrierPrivileges();
         }
         wm = WorkManager.getInstance(context);
-
-
-
 
         if(intent.getBooleanExtra("ping", false)){
             if(intent.getBooleanExtra("ping_stop", false)){
