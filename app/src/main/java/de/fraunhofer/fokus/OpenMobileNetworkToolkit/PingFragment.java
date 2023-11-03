@@ -108,7 +108,7 @@ public class PingFragment extends Fragment {
         horizontalLL1 = verticalLL.findViewById(R.id.ping_horizontal1_ll);
         aSwitch = verticalLL.findViewById(R.id.ping_switch);
         input = verticalLL.findViewById(R.id.ping_input);
-        input.setText(sp.getString("ping_input", "-w 5 8.8.88"));
+        input.setText(sp.getString("ping_input", "-w 5 8.8.8"));
         WorkManager wm = WorkManager.getInstance(requireContext());
 
 
