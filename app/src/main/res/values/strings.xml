@@ -141,6 +141,10 @@
     <string name="subscritions">Subscritions</string>
     <string name="action_ping">Ping</string>
     <string name="ping_run_continuously">run continuously</string>
+    <string name="dialog_no_location">Location is disabled, enable it or use fake location</string>
+    <string name="dialog_no_location_enable">Enable Location</string>
+    <string name="dialog_no_location_fake">Use fake location</string>
+    <string name="dialog_no_location_title">Location Disabled</string>
 
     <!-- -->
 

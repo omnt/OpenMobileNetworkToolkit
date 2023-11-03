@@ -186,11 +186,16 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     public Point getLocationPoint() {
         Point point = new Point("Location");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
-        if (sp.getBoolean("fake_location", false)) {
+        // falling back to fake if no location is available is not the best solution.
+        // We should ask the user / add configuration what to do
+        if (sp.getBoolean("fake_location", false) || li == null) {
             point.addField("longitude", 13.3143266);
             point.addField("latitude", 52.5259678);
             point.addField("altitude", 34.0);
             point.addField("speed", 0.0);
+            point.addField("provider", "fake location");
+            point.addField("accuracy", 100.0);
+
         } else {
             point.addField("longitude", li.getLongitude());
             point.addField("latitude", li.getLatitude());
