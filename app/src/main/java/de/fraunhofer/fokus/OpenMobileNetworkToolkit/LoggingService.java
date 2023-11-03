@@ -87,18 +87,10 @@ public class LoggingService extends Service {
     private Handler remoteInfluxHandler;
     private Handler localInfluxHandler;
     private Handler localFileHandler;
-    private Handler requestCellInfoUpdateHandler;
     private List<Point> logFilePoints;
     private FileOutputStream stream;
     private FileOutputStream ping_stream;
     private int interval;
-    private Context context;
-    private Handler pingLogging;
-    private String pingInput;
-    private WorkManager wm;
-    private ArrayList<OneTimeWorkRequest> pingWRs;
-
-
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
         @Override
@@ -157,20 +149,6 @@ public class LoggingService extends Service {
             notificationHandler.postDelayed(this, interval);
         }
     };
-    private final Runnable requestCellInfoUpdate = new Runnable() {
-        @Override
-        public void run() {
-            if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
-                    @Override
-                    public void onCellInfo(@NonNull List<CellInfo> list) {
-                        dp.onCellInfoChanged(list);
-                    }
-                });
-            }
-            requestCellInfoUpdateHandler.postDelayed(this, interval);
-        }
-    };
     // Handle local on-device influxDB
     private final Runnable localInfluxUpdate = new Runnable() {
         @Override
@@ -213,7 +191,12 @@ public class LoggingService extends Service {
             remoteInfluxHandler.postDelayed(this, interval);
         }
     };
+    private Context context;
 
+    private Handler pingLogging;
+    private String pingInput;
+    private WorkManager wm;
+    private ArrayList<OneTimeWorkRequest> pingWRs;
 
     @Override
     public void onCreate() {
@@ -327,11 +310,6 @@ public class LoggingService extends Service {
         if (sp.getBoolean("enable_local_influx_log", false)) {
             setupLocalFile();
         }
-
-        // we need to ask android to update the cell information to update the cached values
-        requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
-
         return START_STICKY;
     }
 
@@ -546,7 +524,40 @@ public class LoggingService extends Service {
         return seconds * 1000 + microseconds / 1000;
     }
 
-    private final Runnable pingUpdate = new Runnable() {
+    private void setupPing(){
+        Log.d(TAG, "setupLocalFile");
+
+        // build log file path
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/ping/";
+        try {
+            Files.createDirectories(Paths.get(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // create the log file
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US);
+        Date now = new Date();
+        String filename = path + formatter.format(now) + ".txt";
+        Log.d(TAG, "logfile: " + filename);
+        File logfile = new File(filename);
+        try {
+            logfile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // get an output stream
+        try {
+            ping_stream = new FileOutputStream(logfile);
+        } catch (FileNotFoundException e) {
+            Toast.makeText(context, "logfile not created", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+        pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        pingLogging.post(pingUpdate);
+    }    private final Runnable pingUpdate = new Runnable() {
         @Override
         public void run() {
 
@@ -630,41 +641,6 @@ public class LoggingService extends Service {
         }
     };
 
-    private void setupPing(){
-        Log.d(TAG, "setupLocalFile");
-
-        // build log file path
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/ping/";
-        try {
-            Files.createDirectories(Paths.get(path));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // create the log file
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US);
-        Date now = new Date();
-        String filename = path + formatter.format(now) + ".txt";
-        Log.d(TAG, "logfile: " + filename);
-        File logfile = new File(filename);
-        try {
-            logfile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // get an output stream
-        try {
-            ping_stream = new FileOutputStream(logfile);
-        } catch (FileNotFoundException e) {
-            Toast.makeText(context, "logfile not created", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-
-        pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        pingLogging.post(pingUpdate);
-    }
-
     private void stopPing(){
         if(pingLogging != null)  pingLogging.removeCallbacks(pingUpdate);
         try {
@@ -680,9 +656,6 @@ public class LoggingService extends Service {
         sendBroadcast(intent);
         pingWRs = new ArrayList<>();
     }
-
-
-
 
     @Nullable
     @Override

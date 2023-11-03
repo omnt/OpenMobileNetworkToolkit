@@ -14,19 +14,14 @@ import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPO
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.Typeface;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
-import android.telephony.CarrierConfigManager;
-import android.telephony.SubscriptionInfo;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
@@ -42,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.security.MessageDigest;
@@ -315,7 +309,7 @@ public class HomeFragment extends Fragment {
     private CardView get_permissions_card_view() {
         TableLayout tl = new TableLayout(context);
         tl.addView(rowBuilder("Carrier Permissions", String.valueOf(cp)));
-        tl.addView(rowBuilder("READ_PHONE_STATE", String.valueOf(gv.isFeature_phone_state())));
+        tl.addView(rowBuilder("READ_PHONE_STATE", String.valueOf(gv.isPermission_phone_state())));
         tl.addView(rowBuilder("ACCESS_FINE_LOCATION", String.valueOf(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)));
         tl.addView(rowBuilder("ACCESS_BACKGROUND_LOCATION", String.valueOf(ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)));
         return cardView_from_table_builder("App Permission", tl);
@@ -358,7 +352,7 @@ public class HomeFragment extends Fragment {
         tl.addView(rowBuilder("Data Network Type", ni.getDataNetworkTypeString()));
         tl.addView(rowBuilder("Phone Type", ni.getPhoneTypeString()));
         tl.addView(rowBuilder("PODS ID", String.valueOf(ni.getPreferredOpportunisticDataSubscriptionId())));
-        if (gv.isFeature_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+        if (gv.isPermission_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 tl.addView(rowBuilder("Equivalent Home PLMNs", tm.getEquivalentHomePlmns().toString().replace("[","").replace("]","").replace(", ","\n")));
                 tl.addView(rowBuilder("Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[","").replace("]","").replace(", ","\n")));

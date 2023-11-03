@@ -16,20 +16,50 @@ import android.telephony.TelephonyManager;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 
 public class GlobalVars {
-    private GlobalVars(){}
+    public static int counter = 0;
+    public static boolean isNetworkConnected = false;
+    public static String Level = "Level";
+    public static String CSIRSRP = "CsiRSRP";
+    public static String CSIRSRQ = "CsiRSRQ";
+    public static String CSISINR = "CsiSINR";
+    public static String SSRSRP = "SSRSRP";
+    public static String SSRSRQ = "SSRSRQ";
+    public static String SSSINR = "SSSINR";
+    public static String AsuLevel = "Asu Level";
+    public static String Dbm = "Dbm";
+    public static String RSSI = "RSSI";
+    public static String RSRP = "RSRP";
+    public static String RSRQ = "RSRQ";
+    public static String RSSNR = "RSSNR";
+    public static String CQI = "CQI";
+    public static String EvoDbm = "EvoDbm";
     private static GlobalVars instance;
+    private DataProvider dp;
+    private boolean feature_telephony;
+    private boolean carrier_permissions;
+    private CarrierConfigManager ccm;
+    private TelephonyManager tm;
+    private SubscriptionManager sm;
+    private PackageManager pm;
+    private boolean feature_admin;
+    private boolean feature_work_profile;
+    private boolean permission_phone_state;
+
+    private GlobalVars(){}
+
     public static synchronized GlobalVars getInstance(){
         if(instance==null){
             instance=new GlobalVars();
         }
         return instance;
     }
-    private DataProvider dp;
-    public void set_dp(DataProvider dataProvider) {
-        dp = dataProvider;
-    }
+
     public DataProvider get_dp() {
         return dp;
+    }
+
+    public void set_dp(DataProvider dataProvider) {
+        dp = dataProvider;
     }
 
     public boolean isFeature_telephony() {
@@ -40,8 +70,6 @@ public class GlobalVars {
         this.feature_telephony = feature_telephony;
     }
 
-    private boolean feature_telephony;
-
     public boolean isCarrier_permissions() {
         return carrier_permissions;
     }
@@ -49,8 +77,6 @@ public class GlobalVars {
     public void setCarrier_permissions(boolean carrier_permissions) {
         this.carrier_permissions = carrier_permissions;
     }
-
-    private boolean carrier_permissions;
 
     public TelephonyManager getTm() {
         return tm;
@@ -68,11 +94,12 @@ public class GlobalVars {
         this.ccm = ccm;
     }
 
-    private CarrierConfigManager ccm;
-    private TelephonyManager tm;
-
     public PackageManager getPm() {
         return pm;
+    }
+
+    public void setPm(PackageManager pm) {
+        this.pm = pm;
     }
 
     public SubscriptionManager getSm() {
@@ -83,13 +110,6 @@ public class GlobalVars {
         this.sm = sm;
     }
 
-    private SubscriptionManager sm;
-    public void setPm(PackageManager pm) {
-        this.pm = pm;
-    }
-
-    private PackageManager pm;
-
     public boolean isFeature_admin() {
         return feature_admin;
     }
@@ -98,10 +118,12 @@ public class GlobalVars {
         this.feature_admin = feature_admin;
     }
 
-    private boolean feature_admin;
+    public boolean isPermission_phone_state() {
+        return permission_phone_state;
+    }
 
-    public boolean isFeature_phone_state() {
-        return feature_phone_state;
+    public void setPermission_phone_state(boolean feature_phone_state) {
+        this.permission_phone_state = feature_phone_state;
     }
 
     public boolean isFeature_work_profile() {
@@ -112,30 +134,14 @@ public class GlobalVars {
         this.feature_work_profile = feature_work_profile;
     }
 
-    private boolean feature_work_profile;
-
-    public void setFeature_phone_state(boolean feature_phone_state) {
-        this.feature_phone_state = feature_phone_state;
+    public boolean isPermission_fine_location() {
+        return permission_fine_location;
     }
 
-    private boolean feature_phone_state;
+    public void setPermission_fine_location(boolean permission_fine_location) {
+        this.permission_fine_location = permission_fine_location;
+    }
 
-    public static int counter = 0;
-    public static boolean isNetworkConnected = false;
+    private boolean permission_fine_location;
 
-    public static String Level = "Level";
-    public static String CSIRSRP = "CsiRSRP";
-    public static String CSIRSRQ = "CsiRSRQ";
-    public static String CSISINR = "CsiSINR";
-    public static String SSRSRP = "SSRSRP";
-    public static String SSRSRQ = "SSRSRQ";
-    public static String SSSINR = "SSSINR";
-    public static String AsuLevel = "Asu Level";
-    public static String Dbm = "Dbm";
-    public static String RSSI = "RSSI";
-    public static String RSRP = "RSRP";
-    public static String RSRQ = "RSRQ";
-    public static String RSSNR = "RSSNR";
-    public static String CQI = "CQI";
-    public static String EvoDbm = "EvoDbm";
 }

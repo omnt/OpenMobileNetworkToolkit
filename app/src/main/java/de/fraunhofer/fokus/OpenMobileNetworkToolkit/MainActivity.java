@@ -11,7 +11,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
@@ -24,9 +23,12 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
+import android.telephony.CellInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -48,6 +50,7 @@ import androidx.preference.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
@@ -65,17 +68,20 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     Intent loggingServiceIntent;
     private static final String TAG = "MainActivity";
     NavController navController;
+    private Handler requestCellInfoUpdateHandler;
+    private GlobalVars gv;
+
 
     //@SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GlobalVars gv = GlobalVars.getInstance();
+        gv = GlobalVars.getInstance();
         sp = PreferenceManager.getDefaultSharedPreferences(this);
         pm = getPackageManager();
         gv.setPm(pm);
-        gv.setFeature_phone_state(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) ==
-                PackageManager.PERMISSION_GRANTED);
+        gv.setPermission_phone_state(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
+        gv.setPermission_fine_location(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
         gv.setFeature_admin(pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN));
         gv.setFeature_work_profile(pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
@@ -203,7 +209,27 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 Log.i(TAG, "location API is disabled but fake location enabled");
             }
         }
+        requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
     }
+
+
+    private final Runnable requestCellInfoUpdate = new Runnable() {
+        @SuppressLint("MissingPermission") // we check them already in the Mainactivity
+        @Override
+        public void run() {
+            if (gv.isPermission_fine_location()) {
+                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
+                    @Override
+                    public void onCellInfo(@NonNull List<CellInfo> list) {
+                        dp.onCellInfoChanged(list);
+                    }
+                });
+            }
+            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(sp.getString("logging_interval", "1000")));
+        }
+    };
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

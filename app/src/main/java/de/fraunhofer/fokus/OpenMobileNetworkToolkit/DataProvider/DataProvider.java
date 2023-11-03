@@ -8,8 +8,6 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-import static android.content.Context.BATTERY_SERVICE;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -90,7 +88,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     private final SharedPreferences sp;
     SliceInformation si = new SliceInformation();
     private LocationManager lm;
-    private boolean feature_phone_state;
+    private boolean permission_phone_state;
     private ConnectivityManager cm;
     private boolean cp;
     private TelephonyManager tm;
@@ -104,21 +102,20 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     private BatteryInformation bi = new BatteryInformation();
 
     public DataProvider(Context context) {
+        GlobalVars gv = GlobalVars.getInstance();
         ct = context;
-        PackageManager pm = ct.getPackageManager();
         lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
-        boolean feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
-        feature_phone_state = (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
+        permission_phone_state = gv.isPermission_phone_state();
 
         // we can only relay on some APIs if this is a phone.
-        if (feature_telephony) {
+        if (gv.isFeature_telephony()) {
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
-            tm = (TelephonyManager) ct.getSystemService(Context.TELEPHONY_SERVICE);
-            cp = tm.hasCarrierPrivileges();
+            tm = gv.getTm();
+            cp = gv.isCarrier_permissions();
         }
 
-        BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+        //BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
         refreshBatteryInfo();
 
         // We need location permission otherwise logging is useless
@@ -152,21 +149,15 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 if (locationResult == null) {
                     return;
                 }
-                //for (Location location : locationResult.getLocations()) {
-                //    onLocationChanged(location);
-                //}
                 onLocationChanged(locationResult.getLocations().get(0));
             }
         };
         startLocationUpdates();
 
-
         // initialize internal state
         refreshNetworkInformation();
         refreshDeviceInformation();
         onCellInfoChanged(getAllCellInfo());
-        //tm.registerTelephonyCallback(context.getMainExecutor(), onPhysicalChannelConfigChanged);
-
     }
 
     // Filter values before adding them as we don't need to log not available information
@@ -208,7 +199,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
 
     // return a network Information Object
     public void refreshNetworkInformation() {
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+        if (permission_phone_state) {
             ni = new NetworkInformation(
                     tm.getNetworkOperatorName(),
                     tm.getSimOperatorName(),
@@ -382,7 +373,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         tags_map_modifiable.put("model", di.getModel());
         tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));
         tags_map_modifiable.put("android_version", di.getAndroidRelease());
-        tags_map_modifiable.put("secruity_patch", di.getSecurityPatchLevel());
+        tags_map_modifiable.put("security_patch", di.getSecurityPatchLevel());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             tags_map_modifiable.put("soc_model", di.getSOCModel());
         }
@@ -413,7 +404,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         }
         di.setAndroidSDK(String.valueOf(Build.VERSION.SDK_INT));
         di.setAndroidRelease(Build.VERSION.RELEASE);
-        if (feature_phone_state) {
+        if (permission_phone_state) {
             di.setDeviceSoftwareVersion(String.valueOf(tm.getDeviceSoftwareVersion()));
         }
         if (cp) { // todo try root privileges or more fine granular permission
@@ -475,7 +466,6 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         return points;
     }
 
-    // Currently not used in favor of getCellInfoPoint but capt for future use when refactor home fragment
     public List<CellInformation> getCellInformation() {
         return ci;
     }
@@ -742,5 +732,11 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     @Override
     public void onPhysicalChannelConfigChanged(@NonNull List<PhysicalChannelConfig> list) {
         Log.d(TAG, list.toString());
+    }
+
+    public void refreshAll() {
+        refreshDeviceInformation();
+        refreshNetworkInformation();
+        refreshBatteryInfo();
     }
 }
