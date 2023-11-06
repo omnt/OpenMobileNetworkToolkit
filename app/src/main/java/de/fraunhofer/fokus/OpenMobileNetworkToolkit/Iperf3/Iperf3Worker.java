@@ -8,13 +8,19 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
@@ -54,7 +60,7 @@ public class Iperf3Worker extends Worker {
 
         Context context = getApplicationContext();
         String id = "OMNT_notification_channel";
-        PendingIntent intent = WorkManager.getInstance(getApplicationContext())
+        PendingIntent intent = WorkManager.getInstance(context)
             .createCancelPendingIntent(getId());
 
         Notification notification = new NotificationCompat.Builder(context, id)
@@ -62,10 +68,10 @@ public class Iperf3Worker extends Worker {
             .setOngoing(true)
             .setColor(Color.WHITE)
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
-            .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
+            .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_DEFAULT)
             .addAction(R.drawable.ic_close, "Cancel", intent)
             .build();
-        return new ForegroundInfo(notificationID, notification);
+        return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
     }
 
     @Override
