@@ -15,6 +15,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.system.ErrnoException;
 import android.system.Os;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -168,13 +170,26 @@ public class Iperf3Fragment extends Fragment {
 
 
     private void saveTextInputToSharedPreferences(EditText field, String name) {
-        field.setOnClickListener(new View.OnClickListener() {
+        field.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 preferences.edit().putString(name, field.getText().toString()).apply();
             }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
         });
+
     }
+
+
 
     private void saveCheckboxInputToSharedPreferences(CheckBox box, String name) {
         box.setOnClickListener(new View.OnClickListener() {
