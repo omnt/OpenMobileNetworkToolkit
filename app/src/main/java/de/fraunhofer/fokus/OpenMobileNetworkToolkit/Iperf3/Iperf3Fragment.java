@@ -422,11 +422,15 @@ public class Iperf3Fragment extends Fragment {
         iperf3RunResultDao.insert(
             new Iperf3RunResult(iperf3WorkerID, -100, false, input, input.timestamp));
 
+
+
         if (preferences.getBoolean("enable_influx", false) && input.iperf3Json) {
             iperf3WM.beginWith(iperf3WR).then(iperf3UP).enqueue();
         } else {
             iperf3WM.beginWith(iperf3WR).enqueue();
         }
+
+
 
         Handler progressbarHandler = new Handler(Looper.myLooper());
 

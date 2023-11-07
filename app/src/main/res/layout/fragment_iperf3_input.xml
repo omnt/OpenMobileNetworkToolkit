@@ -15,7 +15,6 @@
     android:layout_height="match_parent"
     tools:context=".Iperf3.Iperf3Fragment">
 
-
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/iperf3_progress"
         android:layout_width="match_parent"

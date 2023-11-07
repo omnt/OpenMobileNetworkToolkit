@@ -24,7 +24,7 @@ public class Sum {
     public Float seconds;
     @SerializedName("bytes")
     @Expose
-    public Integer bytes;
+    public Double bytes;
     @SerializedName("bits_per_second")
     @Expose
     public Float bitsPerSecond;
