@@ -238,7 +238,7 @@ public class HomeFragment extends Fragment {
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
     private CardView get_signalstrength_card_view() {
-      ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrength();
+      ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrengthInformation();
       TableLayout tl = new TableLayout(context);
       if (signalStrengthInformations.isEmpty()) {
         tl.addView(rowBuilder("No Signal Strength available", ""));

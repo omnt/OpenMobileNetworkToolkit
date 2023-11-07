@@ -26,6 +26,8 @@ public class DeviceInformation {
     private String SubscriberId;
     private String NetworkAccessIdentifier;
     private String SubscriptionId;
+    private long TimeStamp;
+
     public DeviceInformation(String model, String manufacturer, String SOCManufacturer, String SOCModel, String radioVersion, String supportedModemCount, String androidSDK, String androidRelease, String deviceSoftwareVersion, String IMEI, String MEID, String IMSI, String simSerial, String subscriberId, String networkAccessIdentifier, String subscriptionId) {
         Model = model;
         Manufacturer = manufacturer;
@@ -44,7 +46,16 @@ public class DeviceInformation {
         NetworkAccessIdentifier = networkAccessIdentifier;
         SubscriptionId = subscriptionId;
     }
+
     public DeviceInformation() {
+    }
+
+    public long getTimeStamp() {
+        return TimeStamp;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        TimeStamp = timeStamp;
     }
 
     public String getIMSI() {

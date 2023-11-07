@@ -29,6 +29,7 @@ import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CellInfo;
+import android.telephony.PhoneStateListener;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = Objects.requireNonNull(navHostFragment).getNavController();
 
-        //allow HTTP / insecure connections for the influxDB client
+        // allow HTTP / insecure connections for the influxDB client
         // todo this should be a setting in the settings dialog
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -211,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
+        tm.listen(dp, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
 

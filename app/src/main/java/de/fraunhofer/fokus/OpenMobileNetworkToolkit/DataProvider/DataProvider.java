@@ -37,6 +37,7 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
+import android.telephony.PhoneStateListener;
 import android.telephony.PhysicalChannelConfig;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyCallback;
@@ -78,33 +79,39 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.FeatureInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.PingInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SliceInformation;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
-public class DataProvider implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener {
+public class DataProvider extends PhoneStateListener implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener {
     private static final String TAG = "DataProvider";
     private final Context ct;
     private final SharedPreferences sp;
-    SliceInformation si = new SliceInformation();
-    private LocationManager lm;
     private boolean permission_phone_state;
     private ConnectivityManager cm;
     private boolean cp;
     private TelephonyManager tm;
+
+    // internal data caches
     private List<CellInformation> ci = new ArrayList<>();
     private DeviceInformation di = new DeviceInformation();
     private FeatureInformation fi = new FeatureInformation();
-    private LocationInformation li;
-    private NetworkInformation ni = new NetworkInformation();
-    private NetworkInterfaceInformation nii = new NetworkInterfaceInformation();
-    private LocationCallback locationCallback;
+    private LocationInformation li = new LocationInformation();
     private BatteryInformation bi = new BatteryInformation();
+    private NetworkInformation ni = new NetworkInformation();
+    private List<NetworkInterfaceInformation> nii = new ArrayList<>();
+    private ArrayList<SignalStrengthInformation> ssi = new ArrayList<>();
+    private SliceInformation si = new SliceInformation();
+    private PingInformation pi = new PingInformation();
+    // Time stamp, should be updated on each update of internal data caches
+    private long ts = System.currentTimeMillis();
+    private LocationCallback locationCallback;
 
     public DataProvider(Context context) {
         GlobalVars gv = GlobalVars.getInstance();
         ct = context;
-        lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
         permission_phone_state = gv.isPermission_phone_state();
 
@@ -115,9 +122,6 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
             cp = gv.isCarrier_permissions();
         }
 
-        //BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
-        refreshBatteryInfo();
-
         // We need location permission otherwise logging is useless
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
@@ -125,7 +129,6 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 Log.d(TAG, "Location Provider " + lm.getProviders(true));
                 li = new LocationInformation(); // empty LocationInformation to be filled by callback
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-
                     lm.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, this);
                     Location loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
                     if (loc != null) {
@@ -137,6 +140,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 }
             } else {
                 Log.d(TAG, "GPS is disabled");
+                // todo use same popup as in main activity
             }
         } else {
             Log.d(TAG, "DataProvider: No Location Permissions");
@@ -155,51 +159,14 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         startLocationUpdates();
 
         // initialize internal state
-        refreshNetworkInformation();
-        refreshDeviceInformation();
-        onCellInfoChanged(getAllCellInfo());
+        refreshAll();
     }
 
-    // Filter values before adding them as we don't need to log not available information
-    public void addOnlyAvailablePoint(Point point, String key, int value) {
-        if (value != CellInfo.UNAVAILABLE) {
-            point.addField(key, value);
-        }
-    }
-
-    // return location object if available
-    public LocationInformation getLocation() {
-        return li;
-    }
-
-    // return location as influx point
-    public Point getLocationPoint() {
-        Point point = new Point("Location");
-        point.time(System.currentTimeMillis(), WritePrecision.MS);
-        // falling back to fake if no location is available is not the best solution.
-        // We should ask the user / add configuration what to do
-        if (sp.getBoolean("fake_location", false) || li == null) {
-            point.addField("longitude", 13.3143266);
-            point.addField("latitude", 52.5259678);
-            point.addField("altitude", 34.0);
-            point.addField("speed", 0.0);
-            point.addField("provider", "fake location");
-            point.addField("accuracy", 100.0);
-
-        } else {
-            point.addField("longitude", li.getLongitude());
-            point.addField("latitude", li.getLatitude());
-            point.addField("altitude", li.getAltitude());
-            point.addField("speed", li.getSpeed());
-            point.addField("provider", li.getProvider());
-            point.addField("accuracy", li.getAccuracy());
-        }
-        return point;
-    }
-
-    // return a network Information Object
+    // ### Network Information ###
     public void refreshNetworkInformation() {
         if (permission_phone_state) {
+            updateTimestamp();
+            ni.setTimeStamp(ts);
             ni = new NetworkInformation(
                     tm.getNetworkOperatorName(),
                     tm.getSimOperatorName(),
@@ -209,6 +176,8 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                     tm.getPhoneType(),
                     tm.getPreferredOpportunisticDataSubscription()
             );
+        } else {
+            Log.d(TAG, "refreshNetworkInformation called by permission phone satate is missing");
         }
     }
 
@@ -220,7 +189,7 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
     public Point getNetworkInformationPoint() {
         NetworkInformation ni = getNetworkInformation();
         Point point = new Point("NetworkInformation");
-        point.time(System.currentTimeMillis(), WritePrecision.MS);
+        point.time(ni.getTimeStamp(), WritePrecision.MS);
         point.addField("NetworkOperatorName", ni.getNetworkOperatorName());
         point.addField("NetworkSpecifier", ni.getNetworkSpecifier());
         point.addField("SimOperatorName", ni.getSimOperatorName());
@@ -230,168 +199,12 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         return point;
     }
 
-    // return all cell information as a list. This list also contains not available cells
-    public List<CellInfo> getAllCellInfo() {
-        List<CellInfo> cellInfo;
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return null;
-        } else {
-            cellInfo = tm.getAllCellInfo();
-        }
-        return cellInfo;
-    }
 
-    // return the result of an getAllCellInfo query as influx point
-    public List<Point> getAllCellInfoPoint() {
-        List<Point> points = new ArrayList<>();
-        long ts = System.currentTimeMillis();
-        boolean nc = sp.getBoolean("log_neighbour_cells", false);
-
-        List<CellInfo> cil = getAllCellInfo();
-        for (CellInfo ci : cil) {
-            // check if want to log neighbour cells and skip non registered cells
-            if (!nc) {
-                if (!ci.isRegistered()) {
-                    continue;
-                }
-            }
-            Point point = new Point("CellInformation");
-            point.time(ts, WritePrecision.MS);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                point.addField("OperatorAlphaLong", (String) ci.getCellIdentity().getOperatorAlphaLong());
-            }
-            point.addField("CellConnectionStatus", ci.getCellConnectionStatus());
-            point.addField("IsRegistered", ci.isRegistered());
-            if (ci instanceof CellInfoNr) {
-                point.addField("CellType", "NR");
-                CellInfoNr ciNR = (CellInfoNr) ci;
-                CellIdentityNr ciNRId = (CellIdentityNr) ciNR.getCellIdentity();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    point.addField("Bands", Arrays.toString(ciNRId.getBands()));
-                }
-                point.addField("CI", ciNRId.getNci());
-                point.addTag("CI", String.valueOf(ciNRId.getNci()));
-                point.addField("NRARFCN", ciNRId.getNrarfcn());
-                point.addField("MNC", ciNRId.getMncString());
-                point.addField("MCC", ciNRId.getMccString());
-                point.addField("PCI", ciNRId.getPci());
-                point.addField("TAC", ciNRId.getTac());
-
-                CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
-                point.addField("Level", ssNR.getLevel());
-                point.addField(GlobalVars.CSIRSRP, ssNR.getCsiRsrp());
-                point.addField(GlobalVars.CSIRSRQ, ssNR.getCsiRsrq());
-                point.addField(GlobalVars.CSISINR, ssNR.getCsiSinr());
-                point.addField(GlobalVars.SSRSRP, ssNR.getSsRsrp());
-                point.addField(GlobalVars.SSRSRQ, ssNR.getSsRsrq());
-                point.addField(GlobalVars.SSSINR, ssNR.getSsSinr());
-                point.addField(GlobalVars.AsuLevel, ssNR.getAsuLevel());
-            }
-            if (ci instanceof CellInfoLte) {
-                CellInfoLte ciLTE = (CellInfoLte) ci;
-                CellIdentityLte ciLTEId = ciLTE.getCellIdentity();
-                point.addField("CellType", "LTE");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    point.addField("Bands", Arrays.toString(ciLTEId.getBands()));
-                }
-                point.addField("Bandwidth", ciLTEId.getBandwidth());
-                point.addField("CI", ciLTEId.getCi());
-                point.addTag("CI", String.valueOf(ciLTEId.getCi()));
-                point.addField("EARFCN", ciLTEId.getEarfcn());
-                point.addField("MNC", ciLTEId.getMncString());
-                point.addField("MCC", ciLTEId.getMccString());
-                point.addField("PCI", ciLTEId.getPci());
-                point.addField("TAC", ciLTEId.getTac());
-            }
-            if (ci instanceof CellInfoCdma) {
-                point.addField("CellType", "CDMA");
-            }
-            if (ci instanceof CellInfoGsm) {
-                CellInfoGsm ciGSM = (CellInfoGsm) ci;
-                point.addField("CellType", "GSM");
-                CellIdentityGsm ciGSMId = ciGSM.getCellIdentity();
-                point.addField("CI", ciGSMId.getCid());
-                point.addTag("CI", String.valueOf(ciGSMId.getCid()));
-                point.addField("ARFCN", ciGSMId.getArfcn());
-                point.addField("MNC", ciGSMId.getMncString());
-                point.addField("MCC", ciGSMId.getMccString());
-            }
-            points.add(point);
-        }
-        return points;
-    }
-
-    // return Cell information objects only for the registered cells
-    public List<CellInfo> getRegisteredCells() {
-        List<CellInfo> cil = getAllCellInfo();
-        List<CellInfo> rcil = new ArrayList<>();
-        for (CellInfo ci : cil) {
-            if (ci.isRegistered()) { //we only care for the serving cell
-                rcil.add(ci);
-            }
-        }
-        return rcil;
-    }
-
-    // get the phone IMEI if accessible
-    public String getIMEI() {
-        if (tm.hasCarrierPrivileges()) {
-            return tm.getImei();
-        } else {
-            return "N/A";
-        }
-    }
-
-    // get the SIMs IMSI if accessible
-    // We suppress the linter warning as we need IMSI even that not recommended for most apps.
-    @SuppressLint("HardwareIds")
-    public String getIMSI() {
-        if (tm.hasCarrierPrivileges()) {
-            return tm.getSubscriberId();
-        } else {
-            return "N/A";
-        }
-    }
-
-    // return a Map of key values pairs to be used as tags in the influx points
-    // List consist of device information and user defined tags
-    public Map<String, String> getTagsMap() {
-        String tags = sp.getString("tags", "").strip().replace(" ", "");
-        Map<String, String> tags_map = Collections.emptyMap();
-        if (!tags.isEmpty()) {
-            try {
-                tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
-            } catch (IllegalArgumentException e) {
-                Log.d(TAG, "cant parse tags, ignoring");
-            }
-        }
-        DeviceInformation di = getDeviceInformation();
-
-        Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
-        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
-        tags_map_modifiable.put("manufacturer", di.getManufacturer());
-        tags_map_modifiable.put("model", di.getModel());
-        tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));
-        tags_map_modifiable.put("android_version", di.getAndroidRelease());
-        tags_map_modifiable.put("security_patch", di.getSecurityPatchLevel());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            tags_map_modifiable.put("soc_model", di.getSOCModel());
-        }
-        if (cp) {
-            tags_map_modifiable.put("imei", di.getIMEI());
-            tags_map_modifiable.put("imsi", getIMSI());
-        }
-        tags_map_modifiable.put("radio_version", Build.getRadioVersion());
-        return tags_map_modifiable;
-    }
-
-    // return a deviceInformation object with device specific information
-    public DeviceInformation getDeviceInformation() {
-        return di;
-    }
-
+    // ## Device Information
     @SuppressLint({"MissingPermission", "HardwareIds"})
     public void refreshDeviceInformation() {
+        updateTimestamp();
+        di.setTimeStamp(ts);
         di.setModel(Build.MODEL);
         di.setManufacturer(Build.MANUFACTURER);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -421,7 +234,14 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         di.setSecurityPatchLevel(Build.VERSION.SECURITY_PATCH);
     }
 
-    public List<NetworkInterfaceInformation> getNetworkInterfaceInformation() {
+    // return a DeviceInformation object with device specific information
+    public DeviceInformation getDeviceInformation() {
+        return di;
+    }
+
+
+    // ### NetworkInterfaceInformation ####
+    public void refreshNetworkInterfaceInformation() {
         List<NetworkInterfaceInformation> niil = new ArrayList<>();
         try {
             List<NetworkInterface> networkInterfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
@@ -437,7 +257,11 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         } catch (SocketException ex) {
             ex.printStackTrace();
         }
-        return niil;
+        nii = niil;
+    }
+
+    public List<NetworkInterfaceInformation> getNetworkInterfaceInformation() {
+        return nii;
     }
 
     public List<Point> getNetworkInterfaceInformationPoints() {
@@ -466,115 +290,18 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         return points;
     }
 
-    public List<CellInformation> getCellInformation() {
-        return ci;
-    }
 
-    public Point getNetworkCapabilitiesPoint() {
-        NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
-        Point point = new Point("InterfaceThroughput");
-        if (nc != null) {
-            int downSpeed = nc.getLinkDownstreamBandwidthKbps();
-            int upSpeed = nc.getLinkUpstreamBandwidthKbps();
-            point.addField("downSpeed_kbps", downSpeed);
-            point.addField("upSpeed_kbps", upSpeed);
-            point.time(System.currentTimeMillis(), WritePrecision.MS);
-        } else {
-            point.addField("downSpeed_kbps", -1);
-            point.addField("upSpeed_kbps", -1);
-            point.time(System.currentTimeMillis(), WritePrecision.MS);
-        }
-        point.addField("MobileTxBytes", TrafficStats.getMobileTxBytes());
-        point.addField("MobileRxBytes", TrafficStats.getMobileRxBytes());
-        return point;
-    }
-
-    public Point getSignalStrengthPoint() {
-        Point point = new Point("SignalStrength");
-        point.time(System.currentTimeMillis(), WritePrecision.MS);
-
-        List<CellSignalStrength> css = null;
-        // On some devices we get here a null object if no SIM card is inserted in the phone.
-        try {
-            css = tm.getSignalStrength().getCellSignalStrengths();
-        } catch (Exception e) {
-            return point;
-        }
-        for (CellSignalStrength ss : css) {
-            if (ss instanceof CellSignalStrengthNr) {
-                CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
-                addOnlyAvailablePoint(point, "Level", ssnr.getLevel());
-                addOnlyAvailablePoint(point, "CsiRSRP", ssnr.getCsiRsrp());
-                addOnlyAvailablePoint(point, "CsiRSRQ", ssnr.getCsiRsrq());
-                addOnlyAvailablePoint(point, "CsiSINR", ssnr.getCsiSinr());
-                addOnlyAvailablePoint(point, "SSRSRP", ssnr.getSsRsrp());
-                addOnlyAvailablePoint(point, "SSRSRQ", ssnr.getSsRsrq());
-                addOnlyAvailablePoint(point, "SSSINR", ssnr.getSsSinr());
-            }
-            if (ss instanceof CellSignalStrengthLte) {
-                CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
-                addOnlyAvailablePoint(point, "Level", ssLTE.getLevel());
-                addOnlyAvailablePoint(point, "CQI", ssLTE.getCqi());
-                addOnlyAvailablePoint(point, "RSRP", ssLTE.getRsrp());
-                addOnlyAvailablePoint(point, "RSRQ", ssLTE.getRsrq());
-                addOnlyAvailablePoint(point, "RSSI", ssLTE.getRssi());
-                addOnlyAvailablePoint(point, "RSSNR", ssLTE.getRssnr());
-            }
-            if (ss instanceof CellSignalStrengthCdma) {
-                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
-                addOnlyAvailablePoint(point, "Level", ssCdma.getLevel());
-                addOnlyAvailablePoint(point, "EvoDbm", ssCdma.getEvdoDbm());
-            }
-            if (ss instanceof CellSignalStrengthGsm) {
-                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
-                addOnlyAvailablePoint(point, "Level", ssGSM.getLevel());
-                addOnlyAvailablePoint(point, "AsuLevel", ssGSM.getAsuLevel());
-                addOnlyAvailablePoint(point, "Dbm", ssGSM.getDbm());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    addOnlyAvailablePoint(point, "RSSI", ssGSM.getRssi());
-                }
-            }
-        }
-        return point;
-    }
-
-    // Callbacks for location
-    public void onLocationChanged(@NonNull Location location) {
-        li.setLatitude(location.getLatitude());
-        li.setLongitude(location.getLongitude());
-        li.setAltitude(location.getAltitude());
-        li.setProvider(location.getProvider());
-        li.setAccuracy(location.getAccuracy());
-        li.setSpeed(location.getSpeed());
-    }
-
-    public void onProviderDisabled(@NonNull String provider) {
-        Log.d(TAG, String.format("%s is disabled", provider));
-    }
-
-    public void onProviderEnabled(@NonNull String provider) {
-        Log.d(TAG, String.format("%s is enabled", provider));
-    }
-
-    private void startLocationUpdates() {
-        LocationRequest locationRequest = new LocationRequest.Builder(200)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .build();
-        FusedLocationProviderClient flpc = LocationServices.getFusedLocationProviderClient(ct);
-        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            flpc.requestLocationUpdates(locationRequest,
-                    locationCallback,
-                    Looper.getMainLooper());
-        }
-    }
-
+    // ### Cell Information ###
     @Override
     public void onCellInfoChanged(@NonNull List<CellInfo> list) {
-        if(list == null) return;
+        updateTimestamp();
+        long ts_ = ts;
         List<CellInformation> ciml = new ArrayList<>();
         for (CellInfo ci : list) {
             CellInformation cim = new CellInformation();
+            cim.setTimeStamp(ts_);
             cim.setCellConnectionStatus(ci.getCellConnectionStatus());
+            cim.setRegistered(ci.isRegistered());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 cim.setAlphaLong((String) ci.getCellIdentity().getOperatorAlphaLong());
             }
@@ -650,13 +377,132 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         ci = ciml;
     }
 
-    public ArrayList<SignalStrengthInformation> getSignalStrength() {
-        SignalStrength signalStrength = tm.getSignalStrength();
+    // return CellInformation object
+    public List<CellInformation> getCellInformation() {
+        return ci;
+    }
+
+    public List<Point> getCellInformationPoint() {
+        List<Point> points = new ArrayList<>();
+        boolean nc = sp.getBoolean("log_neighbour_cells", false);
+        for (CellInformation ci_ : ci) {
+            // check if want to log neighbour cells and skip non registered cells
+            if (!nc) {
+                if (!ci_.isRegistered()) {
+                    continue;
+                }
+            }
+            Point point = new Point("CellInformation");
+            point.time(ts, WritePrecision.MS);
+            point.addField("OperatorAlphaLong", (String) ci_.getAlphaLong());
+            point.addField("CellConnectionStatus", ci_.getCellConnectionStatus());
+            point.addField("IsRegistered", ci_.isRegistered());
+            if (Objects.equals(ci_.getCellType(), "NR")) {
+                point.addField("CellType", "NR");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    point.addField("Bands", ci_.getBands());
+                }
+                point.addField("CI", ci_.getCi());
+                point.addTag("CI", String.valueOf(ci_.getCi()));
+                point.addField("NRARFCN", ci_.getARFCN());
+                point.addField("MNC", ci_.getMnc());
+                point.addField("MCC", ci_.getMcc());
+                point.addField("PCI", ci_.getPci());
+                point.addField("TAC", ci_.getTac());
+                point.addField("Level", ci_.getLevel());
+                point.addField(GlobalVars.CSIRSRP, ci_.getRsrp());
+                point.addField(GlobalVars.CSIRSRQ, ci_.getRsrq());
+                point.addField(GlobalVars.CSISINR, ci_.getCsisinr());
+                point.addField(GlobalVars.SSRSRP, ci_.getSsrsrp());
+                point.addField(GlobalVars.SSRSRQ, ci_.getSsrsrq());
+                point.addField(GlobalVars.SSSINR, ci_.getSssinr());
+                point.addField(GlobalVars.AsuLevel, ci_.getAsuLevel());
+            }
+            if (Objects.equals(ci_.getCellType(), "LTE")) {
+                point.addField("CellType", "LTE");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    point.addField("Bands", ci_.getBands());
+                }
+                point.addField("Bandwidth", ci_.getBandwidth());
+                point.addField("CI", ci_.getCi());
+                point.addTag("CI", String.valueOf(ci_.getCi()));
+                point.addField("EARFCN", ci_.getARFCN());
+                point.addField("MNC", ci_.getMnc());
+                point.addField("MCC", ci_.getMcc());
+                point.addField("PCI", ci_.getPci());
+                point.addField("TAC", ci_.getTac());
+            }
+            if (Objects.equals(ci_.getCellType(), "CDMA")) {
+                point.addField("CellType", "CDMA");
+            }
+            if (Objects.equals(ci_.getCellType(), "GSM")) {
+                point.addField("CellType", "GSM");
+                point.addField("CI", ci_.getCi());
+                point.addTag("CI", String.valueOf(ci_.getCi()));
+                point.addField("ARFCN", ci_.getARFCN());
+                point.addField("MNC", ci_.getMnc());
+                point.addField("MCC", ci_.getMcc());
+            }
+            points.add(point);
+        }
+        return points;
+    }
+
+    // return a list of CellInfo. This list also contains not available cells
+    public List<CellInfo> getAllCellInfo() {
+        List<CellInfo> cellInfo;
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Access Fine Location permission missing");
+            cellInfo = new ArrayList<>();
+        } else {
+            cellInfo = tm.getAllCellInfo();
+        }
+        return cellInfo;
+    }
+
+    // filter CellInfo objects for the registered cells
+    public List<CellInformation> getRegisteredCells() {
+        List<CellInformation> rcil = new ArrayList<>();
+        for (CellInformation ci_ : ci) {
+            if (ci_.isRegistered()) { //we only care for the serving cell
+                rcil.add(ci_);
+            }
+        }
+        return rcil;
+    }
+
+
+    // ### Network Capabilities ###
+    public Point getNetworkCapabilitiesPoint() {
+        NetworkCapabilities nc = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        Point point = new Point("InterfaceThroughput");
+        if (nc != null) {
+            int downSpeed = nc.getLinkDownstreamBandwidthKbps();
+            int upSpeed = nc.getLinkUpstreamBandwidthKbps();
+            point.addField("downSpeed_kbps", downSpeed);
+            point.addField("upSpeed_kbps", upSpeed);
+            point.time(System.currentTimeMillis(), WritePrecision.MS);
+        } else {
+            point.addField("downSpeed_kbps", -1);
+            point.addField("upSpeed_kbps", -1);
+            point.time(System.currentTimeMillis(), WritePrecision.MS);
+        }
+        point.addField("MobileTxBytes", TrafficStats.getMobileTxBytes());
+        point.addField("MobileRxBytes", TrafficStats.getMobileRxBytes());
+        return point;
+    }
+
+
+    // ### Signal Strength Information ###
+    @Override
+    public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+        updateTimestamp();
+        long ts_ = ts;
         if (signalStrength != null) {
             List<android.telephony.CellSignalStrength> css = signalStrength.getCellSignalStrengths();
-            ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
+            ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<SignalStrengthInformation>();
             for (CellSignalStrength ss : css) {
-                SignalStrengthInformation signalStrengthInformation = new SignalStrengthInformation(System.currentTimeMillis());
+                SignalStrengthInformation signalStrengthInformation = new SignalStrengthInformation(ts_);
                 if (ss instanceof CellSignalStrengthNr) {
                     CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
                     signalStrengthInformation.setLevel(ssnr.getLevel());
@@ -698,13 +544,130 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
                 signalStrengthInformations.add(signalStrengthInformation);
 
             }
-            return signalStrengthInformations;
+            ssi = signalStrengthInformations;
         } else {
-            ArrayList<SignalStrengthInformation> signalStrengthInformations = new ArrayList<>();
-            return signalStrengthInformations;
+            ssi = new ArrayList<>();
         }
     }
 
+    public ArrayList<SignalStrengthInformation> getSignalStrengthInformation() {
+        return ssi;
+    }
+
+    public SignalStrength getSignalStrength() {
+        return tm.getSignalStrength();
+    }
+
+    public Point getSignalStrengthPoint() {
+        Point point = new Point("SignalStrength");
+        point.time(System.currentTimeMillis(), WritePrecision.MS);
+
+        List<CellSignalStrength> css = null;
+        // On some devices we get here a null object if no SIM card is inserted in the phone.
+        try {
+            css = tm.getSignalStrength().getCellSignalStrengths();
+        } catch (Exception e) {
+            return point;
+        }
+        for (CellSignalStrength ss : css) {
+            if (ss instanceof CellSignalStrengthNr) {
+                CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
+                addOnlyAvailablePoint(point, "Level", ssnr.getLevel());
+                addOnlyAvailablePoint(point, "CsiRSRP", ssnr.getCsiRsrp());
+                addOnlyAvailablePoint(point, "CsiRSRQ", ssnr.getCsiRsrq());
+                addOnlyAvailablePoint(point, "CsiSINR", ssnr.getCsiSinr());
+                addOnlyAvailablePoint(point, "SSRSRP", ssnr.getSsRsrp());
+                addOnlyAvailablePoint(point, "SSRSRQ", ssnr.getSsRsrq());
+                addOnlyAvailablePoint(point, "SSSINR", ssnr.getSsSinr());
+            }
+            if (ss instanceof CellSignalStrengthLte) {
+                CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
+                addOnlyAvailablePoint(point, "Level", ssLTE.getLevel());
+                addOnlyAvailablePoint(point, "CQI", ssLTE.getCqi());
+                addOnlyAvailablePoint(point, "RSRP", ssLTE.getRsrp());
+                addOnlyAvailablePoint(point, "RSRQ", ssLTE.getRsrq());
+                addOnlyAvailablePoint(point, "RSSI", ssLTE.getRssi());
+                addOnlyAvailablePoint(point, "RSSNR", ssLTE.getRssnr());
+            }
+            if (ss instanceof CellSignalStrengthCdma) {
+                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
+                addOnlyAvailablePoint(point, "Level", ssCdma.getLevel());
+                addOnlyAvailablePoint(point, "EvoDbm", ssCdma.getEvdoDbm());
+            }
+            if (ss instanceof CellSignalStrengthGsm) {
+                CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
+                addOnlyAvailablePoint(point, "Level", ssGSM.getLevel());
+                addOnlyAvailablePoint(point, "AsuLevel", ssGSM.getAsuLevel());
+                addOnlyAvailablePoint(point, "Dbm", ssGSM.getDbm());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    addOnlyAvailablePoint(point, "RSSI", ssGSM.getRssi());
+                }
+            }
+        }
+        return point;
+    }
+
+
+    // ### Location Information ###
+    // return location object if available
+    public LocationInformation getLocation() {
+        return li;
+    }
+    // return location as influx point
+    public Point getLocationPoint() {
+        Point point = new Point("Location");
+        point.time(System.currentTimeMillis(), WritePrecision.MS);
+        // falling back to fake if no location is available is not the best solution.
+        // We should ask the user / add configuration what to do
+        if (sp.getBoolean("fake_location", false) || li == null) {
+            point.addField("longitude", 13.3143266);
+            point.addField("latitude", 52.5259678);
+            point.addField("altitude", 34.0);
+            point.addField("speed", 0.0);
+            point.addField("provider", "fake location");
+            point.addField("accuracy", 100.0);
+
+        } else {
+            point.addField("longitude", li.getLongitude());
+            point.addField("latitude", li.getLatitude());
+            point.addField("altitude", li.getAltitude());
+            point.addField("speed", li.getSpeed());
+            point.addField("provider", li.getProvider());
+            point.addField("accuracy", li.getAccuracy());
+        }
+        return point;
+    }
+    public void onLocationChanged(@NonNull Location location) {
+        li.setLatitude(location.getLatitude());
+        li.setLongitude(location.getLongitude());
+        li.setAltitude(location.getAltitude());
+        li.setProvider(location.getProvider());
+        li.setAccuracy(location.getAccuracy());
+        li.setSpeed(location.getSpeed());
+    }
+
+    public void onProviderDisabled(@NonNull String provider) {
+        Log.d(TAG, String.format("%s is disabled", provider));
+    }
+
+    public void onProviderEnabled(@NonNull String provider) {
+        Log.d(TAG, String.format("%s is enabled", provider));
+    }
+
+    private void startLocationUpdates() {
+        LocationRequest locationRequest = new LocationRequest.Builder(200)
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .build();
+        FusedLocationProviderClient flpc = LocationServices.getFusedLocationProviderClient(ct);
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            flpc.requestLocationUpdates(locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper());
+        }
+    }
+
+
+    // ### Battery Information ###
     public void refreshBatteryInfo() {
             IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = ct.registerReceiver(null, iFilter);
@@ -729,14 +692,82 @@ public class DataProvider implements LocationListener, TelephonyCallback.CellInf
         return point;
     }
 
+
+    // ### Misc ###
+    // return a Map of key values pairs to be used as tags in the influx points
+    // List consist of device information and user defined tags
+    public Map<String, String> getTagsMap() {
+        String tags = sp.getString("tags", "").strip().replace(" ", "");
+        Map<String, String> tags_map = Collections.emptyMap();
+        if (!tags.isEmpty()) {
+            try {
+                tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
+            } catch (IllegalArgumentException e) {
+                Log.d(TAG, "cant parse tags, ignoring");
+            }
+        }
+        DeviceInformation di = getDeviceInformation();
+
+        Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
+        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
+        tags_map_modifiable.put("manufacturer", di.getManufacturer());
+        tags_map_modifiable.put("model", di.getModel());
+        tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));
+        tags_map_modifiable.put("android_version", di.getAndroidRelease());
+        tags_map_modifiable.put("security_patch", di.getSecurityPatchLevel());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            tags_map_modifiable.put("soc_model", di.getSOCModel());
+        }
+        if (cp) {
+            tags_map_modifiable.put("imei", di.getIMEI());
+            tags_map_modifiable.put("imsi", getIMSI());
+        }
+        tags_map_modifiable.put("radio_version", Build.getRadioVersion());
+        return tags_map_modifiable;
+    }
     @Override
     public void onPhysicalChannelConfigChanged(@NonNull List<PhysicalChannelConfig> list) {
         Log.d(TAG, list.toString());
+    }
+
+    // get the phone IMEI if accessible
+    public String getIMEI() {
+        if (tm.hasCarrierPrivileges()) {
+            return tm.getImei();
+        } else {
+            return "N/A";
+        }
+    }
+
+    // get the SIMs IMSI if accessible
+    // We suppress the linter warning as we need IMSI even that not recommended for most apps.
+    @SuppressLint("HardwareIds")
+    public String getIMSI() {
+        if (tm.hasCarrierPrivileges()) {
+            return tm.getSubscriberId();
+        } else {
+            return "N/A";
+        }
     }
 
     public void refreshAll() {
         refreshDeviceInformation();
         refreshNetworkInformation();
         refreshBatteryInfo();
+        refreshNetworkInterfaceInformation();
+        onCellInfoChanged(getAllCellInfo());
+        onSignalStrengthsChanged(getSignalStrength());
+    }
+
+    private void updateTimestamp() {
+        ts = System.currentTimeMillis();
+    }
+
+    // ### Helper function ###
+    // Filter values before adding them as we don't need to log not available information
+    public void addOnlyAvailablePoint(Point point, String key, int value) {
+        if (value != CellInfo.UNAVAILABLE) {
+            point.addField(key, value);
+        }
     }
 }
