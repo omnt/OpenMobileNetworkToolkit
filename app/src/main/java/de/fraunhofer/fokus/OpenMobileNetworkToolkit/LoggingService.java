@@ -133,8 +133,9 @@ public class LoggingService extends Service {
                     s.append(ci.getMcc());
                     s.append(ci.getMnc());
                 }
+                s.append(" Type: ");
+                s.append(ci.getCellType());
                 switch (ci.getCellType()) {
-                    case "NR":
                     case "LTE":
                         s.append(" PCI: ");
                         s.append(ci.getPci());
@@ -143,9 +144,23 @@ public class LoggingService extends Service {
                         s.append(" RSRP: ");
                         s.append(ci.getRsrq());
                         break;
+                    case "NR":
+                        s.append(" PCI: ");
+                        s.append(ci.getPci());
+                        s.append(" SSRSRQ: ");
+                        s.append(ci.getSsrsrq());
+                        s.append(" SSRSRP: ");
+                        s.append(ci.getSsrsrp());
+                        s.append(" SSSINR: ");
+                        s.append(ci.getSssinr());
+                        break;
                     case "GSM":
                         s.append(" CI: ");
                         s.append(ci.getCi());
+                        s.append(" Level: ");
+                        s.append(ci.getLevel());
+                        s.append(" DBM: ");
+                        s.append(ci.getDbm());
                 }
             }
             builder.setContentText(s);
