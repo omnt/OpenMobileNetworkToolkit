@@ -48,12 +48,12 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInterfaceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.SignalStrengthInformation;
 
 
 public class HomeFragment extends Fragment {

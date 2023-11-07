@@ -72,16 +72,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.BatteryInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.FeatureInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SliceInformation;
 
 @RequiresApi(api = Build.VERSION_CODES.S)
 public class DataProvider extends PhoneStateListener implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener {
