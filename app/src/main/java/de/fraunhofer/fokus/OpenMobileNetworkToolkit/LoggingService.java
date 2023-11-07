@@ -119,9 +119,10 @@ public class LoggingService extends Service {
             List<CellInformation> cil = dp.getRegisteredCells();
             StringBuilder s = new StringBuilder();
             for (CellInformation ci : cil) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !ci.getAlphaLong().isEmpty()) {
                     s.append(ci.getAlphaLong());
                 } else {
+                    s.append(" PLMN: ");
                     s.append(ci.getMcc());
                     s.append(ci.getMnc());
                 }
