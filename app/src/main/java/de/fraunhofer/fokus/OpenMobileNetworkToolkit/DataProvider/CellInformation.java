@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: apache2
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 
 // https://developer.android.com/reference/android/telephony/CellIdentityLte
@@ -146,6 +146,7 @@ public class CellInformation {
 
     public void setSsrsrp(int ssrsrp) {
         this.ssrsrp = ssrsrp;
+        this.rsrp = ssrsrp;
     }
 
     public int getSsrsrq() {
@@ -154,6 +155,7 @@ public class CellInformation {
 
     public void setSsrsrq(int ssrsrq) {
         this.ssrsrq = ssrsrq;
+        this.rsrq = ssrsrq;
     }
 
     public int getSssinr() {
@@ -275,6 +277,4 @@ public class CellInformation {
     public void setRssnr(int rssnr) {
         this.rssnr = rssnr;
     }
-
-
 }

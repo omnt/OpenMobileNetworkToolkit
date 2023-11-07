@@ -22,6 +22,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
@@ -47,12 +48,12 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.DeviceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.LocationInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.NetworkInterfaceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model.SignalStrengthInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInterfaceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.SignalStrengthInformation;
 
 
 public class HomeFragment extends Fragment {
@@ -191,6 +192,9 @@ public class HomeFragment extends Fragment {
     }
 
     private TableRow rowBuilder(String column1, String column2){
+        if (Objects.equals(column2, String.valueOf(CellInfo.UNAVAILABLE))) {
+            column2 = "N/A";
+        }
         Context context = requireContext();
         TableRow tr = new TableRow(context);
         tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
@@ -238,7 +242,7 @@ public class HomeFragment extends Fragment {
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
     private CardView get_signalstrength_card_view() {
-      ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrength();
+      ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrengthInformation();
       TableLayout tl = new TableLayout(context);
       if (signalStrengthInformations.isEmpty()) {
         tl.addView(rowBuilder("No Signal Strength available", ""));
@@ -252,8 +256,7 @@ public class HomeFragment extends Fragment {
         tl.addView(textView);
         switch (signalStrengthInformation.getConnectionType()) {
           case NR:
-            tl.addView(rowBuilder(GlobalVars.Level,
-                String.valueOf(signalStrengthInformation.getLevel())));
+            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
             tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(signalStrengthInformation.getCsiRSRP())));
             tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(signalStrengthInformation.getCsiRSRQ())));
             tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(signalStrengthInformation.getCsiSINR())));
@@ -263,8 +266,7 @@ public class HomeFragment extends Fragment {
             break;
           case GSM:
             tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
-            tl.addView(
-                rowBuilder("AsuLevel", String.valueOf(signalStrengthInformation.getAsuLevel())));
+            tl.addView(rowBuilder("AsuLevel", String.valueOf(signalStrengthInformation.getAsuLevel())));
             tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(signalStrengthInformation.getDbm())));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
               tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));

@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: apache2
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-public class SliceInformation {
-
+public class FeatureInformation {
+    private String foo;
 }

@@ -8,7 +8,6 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -24,18 +23,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.telephony.CellIdentityNr;
-import android.telephony.CellInfo;
-import android.telephony.CellInfoLte;
-import android.telephony.CellInfoNr;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Observer;
 import androidx.preference.PreferenceManager;
@@ -61,13 +54,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingWorker;
 
 public class LoggingService extends Service {
@@ -92,6 +85,11 @@ public class LoggingService extends Service {
     private FileOutputStream stream;
     private FileOutputStream ping_stream;
     private int interval;
+    private Context context;
+    private Handler pingLogging;
+    private String pingInput;
+    private WorkManager wm;
+    private ArrayList<OneTimeWorkRequest> pingWRs;
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
         @Override
@@ -119,37 +117,52 @@ public class LoggingService extends Service {
     private final Runnable notification_updater = new Runnable() {
         @Override
         public void run() {
-            List<CellInfo> cil = dp.getAllCellInfo();
-            String OperatorName = "Not registered";
-            String PCI = "";
-            String CI = "";
-            for (CellInfo ci : cil) {
-                if (ci.isRegistered()) { //we only care for the serving cell
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        OperatorName = (String) ci.getCellIdentity().getOperatorAlphaLong();
-                    } else {
-                        OperatorName = ""; // todo use old API here
-                    }
-                    if (ci instanceof CellInfoNr) {
-                        CellInfoNr ciNr = (CellInfoNr) ci;
-                        CellIdentityNr cidNr = (CellIdentityNr) ciNr.getCellIdentity();
-                        PCI = String.valueOf(cidNr.getPci());
-                        CI = String.valueOf(cidNr.getNci());
-
-                    }
-                    if (ci instanceof CellInfoLte) {
-                        CellInfoLte ciLTE = (CellInfoLte) ci;
-                        PCI = String.valueOf(ciLTE.getCellIdentity().getPci());
-                        CI = String.valueOf(ciLTE.getCellIdentity().getCi());
-                    }
+            List<CellInformation> cil = dp.getRegisteredCells();
+            StringBuilder s = new StringBuilder();
+            for (CellInformation ci : cil) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !ci.getAlphaLong().isEmpty()) {
+                    s.append(ci.getAlphaLong());
+                } else {
+                    s.append(" PLMN: ");
+                    s.append(ci.getMcc());
+                    s.append(ci.getMnc());
+                }
+                s.append(" Type: ");
+                s.append(ci.getCellType());
+                switch (ci.getCellType()) {
+                    case "LTE":
+                        s.append(" PCI: ");
+                        s.append(ci.getPci());
+                        s.append(" RSRQ: ");
+                        s.append(ci.getRsrp());
+                        s.append(" RSRP: ");
+                        s.append(ci.getRsrq());
+                        break;
+                    case "NR":
+                        s.append(" PCI: ");
+                        s.append(ci.getPci());
+                        s.append(" SSRSRQ: ");
+                        s.append(ci.getSsrsrq());
+                        s.append(" SSRSRP: ");
+                        s.append(ci.getSsrsrp());
+                        s.append(" SSSINR: ");
+                        s.append(ci.getSssinr());
+                        break;
+                    case "GSM":
+                        s.append(" CI: ");
+                        s.append(ci.getCi());
+                        s.append(" Level: ");
+                        s.append(ci.getLevel());
+                        s.append(" DBM: ");
+                        s.append(ci.getDbm());
                 }
             }
-
-            builder.setContentText(new StringBuilder().append(OperatorName).append(" PCI: ").append(PCI).append(" CI: ").append(CI));
+            builder.setContentText(s);
             nm.notify(1, builder.build());
             notificationHandler.postDelayed(this, interval);
         }
     };
+
     // Handle local on-device influxDB
     private final Runnable localInfluxUpdate = new Runnable() {
         @Override
@@ -179,6 +192,7 @@ public class LoggingService extends Service {
             remoteInfluxHandler.postDelayed(this, interval);
         }
     };
+
     // Handle remote on-server influxdb update
     private final Runnable RemoteInfluxUpdate = new Runnable() {
         @Override
@@ -192,12 +206,6 @@ public class LoggingService extends Service {
             remoteInfluxHandler.postDelayed(this, interval);
         }
     };
-    private Context context;
-
-    private Handler pingLogging;
-    private String pingInput;
-    private WorkManager wm;
-    private ArrayList<OneTimeWorkRequest> pingWRs;
 
     @Override
     public void onCreate() {
@@ -222,21 +230,18 @@ public class LoggingService extends Service {
             cp = tm.hasCarrierPrivileges();
         }
         wm = WorkManager.getInstance(context);
-
-        if(intent != null){
-            if(intent.getBooleanExtra("ping", false)){
-                if(intent.getBooleanExtra("ping_stop", false)){
+        if(intent != null) {
+            if (intent.getBooleanExtra("ping", false)) {
+                if (intent.getBooleanExtra("ping_stop", false)) {
                     stopPing();
-                    return START_STICKY;
                 } else {
                     pingInput = intent.getStringExtra("input");
                     pingWRs = new ArrayList<>();
                     setupPing();
-                    return START_STICKY;
                 }
+                return START_STICKY;
             }
         }
-
         // create intent for notifications
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -374,7 +379,7 @@ public class LoggingService extends Service {
         }
 
         if (sp.getBoolean("influx_cell_data", false)) {
-            List<Point> ps = dp.getAllCellInfoPoint();
+            List<Point> ps = dp.getCellInformationPoint();
             for (Point p : ps) {
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
@@ -619,7 +624,6 @@ public class LoggingService extends Service {
                                     e.printStackTrace();
                                 }
                             }
-
 
                             Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
 

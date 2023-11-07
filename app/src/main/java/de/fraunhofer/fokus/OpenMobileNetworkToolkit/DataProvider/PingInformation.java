@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: apache2
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Model;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 public class PingInformation {
     private Double unixTimestamp;
