@@ -22,6 +22,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
@@ -191,6 +192,9 @@ public class HomeFragment extends Fragment {
     }
 
     private TableRow rowBuilder(String column1, String column2){
+        if (Objects.equals(column2, String.valueOf(CellInfo.UNAVAILABLE))) {
+            column2 = "N/A";
+        }
         Context context = requireContext();
         TableRow tr = new TableRow(context);
         tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
@@ -252,8 +256,7 @@ public class HomeFragment extends Fragment {
         tl.addView(textView);
         switch (signalStrengthInformation.getConnectionType()) {
           case NR:
-            tl.addView(rowBuilder(GlobalVars.Level,
-                String.valueOf(signalStrengthInformation.getLevel())));
+            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
             tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(signalStrengthInformation.getCsiRSRP())));
             tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(signalStrengthInformation.getCsiRSRQ())));
             tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(signalStrengthInformation.getCsiSINR())));
@@ -263,8 +266,7 @@ public class HomeFragment extends Fragment {
             break;
           case GSM:
             tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
-            tl.addView(
-                rowBuilder("AsuLevel", String.valueOf(signalStrengthInformation.getAsuLevel())));
+            tl.addView(rowBuilder("AsuLevel", String.valueOf(signalStrengthInformation.getAsuLevel())));
             tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(signalStrengthInformation.getDbm())));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
               tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));
