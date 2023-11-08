@@ -35,19 +35,19 @@ public class Start {
     public String cookie;
     @SerializedName("tcp_mss_default")
     @Expose
-    public Integer tcpMssDefault;
+    public int tcpMssDefault;
     @SerializedName("target_bitrate")
     @Expose
-    public Integer targetBitrate;
+    public int targetBitrate;
     @SerializedName("sock_bufsize")
     @Expose
-    public Integer sockBufsize;
+    public int sockBufsize;
     @SerializedName("sndbuf_actual")
     @Expose
-    public Integer sndbufActual;
+    public int sndbufActual;
     @SerializedName("rcvbuf_actual")
     @Expose
-    public Integer rcvbufActual;
+    public int rcvbufActual;
     @SerializedName("test_start")
     @Expose
     public TestStart testStart;

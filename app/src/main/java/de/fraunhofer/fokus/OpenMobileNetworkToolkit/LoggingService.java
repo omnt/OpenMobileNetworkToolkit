@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -229,18 +230,18 @@ public class LoggingService extends Service {
             cp = tm.hasCarrierPrivileges();
         }
         wm = WorkManager.getInstance(context);
-
-        if (intent.getBooleanExtra("ping", false)){
-            if (intent.getBooleanExtra("ping_stop", false)){
-                stopPing();
-            } else {
-                pingInput = intent.getStringExtra("input");
-                pingWRs = new ArrayList<>();
-                setupPing();
+        if(intent != null) {
+            if (intent.getBooleanExtra("ping", false)) {
+                if (intent.getBooleanExtra("ping_stop", false)) {
+                    stopPing();
+                } else {
+                    pingInput = intent.getStringExtra("input");
+                    pingWRs = new ArrayList<>();
+                    setupPing();
+                }
+                return START_STICKY;
             }
-            return START_STICKY;
         }
-
         // create intent for notifications
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
@@ -615,10 +616,13 @@ public class LoggingService extends Service {
                                 e.printStackTrace();
                             }
 
-                            try {
-                                ic.writePoint(point);
-                            } catch (IOException e) {
-                                e.printStackTrace();
+
+                            if (sp.getBoolean("enable_influx", false)) {
+                                try {
+                                    ic.writePoints(Arrays.asList(point));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
                             Log.d(TAG, "doWork: Point:"+point.toLineProtocol());

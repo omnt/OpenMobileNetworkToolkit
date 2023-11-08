@@ -16,35 +16,35 @@ public class SumSent {
 
     @SerializedName("start")
     @Expose
-    public Integer start;
+    public int start;
     @SerializedName("end")
     @Expose
-    public Float end;
+    public float end;
     @SerializedName("seconds")
     @Expose
-    public Float seconds;
+    public float seconds;
     @SerializedName("bytes")
     @Expose
-    public Long bytes;
+    public long bytes;
     @SerializedName("bits_per_second")
     @Expose
-    public Float bitsPerSecond;
+    public float bitsPerSecond;
     @SerializedName("retransmits")
     @Expose
-    public Integer retransmits;
+    public int retransmits;
     @SerializedName("sender")
     @Expose
-    public Boolean sender;
+    public boolean sender;
     @SerializedName("packets")
     @Expose
-    public Integer packets;
+    public int packets;
     @SerializedName("jitter_ms")
     @Expose
-    public Float jitterMs;
+    public float jitterMs;
     @SerializedName("lost_packets")
     @Expose
-    public Integer lostPackets;
+    public int lostPackets;
     @SerializedName("lost_percent")
     @Expose
-    public Float lostPercent;
+    public float lostPercent;
 }

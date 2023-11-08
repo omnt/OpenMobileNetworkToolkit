@@ -19,30 +19,30 @@ public class TestStart {
     public String protocol;
     @SerializedName("num_streams")
     @Expose
-    public Integer numStreams;
+    public int numStreams;
     @SerializedName("blksize")
     @Expose
-    public Integer blksize;
+    public int blksize;
     @SerializedName("omit")
     @Expose
-    public Integer omit;
+    public int omit;
     @SerializedName("duration")
     @Expose
-    public Integer duration;
+    public int duration;
     @SerializedName("bytes")
     @Expose
-    public Integer bytes;
+    public int bytes;
     @SerializedName("blocks")
     @Expose
-    public Integer blocks;
+    public int blocks;
     @SerializedName("reverse")
     @Expose
-    public Integer reverse;
+    public int reverse;
     @SerializedName("tos")
     @Expose
-    public Integer tos;
+    public int tos;
     @SerializedName("target_bitrate")
     @Expose
-    public Integer targetBitrate;
+    public int targetBitrate;
 
 }

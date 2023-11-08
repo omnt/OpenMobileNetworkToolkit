@@ -19,6 +19,6 @@ public class ConnectingTo {
     public String host;
     @SerializedName("port")
     @Expose
-    public Integer port;
+    public int port;
 
 }

@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
 
 public class NetworkInformation {
@@ -174,6 +175,39 @@ public class NetworkInformation {
         }
         return dataNetworkTypeString;
     }
+
+    public static String getAccessNetworkType(int acceesNetworkID) {
+        String accessNetworkType = "N/A";
+        switch (acceesNetworkID){
+            case AccessNetworkConstants.AccessNetworkType.CDMA2000:
+                accessNetworkType =  "CDMA2000";
+                break;
+            case AccessNetworkConstants.AccessNetworkType.GERAN:
+                accessNetworkType = "GERAN";
+                break;
+            case AccessNetworkConstants.AccessNetworkType.EUTRAN:
+                accessNetworkType = "EUTRAN";
+                break;
+            case AccessNetworkConstants.AccessNetworkType.IWLAN:
+                accessNetworkType = "IWLAN";
+                break;
+            case AccessNetworkConstants.AccessNetworkType.NGRAN:
+                accessNetworkType = "NGRAN";
+                break;
+            case AccessNetworkConstants.AccessNetworkType.UNKNOWN:
+                accessNetworkType = "Unknow";
+                break;
+            case AccessNetworkConstants.AccessNetworkType.UTRAN:
+                accessNetworkType = "UTRAN";
+                break;
+            default:
+                accessNetworkType = "Unknown";
+        }
+        return accessNetworkType;
+    }
+
+
+
 
     public int getPreferredOpportunisticDataSubscriptionId() {
         return preferredOpportunisticDataSubscriptionId;
