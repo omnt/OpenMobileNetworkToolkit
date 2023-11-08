@@ -247,15 +247,25 @@ public class HomeFragment extends Fragment {
       if (signalStrengthInformations.isEmpty()) {
         tl.addView(rowBuilder("No Signal Strength available", ""));
       }
+      int cell = 1;
       for (SignalStrengthInformation signalStrengthInformation : signalStrengthInformations) {
         TextView textView = new TextView(getContext());
-        if(signalStrengthInformation.getConnectionType()==null){
+        if (signalStrengthInformation.getConnectionType() == null) {
           continue;
         }
-        textView.setText(signalStrengthInformation.getConnectionType().toString());
-        tl.addView(textView);
+        TableRow title = rowBuilder("Cell " + cell, "");
+        if (cell > 1) {
+            title.setPadding(0, 20, 0, 0);
+        }
+        ++cell;
+        TextView tv = (TextView) title.getChildAt(0);
+        tv.setTypeface(Typeface.DEFAULT_BOLD);
+        tl.addView(title);
+        //textView.setText(signalStrengthInformation.getConnectionType().toString());
+        //tl.addView(textView);
         switch (signalStrengthInformation.getConnectionType()) {
           case NR:
+            tl.addView(rowBuilder("Type", signalStrengthInformation.getConnectionType().toString()));
             tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
             tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(signalStrengthInformation.getCsiRSRP())));
             tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(signalStrengthInformation.getCsiRSRQ())));
