@@ -49,6 +49,8 @@ public class PingFragment extends Fragment {
     private EditText input;
     private TubeSpeedometer pingSpeed;
 
+    private Context ct;
+
 
     private SharedPreferences sp;
     public PingFragment() {
@@ -60,18 +62,18 @@ public class PingFragment extends Fragment {
       }
     private void setupPing(){
         input.setEnabled(false);
-        Intent pingStart = new Intent(getContext(), LoggingService.class);
+
+        Intent pingStart = new Intent(ct, LoggingService.class);
         pingStart.putExtra("input", input.getText().toString());
         pingStart.putExtra("ping", true);
-        getContext().startService(pingStart);
-
+        ct.startService(pingStart);
     }
     private void stopPing(){
-        Intent pingStart = new Intent(getContext(), LoggingService.class);
+        Intent pingStart = new Intent(ct, LoggingService.class);
         pingStart.putExtra("ping", true);
         pingStart.putExtra("ping_stop", true);
         pingStart.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getContext().startService(pingStart);
+        ct.startService(pingStart);
     }
 
 
@@ -109,6 +111,7 @@ public class PingFragment extends Fragment {
         aSwitch = verticalLL.findViewById(R.id.ping_switch);
         input = verticalLL.findViewById(R.id.ping_input);
         input.setText(sp.getString("ping_input", "-w 5 8.8.8"));
+        ct = requireContext();
         WorkManager wm = WorkManager.getInstance(requireContext());
 
 

@@ -80,7 +80,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragment_iperf3_input"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Fragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3SwipeFragment"
         android:label="fragment_iperf3_input"
         tools:layout="@layout/fragment_iperf3_input">
 
@@ -125,7 +125,7 @@
     </fragment>
     <fragment
         android:id="@+id/flagSettingFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.FlagSettingFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.CarrierSettingFragment"
         android:label="FlagSettingFragment"
         tools:layout="@xml/preference_flag">
         <action

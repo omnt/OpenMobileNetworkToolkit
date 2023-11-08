@@ -16,24 +16,24 @@ public class Receiver {
 
     @SerializedName("socket")
     @Expose
-    public Integer socket;
+    public int socket;
     @SerializedName("start")
     @Expose
-    public Integer start;
+    public int start;
     @SerializedName("end")
     @Expose
-    public Float end;
+    public float end;
     @SerializedName("seconds")
     @Expose
-    public Float seconds;
+    public float seconds;
     @SerializedName("bytes")
     @Expose
-    public Long bytes;
+    public long bytes;
     @SerializedName("bits_per_second")
     @Expose
-    public Float bitsPerSecond;
+    public float bitsPerSecond;
     @SerializedName("sender")
     @Expose
-    public Boolean sender;
+    public boolean sender;
 
 }

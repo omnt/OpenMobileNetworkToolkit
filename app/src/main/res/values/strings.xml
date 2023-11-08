@@ -145,6 +145,11 @@
     <string name="dialog_no_location_enable">Enable Location</string>
     <string name="dialog_no_location_fake">Use fake location</string>
     <string name="dialog_no_location_title">Location Disabled</string>
+    <string name="radio_settings">Radio Settings</string>
+    <string name="select_plmn">Set PLMN</string>
+    <string name="access_networktype">Select Access Network Type</string>
+    <string name="persist_boot">Persist until reboot</string>
+    <string name="carrier_settings">Carrier Settings</string>
 
     <!-- -->
 
