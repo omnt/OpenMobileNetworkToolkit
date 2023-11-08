@@ -10,20 +10,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
     <item
-        android:id="@+id/settings"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:title="@string/settings" />
-    <item
-        android:id="@+id/special_codes"
-        android:icon="@android:drawable/ic_dialog_dialer"
-        android:title="@string/special_codes"
-        android:visible="true" />
-    <item
         android:id="@+id/iperf3"
         android:title="@string/action_iperf3" />
     <item
         android:id="@+id/ping"
         android:title="@string/action_ping" />
+    <item
+        android:id="@+id/special_codes"
+        android:icon="@android:drawable/ic_dialog_dialer"
+        android:title="@string/special_codes"
+        android:visible="true" />
     <item
         android:id="@+id/subscritions"
         android:layout_width="wrap_content"
@@ -33,14 +29,15 @@
         android:id="@+id/slicingSetup"
         android:title="@string/slicing_setup" />
     <item
+        android:id="@+id/influxDBMenu"
+        android:title="@string/influxdb" />
+    <item
         android:id="@+id/workprofilemanagement"
         android:title="@string/work_profile_management" />
     <item
-        android:id="@+id/apn"
-        android:title="@string/apn_settings" />
-    <item
-        android:id="@+id/influxDBMenu"
-        android:title="@string/influxdb" />
+        android:id="@+id/settings"
+        android:icon="@android:drawable/ic_menu_manage"
+        android:title="@string/settings" />
     <item
         android:id="@+id/about"
         android:icon="@android:drawable/ic_dialog_info"

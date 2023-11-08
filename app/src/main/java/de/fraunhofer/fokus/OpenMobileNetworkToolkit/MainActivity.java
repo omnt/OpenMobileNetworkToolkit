@@ -277,10 +277,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.about:
                 navController.navigate(R.id.about_fragment);
                 break;
-            case R.id.apn:
-                Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
-                startActivity(intent);
-                break;
             case R.id.slicingSetup:
                 navController.navigate(R.id.fragment_slicingsetup);
                 break;
