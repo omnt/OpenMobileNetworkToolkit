@@ -71,7 +71,7 @@
 
     <fragment
         android:id="@+id/fragment_slicingsetup"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SlicingSetup"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SlicingSetupFragment"
         android:label="@string/slicing_setup"
         tools:layout="@layout/fragment_slicingsetup">
         <action

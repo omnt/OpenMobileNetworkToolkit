@@ -13,22 +13,63 @@
     android:id="@+id/fragment_slicingsetup"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    tools:context=".SlicingSetup">
+    tools:context=".SlicingSetupFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:id="@+id/slicing_fragment_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:text="Slicing setup"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/slicing_fragment_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:text="Slicing is a 5G SA only feature. It requires configuration on your core network. This is still under developemnt" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ENTERPRISE1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:text="Enterprise 1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ENTERPRISE2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:text="Enterprise 2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ENTERPRISE3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:text="Enterprise 3" />
 
         <ScrollView
             android:id="@+id/scrollView2"
-            android:layout_width="350dp"
+            android:layout_width="match_parent"
             android:layout_height="400dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp">
 
             <LinearLayout
                 android:id="@+id/sliceInfo"
@@ -36,43 +77,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
         </ScrollView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scrollView2">
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_ENTERPRISE1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Enterprise 1" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_ENTERPRISE2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Enterprise 2" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_ENTERPRISE3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Enterprise 3" />
-        </LinearLayout>
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
