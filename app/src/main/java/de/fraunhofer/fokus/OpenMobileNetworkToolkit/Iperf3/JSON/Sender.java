@@ -16,42 +16,42 @@ public class Sender {
 
     @SerializedName("socket")
     @Expose
-    public Integer socket;
+    public int socket;
     @SerializedName("start")
     @Expose
-    public Integer start;
+    public int start;
     @SerializedName("end")
     @Expose
-    public Float end;
+    public float end;
     @SerializedName("seconds")
     @Expose
-    public Float seconds;
+    public float seconds;
     @SerializedName("bytes")
     @Expose
-    public Long bytes;
+    public long bytes;
     @SerializedName("bits_per_second")
     @Expose
-    public Float bitsPerSecond;
+    public float bitsPerSecond;
     @SerializedName("retransmits")
     @Expose
-    public Integer retransmits;
+    public int retransmits;
     @SerializedName("max_snd_cwnd")
     @Expose
-    public Integer maxSndCwnd;
+    public int maxSndCwnd;
     @SerializedName("max_snd_wnd")
     @Expose
-    public Integer maxSndWnd;
+    public int maxSndWnd;
     @SerializedName("max_rtt")
     @Expose
-    public Integer maxRtt;
+    public int maxRtt;
     @SerializedName("min_rtt")
     @Expose
-    public Integer minRtt;
+    public int minRtt;
     @SerializedName("mean_rtt")
     @Expose
-    public Integer meanRtt;
+    public int meanRtt;
     @SerializedName("sender")
     @Expose
-    public Boolean sender;
+    public boolean sender;
 
 }

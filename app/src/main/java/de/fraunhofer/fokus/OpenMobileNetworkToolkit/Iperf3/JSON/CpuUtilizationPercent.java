@@ -15,21 +15,21 @@ public class CpuUtilizationPercent {
 
     @SerializedName("host_total")
     @Expose
-    public Float hostTotal;
+    public float hostTotal;
     @SerializedName("host_user")
     @Expose
-    public Float hostUser;
+    public float hostUser;
     @SerializedName("host_system")
     @Expose
-    public Float hostSystem;
+    public float hostSystem;
     @SerializedName("remote_total")
     @Expose
-    public Float remoteTotal;
+    public float remoteTotal;
     @SerializedName("remote_user")
     @Expose
-    public Float remoteUser;
+    public float remoteUser;
     @SerializedName("remote_system")
     @Expose
-    public Float remoteSystem;
+    public float remoteSystem;
 
 }

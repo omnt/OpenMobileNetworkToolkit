@@ -1,47 +1,45 @@
-/*
- * SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
- * SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
- *
- * SPDX-License-Identifier: apache2
- */
-
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
-
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream__1;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Locale;
+import java.util.Map;
 
-public class Iperf3UploadWorker extends Worker {
+public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
     private SharedPreferences sp;
@@ -56,15 +54,15 @@ public class Iperf3UploadWorker extends Worker {
     private String bytes;
     private String protocol;
 
-    private DeviceInformation di = new DeviceInformation();
-
+    private DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
 
     private boolean rev;
     private boolean biDir;
     private boolean oneOff;
     private boolean client;
 
-    public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    private String runID;
+    public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         logFilePath = getInputData().getString("logfilepath");
 
@@ -104,8 +102,10 @@ public class Iperf3UploadWorker extends Worker {
         biDir = getInputData().getBoolean("biDir",false);
         oneOff = getInputData().getBoolean("oneOff",false);
         client = getInputData().getBoolean("client",false);
+        runID = getInputData().getString("iperf3runID");
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
+
     private void setup(){
         influx = InfluxdbConnections.getRicInstance(getApplicationContext());
     }
@@ -141,9 +141,6 @@ public class Iperf3UploadWorker extends Worker {
     public Result doWork() {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
-        if(!influx.ping()){
-            return Result.failure();
-        }
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(logFilePath));
@@ -160,13 +157,12 @@ public class Iperf3UploadWorker extends Worker {
             role = "client";
         }
 
-
         LinkedList<Point> points = new LinkedList<Point>();
         for (Interval interval: iperf3AsJson.intervals) {
             int idInterval = iperf3AsJson.intervals.indexOf(interval);
             long tmpTimestamp = timestamp + (long) (interval.sum.end * 1000);
             for (Stream stream: interval.streams){
-                Point point = new Point(measurementName);
+                Point point = new Point("Iperf3");
                 point.addTag("bidir", String.valueOf(biDir));
                 point.addTag("sender", String.valueOf(stream.sender));
                 point.addTag("role", role);
@@ -207,7 +203,7 @@ public class Iperf3UploadWorker extends Worker {
                 if(udp == null){
                     continue;
                 }
-                Point point = new Point(measurementName);
+                Point point = new Point("Iperf3");
                 point.addTag("bidir", String.valueOf(biDir));
 
                 point.addTag("sender", String.valueOf(udp.sender));
@@ -238,22 +234,52 @@ public class Iperf3UploadWorker extends Worker {
             }
         }
         // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                for (Point point:points) {
-                    point.addTags(getTagsMap());
-                }
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            for (Point point:points) {
+                point.addTags(getTagsMap());
             }
-            influx.writePoints(points);
-        } catch (IOException e) {
-            return Result.failure(output);
+
         }
 
 
-        influx.flush();
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/iperf3LP/";
+        try {
+            Files.createDirectories(Paths.get(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        output = new Data.Builder().putBoolean("iperf3_upload", true).build();
+        // create the log file
+        String filename = path + runID + ".txt";
+        Log.d(TAG, "logfile: " + filename);
+        File logfile = new File(filename);
+        try {
+            logfile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        FileOutputStream iperf3Stream = null;
+        // get an output stream
+        try {
+            iperf3Stream = new FileOutputStream(logfile, true);
+        } catch (FileNotFoundException e) {
+            Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+
+        try {
+            for (Point point: points){
+                iperf3Stream.write((point.toLineProtocol() + "\n").getBytes());
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "doWork: ", e);
+        }
+
+
+        output = new Data.Builder().putBoolean("iperf3_to_lp", true).build();
         return Result.success(output);
     }
+
 }

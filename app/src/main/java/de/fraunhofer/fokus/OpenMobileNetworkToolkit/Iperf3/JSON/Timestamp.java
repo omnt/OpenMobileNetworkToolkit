@@ -19,6 +19,6 @@ public class Timestamp {
     public String time;
     @SerializedName("timesecs")
     @Expose
-    public Integer timesecs;
+    public long timesecs;
 
 }

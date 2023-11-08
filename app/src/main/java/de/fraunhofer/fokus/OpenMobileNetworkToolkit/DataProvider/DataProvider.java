@@ -295,6 +295,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 cim.setAlphaLong((String) ci.getCellIdentity().getOperatorAlphaLong());
             }
+
             if (ci instanceof CellInfoNr) {
                 cim.setCellType("NR");
                 CellInfoNr ciNR = (CellInfoNr) ci;
@@ -384,7 +385,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
             }
             Point point = new Point("CellInformation");
             point.time(ts, WritePrecision.MS);
-            point.addField("OperatorAlphaLong", (String) ci_.getAlphaLong());
+            point.addField("OperatorAlphaLong", ci_.getAlphaLong());
             point.addField("CellConnectionStatus", ci_.getCellConnectionStatus());
             point.addField("IsRegistered", ci_.isRegistered());
             if (Objects.equals(ci_.getCellType(), "NR")) {
