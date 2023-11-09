@@ -391,14 +391,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case "log_settings":
                 navController.navigate(R.id.loggingSettingsFragment);
                 break;
-            case "flag_settings":
+            case "mobile_network_settings":
                 navController.navigate(R.id.flagSettingFragment);
                 break;
         }
         return true;
-    }
-
-    private void applyCarrierSettings() {
-        tm.getCarrierConfig().toString();
     }
 }

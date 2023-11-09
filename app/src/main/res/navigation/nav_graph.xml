@@ -117,9 +117,9 @@
     </fragment>
     <fragment
         android:id="@+id/flagSettingFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.CarrierSettingFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment"
         android:label="FlagSettingFragment"
-        tools:layout="@xml/preference_flag">
+        tools:layout="@xml/preference_mobile_network">
         <action
             android:id="@+id/action_flagSettingFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />

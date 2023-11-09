@@ -8,7 +8,7 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.CarrierSettingFragment">
+    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment">
 
 
         <PreferenceCategory
