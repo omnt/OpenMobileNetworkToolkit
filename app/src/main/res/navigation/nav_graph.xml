@@ -60,7 +60,7 @@
 
     <fragment
         android:id="@+id/ping_fragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.PingFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingFragment"
         android:label="@string/action_ping"
         tools:layout="@layout/fragment_ping">
 
