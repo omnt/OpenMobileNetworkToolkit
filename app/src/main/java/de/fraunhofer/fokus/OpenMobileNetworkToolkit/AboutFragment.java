@@ -9,6 +9,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.os.Bundle;
+import android.text.util.Linkify;
 import android.view.View;
 import android.widget.TextView;
 
@@ -31,6 +32,7 @@ public class AboutFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         TextView about_text = requireView().findViewById(R.id.about_text_box);
+        about_text.setAutoLinkMask(Linkify.WEB_URLS);
         about_text.append(getString(R.string.appinfo));
         about_text.append("\n\n");
         about_text.append("https://github.com/omnt/OpenMobileNetworkToolkit");
