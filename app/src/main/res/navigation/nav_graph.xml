@@ -60,7 +60,7 @@
 
     <fragment
         android:id="@+id/ping_fragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.PingFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingFragment"
         android:label="@string/action_ping"
         tools:layout="@layout/fragment_ping">
 
@@ -71,7 +71,7 @@
 
     <fragment
         android:id="@+id/fragment_slicingsetup"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SlicingSetup"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SlicingSetupFragment"
         android:label="@string/slicing_setup"
         tools:layout="@layout/fragment_slicingsetup">
         <action
@@ -106,14 +106,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/features5gSettingFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment"
-        android:label="Features5gSettingFragment">
-        <action
-            android:id="@+id/action_features5gSettingFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/applicationSettingsFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"
         android:label="ApplicationSettingsFragment"
@@ -125,9 +117,9 @@
     </fragment>
     <fragment
         android:id="@+id/flagSettingFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.CarrierSettingFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment"
         android:label="FlagSettingFragment"
-        tools:layout="@xml/preference_flag">
+        tools:layout="@xml/preference_mobile_network">
         <action
             android:id="@+id/action_flagSettingFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
@@ -149,9 +141,6 @@
         <action
             android:id="@+id/action_settingsFragment2_to_applicationSettingsFragment"
             app:destination="@id/applicationSettingsFragment" />
-        <action
-            android:id="@+id/action_settingsFragment2_to_features5gSettingFragment"
-            app:destination="@id/features5gSettingFragment" />
         <action
             android:id="@+id/action_settingsFragment2_to_flagSettingFragment"
             app:destination="@id/flagSettingFragment" />

@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PersistableBundle;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
@@ -39,6 +40,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -213,6 +215,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
         tm.listen(dp, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+        PersistableBundle cf =  tm.getCarrierConfig();
+        for (String key:  cf.keySet()) {
+            //Log.d(TAG, key  + ": " + cf.get(key));
+        }
+
+        CarrierConfigManager cs = (CarrierConfigManager) context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
+
+
+
     }
 
 
@@ -233,10 +244,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     };
 
 
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        // All other menus show icons, why leave the overflow menu out? It should match.
+        if(menu instanceof MenuBuilder) {
+            ((MenuBuilder) menu).setOptionalIconsVisible(true);
+        }
         return true;
     }
 
@@ -276,10 +292,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         switch (item.getItemId()) {
             case R.id.about:
                 navController.navigate(R.id.about_fragment);
-                break;
-            case R.id.apn:
-                Intent intent = new Intent(Settings.ACTION_APN_SETTINGS);
-                startActivity(intent);
                 break;
             case R.id.slicingSetup:
                 navController.navigate(R.id.fragment_slicingsetup);
@@ -379,10 +391,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case "log_settings":
                 navController.navigate(R.id.loggingSettingsFragment);
                 break;
-            case "5g_feature_settings":
-                navController.navigate(R.id.features5gSettingFragment);
-                break;
-            case "flag_settings":
+            case "mobile_network_settings":
                 navController.navigate(R.id.flagSettingFragment);
                 break;
         }

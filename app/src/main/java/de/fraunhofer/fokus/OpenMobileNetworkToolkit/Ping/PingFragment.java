@@ -6,9 +6,7 @@
  * SPDX-License-Identifier: apache2
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
-
-import static android.content.Context.RECEIVER_NOT_EXPORTED;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -16,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,13 +30,15 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 
 import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
 
 import com.github.anastr.speedviewlib.TubeSpeedometer;
 import com.github.anastr.speedviewlib.components.Style;
 
 import java.io.FileOutputStream;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class PingFragment extends Fragment {
     private final String TAG = "PingFragment";
@@ -117,18 +118,29 @@ public class PingFragment extends Fragment {
 
 
         saveTextInputToSharedPreferences(input, "ping_input");
+        //TypedValue typedValue = new TypedValue();
+        //getActivity().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
 
         pingSpeed = horizontalLL1.findViewById(R.id.pingSpeed);
         pingSpeed.makeSections(3, Color.CYAN, Style.BUTT);
         pingSpeed.getSections().get(0).setColor(Color.GREEN);
         pingSpeed.getSections().get(1).setColor(Color.BLUE);
         pingSpeed.getSections().get(2).setColor(Color.RED);
-        pingSpeed.setSpeedTextColor(R.color.material_dynamic_tertiary70);
-        pingSpeed.setUnitTextColor(R.color.material_dynamic_tertiary70);
+        //pingSpeed.setForceDarkAllowed(true);
+        int currentNightMode = getResources().getConfiguration().uiMode;
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                // Night mode is not active, we're using the light theme
+                break;
+            case 33:
+                pingSpeed.setSpeedTextColor(Color.WHITE);
+                pingSpeed.setUnitTextColor(Color.WHITE);
+                pingSpeed.setTextColor(Color.WHITE);
+                break;
+        }
         pingSpeed.setUnit("ms");
         pingSpeed.setMinSpeed(0);
         pingSpeed.setMaxSpeed(100);
-        pingSpeed.setTextColor(R.color.white);
         pingSpeed.setUnitUnderSpeedText(true);
         aSwitch.setChecked(sp.getBoolean("switch", false));
 

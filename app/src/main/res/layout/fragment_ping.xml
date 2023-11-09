@@ -11,17 +11,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/Theme.MaterialComponents.DayNight"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".PingFragment"
+    tools:context=".Ping.PingFragment"
     android:id="@+id/fragment_ping">
-
-
 
     <LinearLayout
         android:id="@+id/ping_vertical_ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/ping_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="Ping"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/ping_horizontal_ll"
@@ -33,8 +40,11 @@
                 android:id="@+id/ping_input"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:forceDarkAllowed="true"
                 android:inputType="text"
-                android:text="-w 5 8.8.8.8"/>
+                android:paddingLeft="16dp"
+                android:text="-w 5 8.8.8.8" />
             <Switch
                 android:id="@+id/ping_switch"
                 android:layout_width="50dp"
@@ -52,7 +62,8 @@
                 android:id="@+id/pingSpeed"
                 android:layout_width="300dp"
                 android:layout_height="300dp"
-                app:sv_withTremble="false"/>
+                android:paddingLeft="16dp"
+                app:sv_withTremble="false" />
         </LinearLayout>
 
 

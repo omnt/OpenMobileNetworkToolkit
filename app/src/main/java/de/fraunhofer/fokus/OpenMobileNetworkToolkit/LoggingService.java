@@ -180,16 +180,16 @@ public class LoggingService extends Service {
             if (sp.getBoolean("influx_cell_data", false)) {
 
             }
-            // always add location information
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        ic.writePoints(new ArrayList<>(Collections.singleton(dp.getLocationPoint())));
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+//            always add location information
+//                try {
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//                        ic.writePoints(new ArrayList<>(Collections.singleton(dp.getLocationPoint())));
+//                    }
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
 
-            remoteInfluxHandler.postDelayed(this, interval);
+//            remoteInfluxHandler.postDelayed(this, interval);
         }
     };
 

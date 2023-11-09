@@ -13,30 +13,26 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
-import android.view.View;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.preference.DropDownPreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-
 import androidx.preference.PreferenceManager;
-import androidx.preference.PreferenceScreen;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
-import java.util.prefs.PreferenceChangeListener;
 
-public class CarrierSettingFragment extends PreferenceFragmentCompat
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
+public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     implements OnSharedPreferenceChangeListener {
 
     public static String TAG = "version";
@@ -111,7 +107,7 @@ public class CarrierSettingFragment extends PreferenceFragmentCompat
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.preference_flag, rootKey);
+        setPreferencesFromResource(R.xml.preference_mobile_network, rootKey);
 
 
     }

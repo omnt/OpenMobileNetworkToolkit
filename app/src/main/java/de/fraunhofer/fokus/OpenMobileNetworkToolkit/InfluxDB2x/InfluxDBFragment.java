@@ -45,16 +45,16 @@ public class InfluxDBFragment extends Fragment {
         super.onCreate(savedInstanceState);
         view = inflater.inflate(R.layout.fragment_influxdb, parent, false);
 
-        Button setupBtn = view.findViewById(R.id.fragment_influxdb);
-        TextView localDbStatus = view.findViewById(R.id.local_db_status);
+        Button setupBtn = view.findViewById(R.id.button_setup_local_db);
+        //TextView localDbStatus = view.findViewById(R.id.local_db_status);
         result_layout = view.findViewById(R.id.result_layout);
         //localDbStatus.setText("lol");
         TextView warning = view.findViewById(R.id.influx_view_warning);
         warning.setText(
-            "This feature is still under development an requires a InfluxDB running on the phone");
+            "This feature is still under development \n and requires a InfluxDB running on the phone");
 
         setupBtn.setOnClickListener(this::setupInfluxDB);
-        showLastEntries(view);
+        //showLastEntries(view);
         return view;
     }
 
