@@ -6,40 +6,47 @@
   ~ SPDX-License-Identifier: apache2
   -->
 
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
     <item
         android:id="@+id/iperf3"
+        android:icon="@drawable/outline_speed_24"
         android:title="@string/action_iperf3" />
     <item
         android:id="@+id/ping"
+        android:icon="@drawable/baseline_sync_alt_24"
         android:title="@string/action_ping" />
     <item
         android:id="@+id/special_codes"
-        android:icon="@android:drawable/ic_dialog_dialer"
+        android:icon="@drawable/baseline_dialpad_24"
         android:title="@string/special_codes"
         android:visible="true" />
     <item
         android:id="@+id/subscritions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:icon="@drawable/sim_card"
         android:title="@string/subscritions" />
     <item
         android:id="@+id/slicingSetup"
+        android:icon="@drawable/slicing"
         android:title="@string/slicing_setup" />
     <item
         android:id="@+id/influxDBMenu"
+        android:icon="@drawable/database"
         android:title="@string/influxdb" />
     <item
         android:id="@+id/workprofilemanagement"
+        android:icon="@drawable/outline_business_center_24"
         android:title="@string/work_profile_management" />
     <item
         android:id="@+id/settings"
-        android:icon="@android:drawable/ic_menu_manage"
+        android:icon="@drawable/outline_settings_24"
         android:title="@string/settings" />
     <item
         android:id="@+id/about"
-        android:icon="@android:drawable/ic_dialog_info"
+        android:icon="@drawable/info"
         android:title="@string/about" />
 </menu>

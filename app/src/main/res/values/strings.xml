@@ -32,7 +32,7 @@
     <string name="Log">Debug Log</string>
     <string name="device_admin_description">I need your permission</string>
     <string name="apn_settings">APN Settings</string>
-    <string name="slicing_setup">Slicing Setup</string>
+    <string name="slicing_setup">Slicing</string>
     <string name="iperf_logfilename">-F / Logfile Name</string>
     <string name="iperf_ip">-c / IP</string>
     <string name="iperf_client">Client</string>
@@ -91,7 +91,7 @@
     <string name="enable_logging_summary">Start / stop the logging service</string>
     <string name="enable_local_log_summary">Log to a local Influx 2.x database</string>
     <string name="enable_influx_summary">Log to a remote Influx 2.x database</string>
-    <string name="work_profile_management">Work Profile Management</string>
+    <string name="work_profile_management">Work Profile</string>
     <string name="start_logging_on_boot">Start logging on boot</string>
     <string name="start_logging_on_boot_summary">Start the logging service on device boot</string>
     <string name="fake_location">Use fake location</string>
@@ -131,14 +131,14 @@
     <string name="preferential_network_service">Preferential Network Service</string>
     <string name="iperf_streams">-P / Parallel streams</string>
     <string name="settings">Settings</string>
-    <string name="influxdb">Local InfluxDB</string>
+    <string name="influxdb">InfluxDB</string>
     <string name="special_codes">Special Codes</string>
     <string name="logging_interval">Logging Interval</string>
     <string name="log_signal_data">Log signal data</string>
     <string name="enable_local_file_summary">Logging to a local file</string>
     <string name="enable_local_file_log">Log file</string>
     <string name="upload">upload</string>
-    <string name="subscritions">Subscritions (SIMs)</string>
+    <string name="subscritions">Subscritions</string>
     <string name="action_ping">Ping</string>
     <string name="ping_run_continuously">run continuously</string>
     <string name="dialog_no_location">Location is disabled, enable it or use fake location</string>

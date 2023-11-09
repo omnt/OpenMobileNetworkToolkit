@@ -106,14 +106,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/features5gSettingFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.Features5gSettingFragment"
-        android:label="Features5gSettingFragment">
-        <action
-            android:id="@+id/action_features5gSettingFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/applicationSettingsFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"
         android:label="ApplicationSettingsFragment"
@@ -149,9 +141,6 @@
         <action
             android:id="@+id/action_settingsFragment2_to_applicationSettingsFragment"
             app:destination="@id/applicationSettingsFragment" />
-        <action
-            android:id="@+id/action_settingsFragment2_to_features5gSettingFragment"
-            app:destination="@id/features5gSettingFragment" />
         <action
             android:id="@+id/action_settingsFragment2_to_flagSettingFragment"
             app:destination="@id/flagSettingFragment" />
