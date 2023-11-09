@@ -11,28 +11,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment">
 
-    <SwitchPreferenceCompat
-        app:key="enable_logging"
-        app:summary="@string/enable_logging_summary"
-        app:title="@string/enable_logging" />
+    <PreferenceCategory
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Logging Service">
 
-    <SwitchPreferenceCompat
-        app:key="start_logging_on_boot"
-        app:summary="@string/start_logging_on_boot_summary"
-        app:title="@string/start_logging_on_boot" />
-
-    <EditTextPreference
-        android:defaultValue="1000"
-        android:inputType="number"
-        android:key="logging_interval"
-        android:title="@string/logging_interval"
-        app:summary="Logging interval in milliseconds" />
+        <SwitchPreferenceCompat
+            app:key="enable_logging"
+            app:summary="@string/enable_logging_summary"
+            app:title="@string/enable_logging" />
+        <SwitchPreferenceCompat
+            app:key="start_logging_on_boot"
+            app:summary="@string/start_logging_on_boot_summary"
+            app:title="@string/start_logging_on_boot" />
+        <EditTextPreference
+            android:defaultValue="1000"
+            android:inputType="number"
+            android:key="logging_interval"
+            android:title="@string/logging_interval"
+            app:summary="Logging interval in milliseconds" />
+    </PreferenceCategory>
 
     <PreferenceCategory
         app:key="local_log_category"
         app:title="Local logging">
 
         <SwitchPreferenceCompat
+            app:enabled="false"
             app:key="enable_local_influx_log"
             app:summary="@string/enable_local_log_summary"
             app:title="@string/enable_local_log" />
