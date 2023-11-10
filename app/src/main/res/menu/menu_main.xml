@@ -24,11 +24,17 @@
         android:title="@string/special_codes"
         android:visible="true" />
     <item
-        android:id="@+id/subscritions"
+        android:id="@+id/subscriptions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:icon="@drawable/sim_card"
-        android:title="@string/subscritions" />
+        android:title="@string/subscriptions" />
+    <item
+        android:id="@+id/carrier_settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/outline_tune_24"
+        android:title="Carrier Settings" />
     <item
         android:id="@+id/slicingSetup"
         android:icon="@drawable/slicing"

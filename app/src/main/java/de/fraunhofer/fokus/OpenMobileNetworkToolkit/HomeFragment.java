@@ -245,58 +245,55 @@ public class HomeFragment extends Fragment {
       ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrengthInformation();
       TableLayout tl = new TableLayout(context);
       if (signalStrengthInformations.isEmpty()) {
-        tl.addView(rowBuilder("No Signal Strength available", ""));
+          tl.addView(rowBuilder("No Signal Strength available", ""));
+      } else {
+          int cell = 1;
+          for (SignalStrengthInformation signalStrengthInformation : signalStrengthInformations) {
+              if (signalStrengthInformation.getConnectionType() == null) {
+                  continue;
+              }
+              TableRow title = rowBuilder("Cell " + cell, "");
+              if (cell > 1) {
+                  title.setPadding(0, 20, 0, 0);
+              }
+              ++cell;
+              TextView tv = (TextView) title.getChildAt(0);
+              tv.setTypeface(Typeface.DEFAULT_BOLD);
+              tl.addView(title);
+              tl.addView(rowBuilder("Type", signalStrengthInformation.getConnectionType().toString()));
+              switch (signalStrengthInformation.getConnectionType()) {
+                  case NR:
+                      tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
+                      tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(signalStrengthInformation.getCsiRSRP())));
+                      tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(signalStrengthInformation.getCsiRSRQ())));
+                      tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(signalStrengthInformation.getCsiSINR())));
+                      tl.addView(rowBuilder(GlobalVars.SSRSRP, String.valueOf(signalStrengthInformation.getSSRSRP())));
+                      tl.addView(rowBuilder(GlobalVars.SSRSRQ, String.valueOf(signalStrengthInformation.getSSRSRQ())));
+                      tl.addView(rowBuilder(GlobalVars.SSSINR, String.valueOf(signalStrengthInformation.getSSSINR())));
+                      break;
+                  case GSM:
+                      tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
+                      tl.addView(rowBuilder("AsuLevel", String.valueOf(signalStrengthInformation.getAsuLevel())));
+                      tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(signalStrengthInformation.getDbm())));
+                      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                          tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));
+                      }
+                      break;
+                  case LTE:
+                      tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
+                      tl.addView(rowBuilder(GlobalVars.RSRP, String.valueOf(signalStrengthInformation.getRSRP())));
+                      tl.addView(rowBuilder(GlobalVars.RSRQ, String.valueOf(signalStrengthInformation.getRSRQ())));
+                      tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));
+                      tl.addView(rowBuilder(GlobalVars.RSSNR, String.valueOf(signalStrengthInformation.getRSSNR())));
+                      tl.addView(rowBuilder(GlobalVars.CQI, String.valueOf(signalStrengthInformation.getCQI())));
+                      break;
+                  case CDMA:
+                      tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
+                      tl.addView(rowBuilder(GlobalVars.EvoDbm, String.valueOf(signalStrengthInformation.getEvoDbm())));
+                      break;
+              }
+          }
       }
-      int cell = 1;
-      for (SignalStrengthInformation signalStrengthInformation : signalStrengthInformations) {
-        TextView textView = new TextView(getContext());
-        if (signalStrengthInformation.getConnectionType() == null) {
-          continue;
-        }
-        TableRow title = rowBuilder("Cell " + cell, "");
-        if (cell > 1) {
-            title.setPadding(0, 20, 0, 0);
-        }
-        ++cell;
-        TextView tv = (TextView) title.getChildAt(0);
-        tv.setTypeface(Typeface.DEFAULT_BOLD);
-        tl.addView(title);
-        //textView.setText(signalStrengthInformation.getConnectionType().toString());
-        //tl.addView(textView);
-        switch (signalStrengthInformation.getConnectionType()) {
-          case NR:
-            tl.addView(rowBuilder("Type", signalStrengthInformation.getConnectionType().toString()));
-            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
-            tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(signalStrengthInformation.getCsiRSRP())));
-            tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(signalStrengthInformation.getCsiRSRQ())));
-            tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(signalStrengthInformation.getCsiSINR())));
-            tl.addView(rowBuilder(GlobalVars.SSRSRP, String.valueOf(signalStrengthInformation.getSSRSRP())));
-            tl.addView(rowBuilder(GlobalVars.SSRSRQ, String.valueOf(signalStrengthInformation.getSSRSRQ())));
-            tl.addView(rowBuilder(GlobalVars.SSSINR, String.valueOf(signalStrengthInformation.getSSSINR())));
-            break;
-          case GSM:
-            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
-            tl.addView(rowBuilder("AsuLevel", String.valueOf(signalStrengthInformation.getAsuLevel())));
-            tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(signalStrengthInformation.getDbm())));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-              tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));
-            }
-            break;
-          case LTE:
-            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
-            tl.addView(rowBuilder(GlobalVars.RSRP, String.valueOf(signalStrengthInformation.getRSRP())));
-            tl.addView(rowBuilder(GlobalVars.RSRQ, String.valueOf(signalStrengthInformation.getRSRQ())));
-            tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(signalStrengthInformation.getRSSI())));
-            tl.addView(rowBuilder(GlobalVars.RSSNR, String.valueOf(signalStrengthInformation.getRSSNR())));
-            tl.addView(rowBuilder(GlobalVars.CQI, String.valueOf(signalStrengthInformation.getCQI())));
-            break;
-          case CDMA:
-            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(signalStrengthInformation.getLevel())));
-            tl.addView(rowBuilder(GlobalVars.EvoDbm, String.valueOf(signalStrengthInformation.getEvoDbm())));
-            break;
-        }
-      }
-
       return cardView_from_table_builder("Signal Strength Information", tl);
     }
 
