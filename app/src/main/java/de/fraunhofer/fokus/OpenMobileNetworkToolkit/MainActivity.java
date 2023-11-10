@@ -25,7 +25,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PersistableBundle;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
@@ -215,15 +214,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
         tm.listen(dp, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-        PersistableBundle cf =  tm.getCarrierConfig();
-        for (String key:  cf.keySet()) {
-            //Log.d(TAG, key  + ": " + cf.get(key));
-        }
-
-        CarrierConfigManager cs = (CarrierConfigManager) context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-
-
-
     }
 
 
@@ -311,11 +301,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.special_codes:
                 navController.navigate(R.id.specialCodesFragment);
                 break;
-            case R.id.subscritions:
+            case R.id.subscriptions:
                 navController.navigate(R.id.subscriptionsFragment);
                 break;
             case R.id.ping:
                 navController.navigate(R.id.ping_fragment);
+                break;
+            case R.id.carrier_settings_button:
+                navController.navigate(R.id.carrierSettingsFragment);
                 break;
         }
         return super.onOptionsItemSelected(item);

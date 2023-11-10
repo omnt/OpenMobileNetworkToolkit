@@ -138,7 +138,7 @@
     <string name="enable_local_file_summary">Log to a local file</string>
     <string name="enable_local_file_log">Log file</string>
     <string name="upload">upload</string>
-    <string name="subscritions">Subscritions</string>
+    <string name="subscriptions">Subscriptions</string>
     <string name="action_ping">Ping</string>
     <string name="ping_run_continuously">run continuously</string>
     <string name="dialog_no_location">Location is disabled, enable it or use fake location</string>
@@ -150,6 +150,8 @@
     <string name="access_networktype">Select Access Network Type</string>
     <string name="persist_boot">Persist until reboot</string>
     <string name="carrier_settings">Carrier Settings</string>
+    <string name="apply_carrier_settings">Apply carrier settings</string>
+    <string name="current_carrier_settings_text">Current Carrier Settings of the main subcription</string>
 
     <!-- -->
 

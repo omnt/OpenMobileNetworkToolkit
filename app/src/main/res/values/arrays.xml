@@ -7,18 +7,6 @@
   -->
 
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="reply_entries">
-        <item>Reply</item>
-        <item>Reply to all</item>
-    </string-array>
-
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
-    </string-array>
-
-
     <string-array name="iperf_protocol">
         <item>TCP</item>
         <item>UDP</item>
@@ -29,5 +17,73 @@
         <item>Server</item>
     </string-array>
 
+    <string-array name="nr_availability">
+        <item>SA</item>
+        <item>NSA</item>
+    </string-array>
 
+    <string-array name="nr_availability_values">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="volte_replacement_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+    </string-array>
+
+    <string-array name="volte_replacement">
+        <item>RIL_RADIO_TECHNOLOGY_UNKNOWN</item>
+        <item>RIL_RADIO_TECHNOLOGY_GPRS</item>
+        <item>RIL_RADIO_TECHNOLOGY_EDGE</item>
+        <item>RIL_RADIO_TECHNOLOGY_UMTS</item>
+        <item>RIL_RADIO_TECHNOLOGY_IS95A</item>
+        <item>RIL_RADIO_TECHNOLOGY_IS95B</item>
+        <item>RIL_RADIO_TECHNOLOGY_1xRTT</item>
+        <item>RIL_RADIO_TECHNOLOGY_EVDO_0</item>
+        <item>RIL_RADIO_TECHNOLOGY_EVDO_A</item>
+        <item>RIL_RADIO_TECHNOLOGY_HSDPA</item>
+        <item>RIL_RADIO_TECHNOLOGY_HSUPA</item>
+        <item>RIL_RADIO_TECHNOLOGY_HSPA</item>
+        <item>RIL_RADIO_TECHNOLOGY_EVDO_B</item>
+        <item>RIL_RADIO_TECHNOLOGY_EHRPD</item>
+        <item>RIL_RADIO_TECHNOLOGY_LTE</item>
+        <item>RIL_RADIO_TECHNOLOGY_HSPAP</item>
+        <item>RIL_RADIO_TECHNOLOGY_GSM</item>
+        <item>RIL_RADIO_TECHNOLOGY_TD_SCDMA</item>
+        <item>RIL_RADIO_TECHNOLOGY_IWLAN</item>
+        <item>RIL_RADIO_TECHNOLOGY_LTE_CA</item>
+        <item>RIL_RADIO_TECHNOLOGY_NR</item>
+    </string-array>
+
+    <string-array name="default_wfc_ims_mode_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="default_wfc_ims_mode">
+        <item>Wi-Fi only</item>
+        <item>prefer mobile network</item>
+        <item>prefer Wi-Fi</item>
+    </string-array>
 </resources>
