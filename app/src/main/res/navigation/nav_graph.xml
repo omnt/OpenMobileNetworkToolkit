@@ -83,7 +83,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragment_iperf3_input"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3SwipeFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Fragment"
         android:label="fragment_iperf3_input"
         tools:layout="@layout/fragment_iperf3_input">
 
