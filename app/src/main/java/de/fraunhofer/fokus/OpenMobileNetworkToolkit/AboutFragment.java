@@ -41,6 +41,6 @@ public class AboutFragment extends Fragment {
             "The InfluxDB 2.x JVM Based Client is released under the MIT License. \nhttps://github.com/influxdata/influxdb-client-java");
         about_text.append("\n\n");
         about_text.append(
-            "Iperf3 is licensed under a BSD style license. \nhttps://github.com/esnet/iperf");
+            "iPerf3 is licensed under a BSD style license. \nhttps://github.com/esnet/iperf");
     }
 }
