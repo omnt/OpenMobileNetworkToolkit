@@ -66,13 +66,14 @@ public class PingFragment extends Fragment {
       }
     private void setupPing(){
         input.setEnabled(false);
-
+        pingViewer.setText("");
         Intent pingStart = new Intent(ct, LoggingService.class);
         pingStart.putExtra("input", input.getText().toString());
         pingStart.putExtra("ping", true);
         ct.startService(pingStart);
     }
     private void stopPing(){
+        input.setEnabled(true);
         Intent pingStart = new Intent(ct, LoggingService.class);
         pingStart.putExtra("ping", true);
         pingStart.putExtra("ping_stop", true);
