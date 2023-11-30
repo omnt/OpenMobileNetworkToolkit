@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,8 +28,10 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Switch;
 
+import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.work.WorkManager;
 
@@ -48,11 +51,11 @@ public class PingFragment extends Fragment {
     private Handler pingLogging;
     private FileOutputStream stream;
     private EditText input;
-    private TubeSpeedometer pingSpeed;
 
     private Context ct;
 
-
+    private TextView pingViewer;
+    private ScrollView scrollView;
     private SharedPreferences sp;
     public PingFragment() {
     }
@@ -63,13 +66,14 @@ public class PingFragment extends Fragment {
       }
     private void setupPing(){
         input.setEnabled(false);
-
+        pingViewer.setText("");
         Intent pingStart = new Intent(ct, LoggingService.class);
         pingStart.putExtra("input", input.getText().toString());
         pingStart.putExtra("ping", true);
         ct.startService(pingStart);
     }
     private void stopPing(){
+        input.setEnabled(true);
         Intent pingStart = new Intent(ct, LoggingService.class);
         pingStart.putExtra("ping", true);
         pingStart.putExtra("ping_stop", true);
@@ -109,39 +113,17 @@ public class PingFragment extends Fragment {
         sp = getContext().getSharedPreferences("Ping", Context.MODE_PRIVATE);
         verticalLL = v.findViewById(R.id.ping_vertical_ll);
         horizontalLL1 = verticalLL.findViewById(R.id.ping_horizontal1_ll);
+
         aSwitch = verticalLL.findViewById(R.id.ping_switch);
         input = verticalLL.findViewById(R.id.ping_input);
-        input.setText(sp.getString("ping_input", "-w 5 8.8.8"));
+        input.setText(sp.getString("ping_input", "-w 5 8.8.8.8"));
+
         ct = requireContext();
         WorkManager wm = WorkManager.getInstance(requireContext());
-
-
+        pingViewer = horizontalLL1.findViewById(R.id.ping_viewer);
+        scrollView = horizontalLL1.findViewById(R.id.ping_scrollviewer);
 
         saveTextInputToSharedPreferences(input, "ping_input");
-        //TypedValue typedValue = new TypedValue();
-        //getActivity().getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
-
-        pingSpeed = horizontalLL1.findViewById(R.id.pingSpeed);
-        pingSpeed.makeSections(3, Color.CYAN, Style.BUTT);
-        pingSpeed.getSections().get(0).setColor(Color.GREEN);
-        pingSpeed.getSections().get(1).setColor(Color.BLUE);
-        pingSpeed.getSections().get(2).setColor(Color.RED);
-        //pingSpeed.setForceDarkAllowed(true);
-        int currentNightMode = getResources().getConfiguration().uiMode;
-        switch (currentNightMode) {
-            case Configuration.UI_MODE_NIGHT_NO:
-                // Night mode is not active, we're using the light theme
-                break;
-            case 33:
-                pingSpeed.setSpeedTextColor(Color.WHITE);
-                pingSpeed.setUnitTextColor(Color.WHITE);
-                pingSpeed.setTextColor(Color.WHITE);
-                break;
-        }
-        pingSpeed.setUnit("ms");
-        pingSpeed.setMinSpeed(0);
-        pingSpeed.setMaxSpeed(100);
-        pingSpeed.setUnitUnderSpeedText(true);
         aSwitch.setChecked(sp.getBoolean("switch", false));
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -157,13 +139,17 @@ public class PingFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 double rtt = intent.getExtras().getDouble("ping_rtt");
-                pingSpeed.speedTo((float) rtt);
                 boolean ping_running = intent.getExtras().getBoolean("ping_running");
                 handleInput(ping_running);
+                String pingLine = intent.getExtras().getString("ping_line");
+                pingViewer.append(pingLine+"\n");
+                scrollView.fullScroll(View.FOCUS_DOWN);
             }
         };
-        requireActivity().registerReceiver(receiver, new IntentFilter("ping_rtt"), Context.RECEIVER_EXPORTED);
+        requireActivity().registerReceiver(receiver, new IntentFilter("ping"), Context.RECEIVER_EXPORTED);
 
+
+        pingViewer.setMovementMethod(new ScrollingMovementMethod());
         return v;
     }
 

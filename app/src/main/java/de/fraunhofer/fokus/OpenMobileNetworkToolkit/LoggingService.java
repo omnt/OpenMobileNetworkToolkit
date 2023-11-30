@@ -591,16 +591,16 @@ public class LoggingService extends Service {
                         if(line == null) return;
                         Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+)\\] (\\d+ bytes from (\\S+|\\d+\\.\\d+\\.\\d+\\.\\d+)): icmp_seq=(\\d+) ttl=(\\d+) time=([\\d.]+) ms");
                         Matcher matcher = pattern.matcher(line);
+                        Intent intent = new Intent("ping");
+
                         if(matcher.find()){
                             long unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
                             int icmpSeq = Integer.parseInt(matcher.group(4));
                             int ttl = Integer.parseInt(matcher.group(5));
                             String host = matcher.group(3);
                             double rtt = Double.parseDouble(matcher.group(6));
-                            Intent intent = new Intent("ping_rtt");
                             intent.putExtra("ping_running", true);
                             intent.putExtra("ping_rtt", rtt);
-                            sendBroadcast(intent);
 
                             // Create an InfluxDB point with the Unix timestamp
                             Point point = Point.measurement("Ping")
@@ -628,6 +628,9 @@ public class LoggingService extends Service {
                             Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
 
                         }
+                        intent.putExtra("ping_line", line);
+                        sendBroadcast(intent);
+
                         return;
                     }
                     if(state == WorkInfo.State.ENQUEUED) return;
@@ -662,7 +665,7 @@ public class LoggingService extends Service {
 
         wm.cancelAllWorkByTag("Ping");
         Intent intent = new Intent("ping_rtt");
-        intent.putExtra("ping_rtt", 0);
+        intent.putExtra("ping_rtt", 0.0);
         intent.putExtra("ping_running", false);
         sendBroadcast(intent);
         pingWRs = new ArrayList<>();

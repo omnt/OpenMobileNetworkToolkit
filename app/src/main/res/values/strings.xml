@@ -152,6 +152,8 @@
     <string name="carrier_settings">Carrier Settings</string>
     <string name="apply_carrier_settings">Apply carrier settings</string>
     <string name="current_carrier_settings_text">Current Carrier Settings of the main subcription</string>
+    <string name="ping">Ping</string>
+    <string name="ping_command">-w 5 8.8.8.8</string>
 
     <!-- -->
 
