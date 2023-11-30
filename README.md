@@ -1,13 +1,32 @@
 #  OpenMobileNetworkToolkit
 
-OMNT provides tooling to researchers and developers of mobile communication networks like 3GPP 4/5G. 
+OMNT provides tooling to researchers and developers of mobile communication networks like 3GPP 2/3/4/5G.
+The main objective of OMNT is the collection of measurement data on the mobile network like RSSI, RSRQ, RSRP, GNSS position, Cell ID, PLNM and much more.
+On top of those passive measurements on the radio environment and network parameters, OMNT can also run a Iperf3 server / client for bandwidth, latency and jitter evaluation as well as
+round-trip-time and jitter evaluation via ICMP (Ping). Measurement data can be stored locally and / or send to an InfluxDB 2.x server.
+Measurement results can be visualized e.g. via provided Graphana Dashboards or be further processed e.g. with python.
+Besides its measurement capabilities OMNT provides a deep insight in the state of the phone e.g. software versions, connectivity states, SIM card content and much more.
+Network related Carrier Settings can be configured (if the app is granted the corresponding privileges).
+Also OMNT provides access to different "secret" settings in Android phones.
 
-  * Collect and send metrics like RSSI, RSRQ, RSRP, GNSS position, Cell ID, PLNM and much more
-  * Run Iperf3 server / client for bandwidth, latency and jitter evaluation
-  * Store data locally and / or send it to an InfluxDB 2.x server
-  * Configure carrier settings for test and production networks
-  * Provide access to different "secret" settings in Android phones
-  * Operate with user, root or carrier privileges (different features are limited depending on the permissions)
+The current state of the app can be described as "research software", it fits our needs but does not aim to be complete or bug free.
+Use the app at your own risk. If you find it useful for your research please cite the app in publications.
+
+# Why use this app
+
+  * As apps like OMNT can can access a lot of private information it is important for users to be able to make sure that those data is not
+send somewhere else.
+  * The app builds on top of official APIs so it should be stable across devices and android version.
+  * The app does not need root privileges and can run on unmodified phones.
+  * The app is developed with researches in mind an provides multiple options to export the data in a way that it can be further analyzed.
+  * No advertisements or other annoying anti-features
+
+# Motivation
+
+Our motivation to start the development of OMNT was to the need to modify carrier settings on Android UEs to integrated them
+with our testbeds. Later on we where in need to provides measurements on our testbed deployments for which we had no satisfying tooling
+at that point in time.
+Since at least a year we used the app to collect measurement for research projects and extended the app with different functions we needed in the projects.
 
 ## Permissions
 
@@ -20,19 +39,24 @@ The following permissions are requested:
 
   * Location: Collecting location and network information
   * Storage: Writing measurement log files to the phones memory
-  * SuperUser: On rooted phones where not carrier privileges are available
+  * Read Phone State: Cell Information, Connectivity information
+  * Receive Boot complete: Start measurements on boot
+  * Foreground Service: Logging 
+  * Carrier Permission: Use Carrier APIs
+
+If the app can't gain Carrier Privileges some values can't be accessed and some feature are disabled. See below.
 
 ### Carrier Permissions
 Carrier specific settings can only be accessed by apps running with so called carrier privileges. This was added in android 6 and is mostly relevant 
 for 4G and 5G networks. (https://source.android.com/devices/tech/config/carrier)
 
-Carrier or researcher who are able (admin key to the SIM card is required) to program their own sim cards can store a fingerprint of an signing certificate in an access rule applet (ARA) on the SIM card. 
+Carrier or researcher who are able (admin key to the SIM card is required) to program their own sim cards can store a fingerprint of an signing certificate in an access rule applet (ARA-M) on the SIM card. 
 An app signed with this certificate will get carrier privileges granted by android. (https://source.android.com/devices/tech/config/uicc)
 
 E.g. the [ARAM-Applet by Bertrand Martel](https://github.com/bertrandmartel/aram-applet) for JavaCard based SIM cards can be used. 
 Some SIM cards like the cards from [Sysmocom](http://shop.sysmocom.de/products/sysmoISIM-SJA2) already come with the applet pre installed. 
 To install the applet to a SIM card [GlobalPlatformPro by Martin Paljak](https://github.com/martinpaljak/GlobalPlatformPro) can be used.
-Pre-compiled verisons of ARAM and GP can be found in the [CoIMS_Wiki repository by Supreeth Herle](https://github.com/herlesupreeth/CoIMS_Wiki).
+Pre-compiled versions of ARA-M and GP can be found in the [CoIMS_Wiki repository by Supreeth Herle](https://github.com/herlesupreeth/CoIMS_Wiki).
 
 To provision the fingerprint to the applet either (pySim)[https://github.com/osmocom/pysim] or GP can be used.  
 
@@ -71,15 +95,10 @@ Select the 'app', select the 'Signing config' tab.
 create a new signing config referencing you key file
 ```
 
-
 ## Iperf
 
-To see how to integrate iperf3 into your app look at [Iperf3 Repo](https://gitlab.fokus.fraunhofer.de/ngni/opennetworktoolkit/omnt-external-deps)
+To see how to integrate iperf3 into your app look at [Iperf3 Repo]()
 
 ## Network Slicing
 
-## InfluxDB 2.x
-
-## Vendor secret menues
-
-## References
+This function is still under development and requires support from the core network.  
