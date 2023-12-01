@@ -45,6 +45,12 @@ public class Iperf3LibLoader {
         } catch (UnsatisfiedLinkError ignored) {
             return;
         }
+        try {
+            System.loadLibrary("iperf3.15");
+            Log.i(TAG, "iperf3.15 loaded!");
+            loadedLibs.add(1);
+        } catch (UnsatisfiedLinkError ignored) {
+        }
 
         if (loadedLibs.size() > 1) {
             Log.d(TAG, "static initializer: multiple libiperfs loaded!");
