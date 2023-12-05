@@ -15,26 +15,22 @@ import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class CarrierSettingsFragment extends Fragment {
     String TAG = "CarrierSettingsFragment";
@@ -82,57 +78,63 @@ public class CarrierSettingsFragment extends Fragment {
         cv.addView(tv);
     }
 
+    /**
+    * Convert a persistent bundle to a string map. It seems there is no nice way to this.
+    * Nested bundles will be flattened to string
+    */
+    private Map<String, String> bundle_to_map(PersistableBundle bundle) {
+        Map<String, String> map = new HashMap<>();
+        for (String key : bundle.keySet()) {
+            Object obj = bundle.get(key);
+            String ret = "";
+            if (obj instanceof int[]) {
+                ret = Arrays.toString((int[]) obj);
+            } else if (obj instanceof long[]) {
+                ret = Arrays.toString((long[]) obj);
+            } else if (obj instanceof double[]) {
+                ret = Arrays.toString((double[]) obj);
+            } else if (obj instanceof boolean[]) {
+                ret = Arrays.toString((boolean[]) obj);
+            } else if (obj instanceof String[]) {
+                ret = Arrays.toString((String[]) obj);
+            } else if (obj instanceof Integer || obj instanceof Long || obj instanceof Double) {
+                ret = String.valueOf(obj);
+            } else if (obj instanceof String) {
+                ret = obj.toString();
+            } else if (obj instanceof Boolean) {
+                ret = obj.toString();
+            } else if (obj instanceof PersistableBundle) {
+                Map<String, String> bundle_map  = bundle_to_map((PersistableBundle) obj);
+                ret = bundle_map.toString();
+            } else {
+                try {
+                    obj.toString();
+                } catch (Exception e) {
+                    Log.d(TAG, "Not printable unknown obj received");
+                }
+            }
+            map.put(key.toUpperCase(), ret);
+        }
+        return map;
+    }
+
     private void read_settings(View view) {
         CardView cv = requireView().findViewById(R.id.carrier_settings_card_view);
         cv.removeAllViews();
         TableLayout tl = new TableLayout(context);
         tl.setColumnShrinkable(1, true);
         PersistableBundle cf =  tm.getCarrierConfig();
-        for (String key:  cf.keySet()) {
+        Map<String, String> map = bundle_to_map(cf);
+        for (Map.Entry<String, String> entry : map.entrySet()) {
             TextView key_column = new TextView(context);
             TextView value_column = new TextView(context);
             TableRow tr = new TableRow(context);
-            key_column.setText(key.toUpperCase());
-            key_column.setWidth(700);
+            key_column.setText(entry.getKey().toUpperCase());
+            key_column.setWidth(600);
             key_column.setTextIsSelectable(true);
-            key_column.setPadding(0,0,0,20);
-            Object obj = cf.get(key);
-            String ret = "";
-            if (obj instanceof int[] || obj instanceof long[] || obj instanceof double[] || obj instanceof boolean[]) {
-                //ArrayList list = (ArrayList) obj;
-                //for (Object item: list){
-                //    ret = ret + " " + obj.toString() + "\n";
-                //}
-
-            } else if (obj instanceof Integer || obj instanceof Long || obj instanceof Double) {
-                ret = String.valueOf(obj);
-            } else if (obj instanceof String[]) {
-                String[] tmp = (String[]) obj;
-                for (String str: tmp) {
-                    ret = ret + str.replace(",","\n") + "\n";
-                }
-
-            } else if (obj instanceof String) {
-                ret = obj.toString().replace(",","\n");
-            } else if (obj instanceof Boolean) {
-                ret = obj.toString();
-            } else if (obj instanceof PersistableBundle) {
-                //PersistableBundle psb = (PersistableBundle) obj;
-                //for (String key2: psb.keySet()) {
-                //    ret = String.valueOf(psb.get(key2));
-                //}
-                ret = "persitablebundle";
-
-            } else {
-                try {
-                    obj.toString();
-                } catch (Exception e) {
-                    //obj.toString();
-                }
-
-            }
-            value_column.setText(ret);
-            value_column.setPadding(50,0,0,0);
+            key_column.setPadding(0, 0, 0, 20);
+            value_column.setText(entry.getValue());
+            value_column.setPadding(50, 0, 0, 0);
             value_column.setTextIsSelectable(true);
             tr.addView(key_column);
             tr.addView(value_column);
