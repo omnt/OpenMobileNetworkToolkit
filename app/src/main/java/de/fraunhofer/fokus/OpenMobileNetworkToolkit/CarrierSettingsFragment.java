@@ -124,6 +124,7 @@ public class CarrierSettingsFragment extends Fragment {
         TableLayout tl = new TableLayout(context);
         tl.setColumnShrinkable(1, true);
         PersistableBundle cf =  tm.getCarrierConfig();
+        Log.d(TAG, cf.toString());
         Map<String, String> map = bundle_to_map(cf);
         for (Map.Entry<String, String> entry : map.entrySet()) {
             TextView key_column = new TextView(context);
