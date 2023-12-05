@@ -19,12 +19,14 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
@@ -51,7 +53,6 @@ public class CarrierSettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_carrier_settings, container, false);
     }
 
@@ -61,20 +62,40 @@ public class CarrierSettingsFragment extends Fragment {
         tm = gv.getTm();
         context = requireContext();
         super.onViewCreated(view, savedInstanceState);
-        LinearLayout ll = requireView().findViewById(R.id.carrier_settings_layout);
-        ScrollView sv = requireView().findViewById(R.id.carrier_settings_scroll_view);
-        CardView cv = new CardView(context);
+
+        Button btn_apply = requireView().findViewById(R.id.button_apply_carrier_settings);
+        if (gv.isCarrier_permissions()) {
+            btn_apply.setOnClickListener(this::apply_settings);
+        } else {
+            btn_apply.setEnabled(false);
+        }
+
+        Button btn_read = requireView().findViewById(R.id.button_read_carrier_settings);
+        btn_read.setOnClickListener(this::read_settings);
+
+        CardView cv = requireView().findViewById(R.id.carrier_settings_card_view);
         cv.setRadius(15);
         cv.setContentPadding(20, 10, 10, 0);
         cv.setUseCompatPadding(true);
+        TextView tv = new TextView(context);
+        tv.setText(R.string.press_the_read_button);
+        cv.addView(tv);
+    }
+
+    private void read_settings(View view) {
+        CardView cv = requireView().findViewById(R.id.carrier_settings_card_view);
+        cv.removeAllViews();
         TableLayout tl = new TableLayout(context);
-        tl.setShrinkAllColumns(true);
+        tl.setColumnShrinkable(1, true);
         PersistableBundle cf =  tm.getCarrierConfig();
         for (String key:  cf.keySet()) {
             TextView key_column = new TextView(context);
             TextView value_column = new TextView(context);
             TableRow tr = new TableRow(context);
-            key_column.setText(key);
+            key_column.setText(key.toUpperCase());
+            key_column.setWidth(700);
+            key_column.setTextIsSelectable(true);
+            key_column.setPadding(0,0,0,20);
             Object obj = cf.get(key);
             String ret = "";
             if (obj instanceof int[] || obj instanceof long[] || obj instanceof double[] || obj instanceof boolean[]) {
@@ -111,20 +132,13 @@ public class CarrierSettingsFragment extends Fragment {
 
             }
             value_column.setText(ret);
+            value_column.setPadding(50,0,0,0);
+            value_column.setTextIsSelectable(true);
             tr.addView(key_column);
             tr.addView(value_column);
             tl.addView(tr);
         }
         cv.addView(tl);
-        sv.addView(cv);
-
-        Button btn_apply = requireView().findViewById(R.id.button_apply_carrier_settings);
-        if (gv.isCarrier_permissions()) {
-            btn_apply.setOnClickListener(this::apply_settings);
-        } else {
-            btn_apply.setEnabled(false);
-        }
-
     }
 
     private void apply_settings(View view) {
