@@ -8,19 +8,21 @@
   -->
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Logging Service">
+        android:title="Logging Service"
+        app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="enable_logging"
             app:summary="@string/enable_logging_summary"
             app:title="@string/enable_logging" />
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="start_logging_on_boot"
             app:summary="@string/start_logging_on_boot_summary"
             app:title="@string/start_logging_on_boot" />
@@ -29,35 +31,47 @@
             android:inputType="number"
             android:key="logging_interval"
             android:title="@string/logging_interval"
+            app:iconSpaceReserved="false"
             app:summary="Logging interval in milliseconds" />
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="enable_notification_update"
+            app:summary="@string/enable_notification_update_summary"
+            app:title="@string/enable_notification_update" />
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:key="local_log_category"
         app:title="Local logging">
 
         <SwitchPreferenceCompat
             app:enabled="false"
+            app:iconSpaceReserved="false"
             app:key="enable_local_influx_log"
             app:summary="@string/enable_local_log_summary"
             app:title="@string/enable_local_log" />
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="enable_local_file_log"
             app:summary="@string/enable_local_file_summary"
             app:title="@string/enable_local_file_log" />
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:key="influx_category"
         app:title="Remote logging">
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="enable_influx"
             app:summary="@string/enable_influx_summary"
             app:title="@string/enable_influx" />
 
         <EditTextPreference
             android:dialogTitle="@string/influx_url_dialog_title"
+            app:iconSpaceReserved="false"
             app:key="influx_URL"
             app:title="@string/influx_url"
             app:useSimpleSummaryProvider="true" />
@@ -65,6 +79,7 @@
         <EditTextPreference
             android:dialogTitle="@string/influx_org_dialog_title"
             app:dependency="enable_influx"
+            app:iconSpaceReserved="false"
             app:key="influx_org"
             app:title="@string/influx_org"
             app:useSimpleSummaryProvider="true" />
@@ -72,6 +87,7 @@
         <EditTextPreference
             android:dialogTitle="@string/influx_token_dialog_title"
             app:dependency="enable_influx"
+            app:iconSpaceReserved="false"
             app:key="influx_token"
             app:title="@string/influx_token"
             app:useSimpleSummaryProvider="true" />
@@ -79,27 +95,32 @@
         <EditTextPreference
             android:dialogTitle="@string/influx_bucket_dialog_title"
             app:dependency="enable_influx"
+            app:iconSpaceReserved="false"
             app:key="influx_bucket"
             app:title="@string/influx_bucket"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:key="logging_category"
         app:title="Logging content">
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="fake_location"
             app:summary="@string/fake_location_summary"
             app:title="@string/fake_location" />
 
 
         <EditTextPreference
+            app:iconSpaceReserved="false"
             app:key="measurement_name"
             app:title="@string/measurement"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
+            app:iconSpaceReserved="false"
             app:key="tags"
             app:summary="@string/tags_summary"
             app:title="@string/tags"
@@ -107,22 +128,27 @@
 
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="influx_network_data"
             app:title="@string/influx_network_data" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="log_signal_data"
             app:title="@string/log_signal_data" />
 
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="influx_cell_data"
             app:title="@string/influx_cell_data" />
 
         <SwitchPreferenceCompat
             app:dependency="influx_cell_data"
+            app:iconSpaceReserved="false"
             app:key="log_neighbour_cells"
             app:title="@string/log_neighbour_cells" />
         <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
             app:key="influx_throughput_data"
             app:title="@string/influx_throughput_data" />
         <SwitchPreference
@@ -130,12 +156,14 @@
             android:layout_height="wrap_content"
             android:defaultValue="false"
             android:title="@string/influx_battery_data"
+            app:iconSpaceReserved="false"
             app:key="influx_battery_data" />
         <SwitchPreference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"
             android:title="@string/influx_ip_address_data"
+            app:iconSpaceReserved="false"
             app:key="influx_ip_address_data" />
     </PreferenceCategory>
 

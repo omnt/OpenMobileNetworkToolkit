@@ -11,11 +11,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment">
     <Preference
-        android:icon="@drawable/ic_baseline_app_settings_alt_24"
-        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"
-        app:key="app_settings"
-        app:title="Application" />
-    <Preference
         android:icon="@drawable/ic_baseline_code_24"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"
         app:key="log_settings"
