@@ -2,7 +2,7 @@
 
 OMNT provides tooling to researchers and developers of mobile communication networks like 3GPP 2/3/4/5G.
 The main objective of OMNT is the collection of measurement data on the mobile network like RSSI, RSRQ, RSRP, GNSS position, Cell ID, PLNM and much more.
-On top of those passive measurements on the radio environment and network parameters, OMNT can also run a Iperf3 server / client for bandwidth, latency and jitter evaluation as well as
+On top of those passive measurements on the radio environment and network parameters, OMNT can also run a iPerf3 server / client for bandwidth, latency and jitter evaluation as well as
 round-trip-time and jitter evaluation via ICMP (Ping). Measurement data can be stored locally and / or send to an InfluxDB 2.x server.
 Measurement results can be visualized e.g. via provided Graphana Dashboards or be further processed e.g. with python.
 Besides its measurement capabilities OMNT provides a deep insight in the state of the phone e.g. software versions, connectivity states, SIM card content and much more.
@@ -95,9 +95,9 @@ Select the 'app', select the 'Signing config' tab.
 create a new signing config referencing you key file
 ```
 
-## Iperf
-
-To see how to integrate iperf3 into your app look at [Iperf3 Repo]()
+## iPerf3
+iPerf3 has been compiled with a [jni](https://developer.android.com/training/articles/perf-jni) interface to enable OMNT to call it using the specified parameters.
+To see how to integrate iPerf3 into your app look at [iPerf3 Repo](https://github.com/omnt/iperf)
 
 ## Network Slicing
 
