@@ -47,7 +47,15 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
         String inputString = ct.getString(R.string.select_plmn);
         String dropDownText = ct.getString(R.string.access_networktype);
 
+        int sdk_version = Build.VERSION.SDK_INT;
 
+        // we require at least android 29 but if run below 31 we disable settings not available
+        if (sdk_version < 31) {
+            findPreference("buildVersionS").setEnabled(false);
+        }
+        if (sdk_version < 30) {
+            findPreference("buildVersionR").setEnabled(false);
+        }
 
         List<String> list = Arrays.asList(NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.CDMA2000),
             NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.GERAN),
