@@ -1,4 +1,4 @@
-#  OpenMobileNetworkToolkit
+# OpenMobileNetworkToolkit
 
 OMNT provides tooling to researchers and developers of mobile communication networks like 3GPP 2/3/4/5G.
 The main objective of OMNT is the collection of measurement data on the mobile network like RSSI, RSRQ, RSRP, GNSS position, Cell ID, PLNM and much more.
@@ -12,7 +12,7 @@ Also OMNT provides access to different "secret" settings in Android phones.
 The current state of the app can be described as "research software", it fits our needs but does not aim to be complete or bug free.
 Use the app at your own risk. If you find it useful for your research please cite the app in publications.
 
-# Why use this app
+## Why use this app
 
   * As apps like OMNT can can access a lot of private information it is important for users to be able to make sure that those data is not
 send somewhere else.
@@ -21,12 +21,12 @@ send somewhere else.
   * The app is developed with researches in mind an provides multiple options to export the data in a way that it can be further analyzed.
   * No advertisements or other annoying anti-features
 
-# Motivation
+## Motivation
 
 Our motivation to start the development of OMNT was to the need to modify carrier settings on Android UEs to integrated them
-with our testbeds. Later on we where in need to provides measurements on our testbed deployments for which we had no satisfying tooling
+with our testbeds. Later on we where in need to provide measurements on our testbed deployments for which we had no satisfying tooling
 at that point in time.
-Since at least a year we used the app to collect measurement for research projects and extended the app with different functions we needed in the projects.
+Since at least a year we used OMNT to collect measurement for research projects and extended the app with different functions we needed in the projects.
 
 ## Permissions
 
@@ -70,7 +70,8 @@ python3 pySim-shell.py -p0 --csv card_data.csv
 ```
 
 Provision the fingerprint. Note that instead of an fingerprint also an valid android App ID can be used.
-```
+If you have a SIM Card with the ARA-M applet from sysmocom you can skip the 'verify_adm' part as the applet is not write protected.
+```shell
 verify_adm
 select ADF.ARA-M
 aram_delete_all 
@@ -95,9 +96,24 @@ Select the 'app', select the 'Signing config' tab.
 create a new signing config referencing you key file
 ```
 
+You can also manual re-sign the downloaded .apk file with apksigner https://developer.android.com/tools/apksigner .
+```shell
+apksigner sign --ks my.keystore OpenMobileNetworkToolkit.apk
+```
+where my.keystore is your java keystore. 
+
+## SPDX-SBOM
+The SPDX formated Software Bill Of Material is a machine readable list of all software components used in the app. 
+To generated a new file run
+```shell
+eval `ssh-agent -s`
+```
+
 ## iPerf3
 iPerf3 has been compiled with a [jni](https://developer.android.com/training/articles/perf-jni) interface to enable OMNT to call it using the specified parameters.
 To see how to integrate iPerf3 into your app look at [iPerf3 Repo](https://github.com/omnt/iperf)
+
+![iPerf3](screenshots/iperf3.png)
 
 ## Network Slicing
 

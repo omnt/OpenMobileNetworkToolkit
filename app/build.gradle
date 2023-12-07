@@ -8,8 +8,7 @@
 plugins {
     id 'com.android.application'
     id 'androidx.navigation.safeargs'
-    // Disabled until 0.4.0 is released. until than local builds a required
-    //id("org.spdx.sbom") version "0.4.0"
+    id("org.spdx.sbom") version "0.4.0"
 }
 
 android {
@@ -58,7 +57,6 @@ android {
     buildFeatures {
         viewBinding true
     }
-    //buildToolsVersion '34.0.0'
     namespace 'de.fraunhofer.fokus.OpenMobileNetworkToolkit'
     ndkVersion '25.2.9519653'
     lint {
@@ -66,44 +64,23 @@ android {
     }
 }
 
-//spdxSbom {
-//    targets {
-//        // create a target named "release",
-//        // this is used for the task name (spdxSbomForRelease)
-//        // and output file (release.spdx.json)
-//        create("release") {
-//            // use a different configuration (or multiple configurations)
-//            configurations = ['releaseRuntimeClasspath']
-//
-//            // provide scm info (usually from your CI)
-//            scm {
-//                uri.set("my-scm-repository")
-//                revision.set("asdfasdfasdf...")
-//            }
-//
-//            // adjust properties of the document
-//            document {
-//                name.set("OMNT-SPDX")
-//                namespace.set("https://my.org/spdx/<some UUID>")
-//                creator.set("Person:NGNI")
-//                packageSupplier.set("Organization:Fraunhofer FOKUS NGNI")
-//
-//                // add an uber package on the document between the document and the
-//                // root module of the project being analyzed, you probably don't need this
-//                // but it's available if you want to describe the artifact in a special way
-//                //uberPackage {
-//                //    // you must set all or none of these
-//                //    name.set("goose")
-//                //    version.set("1.2.3")
-//                //    supplier.set("Organization:loosebazooka industries")
-//                //}
-//            }
-//            // optionally have multiple targets
-//            // create("another") {
-//            // }
-//        }
-//    }
-//}
+spdxSbom {
+    targets {
+        create("release") {
+            configurations = ['releaseRuntimeClasspath']
+            scm {
+                uri.set("https://github.com/omnt/OpenMobileNetworkToolkit")
+                revision.set("0.1")
+            }
+            document {
+                name.set("OpenMobileNetworkToolkit")
+                namespace.set("de.fraunhofer.fokus.OpenMobileNetworkToolkit")
+                creator.set("Person: NGNI")
+                packageSupplier.set("Organization: Fraunhofer FOKUS NGNI")
+            }
+        }
+    }
+}
 
 dependencies {
     implementation 'androidx.preference:preference:1.2.1'
