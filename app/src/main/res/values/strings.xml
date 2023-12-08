@@ -45,7 +45,7 @@
     <string name="iperf_bidir">BiDir</string>
     <string name="iperf_json">JSON</string>
     <string name="iperf_one_off">one-off</string>
-    <string name="iperf3_server_mode">Iperf3 Testing</string>
+    <string name="iperf3_title">iPerf3 Testing</string>
     <string name="iperf3_instances">Instances</string>
     <string name="export_logs">Export Logs</string>
     <string name="channel_name">OMNT_Notification</string>
