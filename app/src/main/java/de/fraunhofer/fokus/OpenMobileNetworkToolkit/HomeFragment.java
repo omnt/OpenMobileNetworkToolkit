@@ -173,6 +173,10 @@ public class HomeFragment extends Fragment {
         ImageButton btn = new ImageButton(context);
         btn.setImageResource(R.drawable.baseline_expand_less_24);
         btn.setBackground(null);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+            TableRow.LayoutParams.MATCH_PARENT);
+
+        btn.setLayoutParams(lp);
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 TableLayout tl = requireView().findViewById(id);
@@ -188,15 +192,18 @@ public class HomeFragment extends Fragment {
         });
 
         // setup header
-        TextView title_text = new TextView(requireContext());
+        TextView title_text = new TextView(context);
         title_text.setTypeface(null, Typeface.BOLD);
         title_text.setText(title);
         title_text.setPadding(0,0,0,20);
         title_text.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f
         ));
         LinearLayout header = new LinearLayout(context);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+
+
         header.addView(title_text);
         header.addView(btn);
 
