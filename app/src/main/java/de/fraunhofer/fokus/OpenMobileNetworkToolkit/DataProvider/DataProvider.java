@@ -172,6 +172,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
     }
 
     public NetworkInformation getNetworkInformation() {
+        refreshNetworkInformation();
         return ni;
     }
 

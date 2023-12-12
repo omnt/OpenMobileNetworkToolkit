@@ -39,7 +39,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.databinding.FragmentSlicings
 
 public class SlicingSetupFragment extends Fragment {
     private static final String TAG = "SliceSetupFragment";
-    private boolean cp;
     private FragmentSlicingsetupBinding binding;
     private MaterialButton btn_enterprise1;
     private MaterialButton btn_enterprise2;
@@ -67,10 +66,9 @@ public class SlicingSetupFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         GlobalVars gv = GlobalVars.getInstance();
         MainActivity ma = (MainActivity) getActivity();
-        cp = gv.isCarrier_permissions();
+        boolean cp = gv.isCarrier_permissions();
         TelephonyManager tm = gv.getTm();
         NetworkCallback networkCallback = new NetworkCallback(getActivity().getApplicationContext());
-        networkCallback.setHasCarrierPrivilages(cp);
         SliceCreate sliceCreate = new SliceCreate();
         ma.getOrganization(getContext());
         ArrayList<String> props = new ArrayList<String>();
@@ -280,8 +278,6 @@ public class SlicingSetupFragment extends Fragment {
                                                     int service_type = networkSliceInfo.getSliceServiceType();
                                                     int service_status = networkSliceInfo.getStatus();
                                                     int slice_differentior = networkSliceInfo.getSliceDifferentiator();
-                                                    //int mapped_plmn_diff = networkSliceInfo.getMappedHplmnSliceDifferentiator();
-                                                    //int mapped_plmn_service_type = networkSliceInfo.getMappedHplmnSliceServiceType();
                                                     sliceCreate.sliceCreate(service_type, slice_differentior, service_status);
                                                     Log.d(TAG, "Slice Created for :" + service_type);
                                                 }

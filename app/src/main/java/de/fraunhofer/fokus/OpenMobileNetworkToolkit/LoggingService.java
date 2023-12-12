@@ -226,7 +226,8 @@ public class LoggingService extends Service {
         interval = Integer.parseInt(sp.getString("logging_interval", "1000"));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
-            tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            //tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            tm = GlobalVars.getInstance().getTm();
             cp = tm.hasCarrierPrivileges();
         }
         wm = WorkManager.getInstance(context);

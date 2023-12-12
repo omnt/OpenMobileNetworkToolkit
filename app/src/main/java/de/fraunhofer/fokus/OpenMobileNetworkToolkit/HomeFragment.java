@@ -31,14 +31,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Space;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -391,31 +389,31 @@ public class HomeFragment extends Fragment {
                 tl.addView(rowBuilder("Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[","").replace("]","").replace(", ","\n")));
             }
         }
-        Network network = nc.getCurrentNetwork(context);
+        Network network = nc.getCurrentNetwork();
         if (network != null) {
             tl.addView(rowBuilder("Default Network", network.toString()));
         } else {
             tl.addView(rowBuilder("Default Network", "N/A"));
         }
 
-        tl.addView(rowBuilder("Interface Name", nc.getInterfaceName(context)));
+        tl.addView(rowBuilder("Interface Name", nc.getInterfaceName()));
         tl.addView(rowBuilder("Network counter", String.valueOf(GlobalVars.counter)));
-        tl.addView(rowBuilder("Default DNS", nc.getDefaultDNS(context).toString().replace("[","").replace("]","").replace(", ","\n")));
-        tl.addView(rowBuilder("Enterprise Capability", String.valueOf(nc.getEnterpriseCapability(context))));
-        tl.addView(rowBuilder("Validated Capability", String.valueOf(nc.getValidity(context))));
-        tl.addView(rowBuilder("Internet Capability", String.valueOf(nc.getInternet(context))));
-        tl.addView(rowBuilder("IMS Capability", String.valueOf(nc.getIMS(context))));
-        tl.addView(rowBuilder("Capabilities",  nc.getNetworkCapabilitylist(context)));
+        tl.addView(rowBuilder("Default DNS", nc.getDefaultDNS().toString().replace("[","").replace("]","").replace(", ","\n")));
+        tl.addView(rowBuilder("Enterprise Capability", String.valueOf(nc.getEnterpriseCapability())));
+        tl.addView(rowBuilder("Validated Capability", String.valueOf(nc.getValidity())));
+        tl.addView(rowBuilder("Internet Capability", String.valueOf(nc.getInternet())));
+        tl.addView(rowBuilder("IMS Capability", String.valueOf(nc.getIMS())));
+        tl.addView(rowBuilder("Capabilities",  nc.getNetworkCapabilitylist()));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            tl.addView(rowBuilder("Enterprise ID", String.valueOf(nc.getEnterpriseIds(context))));
+            tl.addView(rowBuilder("Enterprise ID", String.valueOf(nc.getEnterpriseIds())));
         }
         // Network Slicing
-        tl.addView(rowBuilder("TM Slice", String.valueOf(nc.getConfigurationTM(context))));
-        tl.addView(rowBuilder("Slice Info", String.valueOf(nc.getNetworkSlicingInfo(context))));
-        tl.addView(rowBuilder("Slice Config", String.valueOf(nc.getNetworkSlicingConfig(context))));
+        tl.addView(rowBuilder("TM Slice", String.valueOf(nc.getConfigurationTM())));
+        tl.addView(rowBuilder("Slice Info", String.valueOf(nc.getNetworkSlicingInfo())));
+        tl.addView(rowBuilder("Slice Config", String.valueOf(nc.getNetworkSlicingConfig())));
         // Routing and Traffic
-        tl.addView(rowBuilder("Route Descriptor", String.valueOf(nc.getRouteSelectionDescriptor(context))));
-        tl.addView(rowBuilder("Traffic Descriptor", String.valueOf(nc.getTrafficDescriptor(context))));
+        tl.addView(rowBuilder("Route Descriptor", String.valueOf(nc.getRouteSelectionDescriptor())));
+        tl.addView(rowBuilder("Traffic Descriptor", String.valueOf(nc.getTrafficDescriptor())));
         return cardView_from_table_builder("Network Information", tl);
     }
 
