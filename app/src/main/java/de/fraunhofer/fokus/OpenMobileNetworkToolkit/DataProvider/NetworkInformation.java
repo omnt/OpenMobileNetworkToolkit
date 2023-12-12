@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.os.Build;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
 
@@ -204,6 +205,27 @@ public class NetworkInformation {
                 accessNetworkType = "Unknown";
         }
         return accessNetworkType;
+    }
+
+    public static int getAccessNetworkID(String accessNetworkType) {
+        switch (accessNetworkType) {
+            case "CDMA2000":
+                return AccessNetworkConstants.AccessNetworkType.CDMA2000;
+            case "GERAN":
+                return AccessNetworkConstants.AccessNetworkType.GERAN;
+            case "EUTRAN":
+                return AccessNetworkConstants.AccessNetworkType.EUTRAN;
+            case "IWLAN":
+                return AccessNetworkConstants.AccessNetworkType.IWLAN;
+            case "NGRAN":
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    return AccessNetworkConstants.AccessNetworkType.NGRAN;
+                }
+            case "UTRAN":
+                return AccessNetworkConstants.AccessNetworkType.UTRAN;
+            default:
+                return AccessNetworkConstants.AccessNetworkType.UNKNOWN;
+        }
     }
 
 

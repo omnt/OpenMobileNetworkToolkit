@@ -22,7 +22,7 @@
                     android:title="@string/select_plmn"
                     app:iconSpaceReserved="false" />
                 <SwitchPreference
-                    android:key=""
+                    android:key="persist_boot"
                     android:title="@string/persist_boot"
                     app:iconSpaceReserved="false" />
         </PreferenceCategory>
