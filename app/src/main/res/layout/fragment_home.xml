@@ -27,7 +27,14 @@
             android:id="@+id/home_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/imageButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/btn_star" />
+        </LinearLayout>
     </ScrollView>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

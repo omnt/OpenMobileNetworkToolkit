@@ -29,13 +29,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -46,11 +49,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInterfaceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.SignalStrengthInformation;
@@ -85,19 +88,13 @@ public class HomeFragment extends Fragment {
             @NonNull LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState
     ) {
-        //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         gv = GlobalVars.getInstance();
-
         pm = gv.getPm();
-        //dp = new DataProvider(requireContext());
         dp = gv.get_dp();
         if (gv.isFeature_telephony()) {
-            //cp = ma.HasCarrierPermissions();
             cp = gv.isCarrier_permissions();
-            //tm = (TelephonyManager) ma.getSystemService(Context.TELEPHONY_SERVICE);
             tm = gv.getTm();
         }
-
 
         View view = inflater.inflate(R.layout.fragment_home, parent, false);
 
@@ -106,7 +103,7 @@ public class HomeFragment extends Fragment {
             LinearLayout ll = requireView().findViewById(R.id.home_layout);
             ll.removeAllViews();
             ll.addView(get_cell_card_view(), 0);
-            ll.addView(get_signalstrength_card_view(), 1);
+            ll.addView(get_signal_strength_card_view(), 1);
             ll.addView(get_network_card_view(), 2);
             ll.addView(get_device_card_view(), 3);
             ll.addView(get_features_card_view(), 4);
@@ -122,11 +119,6 @@ public class HomeFragment extends Fragment {
         PackageInfo info;
         try {
             info = pm.getPackageInfo("de.fraunhofer.fokus.OpenMobileNetworkToolkit", PackageManager.GET_SIGNING_CERTIFICATES);
-            //for (Signature signature : info.signingInfo()) {
-            //    MessageDigest md;
-            //    md = MessageDigest.getInstance("SHA");
-            //    md.update(signature.toByteArray());
-            //    String hash= new String(Base64.encode(md.digest(), 0));
             Log.d(TAG, "Apk hash: " + info.signingInfo.getApkContentsSigners().length);
             for (Signature signature : info.signingInfo.getApkContentsSigners()) {
                 MessageDigest md;
@@ -135,21 +127,16 @@ public class HomeFragment extends Fragment {
                 String hash = new String(Base64.encode(md.digest(), 0));
                 Log.d(TAG, "Signature: " + toHexString(md.digest()));
             }
-            //}
         } catch (PackageManager.NameNotFoundException e1) {
             Log.e("name not found", e1.toString());
-        //} catch (NoSuchAlgorithmException e) {
-        //    Log.e("no such an algorithm", e.toString());
         } catch (Exception e) {
             Log.e("exception", e.toString());
         }
-
         return view;
     }
 
     public static String toHexString(byte[] bytes) {
         StringBuilder hexString = new StringBuilder();
-
         for (int i = 0; i < bytes.length; i++) {
             String hex = Integer.toHexString(0xFF & bytes[i]);
             if (hex.length() == 1) {
@@ -157,7 +144,6 @@ public class HomeFragment extends Fragment {
             }
             hexString.append(hex);
         }
-
         return hexString.toString();
     }
 
@@ -165,7 +151,7 @@ public class HomeFragment extends Fragment {
       super.onViewCreated(view, savedInstanceState);
       LinearLayout ll = requireView().findViewById(R.id.home_layout);
       ll.addView(get_cell_card_view(), 0);
-      ll.addView(get_signalstrength_card_view(), 1);
+      ll.addView(get_signal_strength_card_view(), 1);
       ll.addView(get_network_card_view(), 2);
       ll.addView(get_device_card_view(), 3);
       ll.addView(get_features_card_view(), 4);
@@ -175,19 +161,57 @@ public class HomeFragment extends Fragment {
     }
 
     private CardView cardView_from_table_builder(String title, TableLayout tl) {
+        // setup card view
         CardView cv = new CardView(requireContext());
+        //CardView cv = findViewById(R.id.base_cardview);
         cv.setRadius(15);
         cv.setContentPadding(20,20,20,20);
         cv.setUseCompatPadding(true);
+
+        // setup button
+        int id = View.generateViewId();
+        ImageButton btn = new ImageButton(context);
+        btn.setImageResource(R.drawable.baseline_expand_less_24);
+        btn.setBackground(null);
+        btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                TableLayout tl = requireView().findViewById(id);
+                if (tl.getVisibility() == View.VISIBLE) {
+                    tl.setVisibility(View.GONE);
+                    btn.setImageResource(R.drawable.baseline_expand_more_24);
+                } else {
+                    tl.setVisibility(View.VISIBLE);
+                    btn.setImageResource(R.drawable.baseline_expand_less_24);
+                }
+
+            }
+        });
+
+        // setup header
+        TextView title_text = new TextView(requireContext());
+        title_text.setTypeface(null, Typeface.BOLD);
+        title_text.setText(title);
+        title_text.setPadding(0,0,0,20);
+        title_text.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        LinearLayout header = new LinearLayout(context);
+        header.addView(title_text);
+        header.addView(btn);
+
+        // setup body
+        tl.setId(id);
         tl.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
                 .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         tl.setStretchAllColumns(true);
-        TextView title_view = new TextView(requireContext());
-        title_view.setTypeface(null, Typeface.BOLD);
-        title_view.setText(title);
-        title_view.setPadding(0,0,0,20);
-        tl.addView(title_view,0);
-        cv.addView(tl);
+
+        // setup card content
+        LinearLayout ll = new LinearLayout(context);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.addView(header);
+        ll.addView(tl);
+        cv.addView(ll);
         return cv;
     }
 
@@ -200,15 +224,10 @@ public class HomeFragment extends Fragment {
         tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
                 .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         tr.setPadding(2,2,2,2);
-        //r.setBackgroundColor(Color.parseColor("#959aa3"));
-        //tr.setBackgroundColor(Color.parseColor("#959aa3"));
-        //tr.setBackgroundTintList(tv, );
         TextView tv1 = new TextView(context);
         tv1.setPadding(20,0,20,0);
-        //tv1.setBackgroundColor(Color.parseColor("#3b3a3a"));
         TextView tv2 = new TextView(context);
         tv2.setPadding(0,0,0,0);
-        //tv2.setBackgroundColor(Color.parseColor("#3b3a3a"));
         tv1.append(column1);
         tv2.append(Objects.requireNonNullElse(column2, "N/A"));
         tr.addView(tv1);
@@ -241,7 +260,7 @@ public class HomeFragment extends Fragment {
     }
 
     @SuppressLint({"MissingPermission", "HardwareIds"})
-    private CardView get_signalstrength_card_view() {
+    private CardView get_signal_strength_card_view() {
       ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrengthInformation();
       TableLayout tl = new TableLayout(context);
       if (signalStrengthInformations.isEmpty()) {
@@ -302,8 +321,6 @@ public class HomeFragment extends Fragment {
     tl.addView(rowBuilder("Feature Telephony", String.valueOf(gv.isFeature_telephony())));
     tl.addView(rowBuilder("Work Profile", String.valueOf(gv.isFeature_work_profile())));
     tl.addView(rowBuilder("Feature Admin", String.valueOf(gv.isFeature_admin())));
-    // todo move this somewhere useful
-    //props.add("Network Connection Available: " + GlobalVars.isNetworkConnected);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
       tl.addView(rowBuilder("Slicing Config supported", String.valueOf(
           pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))));
@@ -397,6 +414,8 @@ public class HomeFragment extends Fragment {
 
     private CardView get_cell_card_view(){
         TableLayout tl = new TableLayout(context);
+        //int id = getId();
+        //tl.setId(id);
         List<CellInformation> cil = dp.getCellInformation();
         int cell = 1;
         for (CellInformation ci : cil) {
@@ -454,6 +473,27 @@ public class HomeFragment extends Fragment {
         if (tl.getChildCount() == 0){
             tl.addView(rowBuilder("No cells available",""));
         }
+
+
+
+/*        CardView cv = cardView_from_table_builder("Cell Information", tl);
+        Button btn = new Button(context);
+        btn.setBackgroundResource(R.drawable.baseline_expand_less_24);
+        btn.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                TableLayout tl = requireView().findViewById(id);
+                if (tl.getVisibility() == View.VISIBLE) {
+                    tl.setVisibility(View.GONE);
+                    btn.setBackgroundResource(R.drawable.baseline_expand_more_24);
+                } else {
+                    tl.setVisibility(View.VISIBLE);
+                    btn.setBackgroundResource(R.drawable.baseline_expand_less_24);
+                }
+
+            }
+        });
+        cv.addView(btn);*/
         return cardView_from_table_builder("Cell Information", tl);
     }
     @Override
