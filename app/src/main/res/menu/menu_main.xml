@@ -55,4 +55,10 @@
         android:id="@+id/about"
         android:icon="@drawable/info"
         android:title="@string/about" />
+    <item
+        android:id="@+id/btn_exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/baseline_exit_to_app_24"
+        android:title="@string/exit" />
 </menu>

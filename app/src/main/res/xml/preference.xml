@@ -20,4 +20,13 @@
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment"
         app:key="mobile_network_settings"
         app:title="Mobile Network" />
+    <ListPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="0"
+        android:title="Set subscription (SIM)"
+        app:dialogIcon="@drawable/sim_card"
+        app:dialogTitle="Subscription to be used by OMNT"
+        app:icon="@drawable/sim_card"
+        app:key="select_subscription" />
 </PreferenceScreen>

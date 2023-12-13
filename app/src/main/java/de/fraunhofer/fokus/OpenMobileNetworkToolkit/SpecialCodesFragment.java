@@ -53,7 +53,6 @@ public class SpecialCodesFragment extends Fragment {
         Button custom_special_code = v.findViewById(R.id.bt_custom_special_code);
         custom_special_code.setOnClickListener(this::buttonHandler);
         special_code = v.findViewById(R.id.tv_special_code);
-
         if (!cp) {
             android_testing.setEnabled(false);
             mediatek_ims.setEnabled(false);
@@ -88,27 +87,33 @@ public class SpecialCodesFragment extends Fragment {
     @SuppressLint("NonConstantResourceId")
     private void buttonHandler(View view) {
         if (cp) {
-            switch (view.getId()) {
-                case R.id.bt_android_testing:
-                    tm.sendDialerSpecialCode("4636");
-                    break;
-                case R.id.bt_mediatek_ims:
-                    tm.sendDialerSpecialCode("3646633");
-                    break;
-                case R.id.bt_sony_service:
-                    tm.sendDialerSpecialCode("7378423");
-                    break;
-                case R.id.bt_nokia_enable_SA:
-                    tm.sendDialerSpecialCode("5555");
-                    break;
-                case R.id.bt_samsung_ims:
-                    tm.sendDialerSpecialCode("467");
-                    break;
-                case R.id.bt_huawei_project:
-                    tm.sendDialerSpecialCode("2846579");
-                    break;
-                case R.id.bt_custom_special_code:
-                    tm.sendDialerSpecialCode(special_code.getText().toString());
+            try {
+                switch (view.getId()) {
+                    case R.id.bt_android_testing:
+                        tm.sendDialerSpecialCode("4636");
+                        break;
+                    case R.id.bt_mediatek_ims:
+                        tm.sendDialerSpecialCode("3646633");
+                        break;
+                    case R.id.bt_sony_service:
+                        tm.sendDialerSpecialCode("7378423");
+                        break;
+                    case R.id.bt_nokia_enable_SA:
+                        tm.sendDialerSpecialCode("5555");
+                        break;
+                    case R.id.bt_samsung_ims:
+                        tm.sendDialerSpecialCode("467");
+                        break;
+                    case R.id.bt_huawei_project:
+                        tm.sendDialerSpecialCode("2846579");
+                        break;
+                    case R.id.bt_custom_special_code:
+                        tm.sendDialerSpecialCode(special_code.getText().toString());
+                }
+            } catch (Exception e) {
+                Toast.makeText(getContext(),
+                                "Current subscription (SIM) is not allowed to dial", Toast.LENGTH_LONG)
+                        .show();
             }
         } else {
             Toast.makeText(getContext(),

@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
 
     //@SuppressLint("MissingPermission")
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,13 +84,17 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         pm = getPackageManager();
         gv.setPm(pm);
         gv.setPermission_phone_state(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
-        gv.setPermission_fine_location(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        gv.setPermission_fine_location(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
         gv.setFeature_admin(pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN));
         gv.setFeature_work_profile(pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        gv.setFeature_telephony(feature_telephony);
         if (feature_telephony) {
-            gv.setFeature_telephony(feature_telephony);
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                String sub = sp.getString("select_subscription", "0");
+                tm = tm.createForSubscriptionId(Integer.parseInt(sub));
+            }
             gv.setTm(tm);
             gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
             cp = HasCarrierPermissions();
@@ -310,6 +315,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.carrier_settings_button:
                 navController.navigate(R.id.carrierSettingsFragment);
                 break;
+            case R.id.btn_exit:
+                this.finish();
+                System.exit(0);
         }
         return super.onOptionsItemSelected(item);
     }

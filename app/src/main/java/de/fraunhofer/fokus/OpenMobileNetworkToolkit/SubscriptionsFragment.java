@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -61,6 +62,7 @@ public class SubscriptionsFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_subscriptions, container, false);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         Context context = requireContext();
 
