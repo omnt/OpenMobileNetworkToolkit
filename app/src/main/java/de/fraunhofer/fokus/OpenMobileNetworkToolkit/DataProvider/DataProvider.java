@@ -40,6 +40,8 @@ import android.telephony.CellSignalStrengthNr;
 import android.telephony.PhoneStateListener;
 import android.telephony.PhysicalChannelConfig;
 import android.telephony.SignalStrength;
+import android.telephony.SubscriptionInfo;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -73,7 +75,6 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 
-@RequiresApi(api = Build.VERSION_CODES.S)
 public class DataProvider extends PhoneStateListener implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener {
     private static final String TAG = "DataProvider";
     private final Context ct;
@@ -82,6 +83,8 @@ public class DataProvider extends PhoneStateListener implements LocationListener
     private ConnectivityManager cm;
     private boolean cp;
     private TelephonyManager tm;
+
+    private SubscriptionManager sm;
 
     // internal data caches
     private List<CellInformation> ci = new ArrayList<>();
@@ -98,10 +101,11 @@ public class DataProvider extends PhoneStateListener implements LocationListener
     private long ts = System.currentTimeMillis();
     private LocationCallback locationCallback;
 
+    @SuppressLint("ObsoleteSdkInt")
     public DataProvider(Context context) {
         GlobalVars gv = GlobalVars.getInstance();
         ct = context;
-        LocationManager lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
+        LocationManager lm;
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
         permission_phone_state = gv.isPermission_phone_state();
 
@@ -110,6 +114,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
             tm = gv.getTm();
             cp = gv.isCarrier_permissions();
+            sm = (SubscriptionManager) ct.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         }
 
         // We need location permission otherwise logging is useless
@@ -192,7 +197,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
 
 
     // ## Device Information
-    @SuppressLint({"MissingPermission", "HardwareIds"})
+    @SuppressLint({"MissingPermission", "HardwareIds", "ObsoleteSdkInt"})
     public void refreshDeviceInformation() {
         updateTimestamp();
         di.setTimeStamp(ts);
@@ -283,6 +288,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
 
 
     // ### Cell Information ###
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     public void onCellInfoChanged(@NonNull List<CellInfo> list) {
         updateTimestamp();
@@ -374,6 +380,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         return ci;
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     public List<Point> getCellInformationPoint() {
         List<Point> points = new ArrayList<>();
         boolean nc = sp.getBoolean("log_neighbour_cells", false);
@@ -486,6 +493,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
 
 
     // ### Signal Strength Information ###
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     public void onSignalStrengthsChanged(SignalStrength signalStrength) {
         updateTimestamp();
@@ -550,11 +558,12 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         return tm.getSignalStrength();
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     public Point getSignalStrengthPoint() {
         Point point = new Point("SignalStrength");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
 
-        List<CellSignalStrength> css = null;
+        List<CellSignalStrength> css;
         // On some devices we get here a null object if no SIM card is inserted in the phone.
         try {
             css = tm.getSignalStrength().getCellSignalStrengths();
@@ -599,13 +608,20 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         return point;
     }
 
-
     // ### Location Information ###
-    // return location object if available
+
+    /**
+     * get location object if available
+     * @return LocationInformation object
+     */
     public LocationInformation getLocation() {
         return li;
     }
-    // return location as influx point
+
+    /**
+     * return the location as influx point
+     * @return influx point of current location
+     */
     public Point getLocationPoint() {
         Point point = new Point("Location");
         point.time(System.currentTimeMillis(), WritePrecision.MS);
@@ -646,6 +662,9 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         Log.d(TAG, String.format("%s is enabled", provider));
     }
 
+    /**
+     * Start a location update request loop
+     */
     private void startLocationUpdates() {
         LocationRequest locationRequest = new LocationRequest.Builder(200)
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
@@ -660,6 +679,10 @@ public class DataProvider extends PhoneStateListener implements LocationListener
 
 
     // ### Battery Information ###
+
+    /**
+     * Refresh the internal BatteryInformation Object
+     */
     public void refreshBatteryInfo() {
             IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = ct.registerReceiver(null, iFilter);
@@ -668,11 +691,19 @@ public class DataProvider extends PhoneStateListener implements LocationListener
             bi.setCharge_type(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1) : -1);
     }
 
+    /**
+     * Return an BateryInformation object
+     * @return BatteryInformation object
+     */
     public BatteryInformation getBatteryInformation() {
         refreshBatteryInfo();
         return bi;
     }
 
+    /**
+     * Build an influx point from the BatteryInformation object
+     * @return Inlfux Point with current battery information
+     */
     public Point getBatteryInformationPoint() {
         refreshBatteryInfo();
         Point point = new Point("BatteryInformation");
@@ -686,8 +717,13 @@ public class DataProvider extends PhoneStateListener implements LocationListener
 
 
     // ### Misc ###
-    // return a Map of key values pairs to be used as tags in the influx points
-    // List consist of device information and user defined tags
+
+    /**
+     * return a Map of key values pairs to be used as tags in the influx points
+     * List consist of device information and user defined tags
+     * @return Map of k,v strings
+     */
+    @SuppressLint("ObsoleteSdkInt")
     public Map<String, String> getTagsMap() {
         String tags = sp.getString("tags", "").strip().replace(" ", "");
         Map<String, String> tags_map = Collections.emptyMap();
@@ -717,12 +753,20 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         tags_map_modifiable.put("radio_version", Build.getRadioVersion());
         return tags_map_modifiable;
     }
+
+    /**
+     * WIP Physical Channel Config Listener
+     * @param list List of the current {@link PhysicalChannelConfig}s
+     */
     @Override
     public void onPhysicalChannelConfigChanged(@NonNull List<PhysicalChannelConfig> list) {
         Log.d(TAG, list.toString());
     }
 
-    // get the phone IMEI if accessible
+    /**
+     * get the phone IMEI if accessible
+     * @return String of IMEI if available
+     */
     public String getIMEI() {
         if (tm.hasCarrierPrivileges()) {
             return tm.getImei();
@@ -731,8 +775,11 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         }
     }
 
-    // get the SIMs IMSI if accessible
-    // We suppress the linter warning as we need IMSI even that not recommended for most apps.
+    /**
+     * get the SIMs IMSI if accessible
+     * We suppress the linter warning as we need IMSI even that not recommended for most apps.
+     * @return  String of IMSI is available
+     */
     @SuppressLint("HardwareIds")
     public String getIMSI() {
         if (tm.hasCarrierPrivileges()) {
@@ -742,6 +789,24 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         }
     }
 
+    /**
+     * Get a list of subscription information
+     * @return List of SubscriptionIno
+     */
+    @SuppressLint("ObsoleteSdkInt")
+    public List<SubscriptionInfo> getSubscriptions() {
+        List<SubscriptionInfo> subsciptions;
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            subsciptions = sm.getCompleteActiveSubscriptionInfoList();
+        } else {
+            subsciptions = sm.getActiveSubscriptionInfoList();
+        }
+        return subsciptions;
+    }
+
+    /**
+     * trigger a refresh of all internal data caches
+     */
     public void refreshAll() {
         refreshDeviceInformation();
         refreshNetworkInformation();
@@ -751,12 +816,18 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         onSignalStrengthsChanged(getSignalStrength());
     }
 
+    /**
+     * Update the DataProvider cached timestamp
+     */
     private void updateTimestamp() {
         ts = System.currentTimeMillis();
     }
 
     // ### Helper function ###
-    // Filter values before adding them as we don't need to log not available information
+
+    /**
+     * Filter values before adding them as we don't need to log not available information
+     */
     public void addOnlyAvailablePoint(Point point, String key, int value) {
         if (value != CellInfo.UNAVAILABLE) {
             point.addField(key, value);

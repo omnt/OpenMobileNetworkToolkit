@@ -9,8 +9,6 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
-import static android.telephony.TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -264,7 +262,7 @@ public class HomeFragment extends Fragment {
         return cardView_from_table_builder("Device Information", tl);
     }
 
-    @SuppressLint({"MissingPermission", "HardwareIds"})
+    @SuppressLint({"MissingPermission", "HardwareIds", "ObsoleteSdkInt"})
     private CardView get_signal_strength_card_view() {
       ArrayList<SignalStrengthInformation> signalStrengthInformations = dp.getSignalStrengthInformation();
       TableLayout tl = new TableLayout(context);
@@ -321,6 +319,7 @@ public class HomeFragment extends Fragment {
       return cardView_from_table_builder("Signal Strength Information", tl);
     }
 
+  @SuppressLint("ObsoleteSdkInt")
   private CardView get_features_card_view() {
     TableLayout tl = new TableLayout(context);
     tl.addView(rowBuilder("Feature Telephony", String.valueOf(gv.isFeature_telephony())));
@@ -329,10 +328,6 @@ public class HomeFragment extends Fragment {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
       tl.addView(rowBuilder("Slicing Config supported", String.valueOf(
           pm.hasSystemFeature(TelephonyManager.CAPABILITY_SLICING_CONFIG_SUPPORTED))));
-    }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      tl.addView(rowBuilder("Slicing Config", String.valueOf(
-          tm.isRadioInterfaceCapabilitySupported(CAPABILITY_SLICING_CONFIG_SUPPORTED))));
     }
     return cardView_from_table_builder("Device Features", tl);
   }
@@ -371,7 +366,7 @@ public class HomeFragment extends Fragment {
         return cardView_from_table_builder("Network Interfaces", tl);
     }
 
-    @SuppressLint("MissingPermission")
+    @SuppressLint({"MissingPermission", "ObsoleteSdkInt"})
     private CardView get_network_card_view() {
         NetworkInformation ni = dp.getNetworkInformation();
         NetworkCallback nc = new NetworkCallback(context);
@@ -399,28 +394,34 @@ public class HomeFragment extends Fragment {
         tl.addView(rowBuilder("Interface Name", nc.getInterfaceName()));
         tl.addView(rowBuilder("Network counter", String.valueOf(GlobalVars.counter)));
         tl.addView(rowBuilder("Default DNS", nc.getDefaultDNS().toString().replace("[","").replace("]","").replace(", ","\n")));
-        tl.addView(rowBuilder("Enterprise Capability", String.valueOf(nc.getEnterpriseCapability())));
-        tl.addView(rowBuilder("Validated Capability", String.valueOf(nc.getValidity())));
-        tl.addView(rowBuilder("Internet Capability", String.valueOf(nc.getInternet())));
-        tl.addView(rowBuilder("IMS Capability", String.valueOf(nc.getIMS())));
-        tl.addView(rowBuilder("Capabilities",  nc.getNetworkCapabilitylist()));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            tl.addView(rowBuilder("Enterprise ID", String.valueOf(nc.getEnterpriseIds())));
-        }
+        tl.addView(rowBuilder("Enterprise Capability", String.valueOf(nc.getCapabilityEnterprise())));
+        tl.addView(rowBuilder("Validated Capability", String.valueOf(nc.getCapabilityValidity())));
+        tl.addView(rowBuilder("Internet Capability", String.valueOf(nc.getCapabilityInternet())));
+        tl.addView(rowBuilder("IMS Capability", String.valueOf(nc.getCapabilityIMS())));
         // Network Slicing
-        tl.addView(rowBuilder("TM Slice", String.valueOf(nc.getConfigurationTM())));
-        tl.addView(rowBuilder("Slice Info", String.valueOf(nc.getNetworkSlicingInfo())));
-        tl.addView(rowBuilder("Slice Config", String.valueOf(nc.getNetworkSlicingConfig())));
+        tl.addView(rowBuilder("Slice Capability", String.valueOf(nc.getCapabilitySlicing())));
+        tl.addView(rowBuilder("Capabilities",  nc.getNetworkCapabilityList()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            int[] ids = nc.getEnterpriseIds();
+            if (ids.length > 0 ) {
+                tl.addView(rowBuilder("Enterprise IDs", Arrays.toString(ids)));
+            } else {
+                tl.addView(rowBuilder("Enterprise IDs", "N/A"));
+            }
+        }
+        // The follwing functions do not return useful information jet
+        //tl.addView(rowBuilder("TM Slice", String.valueOf(nc.getConfigurationTM())));
+        //tl.addView(rowBuilder("Slice Info", String.valueOf(nc.getNetworkSlicingInfo())));
+        //tl.addView(rowBuilder("Slice Config", String.valueOf(nc.getNetworkSlicingConfig())));
         // Routing and Traffic
-        tl.addView(rowBuilder("Route Descriptor", String.valueOf(nc.getRouteSelectionDescriptor())));
-        tl.addView(rowBuilder("Traffic Descriptor", String.valueOf(nc.getTrafficDescriptor())));
+        //tl.addView(rowBuilder("Route Descriptor", String.valueOf(nc.getRouteSelectionDescriptor())));
+        //tl.addView(rowBuilder("Traffic Descriptor", String.valueOf(nc.getTrafficDescriptor())));
         return cardView_from_table_builder("Network Information", tl);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     private CardView get_cell_card_view(){
         TableLayout tl = new TableLayout(context);
-        //int id = getId();
-        //tl.setId(id);
         List<CellInformation> cil = dp.getCellInformation();
         int cell = 1;
         for (CellInformation ci : cil) {
@@ -478,27 +479,6 @@ public class HomeFragment extends Fragment {
         if (tl.getChildCount() == 0){
             tl.addView(rowBuilder("No cells available",""));
         }
-
-
-
-/*        CardView cv = cardView_from_table_builder("Cell Information", tl);
-        Button btn = new Button(context);
-        btn.setBackgroundResource(R.drawable.baseline_expand_less_24);
-        btn.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        btn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                TableLayout tl = requireView().findViewById(id);
-                if (tl.getVisibility() == View.VISIBLE) {
-                    tl.setVisibility(View.GONE);
-                    btn.setBackgroundResource(R.drawable.baseline_expand_more_24);
-                } else {
-                    tl.setVisibility(View.VISIBLE);
-                    btn.setBackgroundResource(R.drawable.baseline_expand_less_24);
-                }
-
-            }
-        });
-        cv.addView(btn);*/
         return cardView_from_table_builder("Cell Information", tl);
     }
     @Override

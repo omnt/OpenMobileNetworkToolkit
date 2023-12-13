@@ -35,7 +35,6 @@ public class SpecialCodesFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        //tm = (TelephonyManager) requireContext().getSystemService(Context.TELEPHONY_SERVICE);
         tm = GlobalVars.getInstance().getTm();
         cp = tm.hasCarrierPrivileges();
         View v = inflater.inflate(R.layout.fragment_special_codes, parent, false);
@@ -76,7 +75,6 @@ public class SpecialCodesFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (requireContext().getPackageManager()
             .hasSystemFeature(PackageManager.FEATURE_TELEPHONY)) {
-            //tm = (TelephonyManager) requireContext().getSystemService(Context.TELEPHONY_SERVICE);
             tm = GlobalVars.getInstance().getTm();
             cp = tm.hasCarrierPrivileges();
         }
