@@ -318,6 +318,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.btn_exit:
                 this.finish();
                 System.exit(0);
+            case R.id.btn_home:
+                navController.navigate(R.id.HomeFragment);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

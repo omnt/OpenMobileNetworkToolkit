@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
 import android.widget.Toast;
@@ -31,7 +32,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ArrayList<String> entries = new ArrayList<>();
         ArrayList<String> entryValues = new ArrayList<>();
         List<SubscriptionInfo> subscriptions = GlobalVars.getInstance().get_dp().getSubscriptions();
-        for (SubscriptionInfo info: subscriptions) {
+        for (SubscriptionInfo info : subscriptions) {
             entries.add(info.getDisplayName().toString());
             entryValues.add(String.valueOf(info.getSubscriptionId()));
         }
@@ -39,13 +40,35 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         CharSequence[] entryValues_char = entryValues.toArray(new CharSequence[entryValues.size()]);
         sub_select.setEntries(entries_char);
         sub_select.setEntryValues(entryValues_char);
-        sub_select.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
+        sub_select.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Toast.makeText(requireContext().getApplicationContext(), "Subscription Changed, please restart OMNT", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
+
+        Preference button = getPreferenceManager().findPreference("reset_modem");
+
+        if (button != null) {
+            if (GlobalVars.getInstance().isCarrier_permissions()) {
+                button.setEnabled(true);
+                button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            Toast.makeText(getActivity(), "rebooting modem",
+                                    Toast.LENGTH_SHORT).show();
+                            GlobalVars.getInstance().getTm().rebootModem();
+                        }
+                        return true;
+                    }
+                });
+            } else {
+                button.setEnabled(false);
+            }
+        }
+
 
     }
 

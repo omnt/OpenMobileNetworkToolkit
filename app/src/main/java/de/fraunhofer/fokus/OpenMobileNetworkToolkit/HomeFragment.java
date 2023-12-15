@@ -231,8 +231,10 @@ public class HomeFragment extends Fragment {
         tv1.setPadding(20,0,20,0);
         TextView tv2 = new TextView(context);
         tv2.setPadding(0,0,0,0);
+        tv2.setTextIsSelectable(true);
         tv1.append(column1);
         tv2.append(Objects.requireNonNullElse(column2, "N/A"));
+        tv2.setTextIsSelectable(true);
         tr.addView(tv1);
         tr.addView(tv2);
         return tr;

@@ -11,6 +11,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
     <item
+        android:id="@+id/btn_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/outline_home_24"
+        android:title="Home" />
+    <item
         android:id="@+id/iperf3"
         android:icon="@drawable/outline_speed_24"
         android:title="@string/action_iperf3" />

@@ -48,6 +48,9 @@
         <action
             android:id="@+id/action_HomeFragment_to_carrierSettingsFragment"
             app:destination="@id/carrierSettingsFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_self"
+            app:destination="@id/HomeFragment" />
 
     </fragment>
     <fragment

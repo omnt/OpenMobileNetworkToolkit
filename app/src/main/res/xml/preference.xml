@@ -29,4 +29,8 @@
         app:dialogTitle="Subscription to be used by OMNT"
         app:icon="@drawable/sim_card"
         app:key="select_subscription" />
+    <Preference
+        android:icon="@drawable/baseline_restart_alt_24"
+        app:key="reset_modem"
+        app:title="Reboot Modem" />
 </PreferenceScreen>
