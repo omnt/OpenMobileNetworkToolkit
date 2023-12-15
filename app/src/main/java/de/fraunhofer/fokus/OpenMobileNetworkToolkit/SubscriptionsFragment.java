@@ -92,6 +92,7 @@ public class SubscriptionsFragment extends Fragment {
                     title.append("SIM Slot " + info.getSimSlotIndex());
                     title.setTypeface(Typeface.DEFAULT_BOLD);
                     TextView tv = new TextView(context);
+                    tv.setTextIsSelectable(true);
                     tv.append(info.toString().replace(" ", "\n").replace("{", "").replace("}", ""));
                     LinearLayout ll_inner = new LinearLayout(context);
                     ll_inner.addView(title);
