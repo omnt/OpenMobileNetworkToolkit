@@ -106,7 +106,7 @@ where my.keystore is your java keystore.
 The SPDX formated Software Bill Of Material is a machine readable list of all software components used in the app. 
 To generated a new file run
 ```shell
-eval `ssh-agent -s`
+ ./gradlew app:spdxSbomForRelease
 ```
 
 ## iPerf3
