@@ -18,7 +18,7 @@
     <string name="execute_iperf_command">Send!</string>
     <string name="iperf_command">-c 172.17.0.1</string>
     <string name="loggin_notifaction">OpenMobileNetworkToolkit logging</string>
-    <string name="appinfo">This app is provided by NGNI a department of Fraunhofer FOKUS. \n\nhttps://www.fokus.fraunhofer.de/go/ngni \n\nThis software is licensed under Apache 2.0. https://www.apache.org/licenses/LICENSE-2.0 \n\nAuthors: \n\nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
+    <string name="appinfo">This app is provided by NGNI a department of Fraunhofer FOKUS. \n\nhttps://www.fokus.fraunhofer.de/go/ngni \n\nThis software is licensed under BSD 3-Clause Clear License https://spdx.org/licenses/BSD-3-Clause-Clear.html \n\nAuthors: \n\nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">OpenMobileNetworkToolkit</string>
     <string name="second_fragment_label">about</string>
