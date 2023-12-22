@@ -61,7 +61,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActiv
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     public TelephonyManager tm;
     public PackageManager pm;
-    //protected Context context;
     public DataProvider dp;
     SharedPreferences sp;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
@@ -73,8 +72,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private Handler requestCellInfoUpdateHandler;
     private GlobalVars gv;
 
-
-    //@SuppressLint("MissingPermission")
     @SuppressLint("ObsoleteSdkInt")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
