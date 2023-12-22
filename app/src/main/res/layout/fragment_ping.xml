@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~
+  ~  SPDX-License-Identifier: BSD-3-Clause-Clear
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.MaterialComponents.DayNight"
+    tools:context=".Ping.PingFragment"
+    android:id="@+id/fragment_ping">
+
+    <LinearLayout
+        android:id="@+id/ping_vertical_ll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/ping_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/ping"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/ping_horizontal_ll"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/ping_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:forceDarkAllowed="true"
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:text="@string/ping_command"
+                android:autofillHints="add Ping Parameters"
+                tools:ignore="LabelFor,RtlSymmetry" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+            <Switch
+                android:layout_marginLeft="210dp"
+                android:layout_marginRight="16dp"
+                android:id="@+id/ping_switch"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/ping_run_continuously"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/ping_horizontal1_ll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <ScrollView
+                android:id="@+id/ping_scrollviewer"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                tools:ignore="UselessParent">
+
+                <TextView
+                    android:id="@+id/ping_viewer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="10sp"
+                    tools:ignore="SmallSp" />
+            </ScrollView>
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

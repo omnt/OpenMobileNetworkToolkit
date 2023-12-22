@@ -1,0 +1,178 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "1cde2ced0d0f9f9860c3dc2fa0c0939d",
+    "entities": [
+      {
+        "tableName": "cell_info",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`timeStamp` INTEGER NOT NULL, `cellType` TEXT, `alphaLong` TEXT, `bands` TEXT, `ci` INTEGER NOT NULL, `mnc` TEXT, `pci` INTEGER NOT NULL, `tac` INTEGER NOT NULL, `level` INTEGER NOT NULL, `isRegistered` INTEGER NOT NULL, `cellConnectionStatus` INTEGER NOT NULL, `earfcn` INTEGER NOT NULL, `bandwidth` INTEGER NOT NULL, `cqi` INTEGER NOT NULL, `rsrp` INTEGER NOT NULL, `rsrq` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `rssnr` INTEGER NOT NULL, `nrarfcn` INTEGER NOT NULL, `csirsrp` INTEGER NOT NULL, `csirsrq` INTEGER NOT NULL, `csisinr` INTEGER NOT NULL, `ssrsrp` INTEGER NOT NULL, `ssrsrq` INTEGER NOT NULL, `sssinr` INTEGER NOT NULL, PRIMARY KEY(`timeStamp`))",
+        "fields": [
+          {
+            "fieldPath": "timeStamp",
+            "columnName": "timeStamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cellType",
+            "columnName": "cellType",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "alphaLong",
+            "columnName": "alphaLong",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bands",
+            "columnName": "bands",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ci",
+            "columnName": "ci",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mnc",
+            "columnName": "mnc",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pci",
+            "columnName": "pci",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tac",
+            "columnName": "tac",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "level",
+            "columnName": "level",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isRegistered",
+            "columnName": "isRegistered",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cellConnectionStatus",
+            "columnName": "cellConnectionStatus",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "earfcn",
+            "columnName": "earfcn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bandwidth",
+            "columnName": "bandwidth",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cqi",
+            "columnName": "cqi",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rsrp",
+            "columnName": "rsrp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rsrq",
+            "columnName": "rsrq",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rssi",
+            "columnName": "rssi",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rssnr",
+            "columnName": "rssnr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nrarfcn",
+            "columnName": "nrarfcn",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "csirsrp",
+            "columnName": "csirsrp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "csirsrq",
+            "columnName": "csirsrq",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "csisinr",
+            "columnName": "csisinr",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ssrsrp",
+            "columnName": "ssrsrp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ssrsrq",
+            "columnName": "ssrsrq",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sssinr",
+            "columnName": "sssinr",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "timeStamp"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1cde2ced0d0f9f9860c3dc2fa0c0939d')"
+    ]
+  }
+}

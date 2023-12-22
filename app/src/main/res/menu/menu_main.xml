@@ -1,0 +1,70 @@
+<!--
+  ~  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~
+  ~  SPDX-License-Identifier: BSD-3-Clause-Clear
+  -->
+
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity">
+    <item
+        android:id="@+id/btn_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/outline_home_24"
+        android:title="Home" />
+    <item
+        android:id="@+id/iperf3"
+        android:icon="@drawable/outline_speed_24"
+        android:title="@string/action_iperf3" />
+    <item
+        android:id="@+id/ping"
+        android:icon="@drawable/baseline_sync_alt_24"
+        android:title="@string/action_ping" />
+    <item
+        android:id="@+id/special_codes"
+        android:icon="@drawable/baseline_dialpad_24"
+        android:title="@string/special_codes"
+        android:visible="true" />
+    <item
+        android:id="@+id/subscriptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/sim_card"
+        android:title="@string/subscriptions" />
+    <item
+        android:id="@+id/carrier_settings_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/outline_tune_24"
+        android:title="Carrier Settings" />
+    <item
+        android:id="@+id/slicingSetup"
+        android:icon="@drawable/slicing"
+        android:title="@string/slicing_setup" />
+    <item
+        android:id="@+id/influxDBMenu"
+        android:icon="@drawable/database"
+        android:title="@string/influxdb" />
+    <item
+        android:id="@+id/workprofilemanagement"
+        android:icon="@drawable/outline_business_center_24"
+        android:title="@string/work_profile_management" />
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/outline_settings_24"
+        android:title="@string/settings" />
+    <item
+        android:id="@+id/about"
+        android:icon="@drawable/info"
+        android:title="@string/about" />
+    <item
+        android:id="@+id/btn_exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/baseline_exit_to_app_24"
+        android:title="@string/exit" />
+</menu>

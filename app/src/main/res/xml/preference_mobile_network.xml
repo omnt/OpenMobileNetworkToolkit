@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~
+  ~  SPDX-License-Identifier: BSD-3-Clause-Clear
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment">
+        <PreferenceCategory
+            android:title="@string/radio_settings"
+            app:iconSpaceReserved="false">
+                <DropDownPreference
+                    android:key="select_network_type"
+                    android:title="@string/access_networktype"
+                    app:iconSpaceReserved="false" />
+                <EditTextPreference
+                    android:key="add_plmn"
+                    android:title="@string/select_plmn"
+                    app:iconSpaceReserved="false" />
+                <SwitchPreference
+                    android:key="persist_boot"
+                    android:title="@string/persist_boot"
+                    app:iconSpaceReserved="false" />
+        </PreferenceCategory>
+        <PreferenceCategory
+            android:title="@string/carrier_settings"
+            app:allowDividerBelow="false"
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="true">
+                <PreferenceCategory
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:title="Android 12 API 31 (S)"
+                    app:icon="@drawable/baseline_android_24"
+                    app:iconSpaceReserved="true"
+                    app:key="buildVersionS">
+                        <MultiSelectListPreference
+                            android:dependency="buildVersionS"
+                            android:entries="@array/nr_availability"
+                            android:entryValues="@array/nr_availability_values"
+                            android:key="multi_select_KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY"
+                            android:title="KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionS"
+                            android:key="switch_KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL"
+                            android:title="KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionS"
+                            android:key="switch_KEY_HIDE_ENABLE_2G"
+                            android:title="KEY_HIDE_ENABLE_2G"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionS"
+                            android:key="switch_KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL"
+                            android:title="KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL"
+                            app:iconSpaceReserved="false" />
+                </PreferenceCategory>
+
+
+                <PreferenceCategory
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:title="Android 11 API 30 (R)"
+                    app:allowDividerAbove="false"
+                    app:allowDividerBelow="false"
+                    app:icon="@drawable/baseline_android_24"
+                    app:key="buildVersionR">
+
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_ALLOW_VIDEO_CALLING_FALLBACK_BOOL"
+                            android:title="KEY_ALLOW_VIDEO_CALLING_FALLBACK_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL"
+                            android:title="KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL"
+                            android:title="KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_WORLD_MODE_ENABLED_BOOL"
+                            android:title="KEY_WORLD_MODE_ENABLED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_CARRIER_RCS_PROVISIONING_REQUIRED_BOOL"
+                            android:title="KEY_CARRIER_RCS_PROVISIONING_REQUIRED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL"
+                            android:title="KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_EDITABLE_WFC_MODE_BOOL"
+                            android:title="KEY_EDITABLE_WFC_MODE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_EDITABLE_WFC_ROAMING_MODE_BOOL"
+                            android:title="KEY_EDITABLE_WFC_ROAMING_MODE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <EditTextPreference
+                            android:defaultValue=""
+                            android:dependency="buildVersionR"
+                            android:key="edit_text_KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY"
+                            android:title="KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY"
+                            app:iconSpaceReserved="false" />
+                        <EditTextPreference
+                            android:defaultValue=""
+                            android:dependency="buildVersionR"
+                            android:key="edit_text_KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY"
+                            android:title="KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionR"
+                            android:key="switch_KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL"
+                            android:title="KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL"
+                            app:iconSpaceReserved="false" />
+                </PreferenceCategory>
+
+                <PreferenceCategory
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:title="Android 10 API 29 (Q)"
+                    app:allowDividerAbove="false"
+                    app:allowDividerBelow="false"
+                    app:icon="@drawable/baseline_android_24"
+                    app:key="buildVersionQ">
+
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_FORCE_HOME_NETWORK_BOOL"
+                            android:title="KEY_FORCE_HOME_NETWORK_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_PREFER_2G_BOOL"
+                            android:title="KEY_PREFER_2G_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_SETTINGS_ENABLE_BOOL"
+                            android:title="KEY_CARRIER_SETTINGS_ENABLE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL"
+                            android:title="KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL"
+                            android:title="KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_EDITABLE_ENHANCED_4G_LTE_BOOL"
+                            android:title="KEY_EDITABLE_ENHANCED_4G_LTE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_VOLTE_AVAILABLE_BOOL"
+                            android:title="KEY_CARRIER_VOLTE_AVAILABLE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_VOLTE_PROVISIONING_REQUIRED_BOOL"
+                            android:title="KEY_CARRIER_VOLTE_PROVISIONING_REQUIRED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_VOLTE_PROVISIONED_BOOL"
+                            android:title="KEY_CARRIER_VOLTE_PROVISIONED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_VT_AVAILABLE_BOOL"
+                            android:title="KEY_CARRIER_VT_AVAILABLE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_VOLTE_TTY_SUPPORTED_BOOL"
+                            android:title="KEY_CARRIER_VOLTE_TTY_SUPPORTED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_HIDE_ENHANCED_4G_LTE_BOOL"
+                            android:title="KEY_HIDE_ENHANCED_4G_LTE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_HIDE_CARRIER_NETWORK_SETTINGS_BOOL"
+                            android:title="KEY_HIDE_CARRIER_NETWORK_SETTINGS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_HIDE_IMS_APN_BOOL"
+                            android:title="KEY_HIDE_IMS_APN_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_HIDE_PREFERRED_NETWORK_TYPE_BOOL"
+                            android:title="KEY_HIDE_PREFERRED_NETWORK_TYPE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_HIDE_PRESET_APN_DETAILS_BOOL"
+                            android:title="KEY_HIDE_PRESET_APN_DETAILS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_HIDE_SIM_LOCK_SETTINGS_BOOL"
+                            android:title="KEY_HIDE_SIM_LOCK_SETTINGS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_ALLOW_ADDING_APNS_BOOL"
+                            android:title="KEY_ALLOW_ADDING_APNS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_APN_EXPAND_BOOL"
+                            android:title="KEY_APN_EXPAND_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL"
+                            android:title="KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_IMS_GBA_REQUIRED_BOOL"
+                            android:title="KEY_CARRIER_IMS_GBA_REQUIRED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_REQUIRE_ENTITLEMENT_CHECKS_BOOL"
+                            android:title="KEY_REQUIRE_ENTITLEMENT_CHECKS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <ListPreference
+                            android:defaultValue="18"
+                            android:dependency="buildVersionQ"
+                            android:entries="@array/volte_replacement"
+                            android:entryValues="@array/volte_replacement_values"
+                            android:key="list_KEY_VOLTE_REPLACEMENT_RAT_INT9"
+                            android:title="KEY_VOLTE_REPLACEMENT_RAT_INT"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_USE_IMS_FIRST_FOR_EMERGENCY_BOOL"
+                            android:title="KEY_CARRIER_USE_IMS_FIRST_FOR_EMERGENCY_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_AUTO_RETRY_ENABLED_BOOL"
+                            android:title="KEY_AUTO_RETRY_ENABLED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="true"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_WORLD_PHONE_BOOL"
+                            android:title="KEY_WORLD_PHONE_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_SUPPORT_PAUSE_IMS_VIDEO_CALLS_BOOL"
+                            android:title="KEY_SUPPORT_PAUSE_IMS_VIDEO_CALLS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_UT_PROVISIONING_REQUIRED_BOOL"
+                            android:title="KEY_CARRIER_UT_PROVISIONING_REQUIRED_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL"
+                            android:title="KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL"
+                            android:title="KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_SUPPORT_EMERGENCY_SMS_OVER_IMS_BOOL"
+                            android:title="KEY_SUPPORT_EMERGENCY_SMS_OVER_IMS_BOOL"
+                            app:iconSpaceReserved="false" />
+                        <ListPreference
+                            android:defaultValue="1"
+                            android:dependency="buildVersionQ"
+                            android:entries="@array/default_wfc_ims_mode"
+                            android:entryValues="@array/default_wfc_ims_mode_values"
+                            android:key="list_KEY_CARRIER_DEFAULT_WFC_IMS_MODE_INT"
+                            android:title="KEY_CARRIER_DEFAULT_WFC_IMS_MODE_INT"
+                            app:iconSpaceReserved="false" />
+                        <ListPreference
+                            android:defaultValue="1"
+                            android:dependency="buildVersionQ"
+                            android:entries="@array/default_wfc_ims_mode"
+                            android:entryValues="@array/default_wfc_ims_mode_values"
+                            android:key="list_KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT"
+                            android:title="KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT"
+                            app:iconSpaceReserved="false" />
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersionQ"
+                            android:key="switch_KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL"
+                            android:title="KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL"
+                            app:iconSpaceReserved="false" />
+                </PreferenceCategory>
+                <PreferenceCategory
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:title="Android 8 API 27 (0_MR1)"
+                    app:allowDividerAbove="false"
+                    app:allowDividerBelow="false"
+                    app:icon="@drawable/baseline_android_24"
+                    app:key="buildVersion0MR1">
+
+                        <SwitchPreferenceCompat
+                            android:defaultValue="false"
+                            android:dependency="buildVersion0MR1"
+                            android:key="switch_KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL"
+                            android:title="KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL"
+                            app:iconSpaceReserved="false" />
+                </PreferenceCategory>
+
+        </PreferenceCategory>
+</PreferenceScreen>

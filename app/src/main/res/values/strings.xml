@@ -1,0 +1,163 @@
+<!--
+  ~  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~
+  ~  SPDX-License-Identifier: BSD-3-Clause-Clear
+  -->
+
+<resources>
+    <string name="app_name">OpenMobileNetworkToolkit</string>
+    <string name="action_android">Android Testing</string>
+    <string name="action_samsung">Samsung IMS</string>
+    <string name="action_sony">Sony Service</string>
+    <string name="action_nokia">Nokia enable SA</string>
+    <string name="action_huawei">Huawei Project</string>
+    <string name="action_mediatek">Mediatek IMS</string>
+    <string name="action_iperf3">iPerf3</string>
+    <string name="execute_iperf_command">Send!</string>
+    <string name="iperf_command">-c 172.17.0.1</string>
+    <string name="loggin_notifaction">OpenMobileNetworkToolkit logging</string>
+    <string name="appinfo">This app is provided by NGNI a department of Fraunhofer FOKUS. \n\nhttps://www.fokus.fraunhofer.de/go/ngni \n\nThis software is licensed under BSD 3-Clause Clear License https://spdx.org/licenses/BSD-3-Clause-Clear.html \n\nAuthors: \n\nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">OpenMobileNetworkToolkit</string>
+    <string name="second_fragment_label">about</string>
+    <string name="home">home</string>
+    <string name="about">About</string>
+    <string name="previous">Previous</string>
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="service_name">OMNMT</string>
+    <string name="slicing">Slicing</string>
+    <string name="Log">Debug Log</string>
+    <string name="device_admin_description">I need your permission</string>
+    <string name="apn_settings">APN Settings</string>
+    <string name="slicing_setup">Slicing</string>
+    <string name="iperf_logfilename">-F / Logfile Name</string>
+    <string name="iperf_ip">-c / IP</string>
+    <string name="iperf_client">Client</string>
+    <string name="iperf_port">-p / Port</string>
+    <string name="iperf_bandwidth">-b / Bandwidth</string>
+    <string name="iperf_reverse">Reverse</string>
+    <string name="iperf_duration">-t / Duration</string>
+    <string name="iperf_interval">-i / Interval</string>
+    <string name="iperf_bytes">-n / Bytes</string>
+    <string name="iperf_bidir">BiDir</string>
+    <string name="iperf_json">JSON</string>
+    <string name="iperf_one_off">one-off</string>
+    <string name="iperf3_title">iPerf3 Testing</string>
+    <string name="iperf3_instances">Instances</string>
+    <string name="export_logs">Export Logs</string>
+    <string name="channel_name">OMNT_Notification</string>
+    <string name="channel_description">Notification channel for Open Mobile Network Toolkit</string>
+
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Application Preferences -->
+    <string name="carrier_permissions">carrier_permission</string>
+
+    <!-- Logging Preferences -->
+    <string name="enable_influx">InfluxDB log</string>
+    <string name="influx_url">InfluxDB instance URL / IP</string>
+    <string name="influx_url_dialog_title">InfluxDB URL / IP (with protocol and port)</string>
+    <string name="influx_org">InfluxDB Organization</string>
+    <string name="influx_org_dialog_title">Set InfluxDB Organization</string>
+    <string name="influx_token">Influx Token</string>
+    <string name="influx_token_dialog_title">Set InfluxDB Token</string>
+    <string name="influx_network_data">Log network information</string>
+    <string name="log_neighbour_cells">Log neighbour cells</string>
+    <string name="influx_throughput_data">Log throughput information</string>
+    <string name="influx_cell_data">Log cell information</string>
+    <string name="influx_signal_data">Log signal information</string>
+    <string name="influx_ip_address_data">Log IP addresses</string>
+    <string name="influx_battery_data">Log battery information</string>
+    <string name="influx_bucket">InfluxDB bucket</string>
+    <string name="influx_bucket_dialog_title">Set InfluxDB bucket</string>
+    <string name="measurement">Measurement name</string>
+    <string name="tags">Tags</string>
+    <string name="tags_summary">Comma separated list of tags</string>
+    <string name="enable_logging">Enable</string>
+    <string name="enable_local_log">InfluxDB log</string>
+    <string name="enable_notification_update">Enable notification update</string>
+    <string name="enable_notification_update_summary">This will wake up the screen on each update</string>
+    <string name="runningIndicator">running_indicator</string>
+    <string name="enable_logging_summary">Start / stop the logging service</string>
+    <string name="enable_local_log_summary">Log to a local Influx 2.x database</string>
+    <string name="enable_influx_summary">Log to a remote Influx 2.x database</string>
+    <string name="work_profile_management">Work Profile</string>
+    <string name="start_logging_on_boot">Start on boot</string>
+    <string name="start_logging_on_boot_summary">Start the logging service on device boot</string>
+    <string name="fake_location">Use fake location</string>
+    <string name="fake_location_summary">Use a fake location for all measurements for testing / privacy reasons</string>
+
+    <!-- Work Profile Management -->
+    <string name="intro_message">
+        <![CDATA[
+            This sample demonstrates how to create a managed profile. You can also learn how to
+            enable or disable other apps and how to set restrictions to them. Intents can be
+            configured to be forwarded between primary account and managed profile. Finally, you can
+            wipe all the data associated with the profile.
+            Note that there can only be one managed profile on a device.
+        ]]>
+    </string>
+    <string name="set_up_profile">Set up profile</string>
+    <string name="enable_forwarding">Enable forwarding of Share Intent</string>
+    <string name="send_intent_text">Send a sample share Intent</string>
+    <string name="disable_forwarding">Disable forwarding</string>
+    <string name="setup_profile_message">This app is currently not the owner of this device or profile. Please tap Next to set up appropriate management by this app.</string>
+    <string name="main_message">The app is ready to control the managed profile.</string>
+    <string name="remove_profile">Remove managed profile</string>
+    <string name="all_done">Setup all done</string>
+    <string name="all_done_explanation">To manage the configuration in your managed profile, visit the badged version of this application.</string>
+    <string name="toggle_calculator">Calculator in this profile: </string>
+    <string name="toggle_chrome">Chrome in this profile:</string>
+    <string name="set_chrome_restrictions">Set Chrome restrictions</string>
+    <string name="clear_chrome_restrictions">Clear Chrome restrictions</string>
+    <string name="icon">Icon</string>
+    <string name="profile_name">Sample Managed Profile</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="restrictions_set">Restrictions set.</string>
+    <string name="activity_not_found">No app can handle this intent.</string>
+    <string name="cleared">Cleared.</string>
+    <string name="set_up_managed_profile">Set up managed profile</string>
+    <string name="preferential_network_service">Preferential Network Service</string>
+    <string name="iperf_streams">-P / Parallel streams</string>
+    <string name="settings">Settings</string>
+    <string name="influxdb">InfluxDB</string>
+    <string name="special_codes">Special Codes</string>
+    <string name="logging_interval">Interval</string>
+    <string name="log_signal_data">Log signal data</string>
+    <string name="enable_local_file_summary">Log to a local file</string>
+    <string name="enable_local_file_log">Log file</string>
+    <string name="upload">upload</string>
+    <string name="subscriptions">Subscriptions</string>
+    <string name="action_ping">Ping</string>
+    <string name="ping_run_continuously">run continuously</string>
+    <string name="dialog_no_location">Location is disabled, enable it or use fake location</string>
+    <string name="dialog_no_location_enable">Enable Location</string>
+    <string name="dialog_no_location_fake">Use fake location</string>
+    <string name="dialog_no_location_title">Location Disabled</string>
+    <string name="radio_settings">Radio Settings</string>
+    <string name="select_plmn">Set PLMN</string>
+    <string name="access_networktype">Select Access Network Type</string>
+    <string name="persist_boot">Persist until reboot</string>
+    <string name="carrier_settings">Carrier Settings</string>
+    <string name="apply_carrier_settings">Apply carrier settings</string>
+    <string name="current_carrier_settings_text">Current Carrier Settings of the main subcription</string>
+    <string name="ping">Ping</string>
+    <string name="ping_command">-w 5 8.8.8.8</string>
+    <string name="read_carrier_settings">Read Carrier Settings</string>
+    <string name="press_the_read_button">Press the read button</string>
+    <string name="exit">Exit\n</string>>
+
+    <!-- -->
+
+</resources>

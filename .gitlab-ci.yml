@@ -1,0 +1,122 @@
+image: dockerhub.fokus.fraunhofer.de:5000/ngni/gitlab-ci-android/builder:22.04
+
+
+#variables:
+
+  # ANDROID_COMPILE_SDK is the version of Android you're compiling with.
+  # It should match compileSdkVersion.
+  #ANDROID_COMPILE_SDK: "32"
+
+  # ANDROID_BUILD_TOOLS is the version of the Android build tools you are using.
+  # It should match buildToolsVersion.
+  #ANDROID_BUILD_TOOLS: "32.1.0-rc1"
+
+  # It's what version of the command line tools we're going to download from the official site.
+  # Official Site-> https://developer.android.com/studio/index.html
+  # There, look down below at the cli tools only, sdk tools package is of format:
+  #        commandlinetools-os_type-ANDROID_SDK_TOOLS_latest.zip
+  # when the script was last modified for latest compileSdkVersion, it was which is written down below
+  #ANDROID_SDK_TOOLS: "8092744"
+
+# Packages installation before running script
+#before_script:
+#  - apt-get --quiet update --yes
+#  - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+#
+#  # Setup path as android_home for moving/exporting the downloaded sdk into it
+#  - export ANDROID_HOME="${PWD}/android-home"
+#  # Create a new directory at specified location
+#  - install -d $ANDROID_HOME
+#  # Here we are installing androidSDK tools from official source,
+#  # (the key thing here is the url from where you are downloading these sdk tool for command line, so please do note this url pattern there and here as well)
+#  # after that unzipping those tools and
+#  # then running a series of SDK manager commands to install necessary android SDK packages that'll allow the app to build
+#  - wget --output-document=$ANDROID_HOME/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
+#  # move to the archive at ANDROID_HOME
+#  - pushd $ANDROID_HOME
+#  - unzip -d cmdline-tools cmdline-tools.zip
+#  - popd
+#  - export PATH=$PATH:${ANDROID_HOME}/cmdline-tools/cmdline-tools/bin/
+#
+#  # Nothing fancy here, just checking sdkManager version
+#  - sdkmanager --version
+#
+#  # use yes to accept all licenses
+#  - yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses || true
+#  - sdkmanager --sdk_root=${ANDROID_HOME} "platforms;android-${ANDROID_COMPILE_SDK}"
+#  - sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools"
+#  - sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;${ANDROID_BUILD_TOOLS}"
+#
+#  # Not necessary, but just for surity
+#  - chmod +x ./gradlew
+
+stages: 
+  - build
+  - test
+  - release
+
+# Basic android and gradle stuff
+# Check linting
+lintDebug:
+  interruptible: true
+  stage: build
+  script:
+    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+
+getIperf3:
+  variables: 
+    iperf3_version: "3.12"
+    iperf3_source: "iperf-${iperf3_version}"
+    iperf3_excutable: "libiperf${iperf3_version}"
+    PACKAGENAME: "iperf${iperf3_version}."
+    iperfProjID: "8919"
+    VERSION: "0.0.1"
+  stage: build
+  script: 
+    - mkdir -p app/src/main/jniLibs/arm64-v8a
+    - mkdir -p app/src/main/jniLibs/armeabi-v7a
+    - mkdir -p app/src/main/jniLibs/x86
+    - mkdir -p app/src/main/jniLibs/x86_64
+    - 'curl --silent --fail --header "PRIVATE-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}arm64-v8a/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/arm64-v8a/${iperf3_excutable}.so'
+    - 'curl --silent --fail --header "PRIVATE-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}armeabi-v7a/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/armeabi-v7a/${iperf3_excutable}.so'
+    - 'curl --silent --fail --header "PRIVATE-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}x86/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/x86/${iperf3_excutable}.so'
+    - 'curl --silent --fail --header "PRIVATE-TOKEN: $CI_PULL_PACKAGES" "${CI_API_V4_URL}/projects/${iperfProjID}/packages/generic/${PACKAGENAME}x86_64/${VERSION}/${iperf3_excutable}.so" --output app/src/main/jniLibs/x86_64/${iperf3_excutable}.so'
+  artifacts:
+    paths:
+      - app/src/main/jniLibs/
+
+# Make Project
+assembleDebug:
+  interruptible: true
+  stage: build
+  script:
+    - echo $KEYSTORE | base64 -d > '/builds/ngni/openmobilenetworktoolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks'
+    - ./gradlew assembleDebug
+  artifacts:
+    paths:
+      - app/build/outputs/
+
+# Run all tests, if any fails, interrupt the pipeline(fail it)
+debugTests:
+  interruptible: true
+  stage: test
+  script:
+    - ./gradlew -Pci --console=plain :app:testDebug
+
+assembleRelease:
+  variables:
+    VERSION: "0.1"
+    PACKAGENAME: "OpenMobileNetworkToolkit.${CI_COMMIT_REF_SLUG}"
+  stage: release
+  script:
+  - echo $KEYSTORE | base64 -d > my.keystore
+  - ./gradlew assembleRelease
+    -Pandroid.injected.signing.store.file=$(pwd)/my.keystore
+    -Pandroid.injected.signing.store.password=$KEYSTORE_PW
+    -Pandroid.injected.signing.key.alias=$KEY_ALIAS
+    -Pandroid.injected.signing.key.password=$KEY_PW
+  - 'curl --silent --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file app/build/outputs/apk/release/app-release.apk "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${PACKAGENAME}/${VERSION}/OpenMobileNetworkToolkit.apk"'
+  artifacts:
+    paths:
+    - app/build/outputs/apk/release
+    - CHANGELOG

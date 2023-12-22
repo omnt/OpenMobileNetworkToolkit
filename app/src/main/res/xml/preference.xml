@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~
+  ~  SPDX-License-Identifier: BSD-3-Clause-Clear
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment">
+    <Preference
+        android:icon="@drawable/ic_baseline_code_24"
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"
+        app:key="log_settings"
+        app:title="Logging" />
+    <Preference
+        android:icon="@drawable/baseline_cell_tower_24"
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment"
+        app:key="mobile_network_settings"
+        app:title="Mobile Network" />
+    <ListPreference
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:defaultValue="0"
+        android:title="Set subscription (SIM)"
+        app:dialogIcon="@drawable/sim_card"
+        app:dialogTitle="Subscription to be used by OMNT"
+        app:icon="@drawable/sim_card"
+        app:key="select_subscription" />
+    <Preference
+        android:icon="@drawable/baseline_restart_alt_24"
+        app:key="reset_modem"
+        app:title="Reboot Modem" />
+</PreferenceScreen>
