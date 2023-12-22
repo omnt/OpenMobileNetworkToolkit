@@ -15,8 +15,6 @@ android {
     signingConfigs {
         debug {
             storeFile file('OpenMobileNetworkToolkit-key.jks')
-            storePassword 'phoenix2020'
-            keyPassword 'phoenix2020'
             keyAlias 'key0'
         }
     }
@@ -27,7 +25,7 @@ android {
         minSdk 31
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
