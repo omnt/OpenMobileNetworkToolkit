@@ -138,21 +138,17 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 // todo use same popup as in main activity
             }
         } else {
-            Log.d(TAG, "DataProvider: No Location Permissions");
+            Log.d(TAG, "No Location Permissions");
             // todo we need to handle this in more details as we can't run without it
         }
 
         locationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
+            public void onLocationResult(@NonNull LocationResult locationResult) {
                 onLocationChanged(locationResult.getLocations().get(0));
             }
         };
         startLocationUpdates();
-
         // initialize internal state
         refreshAll();
     }
