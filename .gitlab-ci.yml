@@ -91,7 +91,10 @@ assembleDebug:
   stage: build
   script:
     - echo $KEYSTORE | base64 -d > '/builds/ngni/openmobilenetworktoolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks'
+    - export StorePW = $KEYSTORE_PW
+    - export KeyPW = $KEY_PW
     - ./gradlew assembleDebug
+    - ./gradlew assembleRelease
   artifacts:
     paths:
       - app/build/outputs/
