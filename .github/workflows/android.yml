@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: set up JDK 21
@@ -22,5 +20,10 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+    - name: Unpack keystore
+    - run: echo $KEYSTORE | base64 -d > '/home/runner/work/OpenMobileNetworkToolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks'
+    - run: export StorePW=$KEYSTORE_PW
+    - run: export KeyPW=$KEY_PW
     - name: Build with Gradle
-      run: ./gradlew build
+      run:  ./gradlew assembleRelease
+
