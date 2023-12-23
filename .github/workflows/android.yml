@@ -20,12 +20,16 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
     - name: Unpack keystore
-    - run: echo $KEYSTORE | base64 -d > '/home/runner/work/OpenMobileNetworkToolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks'
+      run: echo $KEYSTORE | base64 -d > '/home/runner/work/OpenMobileNetworkToolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks'
+    
     - name: Export keystorepw
       run: export StorePW=$KEYSTORE_PW
+    
     - name: Export keypw
       run: export KeyPW=$KEY_PW
+    
     - name: Build with Gradle
       run:  ./gradlew assembleRelease
 
