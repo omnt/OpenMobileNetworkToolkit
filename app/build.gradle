@@ -15,14 +15,14 @@ android {
     signingConfigs {
         debug {
             storeFile file('OpenMobileNetworkToolkit-key.jks')
-            storePassword $System.env.StorePW
-            keyPassword $System.env.KeyPW
+            storePassword System.getenv('StorePW')
+            keyPassword System.getenv('KeyPW')
             keyAlias 'key0'
         }
         release {
             storeFile file('OpenMobileNetworkToolkit-key.jks')
-            storePassword $System.env.StorePW
-            keyPassword $System.env.KeyPW
+            storePassword System.getenv('StorePW')
+            keyPassword System.getenv('KeyPW')
             keyAlias 'key0'
         }
     }
