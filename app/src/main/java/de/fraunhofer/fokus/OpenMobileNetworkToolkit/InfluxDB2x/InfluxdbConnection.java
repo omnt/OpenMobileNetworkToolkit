@@ -20,6 +20,7 @@ import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.WriteOptions;
 import com.influxdb.client.domain.OnboardingRequest;
+import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
 import java.io.IOException;
@@ -52,6 +53,7 @@ public class InfluxdbConnection {
     }
 
     public void open_write_api() {
+        if(writeApi != null) return;
         try {
             influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
             writeApi = influxDBClient.makeWriteApi(WriteOptions.builder()
@@ -113,6 +115,37 @@ public class InfluxdbConnection {
             Log.d(TAG, "writePoint: InfluxDB not reachable");
             return false;
         }
+    }
+
+    public boolean writeRecords(List<String> points) throws IOException {
+        // only add the point if the database is reachable
+        //InetAddress.getByName(url.split(":")[0]).isReachable(1);
+        //if (influxDBClient != null && influxDBClient.ping()) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (influxDBClient != null && InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(1000)) {
+                        try {
+                            writeApi.writeRecords(WritePrecision.MS, points);
+                        } catch (com.influxdb.exceptions.InfluxException e) {
+                            Log.d(TAG, "writePoint: Error while writing points to influx DB");
+                            e.printStackTrace();
+                            //return false;
+                        }
+                        //return true;
+                    } else {
+                        Log.d(TAG, "writePoints: InfluxDB not reachable: " + url.split(":")[1].replace("//",""));
+                        //return false;
+                    }
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }).start();
+        return true;
     }
 
     public boolean writePoints(List<Point> points) throws IOException {
@@ -186,6 +219,10 @@ public class InfluxdbConnection {
             }
         }).start();
         return true;
+    }
+
+    public WriteApi getWriteApi() {
+        return writeApi;
     }
 
     public boolean ping() {
