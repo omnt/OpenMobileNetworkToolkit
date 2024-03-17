@@ -8,73 +8,19 @@
 
 <androidx.cardview.widget.CardView
     android:layout_width="fill_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardBackgroundColor="@color/cardview_dark_background"
-    android:id="@+id/cardviewholder">
-    <RelativeLayout
-        android:orientation="vertical"
+    android:id="@+id/cardviewholder"
+    android:layout_margin="5dp"
+    android:translationZ="1dp">
+    <LinearLayout
+        android:id="@+id/iperf3_main_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
-        <TextView
-            android:id="@+id/firstLine"
-            android:layout_width="288dp"
-            android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="3dp"
-            android:layout_marginEnd="117dp"
-            android:gravity="center_vertical"
-            android:text="Example application"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/secondLine"
-            android:layout_width="205dp"
-            android:layout_height="25dp"
-            android:layout_below="@+id/firstLine"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="11dp"
-            android:layout_marginBottom="0dp"
-            android:ellipsize="marquee"
-            android:maxLines="1"
-            android:text="Description"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/thirdLine"
-            android:layout_width="200dp"
-            android:layout_height="39dp"
-            android:layout_below="@id/firstLine"
-            android:ellipsize="marquee"
-            android:maxLines="1"
-            android:text="Timestamp" />
-
-        <TextView
-            android:id="@+id/iperf3State"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_alignRight="@id/firstLine"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="152dp"
-            android:layout_marginRight="32dp"
-            android:ellipsize="marquee"
-            android:maxLines="1"
-            android:text="State" />
-
-
-        <ImageView
-            android:id="@+id/iperf3RunningIndicator"
-            android:layout_width="118dp"
-            android:layout_height="34dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="2dp"
-            android:contentDescription="@string/runningIndicator"
-            android:src="@drawable/ic_error_outline" />
-
-    </RelativeLayout>
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:orientation="vertical" >
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
