@@ -472,6 +472,7 @@ public class HomeFragment extends Fragment {
             if (Objects.equals(ci.getCellType(), "NR")) {
                 tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(ci.getCsirsrp())));
                 tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(ci.getCsirsrq())));
+                tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(ci.getCsisinr())));
                 tl.addView(rowBuilder(GlobalVars.SSRSRP, String.valueOf(ci.getSsrsrp())));
                 tl.addView(rowBuilder(GlobalVars.SSRSRQ, String.valueOf(ci.getSsrsrq())));
                 tl.addView(rowBuilder(GlobalVars.SSSINR, String.valueOf(ci.getSssinr())));
