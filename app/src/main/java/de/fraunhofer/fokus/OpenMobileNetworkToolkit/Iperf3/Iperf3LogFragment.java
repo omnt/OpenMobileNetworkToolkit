@@ -163,7 +163,7 @@ public class Iperf3LogFragment extends Fragment {
         uploadIconView.setLayoutParams(uploadIconViewLayout);
 
 
-        parameterLL = iperf3RunResult.input.getInputAsLinearLayout(ct);
+        parameterLL = iperf3RunResult.input.getInputAsLinearLayoutKeyValue(new LinearLayout(ct), ct);
 
 
 
@@ -246,8 +246,8 @@ public class Iperf3LogFragment extends Fragment {
         iperf3OutputViewer = new TextView(ct);
         iperf3OutputViewer.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(iperf3OutputViewer,
-            1, 100, 1,
-            TypedValue.COMPLEX_UNIT_DIP);
+            1, 10, 1,
+            TypedValue.COMPLEX_UNIT_SP);
         iperf3OutputViewer.setTextIsSelectable(true);
         scrollView.addView(iperf3OutputViewer);
         secondRow.addView(scrollView);
