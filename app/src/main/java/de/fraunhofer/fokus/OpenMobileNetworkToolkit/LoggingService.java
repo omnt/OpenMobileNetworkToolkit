@@ -566,7 +566,8 @@ public class LoggingService extends Service {
 
         pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
         pingLogging.post(pingUpdate);
-    }    private final Runnable pingUpdate = new Runnable() {
+    }
+    private final Runnable pingUpdate = new Runnable() {
         @Override
         public void run() {
 
@@ -581,7 +582,6 @@ public class LoggingService extends Service {
 
             wm.beginWith(pingWR).enqueue();
             Observer observer = new Observer() {
-                @RequiresApi(api = Build.VERSION_CODES.S)
                 @Override
                 public void onChanged(Object o) {
                     WorkInfo workInfo = (WorkInfo) o;

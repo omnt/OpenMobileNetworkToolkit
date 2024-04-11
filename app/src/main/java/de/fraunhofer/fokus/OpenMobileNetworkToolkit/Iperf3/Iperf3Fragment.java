@@ -56,14 +56,13 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import org.w3c.dom.Text;
 
 public class Iperf3Fragment extends Fragment {
     private static final String TAG = "iperf3InputFragment";
@@ -701,9 +700,7 @@ public class Iperf3Fragment extends Fragment {
         public boolean iperf3BiDir;
         public boolean iperf3Reverse;
         public boolean iperf3Json;
-
         public boolean iperf3OneOff;
-
         public int iperf3IdxMode;
         public int iperf3IdxProtocol;
         public String uuid;
@@ -714,7 +711,6 @@ public class Iperf3Fragment extends Fragment {
         public String iperf3IP;
         public String iperf3Port;
         public String iperf3Bandwidth;
-
         public String iperf3LineProtocolFile;
         public String iperf3Duration;
         public String iperf3Interval;
@@ -723,7 +719,11 @@ public class Iperf3Fragment extends Fragment {
         public String streams;
         public String iperf3Cport;
         private List<Field> getFields(){
-            return Arrays.asList(Iperf3Input.class.getDeclaredFields());
+            List<Field> fields = Arrays.asList(Iperf3Input.class.getDeclaredFields());
+            fields.sort((o1, o2) -> {
+                return o1.toGenericString().compareTo(o2.toGenericString());
+            });
+            return fields;
         }
         private LinearLayout getTextView(String name, String value, Context ct){
             LinearLayout mainLL = new LinearLayout(ct);
@@ -751,8 +751,28 @@ public class Iperf3Fragment extends Fragment {
             mainLL.addView(parameterValue);
             return mainLL;
         }
-        public LinearLayout getInputAsLinearLayout(Context ct){
+        private LinearLayout getTextViewValue(String key, String value, Context ct){
             LinearLayout mainLL = new LinearLayout(ct);
+            mainLL.setOrientation(LinearLayout.HORIZONTAL);
+            mainLL.setFocusable(false);
+            mainLL.setFocusedByDefault(false);
+
+            TextView parameterValue = new TextView(ct);
+
+            parameterValue.setTextIsSelectable(true);
+            parameterValue.setText(String.format("%s", value));
+            LinearLayout.LayoutParams parameterLayoutValue = new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+            parameterValue.setPadding(5, 5, 5, 5);
+            parameterLayoutValue.setMargins(0, 0, 10, 10);
+            parameterLayoutValue.weight = 1F;
+            parameterValue.setLayoutParams(parameterLayoutValue);
+
+            mainLL.addView(parameterValue);
+            return mainLL;
+        }
+        public LinearLayout getInputAsLinearLayoutKeyValue(LinearLayout mainLL, Context ct){
             mainLL.setOrientation(LinearLayout.VERTICAL);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 0,
@@ -777,6 +797,9 @@ public class Iperf3Fragment extends Fragment {
                         || parameterName.equals("LineProtocolFile")) continue;
 
                     String parameterValue = parameter.get(this).toString();
+                    if(parameterValue.equals("false")){
+                        continue;
+                    }
                     if(parameterName.equals("IdxProtocol")){
                         parameterName = "Protocol";
                         parameterValue = protocol[Integer.parseInt(parameterValue)];
@@ -787,6 +810,62 @@ public class Iperf3Fragment extends Fragment {
                         parameterValue = mode[Integer.parseInt(parameterValue)];
                     }
                     mainLL.addView(getTextView(
+                        parameterName,
+                        parameterValue,
+                        ct));
+
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return mainLL;
+        }
+
+        public LinearLayout getInputAsLinearLayoutValue(LinearLayout mainLL, Context ct){
+            mainLL.setOrientation(LinearLayout.HORIZONTAL);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.weight = 10F;
+            mainLL.setLayoutParams(layoutParams);
+            String[] protocol =
+                ct.getResources().getStringArray(R.array.iperf_protocol);
+            String[] mode = ct.getResources().getStringArray(R.array.iperf_mode);
+            for(Field parameter: getFields()){
+                try {
+                    Object parameterValueObj = parameter.get(this);
+                    if(parameterValueObj == null){
+                        continue;
+                    }
+
+                    String parameterName = parameter.getName().replace("iperf3", "");
+                    if(parameterName.equals("measurementName")
+                        || parameterName.equals("rawIperf3file")
+                        || parameterName.equals("LogFileName")
+                        || parameterName.equals("Command")
+                        || parameterName.equals("LineProtocolFile")
+                        || parameterName.equals("timestamp")
+                        || parameterName.equals("uuid")) continue;
+
+                    String parameterValue = parameter.get(this).toString();
+                    if(parameterValue.equals("false")){
+                        continue;
+                    }
+                    if(parameterName.equals("IdxProtocol")){
+                        parameterName = "Protocol";
+                        parameterValue = protocol[Integer.parseInt(parameterValue)];
+                    }
+
+                    if(parameterName.equals("IdxMode")){
+                        parameterName = "Mode";
+                        parameterValue = mode[Integer.parseInt(parameterValue)];
+                    }
+
+                    if(parameterValue.equals("true")){
+                        parameterValue = parameterName;
+                    }
+
+                    mainLL.addView(getTextViewValue(
                         parameterName,
                         parameterValue,
                         ct));

@@ -19,9 +19,11 @@ import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.room.util.StringUtil;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkManager;
@@ -29,6 +31,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import java.util.Locale;
 
 public class Iperf3Worker extends Worker {
     private static final String TAG = "iperf3Worker";
@@ -42,6 +45,11 @@ public class Iperf3Worker extends Worker {
     private final String measurementName;
     private final String timestamp;
     private final int notificationID;
+    private final String client;
+    private final String protocol;
+    private String serverPort;
+    private final String ip;
+    private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
 
     public Iperf3Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -49,7 +57,12 @@ public class Iperf3Worker extends Worker {
         measurementName = getInputData().getString("measurementName");
         iperf3WorkerID = getInputData().getString("iperf3WorkerID");
         timestamp = getInputData().getString("timestamp");
-        notificationID = getInputData().getInt("notificationID", 100);
+        notificationID = 100;
+        client = getInputData().getString("client");
+        ip = getInputData().getString("ip");
+        serverPort = getInputData().getString("port");
+        protocol = getInputData().getString("protocol");
+
     }
 
     private native int iperf3Wrapper(String[] argv, String cache);
@@ -62,16 +75,16 @@ public class Iperf3Worker extends Worker {
         String id = "OMNT_notification_channel";
         PendingIntent intent = WorkManager.getInstance(context)
             .createCancelPendingIntent(getId());
-
         Notification notification = new NotificationCompat.Builder(context, id)
-            .setContentTitle(progress)
+            .setContentTitle("iPerf3 "+ client.substring(0, 1).toUpperCase() + client.substring(1).toLowerCase())
+            .setContentText(progress)
             .setOngoing(true)
             .setColor(Color.WHITE)
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_DEFAULT)
             .addAction(R.drawable.ic_close, "Cancel", intent)
             .build();
-        return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE);
     }
 
     @Override
@@ -83,7 +96,12 @@ public class Iperf3Worker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        String progress = "Running " + measurementName + " test " + timestamp;
+        if (serverPort == null) serverPort = "5201";
+        String progress = String.format("Connected to %s:%s with %s", ip, serverPort, protocol);
+        if (client.equals("server")) {
+            progress = String.format("Running on %s:%s", ip, serverPort);
+        }
+
         setForegroundAsync(createForegroundInfo(progress));
 
         int result =
