@@ -103,7 +103,6 @@ public class Iperf3RecyclerViewAdapter
 
                 }
                 uploadBtn.setVisibility(View.INVISIBLE);
-
                 iperf3WM.beginWith(uploads).enqueue();
 
             }
@@ -119,6 +118,8 @@ public class Iperf3RecyclerViewAdapter
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         CardView v = (CardView) inflater.inflate(R.layout.fragment_iperf3_row_item, parent, false);
+        v.setFocusable(false);
+        v.setClickable(false);
         ViewHolder viewHolder = new ViewHolder(v);
         selectedCardViews.put(v, false);
         return viewHolder;
@@ -131,6 +132,7 @@ public class Iperf3RecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        holder.iPerf3Parameters.removeAllViews();
         Iperf3RunResult test = getItemByPosition(position);
         holder.itemView.setTag(uids.get(position));
         if (selectedRuns.containsKey(test.uid)) {
@@ -145,12 +147,12 @@ public class Iperf3RecyclerViewAdapter
                     ContextCompat.getColor(context, R.color.ic_launcher_background));
 
         }
-        holder.command.setText("iPerf3");
+        holder.measurement.setText("iPerf3");
         holder.timestamp.setText(test.input.timestamp.toString());
 
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
-
+        holder.iPerf3Parameters = test.input.getInputAsLinearLayoutValue(holder.iPerf3Parameters, context);
     }
     private Iperf3RunResult getItemByPosition(int position) {
         return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));
@@ -162,26 +164,28 @@ public class Iperf3RecyclerViewAdapter
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView command;
+        public TextView measurement;
         public TextView timestamp;
         public TextView iperf3State;
         public ImageView runIcon;
         public ImageView uploadIcon;
         private LinearLayout linearLayout;
+        private LinearLayout iPerf3Parameters;
+
         private LinearLayout firstRow(LinearLayout ll){
-            command.setLayoutParams(
+            measurement.setLayoutParams(
                 Iperf3Utils.getLayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 8F));
 
 
             runIcon.setLayoutParams(
-                Iperf3Utils.getLayoutParams(0, 50, 1F));
+                Iperf3Utils.getLayoutParams(0, 80, 1F));
 
             uploadIcon.setLayoutParams(
-                Iperf3Utils.getLayoutParams(0, 50, 1F));
+                Iperf3Utils.getLayoutParams(0, 80, 1F));
 
 
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.addView(command);
+            ll.addView(measurement);
             ll.addView(runIcon);
             ll.addView(uploadIcon);
             return ll;
@@ -193,20 +197,30 @@ public class Iperf3RecyclerViewAdapter
             ll.addView(timestamp);
             return ll;
         }
+        private LinearLayout thirdRow(LinearLayout ll){
+            ll.setOrientation(LinearLayout.HORIZONTAL);
+            ll.addView(iPerf3Parameters);
+            iPerf3Parameters.setLayoutParams(
+                Iperf3Utils.getLayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.1F));
+            return ll;
+        }
         public ViewHolder(View itemView) {
             super(itemView);
             Log.d(TAG, "ViewHolder: " + itemView);
-            command = new TextView(context);
+            measurement = new TextView(context);
             timestamp = new TextView(context);
             iperf3State = new TextView(context);
             runIcon = new ImageView(context);
+            runIcon.setPadding(0, 10, 0, 0);
             uploadIcon = new ImageView(context);
+            uploadIcon.setPadding(0, 10, 0, 0);
             timestamp = new TextView(context);
+            iPerf3Parameters = new LinearLayout(context);
             linearLayout = itemView.findViewById(R.id.iperf3_main_layout);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
             linearLayout.addView(firstRow(new LinearLayout(context)));
             linearLayout.addView(secondRow(new LinearLayout(context)));
-
+            linearLayout.addView(thirdRow(new LinearLayout(context)));
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -233,6 +247,9 @@ public class Iperf3RecyclerViewAdapter
                     int viewPosition = getLayoutPosition();
                     String uid = uids.get(viewPosition);
                     if (!selectedRuns.isEmpty() && selectedRuns.containsKey(uid)) {
+                        if (selectedRuns.size() == 1 && selectedRuns.containsKey(uid)) {
+                            uploadBtn.setVisibility(View.INVISIBLE);
+                        }
                         selectedRuns.remove(uid);
                         notifyItemChanged(viewPosition);
                         return;
