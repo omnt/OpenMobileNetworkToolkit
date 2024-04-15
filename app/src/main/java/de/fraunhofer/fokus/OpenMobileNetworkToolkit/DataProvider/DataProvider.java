@@ -47,7 +47,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -341,7 +340,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 cim.setLevel(ssLTE.getLevel());
                 cim.setCqi(ssLTE.getCqi());
                 cim.setRsrp(ssLTE.getRsrp());
-                cim.setRsrp(ssLTE.getRsrq());
+                cim.setRsrq(ssLTE.getRsrq());
                 cim.setRssi(ssLTE.getRssi());
                 cim.setRssnr(ssLTE.getRssnr());
                 cim.setAsuLevel(ssLTE.getAsuLevel());
