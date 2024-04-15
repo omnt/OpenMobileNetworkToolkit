@@ -10,6 +10,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,7 +34,11 @@ public class InfluxdbConnections {
             String token = sp.getString("influx_token", "");
             if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
                 Log.e(TAG, "Influx parameters incomplete, can't setup logging");
-                Toast.makeText(context, "Influx Parameter not correctly set!", Toast.LENGTH_LONG).show();
+                // if we are an UI thread we make a toast, if not logging have to be enough
+                if (Looper.getMainLooper().isCurrentThread()) {
+                    Toast.makeText(context, "Influx Parameter not correctly set!", Toast.LENGTH_LONG).show();// On UI thread.
+                }
+
                 return null;
             }
 
