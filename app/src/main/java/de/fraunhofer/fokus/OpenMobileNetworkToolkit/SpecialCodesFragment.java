@@ -48,8 +48,10 @@ public class SpecialCodesFragment extends Fragment {
         nokia_enable_sa.setOnClickListener(this::buttonHandler);
         Button samsung_ims = v.findViewById(R.id.bt_samsung_ims);
         samsung_ims.setOnClickListener(this::buttonHandler);
-        Button huawei_projects = v.findViewById(R.id.bt_huawei_project);
+        Button huawei_projects = v.findViewById(R.id.bt_huawei_projects);
         huawei_projects.setOnClickListener(this::buttonHandler);
+        Button xiaomi = v.findViewById(R.id.bt_xiaomi);
+        xiaomi.setOnClickListener(this::buttonHandler);
         Button custom_special_code = v.findViewById(R.id.bt_custom_special_code);
         custom_special_code.setOnClickListener(this::buttonHandler);
         special_code = v.findViewById(R.id.tv_special_code);
@@ -104,9 +106,11 @@ public class SpecialCodesFragment extends Fragment {
                     case R.id.bt_samsung_ims:
                         tm.sendDialerSpecialCode("467");
                         break;
-                    case R.id.bt_huawei_project:
+                    case R.id.bt_huawei_projects:
                         tm.sendDialerSpecialCode("2846579");
                         break;
+                    case R.id.bt_xiaomi:
+                        tm.sendDialerSpecialCode("726633");
                     case R.id.bt_custom_special_code:
                         tm.sendDialerSpecialCode(special_code.getText().toString());
                 }

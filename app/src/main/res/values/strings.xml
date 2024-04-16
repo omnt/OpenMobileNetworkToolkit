@@ -157,7 +157,8 @@
     <string name="read_carrier_settings">Read Carrier Settings</string>
     <string name="press_the_read_button">Press the read button</string>
     <string name="exit">Exit\n</string>
-    <string name="iperf3_cport">--cport</string>>
+    <string name="iperf3_cport">--cport</string>
+    <string name="action_xiaomi">xiaomi</string>>
 
     <!-- -->
 
