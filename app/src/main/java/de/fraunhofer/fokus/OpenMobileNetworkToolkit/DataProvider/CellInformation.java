@@ -44,6 +44,8 @@ public class CellInformation {
     private int asuLevel;
     private String mcc;
     private int arfcn;
+    private int lac;
+    private int timingAdvance;
 
     public CellInformation() {
     }
@@ -277,4 +279,21 @@ public class CellInformation {
     public void setRssnr(int rssnr) {
         this.rssnr = rssnr;
     }
+
+    public void setLac(int lac) {
+        this.lac = lac;
+    }
+
+    public int getLac() {
+        return lac;
+    }
+
+    public void setTimingAdvance(int timingAdvance) {
+        this.timingAdvance = timingAdvance;
+    }
+
+    public int getTimingAdvance() {
+        return this.timingAdvance;
+    }
+
 }
