@@ -7,6 +7,7 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 
+
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment">
@@ -25,12 +26,20 @@
                     android:key="persist_boot"
                     android:title="@string/persist_boot"
                     app:iconSpaceReserved="false" />
+
+
         </PreferenceCategory>
         <PreferenceCategory
             android:title="@string/carrier_settings"
             app:allowDividerBelow="false"
             app:iconSpaceReserved="false"
-            app:isPreferenceVisible="true">
+            app:isPreferenceVisible="true"
+            app:singleLineTitle="false"
+            app:summary="@string/carrier_settings_summary">
+                <Preference
+                    app:icon="@drawable/baseline_done_24"
+                    app:key="apply_cs_settings"
+                    app:title="@string/apply_carrier_settings" />
                 <PreferenceCategory
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
