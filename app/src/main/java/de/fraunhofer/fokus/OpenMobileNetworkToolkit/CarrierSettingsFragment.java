@@ -59,13 +59,6 @@ public class CarrierSettingsFragment extends Fragment {
         context = requireContext();
         super.onViewCreated(view, savedInstanceState);
 
-        Button btn_apply = requireView().findViewById(R.id.button_apply_carrier_settings);
-        if (gv.isCarrier_permissions()) {
-            btn_apply.setOnClickListener(this::apply_settings);
-        } else {
-            btn_apply.setEnabled(false);
-        }
-
         Button btn_read = requireView().findViewById(R.id.button_read_carrier_settings);
         btn_read.setOnClickListener(this::read_settings);
 
