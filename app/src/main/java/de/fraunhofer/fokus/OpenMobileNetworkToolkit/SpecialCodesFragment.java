@@ -63,6 +63,7 @@ public class SpecialCodesFragment extends Fragment {
             samsung_ims.setEnabled(false);
             huawei_projects.setEnabled(false);
             custom_special_code.setEnabled(false);
+            xiaomi.setEnabled(false);
             TextView tv = v.findViewById(R.id.special_code_warning);
             tv.setText(
                 "Carrier Permissions needed to dial special codes, try to dial code in system dialer");
