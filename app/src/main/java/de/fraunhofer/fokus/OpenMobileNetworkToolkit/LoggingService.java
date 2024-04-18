@@ -226,7 +226,7 @@ public class LoggingService extends Service {
         if (feature_telephony) {
             //tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             tm = GlobalVars.getInstance().getTm();
-            cp = tm.hasCarrierPrivileges();
+            cp = gv.isCarrier_permissions();
         }
         wm = WorkManager.getInstance(context);
         if(intent != null) {
