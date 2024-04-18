@@ -30,6 +30,7 @@ import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CellInfo;
 import android.telephony.PhoneStateListener;
+import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -88,19 +89,36 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         gv.setFeature_telephony(feature_telephony);
         if (feature_telephony) {
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                String sub = sp.getString("select_subscription", "0");
-                tm = tm.createForSubscriptionId(Integer.parseInt(sub));
-            }
             gv.setTm(tm);
+            dp = new DataProvider(this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // make sure the subscription in the app settings exists in the current subscription list.
+                // if it is not in the subscription list change it to the first one of the current list
+                boolean valid_subscription = false;
+                String pref_subscription_str = sp.getString("select_subscription","99999");
+                //int pref_subscription = sp.getInt("select_subscription",9999999);
+                for (SubscriptionInfo info : dp.getSubscriptions()) {
+                    if (Integer.parseInt(pref_subscription_str) == info.getSubscriptionId()) {
+                        valid_subscription = true;
+                        Log.d(TAG, "pref sub: " + pref_subscription_str);
+                    }
+                }
+                if (!valid_subscription) {
+                    sp.edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
+                }
+                // switch the telephony manager to a new one according to the app settings
+                tm = tm.createForSubscriptionId(Integer.parseInt(sp.getString("select_subscription", "0")));
+            }
+
             gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
             cp = HasCarrierPermissions();
             gv.setCarrier_permissions(cp);
             if (cp) {
                 gv.setCcm((CarrierConfigManager) getSystemService(Context.CARRIER_CONFIG_SERVICE));
             }
+
+
         }
-        dp = new DataProvider(this);
         gv.set_dp(dp);
 
         setContentView(R.layout.activity_main);
