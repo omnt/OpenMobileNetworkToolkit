@@ -62,7 +62,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
             return false;
         };
         int networkTypeId = NetworkInformation.getAccessNetworkID(networkType);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (gv.isCarrier_permissions() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return tm.setNetworkSelectionModeManual(plmn, persist,
                 networkTypeId);
         }
