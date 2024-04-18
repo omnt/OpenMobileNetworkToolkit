@@ -47,7 +47,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
@@ -284,6 +283,11 @@ public class DataProvider extends PhoneStateListener implements LocationListener
 
 
     // ### Cell Information ###
+
+    /**
+     * Callback to receive current cell infomation
+     * @param list is the list of currently visible cells.
+     */
     @SuppressLint("ObsoleteSdkInt")
     @Override
     public void onCellInfoChanged(@NonNull List<CellInfo> list) {
@@ -321,6 +325,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 cim.setSsrsrq(ssNR.getSsRsrq());
                 cim.setSssinr(ssNR.getSsSinr());
                 cim.setAsuLevel(ssNR.getAsuLevel());
+                cim.setTimingAdvance(ssNR.getTimingAdvanceMicros());
             }
             if (ci instanceof CellInfoLte) {
                 CellInfoLte ciLTE = (CellInfoLte) ci;
@@ -341,10 +346,11 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 cim.setLevel(ssLTE.getLevel());
                 cim.setCqi(ssLTE.getCqi());
                 cim.setRsrp(ssLTE.getRsrp());
-                cim.setRsrp(ssLTE.getRsrq());
+                cim.setRsrq(ssLTE.getRsrq());
                 cim.setRssi(ssLTE.getRssi());
                 cim.setRssnr(ssLTE.getRssnr());
                 cim.setAsuLevel(ssLTE.getAsuLevel());
+                cim.setTimingAdvance(ssLTE.getTimingAdvance());
             }
             if (ci instanceof CellInfoCdma) {
                 cim.setCellType("CDMA");
@@ -357,6 +363,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 cim.setCi(ciGSMId.getCid());
                 cim.setMcc(ciGSMId.getMccString());
                 cim.setARFCN(ciGSMId.getArfcn());
+                cim.setLac(ciGSM.getCellIdentity().getLac());
                 CellSignalStrengthGsm ssGSM = ciGSM.getCellSignalStrength();
                 cim.setLevel(ssGSM.getLevel());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -364,7 +371,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 }
                 cim.setDbm(ssGSM.getDbm());
                 cim.setAsuLevel(ssGSM.getAsuLevel());
-                cim.setLevel(ssGSM.getLevel());
+                cim.setTimingAdvance(ssGSM.getTimingAdvance());
             }
             ciml.add(cim);
         }
@@ -376,6 +383,10 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         return ci;
     }
 
+    /**
+     * Fill an Influx point with the current CellInfomation data
+     * @return List of InfluxPoints
+     */
     @SuppressLint("ObsoleteSdkInt")
     public List<Point> getCellInformationPoint() {
         List<Point> points = new ArrayList<>();
@@ -411,7 +422,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 point.addField(GlobalVars.SSRSRP, ci_.getSsrsrp());
                 point.addField(GlobalVars.SSRSRQ, ci_.getSsrsrq());
                 point.addField(GlobalVars.SSSINR, ci_.getSssinr());
-                point.addField(GlobalVars.AsuLevel, ci_.getAsuLevel());
+                point.addField("TimingAdvance", ci_.getTimingAdvance());
             }
             if (Objects.equals(ci_.getCellType(), "LTE")) {
                 point.addField("CellType", "LTE");
@@ -421,11 +432,20 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 point.addField("Bandwidth", ci_.getBandwidth());
                 point.addField("CI", ci_.getCi());
                 point.addTag("CI", String.valueOf(ci_.getCi()));
-                point.addField("EARFCN", ci_.getARFCN());
+                point.addField("ARFCN", ci_.getARFCN());
                 point.addField("MNC", ci_.getMnc());
                 point.addField("MCC", ci_.getMcc());
                 point.addField("PCI", ci_.getPci());
                 point.addField("TAC", ci_.getTac());
+                point.addField("TAC", ci_.getTac());
+                point.addField("Level", ci_.getLevel());
+                point.addField("AsuLevel", ci_.getAsuLevel());
+                point.addField("Level", ci_.getLevel());
+                point.addField(GlobalVars.CQI, ci_.getCqi());
+                point.addField("RSRP", ci_.getRsrp());
+                point.addField("RSRQ", ci_.getRsrq());
+                point.addField("RSSI", ci_.getRssi());
+                point.addField("TimingAdvance", ci_.getTimingAdvance());
             }
             if (Objects.equals(ci_.getCellType(), "CDMA")) {
                 point.addField("CellType", "CDMA");
@@ -437,13 +457,23 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 point.addField("ARFCN", ci_.getARFCN());
                 point.addField("MNC", ci_.getMnc());
                 point.addField("MCC", ci_.getMcc());
+                point.addField("Level", ci_.getLevel());
+                point.addField("AsuLevel", ci_.getAsuLevel());
+                point.addField("Dbm", ci_.getDbm());
+                point.addField("RSSI", ci_.getRssi());
+                point.addField("LAC", ci_.getLac());
+                point.addField("TimingAdvance", ci_.getTimingAdvance());
             }
             points.add(point);
         }
         return points;
     }
 
-    // return a list of CellInfo. This list also contains not available cells
+
+    /**
+     * return a list of CellInfo. This list also contains not available cells
+     * @return CellInfo list
+     */
     public List<CellInfo> getAllCellInfo() {
         List<CellInfo> cellInfo;
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -455,7 +485,10 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         return cellInfo;
     }
 
-    // filter CellInfo objects for the registered cells
+    /**
+     * Filter CellInfo objects for the registered cells
+     * @return List of registered cells
+     */
     public List<CellInformation> getRegisteredCells() {
         List<CellInformation> rcil = new ArrayList<>();
         for (CellInformation ci_ : ci) {
@@ -791,13 +824,13 @@ public class DataProvider extends PhoneStateListener implements LocationListener
      */
     @SuppressLint("ObsoleteSdkInt")
     public List<SubscriptionInfo> getSubscriptions() {
-        List<SubscriptionInfo> subsciptions;
+        List<SubscriptionInfo> subscriptions;
         if (android.os.Build.VERSION.SDK_INT >= 30) {
-            subsciptions = sm.getCompleteActiveSubscriptionInfoList();
+            subscriptions = sm.getCompleteActiveSubscriptionInfoList();
         } else {
-            subsciptions = sm.getActiveSubscriptionInfoList();
+            subscriptions = sm.getActiveSubscriptionInfoList();
         }
-        return subsciptions;
+        return subscriptions;
     }
 
     /**

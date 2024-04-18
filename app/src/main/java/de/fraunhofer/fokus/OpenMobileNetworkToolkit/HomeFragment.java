@@ -454,13 +454,19 @@ public class HomeFragment extends Fragment {
             tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(ci.getDbm())));
             tl.addView(rowBuilder(GlobalVars.AsuLevel, String.valueOf(ci.getAsuLevel())));
             tl.addView(rowBuilder("Cell Connection Status", String.valueOf(ci.getCellConnectionStatus())));
+            tl.addView(rowBuilder("Timing Advance", String.valueOf(ci.getTimingAdvance())));
 
-            // Stuff not available in GSM
+            // Stuff only available in GSM
+            if (Objects.equals(ci.getCellType(), "GSM")) {
+                tl.addView(rowBuilder("LAC", String.valueOf(ci.getLac())));
+            }
+
+                // Stuff not available in GSM
             if (!Objects.equals(ci.getCellType(), "GSM")) {
                 tl.addView(rowBuilder("PCI", String.valueOf(ci.getPci())));
                 tl.addView(rowBuilder("TAC", String.valueOf(ci.getTac())));
-
             }
+
             // Stuff only available in LTE
             if (Objects.equals(ci.getCellType(), "LTE")) {
                 tl.addView(rowBuilder(GlobalVars.CQI, String.valueOf(ci.getCqi())));
@@ -472,6 +478,7 @@ public class HomeFragment extends Fragment {
             if (Objects.equals(ci.getCellType(), "NR")) {
                 tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(ci.getCsirsrp())));
                 tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(ci.getCsirsrq())));
+                tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(ci.getCsisinr())));
                 tl.addView(rowBuilder(GlobalVars.SSRSRP, String.valueOf(ci.getSsrsrp())));
                 tl.addView(rowBuilder(GlobalVars.SSRSRQ, String.valueOf(ci.getSsrsrq())));
                 tl.addView(rowBuilder(GlobalVars.SSSINR, String.valueOf(ci.getSssinr())));

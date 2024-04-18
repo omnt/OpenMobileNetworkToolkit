@@ -120,17 +120,36 @@
                 android:layout_height="match_parent">
 
                 <Button
-                    android:id="@+id/bt_huawei_project"
+                    android:id="@+id/bt_huawei_projects"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/action_huawei" />
 
                 <TextView
-                    android:id="@+id/tv_huawei_project"
+                    android:id="@+id/tv_huawei_projects"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
                     android:text="*#*#2846579#*#*" />
+
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/bt_xiaomi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_xiaomi" />
+
+                <TextView
+                    android:id="@+id/tv_xiaomi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:text="*#*#726633#*#*" />
 
             </TableRow>
 

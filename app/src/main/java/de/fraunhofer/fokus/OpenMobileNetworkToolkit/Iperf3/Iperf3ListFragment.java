@@ -43,15 +43,10 @@ public class Iperf3ListFragment extends Fragment {
     private Iperf3RecyclerViewAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
     private FloatingActionButton uploadBtn;
-    private SelectionTracker selectionTracker;
-
+    private Iperf3ResultsDataBase db;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            selectionTracker.onRestoreInstanceState(savedInstanceState);
-        }
-
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -72,6 +67,7 @@ public class Iperf3ListFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         adapter = new Iperf3RecyclerViewAdapter(getActivity(), uids, uploadBtn);
         recyclerView.setAdapter(adapter);
+        db = Iperf3ResultsDataBase.getDatabase(requireContext());
 
 
         swipeController = new SwipeController(new SwipeControllerActions() {
@@ -79,8 +75,12 @@ public class Iperf3ListFragment extends Fragment {
             @Override
             public void onRightClicked(int position) {
                 WorkManager iperf3WM = WorkManager.getInstance(getContext());
-                iperf3WM.cancelAllWorkByTag(uids.get(position));
-
+                String uid = uids.get(position);
+                iperf3WM.cancelAllWorkByTag(uid);
+                Iperf3RunResultDao iperf3RunResultDao = db.getDatabase(requireContext()).iperf3RunResultDao();
+                Iperf3RunResult runResult = iperf3RunResultDao.getRunResult(uid);
+                if(runResult.result != 0)
+                    iperf3RunResultDao.updateResult(uid, 1);
                 new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                     @Override
                     public void run() {

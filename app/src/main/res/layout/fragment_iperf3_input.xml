@@ -28,10 +28,9 @@
         android:layout_width="226dp"
         android:layout_height="58dp"
         android:layout_marginTop="420dp"
-        android:autofillHints="100"
-        android:ems="10"
         android:hint="@string/iperf_bytes"
         android:inputType="number"
+        android:enabled="false"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -44,6 +43,19 @@
         android:autofillHints="100"
         android:ems="10"
         android:hint="@string/iperf_streams"
+        android:inputType="number"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/iperf3_cport"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="532dp"
+        android:autofillHints="100"
+        android:ems="10"
+        android:hint="@string/iperf3_cport"
         android:inputType="number"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
@@ -68,10 +80,9 @@
         android:layout_width="226dp"
         android:layout_height="58dp"
         android:layout_marginTop="308dp"
-        android:autofillHints="10"
-        android:ems="10"
         android:hint="@string/iperf_duration"
         android:inputType="number"
+        android:enabled="true"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -113,19 +124,6 @@
         android:ems="10"
         android:hint="@string/iperf_ip"
         android:inputType="textUri"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/iperf3_logfile"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="84dp"
-        android:autofillHints="100"
-        android:ems="10"
-        android:hint="@string/iperf_logfilename"
-        android:inputType="text"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

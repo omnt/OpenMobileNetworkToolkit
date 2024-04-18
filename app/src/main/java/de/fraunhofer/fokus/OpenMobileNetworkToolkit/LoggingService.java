@@ -28,7 +28,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Observer;
 import androidx.preference.PreferenceManager;
@@ -48,7 +47,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -57,10 +55,10 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingWorker;
 
 public class LoggingService extends Service {
@@ -407,6 +405,7 @@ public class LoggingService extends Service {
         if (sp.getBoolean("influx_battery_data", false)) {
             Point bp = dp.getBatteryInformationPoint();
             bp.time(time, WritePrecision.MS);
+            bp.addTags(tags_map);
             logPoints.add(bp);
         }
 
@@ -566,7 +565,8 @@ public class LoggingService extends Service {
 
         pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
         pingLogging.post(pingUpdate);
-    }    private final Runnable pingUpdate = new Runnable() {
+    }
+    private final Runnable pingUpdate = new Runnable() {
         @Override
         public void run() {
 
@@ -581,7 +581,6 @@ public class LoggingService extends Service {
 
             wm.beginWith(pingWR).enqueue();
             Observer observer = new Observer() {
-                @RequiresApi(api = Build.VERSION_CODES.S)
                 @Override
                 public void onChanged(Object o) {
                     WorkInfo workInfo = (WorkInfo) o;

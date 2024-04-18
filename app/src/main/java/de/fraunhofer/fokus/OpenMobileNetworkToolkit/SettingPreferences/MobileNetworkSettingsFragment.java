@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.AccessNetworkConstants;
+import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
@@ -25,9 +26,8 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-
 import androidx.preference.SwitchPreference;
-import java.net.DatagramPacket;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,6 +47,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     public static String PERSISTREBOOT = "persist_boot";
     TelephonyManager tm;
     PackageManager pm;
+    GlobalVars gv;
     SharedPreferences preferences;
     private boolean setNetworkSelection(){
         String networkType = preferences.getString(SELECTNETWORKTYPE, "");
@@ -61,7 +62,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
             return false;
         };
         int networkTypeId = NetworkInformation.getAccessNetworkID(networkType);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (gv.isCarrier_permissions() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return tm.setNetworkSelectionModeManual(plmn, persist,
                 networkTypeId);
         }
@@ -95,7 +96,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
             findPreference("buildVersionR").setEnabled(false);
         }
 
-        List<String> list = null;
+        List<String> list;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             list = Arrays.asList(NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.CDMA2000),
                 NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.GERAN),
@@ -122,10 +123,8 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
             }
 
         };
-        GlobalVars gv = GlobalVars.getInstance();
         tm = gv.getTm();
         pm = gv.getPm();
-
 
 
         selectNetworkType.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
@@ -165,15 +164,28 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
                 return true;
             }
         });
-
-
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        gv = GlobalVars.getInstance();
         setPreferencesFromResource(R.xml.preference_mobile_network, rootKey);
+        Preference button = getPreferenceManager().findPreference("apply_cs_settings");
+        if (button != null) {
+            if (gv.isCarrier_permissions()) {
+                button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference arg0) {
+                        apply_settings();
+                        return true;
+                    }
+                });
+            } else {
+                button.setEnabled(false);
+            }
+
+        }
     }
 
 
@@ -188,4 +200,10 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
                 break;
         }
     }
+
+    private void apply_settings() {
+        CarrierConfigManager cs = (CarrierConfigManager) requireContext().getSystemService(Context.CARRIER_CONFIG_SERVICE);
+        cs.notifyConfigChangedForSubId(tm.getSubscriptionId());
+    }
+
 }

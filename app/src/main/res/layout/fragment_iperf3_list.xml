@@ -32,6 +32,7 @@
             android:contentDescription="@string/upload"
             android:src="@drawable/ic_upload"
             android:visibility="invisible" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/runners_list"
             android:layout_width="match_parent"

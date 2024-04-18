@@ -51,9 +51,7 @@ public class PingFragment extends Fragment {
     private Handler pingLogging;
     private FileOutputStream stream;
     private EditText input;
-
     private Context ct;
-
     private TextView pingViewer;
     private ScrollView scrollView;
     private SharedPreferences sp;
@@ -119,7 +117,6 @@ public class PingFragment extends Fragment {
         input.setText(sp.getString("ping_input", "-w 5 8.8.8.8"));
 
         ct = requireContext();
-        WorkManager wm = WorkManager.getInstance(requireContext());
         pingViewer = horizontalLL1.findViewById(R.id.ping_viewer);
         scrollView = horizontalLL1.findViewById(R.id.ping_scrollviewer);
 

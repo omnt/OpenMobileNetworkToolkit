@@ -11,7 +11,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -30,28 +29,21 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnectio
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream__1;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
     private SharedPreferences sp;
-    private String logFilePath;
+    private String rawIperf3file;
     private String measurementName;
     private String ip;
 
@@ -61,6 +53,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     private String intervalIperf;
     private String bytes;
     private String protocol;
+    private String iperf3LineProtocolFile;
 
     private DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
 
@@ -72,11 +65,11 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     private String runID;
     public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        logFilePath = getInputData().getString("logfilepath");
+        rawIperf3file = getInputData().getString("rawIperf3file");
 
         ip = getInputData().getString("ip");
         measurementName = getInputData().getString("measurementName");
-
+        iperf3LineProtocolFile = getInputData().getString("iperf3LineProtocolFile");
         port = getInputData().getString("port");
         if(port == null)
             port = "5201";
@@ -110,7 +103,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         biDir = getInputData().getBoolean("biDir",false);
         oneOff = getInputData().getBoolean("oneOff",false);
         client = getInputData().getBoolean("client",false);
-        runID = getInputData().getString("iperf3runID");
+        runID = getInputData().getString("iperf3WorkerID");
         sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
 
@@ -151,7 +144,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
         BufferedReader br = null;
         try {
-            br = new BufferedReader(new FileReader(logFilePath));
+            br = new BufferedReader(new FileReader(rawIperf3file));
         } catch (FileNotFoundException | NullPointerException e) {
             e.printStackTrace();
             return Result.failure(output);
@@ -167,10 +160,11 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
         LinkedList<Point> points = new LinkedList<Point>();
         for (Interval interval: iperf3AsJson.intervals) {
-            int idInterval = iperf3AsJson.intervals.indexOf(interval);
             long tmpTimestamp = timestamp + (long) (interval.sum.end * 1000);
+            int intervalIdx = iperf3AsJson.intervals.indexOf(interval);
             for (Stream stream: interval.streams){
                 Point point = new Point("Iperf3");
+                point.addTag("run_uid", runID);
                 point.addTag("bidir", String.valueOf(biDir));
                 point.addTag("sender", String.valueOf(stream.sender));
                 point.addTag("role", role);
@@ -187,17 +181,21 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                 point.addTag("bytes", bytes);
                 point.addTag("streams", String.valueOf(interval.streams.size()));
                 point.addTag("streamIdx", String.valueOf(interval.streams.indexOf(stream)));
-
+                point.addTag("intervalIdx", String.valueOf(intervalIdx));
 
                 point.addField("bits_per_second", stream.bitsPerSecond);
                 point.addField("seconds", stream.seconds);
                 point.addField("bytes", stream.bytes);
-                point.addField("rtt", stream.rtt);
-                point.addField("rttvar", stream.rttvar);
+
+                if(stream.rtt != 0) point.addField("rtt", stream.rtt);
+                if(stream.rttvar != 0) point.addField("rttvar", stream.rttvar);
+                if(stream.jitterMs != 0) point.addField("jitter_ms", stream.jitterMs);
+                if(protocol.equals("UDP") && rev){
+                    point.addField("lost_packets", stream.lostPackets);
+                    point.addField("lost_percent", stream.lostPercent);
+                }
+
                 point.addField("retransmits", stream.retransmits);
-                point.addField("jitter_ms", stream.jitterMs);
-                point.addField("lost_packets", stream.lostPackets);
-                point.addField("lost_percent", stream.lostPercent);
 
                 point.time(tmpTimestamp, WritePrecision.MS);
 
@@ -205,42 +203,6 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             }
         }
 
-        if(iperf3AsJson.end.streams != null) {
-            for (Stream__1 stream : iperf3AsJson.end.streams){
-                Stream udp = stream.udp;
-                if(udp == null){
-                    continue;
-                }
-                Point point = new Point("Iperf3");
-                point.addTag("bidir", String.valueOf(biDir));
-
-                point.addTag("sender", String.valueOf(udp.sender));
-                point.addTag("role", role);
-                point.addTag("socket", String.valueOf(udp.socket));
-                point.addTag("protocol", protocol);
-                point.addTag("interval", intervalIperf);
-                point.addTag("version", iperf3AsJson.start.version);
-                point.addTag("reversed", String.valueOf(rev));
-                point.addTag("oneOff", String.valueOf(oneOff));
-                point.addTag("connectingToHost", iperf3AsJson.start.connectingTo.host);
-                point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
-                point.addTag("bandwith", bandwidth);
-                point.addTag("duration", duration);
-                point.addTag("bytes", bytes);
-
-                point.addField("start", udp.start);
-                point.addField("end", udp.end);
-                point.addField("seconds", udp.seconds);
-                point.addField("bytes", udp.bytes);
-                point.addField("bits_per_second", udp.bitsPerSecond);
-                point.addField("jitter_ms", udp.jitterMs);
-                point.addField("lost_packets", udp.lostPackets);
-                point.addField("packets", udp.packets);
-                point.addField("lost_percent", udp.lostPercent);
-                point.addField("out_of_order", udp.outOfOrder);
-                points.add(point);
-            }
-        }
         // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             for (Point point:points) {
@@ -250,32 +212,18 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         }
 
 
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/iperf3LP/";
-        try {
-            Files.createDirectories(Paths.get(path));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // create the log file
-        String filename = path + runID + ".txt";
-        Log.d(TAG, "logfile: " + filename);
-        File logfile = new File(filename);
-        try {
-            logfile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         FileOutputStream iperf3Stream = null;
-        // get an output stream
         try {
-            iperf3Stream = new FileOutputStream(logfile, true);
+            iperf3Stream = new FileOutputStream(iperf3LineProtocolFile, true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
 
+        if(iperf3Stream == null){
+            Toast.makeText(getApplicationContext(),"FileOutputStream is not created for LP file", Toast.LENGTH_SHORT).show();
+            return Result.failure();
+        }
 
         try {
             for (Point point: points){
