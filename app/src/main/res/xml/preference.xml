@@ -10,6 +10,23 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment">
+    <PreferenceCategory
+        android:title="@string/home_screen_settings"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="show_neighbour_cells"
+            android:title="@string/show_neighbour_cells"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/app_settings"
+        app:iconSpaceReserved="false">
+
+    </PreferenceCategory>
     <Preference
         android:icon="@drawable/ic_baseline_code_24"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"
