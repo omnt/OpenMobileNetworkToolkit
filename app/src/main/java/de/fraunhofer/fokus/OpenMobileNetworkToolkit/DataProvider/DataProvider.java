@@ -824,13 +824,13 @@ public class DataProvider extends PhoneStateListener implements LocationListener
      */
     @SuppressLint("ObsoleteSdkInt")
     public List<SubscriptionInfo> getSubscriptions() {
-        List<SubscriptionInfo> subsciptions;
+        List<SubscriptionInfo> subscriptions;
         if (android.os.Build.VERSION.SDK_INT >= 30) {
-            subsciptions = sm.getCompleteActiveSubscriptionInfoList();
+            subscriptions = sm.getCompleteActiveSubscriptionInfoList();
         } else {
-            subsciptions = sm.getActiveSubscriptionInfoList();
+            subscriptions = sm.getActiveSubscriptionInfoList();
         }
-        return subsciptions;
+        return subscriptions;
     }
 
     /**
