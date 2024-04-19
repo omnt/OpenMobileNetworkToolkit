@@ -21,11 +21,24 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:navigationIcon="@drawable/openmnt_logo" />
+            app:navigationIcon="@drawable/openmnt_logo_no_title">
+
+            <ImageView
+                android:id="@+id/log_status_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:tint="#40C0C0C0"
+                app:srcCompat="@drawable/ic_baseline_code_24"
+                tools:ignore="RtlHardcoded,UseAppTint" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragmentContainerView"
@@ -34,5 +47,6 @@
             android:layout_height="match_parent"
             app:defaultNavHost="true"
             app:navGraph="@navigation/nav_graph" />
+
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

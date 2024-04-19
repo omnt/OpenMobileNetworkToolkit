@@ -87,6 +87,8 @@ public class LoggingService extends Service {
     private Handler pingLogging;
     private String pingInput;
     private WorkManager wm;
+
+    GlobalVars gv;
     private ArrayList<OneTimeWorkRequest> pingWRs;
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
@@ -165,6 +167,7 @@ public class LoggingService extends Service {
     private final Runnable localInfluxUpdate = new Runnable() {
         @Override
         public void run() {
+            gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
             long ts = System.currentTimeMillis();
             // write network information
             if (sp.getBoolean("influx_network_data", false)) {
@@ -209,6 +212,7 @@ public class LoggingService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate: Logging service created");
+        gv = GlobalVars.getInstance();
     }
 
     @Override
@@ -508,6 +512,7 @@ public class LoggingService extends Service {
             stopRemoteInfluxDB();
             return;
         }
+        ic.setup();
         Objects.requireNonNull(ic).open_write_api();
         remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
@@ -525,6 +530,8 @@ public class LoggingService extends Service {
         if (ic != null) {
             ic.disconnect();
         }
+        gv.getLog_status().setColorFilter(Color.argb(255, 192, 192, 192));
+
     }
     private long unixTimestampWithMicrosToMillis(double timestampWithMicros) {
         long seconds = (long) timestampWithMicros;

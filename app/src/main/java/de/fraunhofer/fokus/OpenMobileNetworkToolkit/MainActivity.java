@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
+        gv.setLog_status(findViewById(R.id.log_status_icon));
+
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = Objects.requireNonNull(navHostFragment).getNavController();
 

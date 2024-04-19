@@ -8,9 +8,9 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 
-
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.util.Log;
 
 import androidx.preference.PreferenceManager;
@@ -22,11 +22,15 @@ import com.influxdb.client.WriteOptions;
 import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import com.influxdb.client.write.events.BackpressureEvent;
+import com.influxdb.client.write.events.WriteRetriableErrorEvent;
+import com.influxdb.client.write.events.WriteSuccessEvent;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 
@@ -40,6 +44,7 @@ public class InfluxdbConnection {
     private final Context context;
     private InfluxDBClient influxDBClient;
     private WriteApi writeApi;
+    private GlobalVars gv;
 
     public InfluxdbConnection(String URL, String token, String org, String bucket,
                               Context context) {
@@ -48,8 +53,11 @@ public class InfluxdbConnection {
         this.url = URL;
         this.bucket = bucket;
         this.context = context;
+        this.gv = GlobalVars.getInstance();
         sp = PreferenceManager.getDefaultSharedPreferences(context);
         influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
+        influxDBClient.enableGzip(); // maybe we want a setting for this?
+
     }
 
     public void open_write_api() {
@@ -65,6 +73,22 @@ public class InfluxdbConnection {
                 .retryInterval(500)
                 .exponentialBase(4)
                 .build());
+            writeApi.listenEvents(BackpressureEvent.class, value -> {
+                Log.d(TAG, "Backpressure: Reason: " + value.getReason());
+                value.logEvent();
+            });
+            writeApi.listenEvents(WriteSuccessEvent.class, value -> {
+                //Log.d(TAG, "WriteSuccess: Line: " + value.getLineProtocol());
+                if ( sp.getBoolean("enable_influx", false)) {
+                    gv.getLog_status().setColorFilter(Color.argb(255, 0, 255, 0));
+                }
+            });
+            writeApi.listenEvents(WriteRetriableErrorEvent.class, value -> {
+                value.logEvent();
+                if ( sp.getBoolean("enable_influx", false)) {
+                    gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
+                }
+            });
         } catch (com.influxdb.exceptions.InfluxException e) {
             Log.d(TAG, "connect: Can't connect to InfluxDB");
             e.printStackTrace();
@@ -80,6 +104,7 @@ public class InfluxdbConnection {
             try {
                 Log.d(TAG, "disconnect: Closing Influx write API");
                 writeApi.close();
+                writeApi = null;
             } catch (com.influxdb.exceptions.InfluxException e) {
                 Log.d(TAG, "disconnect: Error while closing write API");
                 e.printStackTrace();
