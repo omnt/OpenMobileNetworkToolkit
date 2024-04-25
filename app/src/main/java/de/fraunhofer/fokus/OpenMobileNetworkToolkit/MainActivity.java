@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             gv.setTm(tm);
             dp = new DataProvider(this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !dp.getSubscriptions().isEmpty()) {
                 // make sure the subscription in the app settings exists in the current subscription list.
                 // if it is not in the subscription list change it to the first one of the current list
                 boolean valid_subscription = false;
@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+
+        gv.setLog_status(findViewById(R.id.log_status_icon));
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = Objects.requireNonNull(navHostFragment).getNavController();

@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.telephony.CarrierConfigManager;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.widget.ImageView;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 
@@ -45,6 +46,15 @@ public class GlobalVars {
     private boolean feature_work_profile;
     private boolean permission_phone_state;
 
+    public ImageView getLog_status() {
+        return log_status;
+    }
+
+    public void setLog_status(ImageView log_status) {
+        this.log_status = log_status;
+    }
+
+    ImageView log_status;
     private GlobalVars(){}
 
     public static synchronized GlobalVars getInstance(){

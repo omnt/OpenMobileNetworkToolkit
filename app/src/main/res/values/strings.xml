@@ -159,7 +159,10 @@
     <string name="exit">Exit\n</string>
     <string name="iperf3_cport">--cport</string>
     <string name="action_xiaomi">xiaomi</string>
-    <string name="carrier_settings_summary">Applied on SIM / network change</string>>
+    <string name="carrier_settings_summary">Applied on SIM / network change</string>
+    <string name="show_neighbour_cells">Show neighbour cells\n</string>
+    <string name="home_screen_settings">Home screen settings</string>
+    <string name="app_settings">App settings</string>>
 
     <!-- -->
 

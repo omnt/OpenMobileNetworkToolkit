@@ -13,22 +13,18 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
 import com.google.common.base.Splitter;
 import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,6 +34,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
@@ -178,7 +182,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                 point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
                 point.addTag("bandwith", bandwidth);
                 point.addTag("duration", duration);
-                point.addTag("bytes", bytes);
+                point.addTag("bytesToTransmit", bytes);
                 point.addTag("streams", String.valueOf(interval.streams.size()));
                 point.addTag("streamIdx", String.valueOf(interval.streams.indexOf(stream)));
                 point.addTag("intervalIdx", String.valueOf(intervalIdx));

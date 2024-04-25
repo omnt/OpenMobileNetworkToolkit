@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.security.MessageDigest;
@@ -427,6 +428,10 @@ public class HomeFragment extends Fragment {
         List<CellInformation> cil = dp.getCellInformation();
         int cell = 1;
         for (CellInformation ci : cil) {
+            if ( !PreferenceManager.getDefaultSharedPreferences(context).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
+                continue;
+            }
+
             TableRow title = rowBuilder("Cell " + cell, "");
             if (cell > 1) {
                 title.setPadding(0,20,0,0);
