@@ -412,8 +412,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 }
                 long ci = ci_.getCi();
                 if (ci != CellInfo.UNAVAILABLE) {
-                    point.addField("CI", ci_.getCi());
-                    point.addTag("CI", String.valueOf(ci_.getCi()));
+                    point.addTag("CI", String.valueOf(ci));
                 }
                 point.addField("NRARFCN", ci_.getARFCN());
                 point.addField("MNC", ci_.getMnc());
@@ -437,7 +436,6 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 point.addField("Bandwidth", ci_.getBandwidth());
                 long ci = ci_.getCi();
                 if (ci != CellInfo.UNAVAILABLE) {
-                    point.addField("CI", ci_.getCi());
                     point.addTag("CI", String.valueOf(ci_.getCi()));
                 }
                 point.addField("ARFCN", ci_.getARFCN());
@@ -462,7 +460,6 @@ public class DataProvider extends PhoneStateListener implements LocationListener
                 point.addField("CellType", "GSM");
                 long ci = ci_.getCi();
                 if (ci != CellInfo.UNAVAILABLE) {
-                    point.addField("CI", ci_.getCi());
                     point.addTag("CI", String.valueOf(ci_.getCi()));
                 }
                 point.addField("ARFCN", ci_.getARFCN());

@@ -27,7 +27,6 @@ import com.influxdb.client.write.events.WriteRetriableErrorEvent;
 import com.influxdb.client.write.events.WriteSuccessEvent;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
@@ -55,15 +54,17 @@ public class InfluxdbConnection {
         this.context = context;
         this.gv = GlobalVars.getInstance();
         sp = PreferenceManager.getDefaultSharedPreferences(context);
-        influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
+        influxDBClient = InfluxDBClientFactory.create(this.url, this.token, this.org, this.bucket);
         influxDBClient.enableGzip(); // maybe we want a setting for this?
-
     }
 
+    /**
+     * Open the write API on the InfluxConnection
+     */
     public void open_write_api() {
-        if(writeApi != null) return;
+        if (writeApi != null) return;
         try {
-            influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
+            //influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
             writeApi = influxDBClient.makeWriteApi(WriteOptions.builder()
                 .batchSize(1000)
                 .flushInterval(1000)
@@ -78,7 +79,6 @@ public class InfluxdbConnection {
                 value.logEvent();
             });
             writeApi.listenEvents(WriteSuccessEvent.class, value -> {
-                //Log.d(TAG, "WriteSuccess: Line: " + value.getLineProtocol());
                 if ( sp.getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 0, 255, 0));
                 }
@@ -95,7 +95,9 @@ public class InfluxdbConnection {
         }
     }
 
-
+    /**
+     * Disconnect and destroy the client
+     */
     public void disconnect() {
         // make sure we a instance of the client. This can happen on an app resume
         if (influxDBClient != null) {
@@ -112,6 +114,7 @@ public class InfluxdbConnection {
             try {
                 Log.d(TAG, "disconnect: Closing influx connection");
                 influxDBClient.close();
+                influxDBClient = null;
             } catch (com.influxdb.exceptions.InfluxException e) {
                 Log.d(TAG, "disconnect: Error while closing influx connection");
                 e.printStackTrace();
@@ -121,12 +124,10 @@ public class InfluxdbConnection {
         }
     }
 
-    // Add a point to the message queue
+    /**
+     * Add a point to the message queue
+     */
     public boolean writePoint(Point point) throws IOException {
-        //InetAddress[] addresses = InetAddress.getAllByName("www.google.com");
-        // only add the point if the database is reachable
-        //InetAddress.getByName(url.split(":")[0]).isReachable(1);
-        //if (influxDBClient != null && influxDBClient.ping()) {
         if (influxDBClient != null && influxDBClient.ping()) {
             try {
                 writeApi.writePoint(point);
@@ -142,27 +143,26 @@ public class InfluxdbConnection {
         }
     }
 
+    /**
+     * Write string records to the queue
+     * @param points String list of records
+     * @return not yet usefull
+     * @throws IOException
+     */
     public boolean writeRecords(List<String> points) throws IOException {
-        // only add the point if the database is reachable
-        //InetAddress.getByName(url.split(":")[0]).isReachable(1);
-        //if (influxDBClient != null && influxDBClient.ping()) {
-
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (influxDBClient != null && InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(1000)) {
+                    if (influxDBClient != null && influxDBClient.ping()) {
                         try {
                             writeApi.writeRecords(WritePrecision.MS, points);
                         } catch (com.influxdb.exceptions.InfluxException e) {
-                            Log.d(TAG, "writePoint: Error while writing points to influx DB");
+                            Log.d(TAG, "writeRecords: Error while writing points to influx DB");
                             e.printStackTrace();
-                            //return false;
                         }
-                        //return true;
                     } else {
-                        Log.d(TAG, "writePoints: InfluxDB not reachable: " + url.split(":")[1].replace("//",""));
-                        //return false;
+                        Log.d(TAG, "writeRecords: InfluxDB not reachable: " + url);
                     }
                 }
                 catch (Exception ex) {
@@ -173,29 +173,26 @@ public class InfluxdbConnection {
         return true;
     }
 
+    /**
+     *
+     * @param points
+     * @return
+     * @throws IOException
+     */
     public boolean writePoints(List<Point> points) throws IOException {
-        // only add the point if the database is reachable
-        //InetAddress.getByName(url.split(":")[0]).isReachable(1);
-        //if (influxDBClient != null && influxDBClient.ping()) {
-
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (influxDBClient != null && InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(1000)) {
+                    if (influxDBClient != null && influxDBClient.ping()) {
                         try {
-                            for (Point point : points) {
-                                writeApi.writePoint(point);
-                            }
+                            writeApi.writePoints(points);
                         } catch (com.influxdb.exceptions.InfluxException e) {
                             Log.d(TAG, "writePoint: Error while writing points to influx DB");
                             e.printStackTrace();
-                            //return false;
                         }
-                        //return true;
                     } else {
-                        Log.d(TAG, "writePoints: InfluxDB not reachable: " + url.split(":")[1].replace("//",""));
-                        //return false;
+                        Log.d(TAG, "writePoints: InfluxDB not reachable: " + url);
                     }
                 }
                 catch (Exception ex) {
@@ -206,8 +203,11 @@ public class InfluxdbConnection {
         return true;
     }
 
-    // Setup a local database and store credentials
-    public boolean setup() {
+    /**
+     * Onboard a influxDB and store credentials
+     * @return
+     */
+    public boolean onboard() {
         try {
             if (influxDBClient.isOnboardingAllowed()) {
                 OnboardingRequest or = new OnboardingRequest();
@@ -228,17 +228,20 @@ public class InfluxdbConnection {
         }
     }
 
-    // If we can reach the influxDB call flush on the write API
+    /**
+     * If we can reach the influxDB call flush on the write API
+     * @return
+     */
+    // todo handle unreachable DB
     public boolean flush() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (InetAddress.getByName(url.split(":")[1].replace("//","")).isReachable(50)) {
+                    if (influxDBClient.ping()) {
                         writeApi.flush();
                     }
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }

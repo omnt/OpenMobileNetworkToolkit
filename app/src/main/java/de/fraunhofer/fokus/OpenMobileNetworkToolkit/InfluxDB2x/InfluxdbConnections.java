@@ -38,13 +38,15 @@ public class InfluxdbConnections {
                 if (Looper.getMainLooper().isCurrentThread()) {
                     Toast.makeText(context, "Influx Parameter not correctly set!", Toast.LENGTH_LONG).show();// On UI thread.
                 }
-
                 return null;
             }
-
             ric = new InfluxdbConnection(url, token, org, bucket, context);
         }
         return ric;
+    }
+
+    public static void removeRicInstance() {
+        ric = null;
     }
 
     //todo Remote setting are currently hardcoded and should be generated

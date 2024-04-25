@@ -228,7 +228,6 @@ public class LoggingService extends Service {
         interval = Integer.parseInt(sp.getString("logging_interval", "1000"));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
-            //tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             tm = GlobalVars.getInstance().getTm();
             cp = gv.isCarrier_permissions();
         }
@@ -508,18 +507,17 @@ public class LoggingService extends Service {
     private void setupRemoteInfluxDB() {
         Log.d(TAG, "setupRemoteInfluxDB");
         ic = InfluxdbConnections.getRicInstance(getApplicationContext());
-        if(ic == null){
-            stopRemoteInfluxDB();
-            return;
-        }
-        ic.setup();
         Objects.requireNonNull(ic).open_write_api();
         remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
     }
 
+    /**
+     * stop remote influx logging in clear up all internal instances of involved objects
+     */
     private void stopRemoteInfluxDB() {
         Log.d(TAG, "stopRemoteInfluxDB");
+        // cleanup the handler is existing
         if (remoteInfluxHandler != null) {
             try {
                 remoteInfluxHandler.removeCallbacks(RemoteInfluxUpdate);
@@ -527,12 +525,18 @@ public class LoggingService extends Service {
                 Log.d(TAG, "trying to stop remote influx service while it was not running");
             }
         }
+
+        // close disconnect influx connection if existing
         if (ic != null) {
             ic.disconnect();
+            ic = null;
         }
-        gv.getLog_status().setColorFilter(Color.argb(255, 192, 192, 192));
 
+        // remove reference in connection manager
+        InfluxdbConnections.removeRicInstance();
+        gv.getLog_status().setColorFilter(Color.argb(255, 192, 192, 192));
     }
+
     private long unixTimestampWithMicrosToMillis(double timestampWithMicros) {
         long seconds = (long) timestampWithMicros;
         long microseconds = (long) ((timestampWithMicros - seconds) * 1e6);
@@ -573,6 +577,7 @@ public class LoggingService extends Service {
         pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
         pingLogging.post(pingUpdate);
     }
+
     private final Runnable pingUpdate = new Runnable() {
         @Override
         public void run() {
