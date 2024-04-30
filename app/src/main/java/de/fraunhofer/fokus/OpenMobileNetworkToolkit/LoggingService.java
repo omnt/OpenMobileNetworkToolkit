@@ -504,12 +504,16 @@ public class LoggingService extends Service {
         }
     }
 
+    /**
+     * initialize a new remote influxDB connection
+     */
     private void setupRemoteInfluxDB() {
         Log.d(TAG, "setupRemoteInfluxDB");
         ic = InfluxdbConnections.getRicInstance(getApplicationContext());
         Objects.requireNonNull(ic).open_write_api();
         remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
+        gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
     }
 
     /**
