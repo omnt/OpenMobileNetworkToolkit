@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -26,6 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -119,26 +122,34 @@ public class CarrierSettingsFragment extends Fragment {
         PersistableBundle cf =  tm.getCarrierConfig();
         Log.d(TAG, cf.toString());
         Map<String, String> map = bundle_to_map(cf);
+        EditText filter = requireView().findViewById(R.id.carrier_settings_filter);
+        String filter_string = filter.getText().toString().toUpperCase();
         for (Map.Entry<String, String> entry : map.entrySet()) {
-            TextView key_column = new TextView(context);
-            TextView value_column = new TextView(context);
-            TableRow tr = new TableRow(context);
-            key_column.setText(entry.getKey().toUpperCase());
-            key_column.setWidth(600);
-            key_column.setTextIsSelectable(true);
-            key_column.setPadding(0, 0, 0, 20);
-            value_column.setText(entry.getValue());
-            value_column.setPadding(50, 0, 0, 0);
-            value_column.setTextIsSelectable(true);
-            tr.addView(key_column);
-            tr.addView(value_column);
-            tl.addView(tr);
+            if (filter_string.isEmpty()) {
+                TableRow tr = getTableRow(entry);
+                tl.addView(tr);
+            } else if (entry.getKey().contains(filter_string)) {
+                TableRow tr = getTableRow(entry);
+                tl.addView(tr);
+            }
         }
         cv.addView(tl);
     }
 
-    private void apply_settings(View view) {
-        CarrierConfigManager cs = (CarrierConfigManager) context.getSystemService(Context.CARRIER_CONFIG_SERVICE);
-        cs.notifyConfigChangedForSubId(tm.getSubscriptionId());
+    @NonNull
+    private TableRow getTableRow(Map.Entry<String, String> entry) {
+        TextView key_column = new TextView(context);
+        TextView value_column = new TextView(context);
+        TableRow tr = new TableRow(context);
+        key_column.setText(entry.getKey().toUpperCase());
+        key_column.setWidth(600);
+        key_column.setTextIsSelectable(true);
+        key_column.setPadding(0, 0, 0, 20);
+        value_column.setText(entry.getValue());
+        value_column.setPadding(50, 0, 0, 0);
+        value_column.setTextIsSelectable(true);
+        tr.addView(key_column);
+        tr.addView(value_column);
+        return tr;
     }
 }

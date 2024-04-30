@@ -48,14 +48,14 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         // API 30
         if (sdk_version >= Build.VERSION_CODES.R) {
             configForSubId.putBoolean(CarrierConfigManager.KEY_ALLOW_VIDEO_CALLING_FALLBACK_BOOL, sp.getBoolean("switch_KEY_ALLOW_VIDEO_CALLING_FALLBACK_BOOL", true));
-            configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, sp.getBoolean("KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL", false));
+            configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, sp.getBoolean("switch_KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL", false));
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL, sp.getBoolean("switch_KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL", false));
             configForSubId.putBoolean(CarrierConfigManager.KEY_WORLD_MODE_ENABLED_BOOL, sp.getBoolean("switch_KEY_WORLD_MODE_ENABLED_BOOL", true));
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_RCS_PROVISIONING_REQUIRED_BOOL, sp.getBoolean("switch_KEY_CARRIER_RCS_PROVISIONING_REQUIRED_BOOL", false));
             configForSubId.putBoolean(CarrierConfigManager.KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL, sp.getBoolean("switch_KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL", true));
-            configForSubId.putBoolean(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL, sp.getBoolean("KEY_EDITABLE_WFC_MODE_BOOL", true));
+            configForSubId.putBoolean(CarrierConfigManager.KEY_EDITABLE_WFC_MODE_BOOL, sp.getBoolean("switch_KEY_EDITABLE_WFC_MODE_BOOL", true));
             configForSubId.putBoolean(CarrierConfigManager.KEY_EDITABLE_WFC_ROAMING_MODE_BOOL, sp.getBoolean("switch_KEY_EDITABLE_WFC_ROAMING_MODE_BOOL", true));
-            configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, sp.getBoolean("witch_KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL", false));
+            configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL, sp.getBoolean("switch_KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL", false));
             configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_OVERRIDE_WFC_PROVISIONING_BOOL, sp.getBoolean("switch_KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL", false));
             configForSubId.putStringArray(CarrierConfigManager.KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY, new String[] {sp.getString("edit_text_KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY", "")});
             configForSubId.putStringArray(CarrierConfigManager.KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY, new String[] {sp.getString("edit_text_KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY", "")});
@@ -71,7 +71,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             }
             configForSubId.putIntArray(CarrierConfigManager.KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY, nr_av);
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL, sp.getBoolean("switch_KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL", false));
-            configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_ENABLE_2G, sp.getBoolean("switch_KEY_HIDE_ENABLE_2G", false));
+            //configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_ENABLE_2G, sp.getBoolean("switch_KEY_HIDE_ENABLE_2G", false));
             configForSubId.putBoolean(CarrierConfigManager.KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL, sp.getBoolean("switch_KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL", true));
         }
 
@@ -82,7 +82,7 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL, sp.getBoolean("switch_KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL", true));
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL, sp.getBoolean("switch_KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL", true));
         configForSubId.putBoolean(CarrierConfigManager.KEY_EDITABLE_ENHANCED_4G_LTE_BOOL, sp.getBoolean("switch_KEY_EDITABLE_ENHANCED_4G_LTE_BOOL", true));
-        configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, sp.getBoolean("KEY_CARRIER_VOLTE_AVAILABLE_BOOL", false));
+        configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL, sp.getBoolean("switch_KEY_CARRIER_VOLTE_AVAILABLE_BOOL", true));
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_PROVISIONING_REQUIRED_BOOL, sp.getBoolean("switch_KEY_CARRIER_VOLTE_PROVISIONING_REQUIRED_BOOL", false));
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_VOLTE_PROVISIONED_BOOL, sp.getBoolean("switch_KEY_CARRIER_VOLTE_PROVISIONED_BOOL", false));
         configForSubId.putBoolean(CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL, sp.getBoolean("switch_KEY_CARRIER_VT_AVAILABLE_BOOL", false));

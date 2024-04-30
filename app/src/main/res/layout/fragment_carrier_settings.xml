@@ -25,7 +25,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/button_read_carrier_settings"
@@ -35,6 +35,14 @@
             android:layout_marginEnd="16dp"
             android:layout_weight="1"
             android:text="@string/read_carrier_settings" />
+
+        <EditText
+            android:id="@+id/carrier_settings_filter"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:autofillHints="filter string"
+            android:hint="filter string"></EditText>
     </LinearLayout>
 
     <ScrollView
