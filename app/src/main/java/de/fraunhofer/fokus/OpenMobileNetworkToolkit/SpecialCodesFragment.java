@@ -40,6 +40,8 @@ public class SpecialCodesFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_special_codes, parent, false);
         Button android_testing = v.findViewById(R.id.bt_android_testing);
         android_testing.setOnClickListener(this::buttonHandler);
+        Button android_ims = v.findViewById(R.id.bt_android_ims);
+        android_ims.setOnClickListener(this::buttonHandler);
         Button mediatek_ims = v.findViewById(R.id.bt_mediatek_ims);
         mediatek_ims.setOnClickListener(this::buttonHandler);
         Button sony_service = v.findViewById(R.id.bt_sony_service);
@@ -57,6 +59,7 @@ public class SpecialCodesFragment extends Fragment {
         special_code = v.findViewById(R.id.tv_special_code);
         if (!cp) {
             android_testing.setEnabled(false);
+            android_ims.setEnabled(false);
             mediatek_ims.setEnabled(false);
             sony_service.setEnabled(false);
             nokia_enable_sa.setEnabled(false);
@@ -94,6 +97,9 @@ public class SpecialCodesFragment extends Fragment {
                 switch (view.getId()) {
                     case R.id.bt_android_testing:
                         tm.sendDialerSpecialCode("4636");
+                        break;
+                    case R.id.bt_android_ims:
+                        tm.sendDialerSpecialCode("0702");
                         break;
                     case R.id.bt_mediatek_ims:
                         tm.sendDialerSpecialCode("3646633");

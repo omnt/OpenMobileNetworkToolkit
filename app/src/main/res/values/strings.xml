@@ -27,7 +27,8 @@
     <string name="previous">Previous</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="service_name">OMNMT</string>
+    <string name="service_name">OMNT</string>
+    <string name="app_description">OMNT Open Mobile Network Toolkit, the swiss army knife for network researcher</string>
     <string name="slicing">Slicing</string>
     <string name="Log">Debug Log</string>
     <string name="device_admin_description">I need your permission</string>
@@ -162,7 +163,8 @@
     <string name="carrier_settings_summary">Applied on SIM / network change</string>
     <string name="show_neighbour_cells">Show neighbour cells\n</string>
     <string name="home_screen_settings">Home screen settings</string>
-    <string name="app_settings">App settings</string>>
+    <string name="app_settings">App settings</string>
+    <string name="action_android_ims">Android IMS</string>>
 
     <!-- -->
 
