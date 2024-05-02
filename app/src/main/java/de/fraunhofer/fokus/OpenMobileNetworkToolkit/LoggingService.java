@@ -632,8 +632,7 @@ public class LoggingService extends Service {
                                 e.printStackTrace();
                             }
 
-
-                            if (sp.getBoolean("enable_influx", false)) {
+                            if (sp.getBoolean("enable_influx", false) && ic != null) {
                                 try {
                                     ic.writePoints(Arrays.asList(point));
                                 } catch (IOException e) {
