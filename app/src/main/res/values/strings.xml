@@ -25,10 +25,8 @@
     <string name="home">home</string>
     <string name="about">About</string>
     <string name="previous">Previous</string>
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="service_name">OMNT</string>
-    <string name="app_description">OMNT Open Mobile Network Toolkit, the swiss army knife for network researcher</string>
+    <string name="app_description">OMNT OpenMobileNetworkToolkit, the swiss army knife for network researcher</string>
     <string name="slicing">Slicing</string>
     <string name="Log">Debug Log</string>
     <string name="device_admin_description">I need your permission</string>
@@ -50,16 +48,7 @@
     <string name="iperf3_instances">Instances</string>
     <string name="export_logs">Export Logs</string>
     <string name="channel_name">OMNT_Notification</string>
-    <string name="channel_description">Notification channel for Open Mobile Network Toolkit</string>
-
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
+    <string name="channel_description">Notification channel for OpenMobileNetworkToolkit</string>
 
     <!-- Application Preferences -->
     <string name="carrier_permissions">carrier_permission</string>
@@ -99,15 +88,7 @@
     <string name="fake_location_summary">Use a fake location for all measurements for testing / privacy reasons</string>
 
     <!-- Work Profile Management -->
-    <string name="intro_message">
-        <![CDATA[
-            This sample demonstrates how to create a managed profile. You can also learn how to
-            enable or disable other apps and how to set restrictions to them. Intents can be
-            configured to be forwarded between primary account and managed profile. Finally, you can
-            wipe all the data associated with the profile.
-            Note that there can only be one managed profile on a device.
-        ]]>
-    </string>
+
     <string name="set_up_profile">Set up profile</string>
     <string name="enable_forwarding">Enable forwarding of Share Intent</string>
     <string name="send_intent_text">Send a sample share Intent</string>
