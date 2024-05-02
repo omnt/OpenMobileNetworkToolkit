@@ -48,6 +48,24 @@
                 android:layout_height="match_parent">
 
                 <Button
+                    android:id="@+id/bt_android_ims"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/action_android_ims" />
+
+                <TextView
+                    android:id="@+id/tv_android_ims"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:text="*#*#0702#*#*" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
                     android:id="@+id/bt_mediatek_ims"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -99,6 +99,7 @@ public class HomeFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             LinearLayout ll = requireView().findViewById(R.id.home_layout);
             ll.removeAllViews();
+            dp.refreshAll();
             ll.addView(get_cell_card_view(), 0);
             ll.addView(get_signal_strength_card_view(), 1);
             ll.addView(get_network_card_view(), 2);
@@ -146,6 +147,7 @@ public class HomeFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
       super.onViewCreated(view, savedInstanceState);
+      dp.refreshAll();
       LinearLayout ll = requireView().findViewById(R.id.home_layout);
       ll.addView(get_cell_card_view(), 0);
       ll.addView(get_signal_strength_card_view(), 1);
