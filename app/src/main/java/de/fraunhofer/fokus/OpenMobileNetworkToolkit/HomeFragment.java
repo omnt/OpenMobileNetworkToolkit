@@ -414,7 +414,7 @@ public class HomeFragment extends Fragment {
                 tl.addView(rowBuilder("Enterprise IDs", "N/A"));
             }
         }
-        // The follwing functions do not return useful information jet
+        // The following functions do not return useful information jet
         //tl.addView(rowBuilder("TM Slice", String.valueOf(nc.getConfigurationTM())));
         //tl.addView(rowBuilder("Slice Info", String.valueOf(nc.getNetworkSlicingInfo())));
         //tl.addView(rowBuilder("Slice Config", String.valueOf(nc.getNetworkSlicingConfig())));

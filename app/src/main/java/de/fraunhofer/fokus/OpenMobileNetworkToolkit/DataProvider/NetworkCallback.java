@@ -52,7 +52,7 @@ public class NetworkCallback {
     /**
      * WIP: Implements different types of network related callbacks and provides access to network related APIs
      * in a more safe manner.
-     * @param context Contect to be used by the NetworkCallback
+     * @param context Context to be used by the NetworkCallback
      */
     public NetworkCallback(Context context) {
         this.context = context;
@@ -771,7 +771,7 @@ public class NetworkCallback {
      * WIP: Callback requester with parameters
      * @param capability id
      * @param transport_type id
-     * @return Boolen id capability is supported
+     * @return Boolean id capability is supported
      */
     @SuppressLint("ObsoleteSdkInt")
     public boolean customNetworkCallback(int capability, int transport_type) {
