@@ -22,6 +22,10 @@ jobs:
           java-version: 17
           cache: gradle
 
+      - name: Get Latest iPerf
+        run: |
+          wget -O jniLibs.zip https://github.com/omnt/iperf/releases/latest/download/jniLibs
+          unzip jniLibs.zip -d app/src/main
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3.2.1
 
