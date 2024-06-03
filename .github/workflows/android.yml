@@ -10,7 +10,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     steps:
-      - name: Checking out branch
+      - name: Checkout Branch":" ${{ github.ref }}
         uses: actions/checkout@v4
       - name: Get Latest iPerf
         run: |
@@ -25,6 +25,7 @@ jobs:
           RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEYPASSWORD }}
         run: |
+          'echo "$ENCODED_STRING" | base64'
           'echo "$ENCODED_STRING" | base64 -d > app/OpenMobileNetworkToolkit-key.jks' 
           ls -la app
           mkdir android
