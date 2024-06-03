@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ 'main', 'rel/**' ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ 'main' ]
 
 jobs:
   build:
@@ -12,15 +12,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Checking out branch
+        uses: actions/checkout@v3
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: gradle
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2.0.10
+
+      - name: Decode Keystore
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: |
+          echo $ENCODED_STRING > keystore-b64.txt
+          base64 -d keystore-b64.txt > /home/runner/work/OpenMobileNetworkToolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks
+      - name: Build APK
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Build Bundle
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: ./gradlew bundleRelease --stacktrace
+
+      - name: Get release file aab path
+        id: releaseAab
+        run: echo "aabfile=$(find app/build/outputs/bundle/release/*.aab)" >> $GITHUB_OUTPUT
+
+      - name: Get release file apk path
+        id: releaseApk
+        run: echo "apkfile=$(find app/build/outputs/apk/release/*.apk)" >> $GITHUB_OUTPUT
+
+      - name: Zip Files
+        uses: papeloto/action-zip@v1
+        with:
+          files: ${{ steps.releaseAab.outputs.aabfile }} ${{ steps.releaseApk.outputs.apkfile }}
+          dest: ${{ steps.releaseApk.outputs.apkfile }}.zip
+
+      - name: Upload Release Build to Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-artifacts
+          path: ${{ steps.releaseApk.outputs.apkfile }}
