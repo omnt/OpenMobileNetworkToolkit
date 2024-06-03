@@ -37,7 +37,7 @@ jobs:
           RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
         run: |
-          echo "$ENCODED_STRING" > keystore-b64.txt
+          echo $ENCODED_STRING > keystore-b64.txt && ls -la
           base64 -d keystore-b64.txt > app/OpenMobileNetworkToolkit-key.jks && ls -la app
           mkdir android
           echo "storePassword=$RELEASE_KEYSTORE_PASSWORD" > android/key.properties
