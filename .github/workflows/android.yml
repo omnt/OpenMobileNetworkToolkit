@@ -21,9 +21,9 @@ jobs:
       - name: Decode Keystore
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
-          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
-          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
-          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.STOREPASSWORD }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEYPASSWORD }}
         run: |
           echo "$ENCODED_STRING" > keystore-b64.txt && ls -la
           base64 -d keystore-b64.txt > app/OpenMobileNetworkToolkit-key.jks && ls -la app
