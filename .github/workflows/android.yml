@@ -25,6 +25,7 @@ jobs:
           RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEYPASSWORD }}
         run: |
+          sudo apt install coreutils
           'echo "$ENCODED_STRING" | base64'
           'echo "$ENCODED_STRING" | base64 -d > app/OpenMobileNetworkToolkit-key.jks' 
           ls -la app
