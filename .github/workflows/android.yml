@@ -7,28 +7,16 @@ on:
     branches: [ 'main' ]
 
 jobs:
-  build:
-
+  prepare:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checking out branch
         uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: 17
-          cache: gradle
-
       - name: Get Latest iPerf
         run: |
           wget -O jniLibs.zip https://github.com/omnt/iperf/releases/latest/download/jniLibs
           unzip jniLibs.zip -d app/src/main
           rm jniLibs.zip
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3.2.1
 
       - name: Decode Keystore
         env:
@@ -44,6 +32,18 @@ jobs:
           echo "keyPassword=$RELEASE_KEY_PASSWORD" >> android/key.properties
           echo "keyAlias=$RELEASE_KEYSTORE_ALIAS" >> android/key.properties
           echo "storeFile=OpenMobileNetworkToolkit-key.jks" >> android/key.properties
+
+  build:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: gradle
+
       - name: Build APK
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
@@ -59,7 +59,10 @@ jobs:
           RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
         run: ./gradlew bundleRelease --stacktrace
-
+  upload:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Get release file aab path
         id: releaseAab
         run: echo "aabfile=$(find app/build/outputs/bundle/release/*.aab)" >> $GITHUB_OUTPUT
