@@ -11,11 +11,20 @@ plugins {
     id("org.spdx.sbom") version "0.7.0"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('android/key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+
 android {
     signingConfigs {
         debug {
-            storeFile file('OpenMobileNetworkToolkit-key.jks')
-            keyAlias 'key0'
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
         }
     }
     compileSdk 34
