@@ -123,7 +123,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             try {
                 tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
             } catch (IllegalArgumentException e) {
-                Log.d(TAG, "cant parse tags, ignoring");
+                Log.d(TAG, "can't parse tags, ignoring");
             }
         }
         Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
@@ -180,7 +180,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                 point.addTag("oneOff", String.valueOf(oneOff));
                 point.addTag("connectingToHost", iperf3AsJson.start.connectingTo.host);
                 point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
-                point.addTag("bandwith", bandwidth);
+                point.addTag("bandwidth", bandwidth);
                 point.addTag("duration", duration);
                 point.addTag("bytesToTransmit", bytes);
                 point.addTag("streams", String.valueOf(interval.streams.size()));

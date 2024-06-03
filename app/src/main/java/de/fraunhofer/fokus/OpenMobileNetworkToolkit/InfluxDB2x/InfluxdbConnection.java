@@ -146,7 +146,7 @@ public class InfluxdbConnection {
     /**
      * Write string records to the queue
      * @param points String list of records
-     * @return not yet usefull
+     * @return not yet useful
      * @throws IOException
      */
     public boolean writeRecords(List<String> points) throws IOException {

@@ -196,7 +196,7 @@ public class NetworkInformation {
                 accessNetworkType = "NGRAN";
                 break;
             case AccessNetworkConstants.AccessNetworkType.UNKNOWN:
-                accessNetworkType = "Unknow";
+                accessNetworkType = "Unknown";
                 break;
             case AccessNetworkConstants.AccessNetworkType.UTRAN:
                 accessNetworkType = "UTRAN";

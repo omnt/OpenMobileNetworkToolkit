@@ -285,7 +285,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
     // ### Cell Information ###
 
     /**
-     * Callback to receive current cell infomation
+     * Callback to receive current cell information
      * @param list is the list of currently visible cells.
      */
     @SuppressLint("ObsoleteSdkInt")
@@ -768,7 +768,7 @@ public class DataProvider extends PhoneStateListener implements LocationListener
             try {
                 tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
             } catch (IllegalArgumentException e) {
-                Log.d(TAG, "cant parse tags, ignoring");
+                Log.d(TAG, "can't parse tags, ignoring");
             }
         }
         DeviceInformation di = getDeviceInformation();
