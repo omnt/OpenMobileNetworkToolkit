@@ -33,7 +33,14 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
         run: |
           echo $ENCODED_STRING > keystore-b64.txt
-          base64 -d keystore-b64.txt > /home/runner/work/OpenMobileNetworkToolkit/OpenMobileNetworkToolkit/app/OpenMobileNetworkToolkit-key.jks
+          base64 -d keystore-b64.txt > app/OpenMobileNetworkToolkit-key.jks
+          echo "storePassword=$RELEASE_KEYSTORE_PASSWORD" > android/key.properties
+          echo "keyPassword=$RELEASE_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$RELEASE_KEYSTORE_ALIAS" >> android/key.properties
+          echo "storeFile=OpenMobileNetworkToolkit-key.jks" >> android/key.properties
+          
+          
+
       - name: Build APK
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
