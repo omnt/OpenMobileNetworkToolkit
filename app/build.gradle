@@ -15,6 +15,13 @@ def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('android/key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} else {
+    project.logger.warn("File not found: ${keystorePropertiesFile}")
+    project.logger.warn("Using default values for signing config.")
+    keystoreProperties['keyAlias'] = "omnt_default"
+    keystoreProperties['keyPassword'] = "omnt2024"
+    keystoreProperties['storeFile'] = file("omnt_default.jks")
+    keystoreProperties['storePassword'] = "omnt2024"
 }
 
 
