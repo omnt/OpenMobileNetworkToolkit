@@ -26,6 +26,7 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.KEYPASSWORD }}
         run: |
           'echo "$ENCODED_STRING" | base64 -d > app/OpenMobileNetworkToolkit-key.jks' 
+          ls -la app
           mkdir android
           touch android/key.properties
           'echo "storePassword=$RELEASE_KEYSTORE_PASSWORD" > android/key.properties'
