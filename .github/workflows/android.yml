@@ -27,8 +27,8 @@ jobs:
         run: |
           sudo apt install coreutils
           base64 --version
-          echo $ENCODED_STRING | wc -c
-          echo $ENCODED_STRING | base64 -d > OpenMobileNetworkToolkit-key.jks
+          echo -n $ENCODED_STRING | wc -c
+          echo -n $ENCODED_STRING | base64 -d > OpenMobileNetworkToolkit-key.jks
           mv OpenMobileNetworkToolkit-key.jks app
           mkdir android
           touch android/key.properties
