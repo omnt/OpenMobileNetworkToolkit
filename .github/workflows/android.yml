@@ -22,7 +22,7 @@ jobs:
           unzip jniLibs.zip -d app/src/main
           rm jniLibs.zip
 
-      - name: Decode Keystore
+      - name: Decode Keystore and Create key.properties
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.STOREPASSWORD }}
