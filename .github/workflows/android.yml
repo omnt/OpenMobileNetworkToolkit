@@ -25,10 +25,8 @@ jobs:
           RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEYPASSWORD }}
         run: |
-          sudo apt install coreutils
-          base64 --version
-          echo -n $ENCODED_STRING | wc -c
-          echo -n $ENCODED_STRING | base64 -d > OpenMobileNetworkToolkit-key.jks
+          echo -n "$ENCODED_STRING" | wc -c
+          echo -n "$ENCODED_STRING" | base64 -d > OpenMobileNetworkToolkit-key.jks
           mv OpenMobileNetworkToolkit-key.jks app
           mkdir android
           touch android/key.properties
