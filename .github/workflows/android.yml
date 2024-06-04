@@ -7,7 +7,7 @@ on:
     branches: [ 'main' ]
 
 jobs:
-  prepare:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Branch ${{ github.ref }}
@@ -25,22 +25,14 @@ jobs:
           RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEYPASSWORD }}
         run: |
-          echo -n "$ENCODED_STRING" | wc -c
-          echo -n "$ENCODED_STRING" | base64 -d > OpenMobileNetworkToolkit-key.jks
-          mv OpenMobileNetworkToolkit-key.jks app
+          echo -n "$ENCODED_STRING" | base64 -d > app/OpenMobileNetworkToolkit-key.jks
           mkdir android
           touch android/key.properties
           echo "storePassword=$RELEASE_KEYSTORE_PASSWORD" > android/key.properties
           echo "keyPassword=$RELEASE_KEY_PASSWORD" >> android/key.properties
           echo "keyAlias=$RELEASE_KEYSTORE_ALIAS" >> android/key.properties
           echo "storeFile=OpenMobileNetworkToolkit-key.jks" >> android/key.properties
-          ls -la app
-          ls -la android
 
-  build:
-    runs-on: ubuntu-latest
-    needs: prepare
-    steps:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -63,13 +55,6 @@ jobs:
           RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
         run: ./gradlew bundleRelease --stacktrace
-  upload:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Get release file aab path
-        id: releaseAab
-        run: echo "aabfile=$(find app/build/outputs/bundle/release/*.aab)" >> $GITHUB_OUTPUT
 
       - name: Get release file apk path
         id: releaseApk
