@@ -61,25 +61,3 @@ jobs:
         with:
           name: omnt-release-apk-${{ github.sha }}-${{ github.ref }}
           path: ${{ steps.releaseApk.outputs.apkfile }}
-
-      - name: Create GitHub Release
-        id: create_release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Release notes for ${{ github.ref }}.
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: actions/upload-release-asset@v1
-        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
-        with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path:  ${{ steps.releaseApk.outputs.apkfile }}
-            asset_name: omnt-release-apk-${SHORT_SHA}
-            asset_content_type: application/vnd.android.package-archive
