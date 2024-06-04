@@ -31,10 +31,10 @@ jobs:
           mv OpenMobileNetworkToolkit-key.jks app
           mkdir android
           touch android/key.properties
-          'echo "storePassword=$RELEASE_KEYSTORE_PASSWORD" > android/key.properties'
-          'echo "keyPassword=$RELEASE_KEY_PASSWORD" >> android/key.properties'
-          'echo "keyAlias=$RELEASE_KEYSTORE_ALIAS" >> android/key.properties'
-          'echo "storeFile=OpenMobileNetworkToolkit-key.jks" >> android/key.properties'
+          echo "storePassword=$RELEASE_KEYSTORE_PASSWORD" > android/key.properties
+          echo "keyPassword=$RELEASE_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$RELEASE_KEYSTORE_ALIAS" >> android/key.properties
+          echo "storeFile=OpenMobileNetworkToolkit-key.jks" >> android/key.properties
 
   build:
     runs-on: ubuntu-latest
