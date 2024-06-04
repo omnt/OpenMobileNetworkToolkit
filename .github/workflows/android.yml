@@ -54,10 +54,12 @@ jobs:
 
       - name: Get release file apk path
         id: releaseApk
-        run: echo "apkfile=$(find app/build/outputs/apk/release/*.apk)" >> $GITHUB_OUTPUT
+        run: | 
+          echo "apkfile=$(find app/build/outputs/apk/release/*.apk)" >> $GITHUB_OUTPUT
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Upload Release Build to Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: omnt-release-apk-${{ github.sha }}-${{ github.ref }}
+          name: omnt-release-apk-${{ steps.releaseApk.outputs.sha_short }}
           path: ${{ steps.releaseApk.outputs.apkfile }}
