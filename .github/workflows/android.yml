@@ -35,6 +35,8 @@ jobs:
           echo "keyPassword=$RELEASE_KEY_PASSWORD" >> android/key.properties
           echo "keyAlias=$RELEASE_KEYSTORE_ALIAS" >> android/key.properties
           echo "storeFile=OpenMobileNetworkToolkit-key.jks" >> android/key.properties
+          ls -la app
+          ls -la android
 
   build:
     runs-on: ubuntu-latest
