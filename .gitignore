@@ -97,3 +97,6 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
+
+android/key.propierties
+*.so
