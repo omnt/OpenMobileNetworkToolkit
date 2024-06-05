@@ -44,7 +44,7 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Build APK
+      - name: Build Release APK
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
@@ -52,14 +52,27 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Get release file apk path
-        id: releaseApk
-        run: | 
-          echo "apkfile=$(find app/build/outputs/apk/release/*.apk)" >> $GITHUB_OUTPUT
-          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Build Release APK
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: ./gradlew assembleDebug --stacktrace
 
-      - name: Upload Release Build to Artifacts
+      - name: Generate SPDX
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: ./gradlew app:spdxSbomForRelease
+
+      - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: omnt-release-apk-${{ steps.releaseApk.outputs.sha_short }}
-          path: ${{ steps.releaseApk.outputs.apkfile }}
+          name: omnt-artifacts-${{ steps.releaseApk.outputs.sha_short }}
+          path: |
+            ${{ steps.releaseApk.outputs.apkReleaseFile }}
+            ${{ steps.releaseApk.outputs.apkDebugFile }}
+            ${{ steps.releaseApk.outputs.spdxfile }}
