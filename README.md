@@ -12,6 +12,11 @@ Also, OMNT provides access to different "secret" settings in Android phones.
 The current state of the app can be described as "research software", it fits our needs but does not aim to be complete or bug free.
 Use the app at your own risk. If you find it useful for your research, please cite the app in publications.
 
+
+* [Quick Start HowTo](docs/quick-start.md)
+* [User Manual](docs/OpenMobileNetworkToolkit.md)
+* [Signing HowTo](docs/signing.md)
+
 ## Why use this app
 
   * As apps like OMNT can can access a lot of private information. It is important for users to be able to make sure that those data is not
@@ -46,75 +51,9 @@ The following permissions are requested:
 
 If the app can't gain Carrier Privileges, some values can't be accessed and some features are disabled. See below.
 
-### Carrier Permissions
-Carrier specific settings can only be accessed by apps running with so-called carrier privileges. This was added in android 6 and is mostly relevant 
-for 4G and 5G networks. (https://source.android.com/devices/tech/config/carrier)
-
-Carrier or researcher who are able (admin key to the SIM card is required) to program their own sim cards can store a fingerprint of an signing certificate in an access rule applet (ARA-M) on the SIM card. 
-An app signed with this certificate will get carrier privileges granted by android. (https://source.android.com/devices/tech/config/uicc)
-
-E.g. the [ARAM-Applet by Bertrand Martel](https://github.com/bertrandmartel/aram-applet) for JavaCard based SIM cards can be used. 
-Some SIM cards like the cards from [Sysmocom](http://shop.sysmocom.de/products/sysmoISIM-SJA2) already come with the applet pre installed. 
-To install the applet to a SIM card [GlobalPlatformPro by Martin Paljak](https://github.com/martinpaljak/GlobalPlatformPro) can be used.
-Pre-compiled versions of ARA-M and GP can be found in the [CoIMS_Wiki repository by Supreeth Herle](https://github.com/herlesupreeth/CoIMS_Wiki).
-
-To provision the fingerprint to the applet, either (pySim)[https://github.com/osmocom/pysim] or GP can be used.  
-
-With pySim it can be done by entering the following commands into pySim-shell:
-
-start pySim shell with an PSCD attached reader
-```
-python3 pySim-shell.py -p0 -a <admin key>
-or if you have a csv file with ICCID and admin pin:
-python3 pySim-shell.py -p0 --csv card_data.csv 
-```
-
-Provision the fingerprint. Note that instead of a fingerprint also a valid android App ID can be used.
-If you have a SIM Card with the ARA-M applet from sysmocom you can skip the 'verify_adm' part as the applet is not write protected.
-```shell
-verify_adm
-select ADF.ARA-M
-aram_delete_all 
-aram_store_ref_ar_do --aid ffffffffffff --device-app-id E849B63A7B96E571F788FC5845C4AA3C520D18E8 --android-permissions 0000000000000001
-```
-(this assumes the credentials to access the card are stored in the pySim format.)
-
-### Signing the app
-This can be done with android studio.  
-
-To generated a signed apk:
-```
-Go to 'build' -> 'Generate signed Bundle/APK'
-You will be ask to generate a new key or import an existing one.
-Click through the dialogs until you end up with a signed APK
-```
-
-To sign the debug apks used for development
-```
-Go to 'file' -> Project Structure -> Modules
-Select the 'app', select the 'Signing config' tab.
-create a new signing config referencing you key file
-```
-
-You can also manually re-sign the downloaded .apk file using apksigner https://developer.android.com/tools/apksigner .
-```shell
-apksigner sign --ks my.keystore OpenMobileNetworkToolkit.apk
-```
-where my.keystore is your java keystore. 
 
 ## SPDX-SBOM
-The SPDX formatted Software Bill Of Material is a machine readable list of all software components used in the app.
-To generate a new file run
+The SPDX formatted ```Software Bill Of Material``` is a machine readable list of all software components used in the app. To generate a new file run
 ```shell
  ./gradlew app:spdxSbomForRelease
 ```
-
-## iPerf3
-iPerf3 has been compiled with a [jni](https://developer.android.com/training/articles/perf-jni) interface to enable OMNT to call it using the specified parameters.
-To see how to integrate iPerf3 into your app, look at [iPerf3 Repo](https://github.com/omnt/iperf)
-
-![iPerf3](screenshots/iperf3.png)
-
-## Network Slicing
-
-This function is still under development and requires support from the core network.  
