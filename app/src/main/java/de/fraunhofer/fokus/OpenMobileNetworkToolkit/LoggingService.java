@@ -25,6 +25,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -513,7 +514,10 @@ public class LoggingService extends Service {
         Objects.requireNonNull(ic).open_write_api();
         remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
-        gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
+        ImageView log_status = gv.getLog_status();
+        if (log_status != null) {
+            gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
+        }
     }
 
     /**
