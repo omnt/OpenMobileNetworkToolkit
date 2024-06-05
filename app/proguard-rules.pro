@@ -20,12 +20,12 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--dontskipnonpubliclibraryclasses
 -dontobfuscate
--forceprocessing
 -optimizationpasses 5
 
 -keep class * extends android.app.Activity
+-keep class com.influxdb.**
+
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
     public static *** v(...);
