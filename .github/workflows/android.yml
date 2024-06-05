@@ -71,10 +71,9 @@ jobs:
       - name: Get release file apk path
         id: releaseApk
         run: | 
-          ls -la app/build/outputs/apk/release/
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           mkdir upload
-          mv app/build/outputs/apk/release/app-debug.apk ./upload/omnt-debug.apk
+          mv app/build/outputs/apk/debug/app-debug.apk ./upload/omnt-debug.apk
           mv app/build/outputs/apk/release/app-release.apk ./upload/omnt-release.apk
           mv app/build/spdx/release.spdx.json ./upload/release.spdx.json
 
