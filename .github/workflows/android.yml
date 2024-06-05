@@ -68,6 +68,14 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
         run: ./gradlew app:spdxSbomForRelease
 
+      - name: Get release file apk path
+        id: releaseApk
+        run: | 
+          echo "apkReleaseFile=app/build/outputs/apk/release/app-release.apk" >> $GITHUB_OUTPUT
+          echo "apkDebugFile=app/build/outputs/apk/release/debug.apk" >> $GITHUB_OUTPUT
+          echo "spdxfile=app/build/spdx/release.spdx.json" >> $GITHUB_OUTPUT
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
