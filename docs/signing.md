@@ -19,3 +19,5 @@ You can also manually re-sign the downloaded .apk file using [apksigner](https:/
 apksigner sign --ks my.keystore OpenMobileNetworkToolkit.apk
 ```
 where my.keystore is your java keystore. 
+
+[Home](OpenMobileNetworkToolkit.md)

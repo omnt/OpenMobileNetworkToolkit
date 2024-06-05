@@ -31,3 +31,5 @@ aram_delete_all
 aram_store_ref_ar_do --aid ffffffffffff --device-app-id E849B63A7B96E571F788FC5845C4AA3C520D18E8 --android-permissions 0000000000000001
 ```
 This assumes the credentials to access the card are stored in the pySim format.
+
+[Home](OpenMobileNetworkToolkit.md)

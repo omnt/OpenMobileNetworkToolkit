@@ -1,9 +1,9 @@
 # OpenMobileNetworkToolkit User Guide
 
 * [Quick Start Guide](./quick-start.md)
-* [Installation]()
+* [Installation](installation.md)
 * [SIM Card Setup for Carrier Permissions](./carrier-permissions.md)
-* [Android Tweeks]()
+* [Android Tweeks](android_tweaks.md)
 * OMNT Usage
     * [Home](./home.md)
     * [iPerf3](./iperf3.md)

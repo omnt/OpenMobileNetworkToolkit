@@ -37,8 +37,36 @@ Name the datasource what ever you like. As our sample dashboards using Flux as q
 Scroll down to ```InfluxDB Details``` and enter the information written down during the InfluxDB setup. 
 Click on ```Save & Test```
 
+Now you can import the sample dashboards provided at https://github.com/omnt/Dashboards .
+
 # Setup OMNT
-Now its time to open OMNT and configure its logging component. Touch the three dots in the right top corner to open the app menue. Select ```Settings```
+## InfluxDB Settings
+Now its time to open OMNT and configure its logging component. Touch the three dots in the right top corner to open the app menue. Select ```Settings``` and open the ```Logging``` setting page.
 
 <img align="right" src="images/influx_settings_credentials.png">
 
+Fist scroll down to ```Remote logging``` here we configure the credentials for remote InfluxDB. 
+1) Toggel the ```InfluxDB log``` switch.
+2) Copy the url you saved before to ```Influxdb instabnce URL/IP``` option. 
+3) Copy the organization id to the ```InfluxDB Organization``` option.
+4) Copy the token to the ```Influx Token```
+5) Copy the bucket id to ```InfluxDB bucket```
+
+## Logging Content
+Here we configure what data should be written to the database. Note that this also affects the logfile. 
+* User Fake location: This will prevent you real location showing up in your logs. Mostly usefull for developpers.
+* Measurement Name: This name will be used to identifiy your measurement later on.
+* Tags: This should at least have ```device=YourDevice``` as a tag. Further tags can be added comma separated.
+* Log network information: log data displayed in the network information card on the home screen
+* Log signal data: log data displayed in the signal info card on the home screen
+* Log cell information: log data displayed in the cell information card on the home screen
+* Log neighbour cells: include neighbour cells in the log
+* Log throughput data: log interface throughput statistics
+* Log battery information: include current battery and charging state in the log
+* Log IP addresses: Include current IP addresses in the log
+
+If everthing is set up you can now scrool up to the top of the logging settings and enable the logging system. If everthing is correct and your phone has a internet connection the logging logo will tun green.
+
+You should now see the device and measurement selectable in the dashboards and graphs ans maps filling with datapoints.
+
+[Home](OpenMobileNetworkToolkit.md)
