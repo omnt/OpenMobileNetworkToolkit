@@ -71,16 +71,15 @@ jobs:
       - name: Get release file apk path
         id: releaseApk
         run: | 
-          echo "apkReleaseFile=app/build/outputs/apk/release/app-release.apk" >> $GITHUB_OUTPUT
-          echo "apkDebugFile=app/build/outputs/apk/release/debug.apk" >> $GITHUB_OUTPUT
-          echo "spdxfile=app/build/spdx/release.spdx.json" >> $GITHUB_OUTPUT
+          ls -la app/build/outputs/apk/release/
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          mkdir upload
+          mv app/build/outputs/apk/release/app-debug.apk ./upload/omnt-debug.apk
+          mv app/build/outputs/apk/release/app-release.apk ./upload/omnt-release.apk
+          mv app/build/spdx/release.spdx.json ./upload/release.spdx.json
 
       - name: Upload All Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: omnt-artifacts-${{ steps.releaseApk.outputs.sha_short }}
-          path: |
-            ${{ steps.releaseApk.outputs.apkReleaseFile }}
-            ${{ steps.releaseApk.outputs.apkDebugFile }}
-            ${{ steps.releaseApk.outputs.spdxfile }}
+          name: omnt-${{ steps.releaseApk.outputs.sha_short }}
+          path: ./upload
