@@ -103,38 +103,8 @@ public class Iperf3LogFragment extends Fragment {
                 return;
             }
             String line;
-            try {
-                double max_value = Double.MIN_VALUE;
-                double min_value = Double.MAX_VALUE;
-                while ((line = br.readLine()) != null) {
-                    JSONObject obj = new JSONObject(line);
-                    String pageName = obj.getString("event");
-                    if(pageName.equals("interval")) {
-                        double last_value = obj.getJSONObject("data").getJSONObject("sum").getDouble("bits_per_second");
-                        meanList.add(last_value);
-                        mean.setText(String.format(" %s", getSpeedString(meanList.stream().mapToDouble(a -> a).sum()/meanList.size())));
-                        median.setText(String.format(" %s", getSpeedString(meanList.get(meanList.size()/2))));
-                        max_value = Math.max(max_value, last_value);
-                        min_value = Math.min(min_value, last_value);
-                        last.setText(String.format(" %s", getSpeedString(last_value)));
-                        max.setText(String.format(" %s", getSpeedString(max_value)));
-                        min.setText(String.format(" %s", getSpeedString(min_value)));
-                    }
-                    text.append('\n');
-                }
-                br.close();
-                iperf3OutputViewer.setText(text.toString());
-
-            } catch (IOException e) {
-                logHandler.removeCallbacks(logUpdate);
-                Log.d(TAG, "onCreateView: failed");
-                return;
-            } catch (JSONException e) {
-                logHandler.removeCallbacks(logUpdate);
-                Log.d(TAG, "onCreateView: json failed");
-            }
-
-
+            Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3RunResult.input.iperf3rawIperf3file);
+            iperf3Parser.parse();
             if (iperf3RunResult.result != -100) {
                 logHandler.removeCallbacks(logUpdate);
                 return;

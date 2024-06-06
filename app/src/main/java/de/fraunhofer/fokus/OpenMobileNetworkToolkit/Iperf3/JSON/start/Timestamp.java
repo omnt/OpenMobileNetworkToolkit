@@ -4,11 +4,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Timestamp{
-    public String time;
-    public int timesecs;
+    private String time;
+    private int timesecs;
 
     public void parse(JSONObject data) throws JSONException {
         this.time = data.getString("time");
         this.timesecs = data.getInt("timesecs");
+    }
+    public String getTime() {
+        return time;
+    }
+    public int getTimesecs() {
+        return timesecs;
     }
 }

@@ -25,6 +25,12 @@ import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.Stream;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP.TCP_DL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP.TCP_UL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.UDP.UDP_DL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.UDP.UDP_UL_STREAM;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -143,60 +149,79 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     public Result doWork() {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(rawIperf3file));
-        } catch (FileNotFoundException | NullPointerException e) {
-            e.printStackTrace();
-            return Result.failure(output);
-        }
-        Root iperf3AsJson = new Gson().fromJson(br, Root.class);
-        long timestamp = iperf3AsJson.start.timestamp.timesecs*1000;
+
+        Iperf3Parser iperf3Parser = new Iperf3Parser(rawIperf3file);
+        iperf3Parser.parse();
+
+
+        long timestamp = Integer.toUnsignedLong( iperf3Parser.getStart().getTimestamp().getTimesecs())*1000;
         Log.d(TAG, "doWork: "+timestamp);
 
         String role = "server";
-        if(iperf3AsJson.start.connectingTo != null){
+        if(iperf3Parser.getStart().getConnecting_to() != null){
             role = "client";
         }
 
         LinkedList<Point> points = new LinkedList<Point>();
-        for (Interval interval: iperf3AsJson.intervals) {
-            long tmpTimestamp = timestamp + (long) (interval.sum.end * 1000);
-            int intervalIdx = iperf3AsJson.intervals.indexOf(interval);
-            for (Stream stream: interval.streams){
+        for (Interval interval: iperf3Parser.getIntervals().getIntervalArrayList()) {
+            long tmpTimestamp = timestamp + (long) (interval.getSum().getEnd() * 1000);
+            int intervalIdx = iperf3Parser.getIntervals().getIntervalArrayList().indexOf(interval);
+            for (Stream stream: interval.getStreams().getStreamArrayList()){
                 Point point = new Point("Iperf3");
                 point.addTag("run_uid", runID);
                 point.addTag("bidir", String.valueOf(biDir));
-                point.addTag("sender", String.valueOf(stream.sender));
+                point.addTag("sender", String.valueOf(stream.getSender()));
                 point.addTag("role", role);
-                point.addTag("socket", String.valueOf(stream.socket));
+                point.addTag("socket", String.valueOf(stream.getSocket()));
                 point.addTag("protocol", protocol);
                 point.addTag("interval", intervalIperf);
-                point.addTag("version", iperf3AsJson.start.version);
+                point.addTag("version", iperf3Parser.getStart().getVersion());
                 point.addTag("reversed", String.valueOf(rev));
                 point.addTag("oneOff", String.valueOf(oneOff));
-                point.addTag("connectingToHost", iperf3AsJson.start.connectingTo.host);
-                point.addTag("connectingToPort", String.valueOf(iperf3AsJson.start.connectingTo.port));
+                point.addTag("connectingToHost", iperf3Parser
+                    .getStart()
+                    .getConnecting_to()
+                    .getHost());
+                point.addTag("connectingToPort", String.valueOf(iperf3Parser
+                    .getStart()
+                    .getConnecting_to()
+                    .getPort()));
                 point.addTag("bandwidth", bandwidth);
                 point.addTag("duration", duration);
                 point.addTag("bytesToTransmit", bytes);
-                point.addTag("streams", String.valueOf(interval.streams.size()));
-                point.addTag("streamIdx", String.valueOf(interval.streams.indexOf(stream)));
+                point.addTag("streams", String.valueOf(interval.getStreams().size()));
+                point.addTag("streamIdx", String.valueOf(interval.getStreams().getStreamArrayList().indexOf(stream)));
                 point.addTag("intervalIdx", String.valueOf(intervalIdx));
 
-                point.addField("bits_per_second", stream.bitsPerSecond);
-                point.addField("seconds", stream.seconds);
-                point.addField("bytes", stream.bytes);
+                point.addField("bits_per_second", stream.getBits_per_second());
+                point.addField("seconds", stream.getSeconds());
+                point.addField("bytes", stream.getBytes());
 
-                if(stream.rtt != 0) point.addField("rtt", stream.rtt);
-                if(stream.rttvar != 0) point.addField("rttvar", stream.rttvar);
-                if(stream.jitterMs != 0) point.addField("jitter_ms", stream.jitterMs);
-                if(protocol.equals("UDP") && rev){
-                    point.addField("lost_packets", stream.lostPackets);
-                    point.addField("lost_percent", stream.lostPercent);
+
+                switch (stream.getStreamType()){
+                    case TCP_DL:
+                        break;
+                    case TCP_UL:
+                        TCP_UL_STREAM tcp_ul_stream = (TCP_UL_STREAM) stream;
+                        point.addField("snd_cwnd", tcp_ul_stream.getSnd_cwnd());
+                        point.addField("retransmits", tcp_ul_stream.getRetransmits());
+                        point.addField("snd_wnd", tcp_ul_stream.getSnd_wnd());
+                        point.addField("rtt", tcp_ul_stream.getRtt());
+                        point.addField("rttvar", tcp_ul_stream.getRttvar());
+                        point.addField("pmtu", tcp_ul_stream.getPmtu());
+                        break;
+                    case UDP_DL:
+                        UDP_DL_STREAM udp_dl_stream = (UDP_DL_STREAM) stream;
+                        point.addField("jitter_ms", udp_dl_stream.getJitter_ms());
+                        point.addField("lost_packets", udp_dl_stream.getLost_packets());
+                        point.addField("packets", udp_dl_stream.getPackets());
+                        point.addField("lost_percent", udp_dl_stream.getLost_percent());
+                        break;
+                    case UDP_UL:
+                        break;
+                    case UNKNOWN:
+                        break;
                 }
-
-                point.addField("retransmits", stream.retransmits);
 
                 point.time(tmpTimestamp, WritePrecision.MS);
 

@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.STREAM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.Stream;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,5 +24,31 @@ public class TCP_UL_STREAM extends TCP_STREAM {
         this.rtt = data.getInt("rtt");
         this.rttvar = data.getInt("rttvar");
         this.pmtu = data.getInt("pmtu");
+        this.setStreamType(STREAM_TYPE.TCP_UL);
     }
+
+    public int getRetransmits() {
+        return retransmits;
+    }
+
+    public int getSnd_cwnd() {
+        return snd_cwnd;
+    }
+
+    public int getSnd_wnd() {
+        return snd_wnd;
+    }
+
+    public int getRtt() {
+        return rtt;
+    }
+
+    public int getRttvar() {
+        return rttvar;
+    }
+
+    public int getPmtu() {
+        return pmtu;
+    }
+
 }

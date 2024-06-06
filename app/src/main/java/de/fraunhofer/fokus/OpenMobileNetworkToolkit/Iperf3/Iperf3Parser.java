@@ -19,15 +19,15 @@ public class Iperf3Parser {
     private Intervals intervals = new Intervals();
     Iperf3Parser(String pathToFile) {
         this.pathToFile = pathToFile;
-        this.file = new File(pathToFile);
+        this.file = new File(this.pathToFile);
         try {
             br = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException ex) {
             System.out.println("File not found");
             return;
         }
-
     }
+
     public void parse(){
         String line;
         try {
@@ -52,18 +52,17 @@ public class Iperf3Parser {
                         System.out.println("Unknown event");
                         break;
                 }
-
-
-
-
-
             }
         } catch (Exception e) {
             System.out.println("Error reading file");
         }
     }
 
-
-
+    public Intervals getIntervals() {
+        return intervals;
+    }
+    public Start getStart() {
+        return start;
+    }
 
 }

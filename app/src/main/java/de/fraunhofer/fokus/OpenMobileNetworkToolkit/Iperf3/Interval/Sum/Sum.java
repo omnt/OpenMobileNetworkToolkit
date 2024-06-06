@@ -1,43 +1,36 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Sum;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Stream {
-    private int socket;
+public class Sum {
     private int start;
-    private double end;
-    private double seconds;
+    private float end;
+    private float seconds;
     private long bytes;
     private double bits_per_second;
     private boolean omitted;
     private boolean sender;
 
-    private STREAM_TYPE streamType;
-
-    public Stream(){
+    public Sum(){
     }
     public void parse(JSONObject data) throws JSONException {
-        this.socket = data.getInt("socket");
         this.start = data.getInt("start");
-        this.end = data.getDouble("end");
-        this.seconds = data.getDouble("seconds");
+        this.end = (float) data.getDouble("end");
+        this.seconds = (float) data.getDouble("seconds");
         this.bytes = data.getLong("bytes");
         this.bits_per_second = data.getDouble("bits_per_second");
         this.omitted = data.getBoolean("omitted");
         this.sender = data.getBoolean("sender");
     }
 
-    public int getSocket() {
-        return socket;
-    }
     public int getStart() {
         return start;
     }
-    public double getEnd() {
+    public float getEnd() {
         return end;
     }
-    public double getSeconds() {
+    public float getSeconds() {
         return seconds;
     }
     public long getBytes() {
@@ -53,12 +46,4 @@ public class Stream {
         return sender;
     }
 
-    public STREAM_TYPE getStreamType() {
-        return streamType;
-    }
-
-    public void setStreamType(
-        STREAM_TYPE streamType) {
-        this.streamType = streamType;
-    }
 }

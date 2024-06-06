@@ -6,19 +6,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Start{
-    public ArrayList<Connected> connected = new ArrayList<Connected>();
-    public String version;
-    public String system_info;
-    public Timestamp timestamp;
-    public ConnectingTo connecting_to;
-    public String cookie;
-    public int tcp_mss_default;
-    public int target_bitrate;
-    public int fq_rate;
-    public int sock_bufsize;
-    public int sndbuf_actual;
-    public int rcvbuf_actual;
-    public TestStart test_start;
+    private ArrayList<Connected> connected = new ArrayList<Connected>();
+    private String version;
+    private String system_info;
+    private Timestamp timestamp;
+    private ConnectingTo connecting_to;
+    private String cookie;
+    private int tcp_mss_default;
+    private int target_bitrate;
+    private int fq_rate;
+    private int sock_bufsize;
+    private int sndbuf_actual;
+    private int rcvbuf_actual;
+    private TestStart test_start;
 
     public Start(){
     }
@@ -45,4 +45,44 @@ public class Start{
         this.test_start = new TestStart();
         this.test_start.parse(data.getJSONObject("test_start"));
     }
+    public ArrayList<Connected> getConnected() {
+        return connected;
+    }
+    public String getVersion() {
+        return version;
+    }
+    public String getSystem_info() {
+        return system_info;
+    }
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+    public ConnectingTo getConnecting_to() {
+        return connecting_to;
+    }
+    public String getCookie() {
+        return cookie;
+    }
+    public int getTcp_mss_default() {
+        return tcp_mss_default;
+    }
+    public int getTarget_bitrate() {
+        return target_bitrate;
+    }
+    public int getFq_rate() {
+        return fq_rate;
+    }
+    public int getSock_bufsize() {
+        return sock_bufsize;
+    }
+    public int getSndbuf_actual() {
+        return sndbuf_actual;
+    }
+    public int getRcvbuf_actual() {
+        return rcvbuf_actual;
+    }
+    public TestStart getTest_start() {
+        return test_start;
+    }
+
 }
