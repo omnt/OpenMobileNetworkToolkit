@@ -649,7 +649,7 @@ public class Iperf3Fragment extends Fragment {
             input.iperf3OneOff = true;
         }
         if (iperf3Json.isChecked()) {
-            stb.add("--json");
+            stb.add("--json-stream");
             input.iperf3Json = true;
         }
 

@@ -204,6 +204,7 @@ public class Iperf3RecyclerViewAdapter
                 Iperf3Utils.getLayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.1F));
             return ll;
         }
+
         public ViewHolder(View itemView) {
             super(itemView);
             Log.d(TAG, "ViewHolder: " + itemView);
@@ -221,7 +222,6 @@ public class Iperf3RecyclerViewAdapter
             linearLayout.addView(firstRow(new LinearLayout(context)));
             linearLayout.addView(secondRow(new LinearLayout(context)));
             linearLayout.addView(thirdRow(new LinearLayout(context)));
-
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {

@@ -39,9 +39,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformati
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Root;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Stream;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";

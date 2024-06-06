@@ -29,6 +29,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
+import com.github.anastr.speedviewlib.SpeedView;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,6 +37,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import java.util.ArrayList;
+import java.util.Locale;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Iperf3LogFragment extends Fragment {
 
@@ -51,8 +56,15 @@ public class Iperf3LogFragment extends Fragment {
     private ImageView uploadIconView;
 
     private TextView iperf3OutputViewer;
+    private SpeedView speedView;
     private LinearLayout parameterLL;
     private Context ct;
+    private TextView mean;
+    private TextView median;
+    private TextView max;
+    private TextView min;
+    private TextView last;
+    private ArrayList<Double> meanList = new ArrayList<>();
     public Iperf3LogFragment() {
         // Required empty public constructor
     }
@@ -67,6 +79,9 @@ public class Iperf3LogFragment extends Fragment {
     private void setFields(Iperf3RunResult iperf3RunResult) {
 
     }
+    private String getSpeedString(double speed) {
+        return String.format(Locale.getDefault(), "%.2f Mbit/s", speed/1e+6);
+    }
     private final Runnable logUpdate = new Runnable() {
         @Override
         public void run() {
@@ -76,6 +91,7 @@ public class Iperf3LogFragment extends Fragment {
             runIconView.setImageDrawable(runIcon);
             uploadIcon = Iperf3Utils.getDrawableUpload(ct, iperf3RunResult.result, iperf3RunResult.uploaded);
             uploadIconView.setImageDrawable(uploadIcon);
+
             BufferedReader br = null;
             StringBuilder text = new StringBuilder();
 
@@ -88,8 +104,22 @@ public class Iperf3LogFragment extends Fragment {
             }
             String line;
             try {
+                double max_value = Double.MIN_VALUE;
+                double min_value = Double.MAX_VALUE;
                 while ((line = br.readLine()) != null) {
-                    text.append(line);
+                    JSONObject obj = new JSONObject(line);
+                    String pageName = obj.getString("event");
+                    if(pageName.equals("interval")) {
+                        double last_value = obj.getJSONObject("data").getJSONObject("sum").getDouble("bits_per_second");
+                        meanList.add(last_value);
+                        mean.setText(String.format(" %s", getSpeedString(meanList.stream().mapToDouble(a -> a).sum()/meanList.size())));
+                        median.setText(String.format(" %s", getSpeedString(meanList.get(meanList.size()/2))));
+                        max_value = Math.max(max_value, last_value);
+                        min_value = Math.min(min_value, last_value);
+                        last.setText(String.format(" %s", getSpeedString(last_value)));
+                        max.setText(String.format(" %s", getSpeedString(max_value)));
+                        min.setText(String.format(" %s", getSpeedString(min_value)));
+                    }
                     text.append('\n');
                 }
                 br.close();
@@ -99,6 +129,9 @@ public class Iperf3LogFragment extends Fragment {
                 logHandler.removeCallbacks(logUpdate);
                 Log.d(TAG, "onCreateView: failed");
                 return;
+            } catch (JSONException e) {
+                logHandler.removeCallbacks(logUpdate);
+                Log.d(TAG, "onCreateView: json failed");
             }
 
 
@@ -106,14 +139,44 @@ public class Iperf3LogFragment extends Fragment {
                 logHandler.removeCallbacks(logUpdate);
                 return;
             }
-
-
-
             setFields(iperf3RunResult);
             logHandler.removeCallbacks(logUpdate);
             logHandler.postDelayed(this, 1000);
         }
     };
+
+
+
+    private LinearLayout createLL(String key) {
+        LinearLayout ll = new LinearLayout(ct);
+        ll.setOrientation(LinearLayout.HORIZONTAL);
+        TextView keyView = new TextView(ct);
+        keyView.setText(key);
+        ll.addView(keyView);
+        switch (key){
+            case "mean":
+                mean = new TextView(ct);
+                ll.addView(mean);
+                break;
+            case "median":
+                median = new TextView(ct);
+                ll.addView(median);
+                break;
+            case "max":
+                max = new TextView(ct);
+                ll.addView(max);
+                break;
+            case "min":
+                min = new TextView(ct);
+                ll.addView(min);
+                break;
+            case "last":
+                last = new TextView(ct);
+                ll.addView(last);
+                break;
+        }
+        return ll;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -249,8 +312,22 @@ public class Iperf3LogFragment extends Fragment {
             1, 10, 1,
             TypedValue.COMPLEX_UNIT_SP);
         iperf3OutputViewer.setTextIsSelectable(true);
-        scrollView.addView(iperf3OutputViewer);
-        secondRow.addView(scrollView);
+        LinearLayout cardViewResult = new LinearLayout(ct);
+        LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        cardViewResult.setOrientation(LinearLayout.VERTICAL);
+        cardViewResult.setLayoutParams(cardParams);
+
+        cardViewResult.addView(createLL("mean"));
+        cardViewResult.addView(createLL("median"));
+        cardViewResult.addView(createLL("max"));
+        cardViewResult.addView(createLL("min"));
+        cardViewResult.addView(createLL("last"));
+
+
+        secondRow.addView(cardViewResult);
 
         mainLL.addView(secondRow);
         if(iperf3RunResult.input.iperf3rawIperf3file == null){
