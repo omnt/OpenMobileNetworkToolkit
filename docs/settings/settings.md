@@ -10,4 +10,4 @@ OMNT has a lot of settings which allow a customization of the app behavior and i
 * [Set Subscription](set_subscrption.md): Choose the subscription to use
 * [Reboot Modem](reboot_modem.md): Reboot the modem of the phone
 
-[Home](OpenMobileNetworkToolkit.md)
+[Home](../OpenMobileNetworkToolkit.md)
