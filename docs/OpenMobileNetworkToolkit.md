@@ -3,7 +3,7 @@
 * [Quick Start Guide](./quick-start.md)
 * [Installation](installation.md)
 * [SIM Card Setup for Carrier Permissions](./carrier-permissions.md)
-* [Android Tweeks](android_tweaks.md)
+* [Android Tweaks](android_tweaks.md)
 * OMNT Usage
     * [Home](./home.md)
     * [iPerf3](./iperf3.md)
@@ -17,6 +17,6 @@
     * [Settings](settings/settings.md)
         * [Logging](settings/logging.md)
         * [Mobile Network](settings/mobile_network.md)
-        * [Set subcription](settings/set_subscrption.md)
+        * [Set subscription](settings/set_subscrption.md)
         * [Reboot Modem](settings/reboot_modem.md)
     

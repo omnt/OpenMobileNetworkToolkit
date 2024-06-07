@@ -1,5 +1,5 @@
 # SIM UICC configuration for Carrier Permissions
-Carrier specific settings can only be accessed by apps running with so-called carrier privileges. This was added in android 6 and is mostly relevant for 4G and 5G networks. (https://source.android.com/devices/tech/config/carrier). These permissions also allow OMNT to talk to APIs restricted to system apps (apps that are shipped with your phone usually not removable). OMNT works with out these permissions but some features will be disbaled.
+Carrier specific settings can only be accessed by apps running with so-called carrier privileges. This was added in android 6 and is mostly relevant for 4G and 5G networks. (https://source.android.com/devices/tech/config/carrier). These permissions also allow OMNT to talk to APIs restricted to system apps (apps that are shipped with your phone usually not removable). OMNT works with out these permissions but some features will be disabled.
 
 Carrier or researcher who are able (admin key to the SIM card is required) to program their own sim cards can store a fingerprint of an signing certificate in an access rule applet (ARA-M) on the SIM card. 
 An app signed with this certificate will get carrier privileges granted by Android. (https://source.android.com/devices/tech/config/uicc)
