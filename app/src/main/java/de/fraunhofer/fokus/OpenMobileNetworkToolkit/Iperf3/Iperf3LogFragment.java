@@ -30,6 +30,9 @@ import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
 import com.github.anastr.speedviewlib.SpeedView;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -103,7 +106,24 @@ public class Iperf3LogFragment extends Fragment {
                 return;
             }
             String line;
+
             Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3RunResult.input.iperf3rawIperf3file);
+            iperf3Parser.addPropertyChangeListener(new PropertyChangeListener() {
+                private double max_value = Double.MIN_VALUE;
+                private double min_value = Double.MAX_VALUE;
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    Interval interval = (Interval) evt.getNewValue();
+                    meanList.add(interval.getSum().getBits_per_second());
+                    mean.setText(String.format(" %s", getSpeedString(meanList.stream().mapToDouble(a -> a).sum()/meanList.size())));
+                    median.setText(String.format(" %s", getSpeedString(meanList.get(meanList.size()/2))));
+                    max_value = Math.max(max_value, interval.getSum().getBits_per_second());
+                    min_value = Math.min(min_value, interval.getSum().getBits_per_second());
+                    last.setText(String.format(" %s", getSpeedString(interval.getSum().getBits_per_second())));
+                    max.setText(String.format(" %s", getSpeedString(max_value)));
+                    min.setText(String.format(" %s", getSpeedString(min_value)));
+                }
+            });
             iperf3Parser.parse();
             if (iperf3RunResult.result != -100) {
                 logHandler.removeCallbacks(logUpdate);

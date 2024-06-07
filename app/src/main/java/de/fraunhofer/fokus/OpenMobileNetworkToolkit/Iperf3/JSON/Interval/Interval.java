@@ -1,7 +1,7 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.Streams;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Sum.Sum;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Streams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,7 +14,7 @@ public class Interval {
         streams = new Streams();
     }
     public void parse(JSONObject data) throws JSONException {
-        streams.parse(data.getJSONObject("streams"));
+        streams.parse(data.getJSONArray("streams"));
         sum = new Sum();
         sum.parse(data.getJSONObject("sum"));
         if(data.has("sum_bidir_reverse")){

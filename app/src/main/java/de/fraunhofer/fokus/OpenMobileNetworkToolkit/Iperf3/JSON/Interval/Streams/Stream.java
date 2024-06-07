@@ -1,4 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams;
 
 import org.json.JSONException;
 import org.json.JSONObject;

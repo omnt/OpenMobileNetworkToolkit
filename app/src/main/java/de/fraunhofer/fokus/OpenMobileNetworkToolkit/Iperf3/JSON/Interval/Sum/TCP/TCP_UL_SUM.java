@@ -1,4 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Sum.TCP;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.TCP;
 
 import org.json.JSONException;
 import org.json.JSONObject;

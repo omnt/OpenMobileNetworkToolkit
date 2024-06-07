@@ -29,7 +29,7 @@ public class TestStart{
         this.reverse = data.getInt("reverse");
         this.tos = data.getInt("tos");
         this.target_bitrate = data.getInt("target_bitrate");
-        this.bidir = data.getBoolean("bidir");
+        this.bidir = 1 == data.getInt("bidir");
         this.fqrate = data.getInt("fqrate");
         this.interval = data.getInt("interval");
     }

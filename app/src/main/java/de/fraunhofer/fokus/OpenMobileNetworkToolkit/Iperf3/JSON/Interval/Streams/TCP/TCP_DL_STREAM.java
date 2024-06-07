@@ -1,6 +1,6 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.STREAM_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.STREAM_TYPE;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,7 +8,6 @@ import org.json.JSONObject;
 public class TCP_DL_STREAM extends TCP_STREAM {
     public TCP_DL_STREAM(){
         super();
-        super
     }
     public void parse(JSONObject data) throws JSONException {
         super.parse(data);

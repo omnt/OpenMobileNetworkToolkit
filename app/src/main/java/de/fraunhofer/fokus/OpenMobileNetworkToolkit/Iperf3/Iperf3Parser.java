@@ -1,11 +1,15 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Observable;
+import java.util.Observer;
 import org.json.JSONObject;
 
 
@@ -14,7 +18,7 @@ public class Iperf3Parser {
     private String pathToFile;
     private File file;
     private BufferedReader br = null;
-
+    private PropertyChangeSupport support;
     private Start start;
     private Intervals intervals = new Intervals();
     Iperf3Parser(String pathToFile) {
@@ -26,6 +30,7 @@ public class Iperf3Parser {
             System.out.println("File not found");
             return;
         }
+        this.support = new PropertyChangeSupport(this);
     }
 
     public void parse(){
@@ -43,6 +48,7 @@ public class Iperf3Parser {
                     case "interval":
                         Interval interval = new Interval();
                         interval.parse(data);
+                        support.firePropertyChange("interval", null, interval);
                         intervals.addInterval(interval);
                         break;
                     case "end":
@@ -64,5 +70,13 @@ public class Iperf3Parser {
     public Start getStart() {
         return start;
     }
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        support.removePropertyChangeListener(pcl);
+    }
+
 
 }

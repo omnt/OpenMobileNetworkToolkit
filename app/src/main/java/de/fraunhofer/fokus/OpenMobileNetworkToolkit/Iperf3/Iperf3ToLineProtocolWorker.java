@@ -21,20 +21,15 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.common.base.Splitter;
-import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.Stream;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP.TCP_DL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP.TCP_UL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.UDP.UDP_DL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.UDP.UDP_UL_STREAM;
-import java.io.BufferedReader;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;

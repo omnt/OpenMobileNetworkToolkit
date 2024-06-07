@@ -1,9 +1,9 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP.TCP_DL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.TCP.TCP_UL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.UDP.UDP_DL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Interval.Streams.UDP.UDP_UL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_DL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_UL_STREAM;
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,8 +48,7 @@ public class Streams {
         return stream;
     }
 
-    public void parse(JSONObject data) throws JSONException {
-        JSONArray streams = data.getJSONArray("streams");
+    public void parse(JSONArray streams) throws JSONException {
         for (int i = 0; i < streams.length(); i++) {
             JSONObject streamJSONObject = streams.getJSONObject(i);
             Stream stream = parseStream(streamJSONObject);
