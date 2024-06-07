@@ -36,7 +36,7 @@ public class Start{
         this.connecting_to = new ConnectingTo();
         this.connecting_to.parse(data.getJSONObject("connecting_to"));
         this.cookie = data.getString("cookie");
-        this.tcp_mss_default = data.getInt("tcp_mss_default");
+        if(data.has("tcp_mss_default")) this.tcp_mss_default = data.getInt("tcp_mss_default");
         this.target_bitrate = data.getInt("target_bitrate");
         this.fq_rate = data.getInt("fq_rate");
         this.sock_bufsize = data.getInt("sock_bufsize");

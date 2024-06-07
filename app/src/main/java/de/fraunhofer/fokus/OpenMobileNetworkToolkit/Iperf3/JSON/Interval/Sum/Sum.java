@@ -11,7 +11,7 @@ public class Sum {
     private double bits_per_second;
     private boolean omitted;
     private boolean sender;
-
+    private SUM_TYPE sumType;
     public Sum(){
     }
     public void parse(JSONObject data) throws JSONException {
@@ -23,7 +23,6 @@ public class Sum {
         this.omitted = data.getBoolean("omitted");
         this.sender = data.getBoolean("sender");
     }
-
     public int getStart() {
         return start;
     }
@@ -44,6 +43,12 @@ public class Sum {
     }
     public boolean getSender() {
         return sender;
+    }
+    public SUM_TYPE getSumType() {
+        return sumType;
+    }
+    public void setSumType(SUM_TYPE sumType) {
+        this.sumType = sumType;
     }
 
 }
