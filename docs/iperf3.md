@@ -2,14 +2,14 @@
 iPerf3 has been compiled with a [JNI](https://developer.android.com/training/articles/perf-jni) interface to enable OMNT to call it using the specified parameters.
 To see how to integrate iPerf3 into your app, look at [iPerf3 Repo](https://github.com/omnt/iperf)
 
-### Icon Legend
-- ![Outline Cloud Off](/app/src/main/res/drawable/ic_outline_cloud_off_24.xml) - iPerf3 run is not uploaded 
-- ![Outline Cloud done](/app/src/main/res/drawable/ic_outline_cloud_done_24.xml) - iPerf3 run is successfully uploaded
+| Icon                                                                 | Description                         |
+|----------------------------------------------------------------------|-------------------------------------|
+| ![Outline Cloud Off](/app/src/main/res/drawable/upload_fail.png)     | iPerf3 run is not uploaded          |
+| ![Outline Cloud done](/app/src/main/res/drawable/upload_success.png) | iPerf3 run is successfully uploaded |
+| ![Running](/app/src/main/res/drawable/ic_directions_run.png)         | iPerf3 run is running               |
+| ![Done](/app/src/main/res/drawable/ic_done_all.png)                  | iPerf3 run is done                  |
+| ![Error](/app/src/main/res/drawable/ic_error_outline.png)            | iPerf3 run has an error             |
 
-
-- ![Running](/app/src/main/res/drawable/ic_directions_run.png) - iPerf3 run is running
-- ![Done](/app/src/main/res/drawable/ic_done.png) - iPerf3 run is done
-- ![Error](/app/src/main/res/drawable/ic_error_outline.png) - iPerf3 run has an error
 
 ### Usage
 To use iPerf3 it is pretty simple. 
