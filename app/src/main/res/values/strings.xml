@@ -15,7 +15,7 @@
     <string name="action_huawei">Huawei Project</string>
     <string name="action_mediatek">Mediatek IMS</string>
     <string name="action_iperf3">iPerf3</string>
-    <string name="execute_iperf_command">Send!</string>
+    <string name="execute_iperf_command">Send</string>
     <string name="iperf_command">-c 172.17.0.1</string>
     <string name="loggin_notifaction">OpenMobileNetworkToolkit logging</string>
     <string name="appinfo">This app is provided by NGNI a department of Fraunhofer FOKUS. \n\nhttps://www.fokus.fraunhofer.de/go/ngni \n\nThis software is licensed under BSD 3-Clause Clear License https://spdx.org/licenses/BSD-3-Clause-Clear.html \n\nAuthors: \n\nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>

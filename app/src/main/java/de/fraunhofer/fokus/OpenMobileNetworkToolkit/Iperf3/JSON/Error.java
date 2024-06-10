@@ -17,8 +17,12 @@ public class Error {
         this.error = error;
     }
 
-    public void parse(JSONObject data) throws JSONException {
-        this.error = data.getString("error");
+    public void parse(String data) throws JSONException {
+        this.error = data;
+    }
+
+    public String toString() {
+        return "Error: " + error;
     }
 
 }

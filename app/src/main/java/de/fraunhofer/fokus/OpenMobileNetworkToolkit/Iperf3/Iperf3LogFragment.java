@@ -32,6 +32,7 @@ import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
 import com.github.anastr.speedviewlib.SpeedView;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
@@ -66,6 +67,7 @@ public class Iperf3LogFragment extends Fragment {
     private SpeedView speedView;
     private LinearLayout parameterLL;
     private Context ct;
+    private LinearLayout metricLL;
     private Metric defaultReverseThroughput;
     private Metric defaultThroughput;
     private Metric defaultRTT;
@@ -341,14 +343,32 @@ public class Iperf3LogFragment extends Fragment {
                     }
 
                 }
-                @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    Interval interval = (Interval) evt.getNewValue();
-                    parseSum(interval.getSum(), defaultThroughput);
-                    if(interval.getSumBidirReverse() != null) parseSum(interval.getSumBidirReverse(),
-                        defaultReverseThroughput);
+
+                    switch (evt.getPropertyName()){
+                        case "interval":
+                            Interval interval = (Interval) evt.getNewValue();
+                            parseSum(interval.getSum(), defaultThroughput);
+                            if(interval.getSumBidirReverse() != null) parseSum(interval.getSumBidirReverse(),
+                                defaultReverseThroughput);
+                            break;
+                        case "start":
+                            break;
+                        case "end":
+                            break;
+                        case "error":
+                            Error error = (Error) evt.getNewValue();
+                            TextView errorView = new TextView(ct);
+                            errorView.setText(error.getError());
+                            errorView.setTextColor(ct.getColor(R.color.crimson));
+                            errorView.setPadding(10, 10, 10, 10);
+                            errorView.setTextSize(20);
+                            metricLL.addView(errorView);
+                            break;
+                    }
                 }
             });
+
             iperf3Parser.parse();
             if (iperf3RunResult.result != -100) {
                 logHandler.removeCallbacks(logUpdate);
@@ -498,37 +518,45 @@ public class Iperf3LogFragment extends Fragment {
             TypedValue.COMPLEX_UNIT_SP);
         iperf3OutputViewer.setTextIsSelectable(true);
 
+        metricLL = new LinearLayout(ct);
+        metricLL.setOrientation(LinearLayout.VERTICAL);
+        metricLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+
+
         defaultThroughput = new Metric(METRIC_TYPE.THROUGHPUT);
         defaultReverseThroughput = new Metric(METRIC_TYPE.THROUGHPUT);
-        mainLL.addView(defaultThroughput.createOneDirection("Throughput"));
+
+        metricLL.addView(defaultThroughput.createOneDirection("Throughput"));
 
         if(iperf3RunResult.input.iperf3BiDir) {
-            mainLL.addView(defaultReverseThroughput.createOneDirection("Throughput"));
+            metricLL.addView(defaultReverseThroughput.createOneDirection("Throughput"));
             if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
-                defaultRTT = new Metric(METRIC_TYPE.RTT);
-                mainLL.addView(defaultRTT.createOneDirection("RTT"));
+                //defaultRTT = new Metric(METRIC_TYPE.RTT);
+                //metricLL.addView(defaultRTT.createOneDirection("RTT"));
             };
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER);
-                mainLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
+                metricLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS);
-                mainLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
+                metricLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
             };
         };
         if(iperf3RunResult.input.iperf3Reverse) {
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER);
-                mainLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
+                metricLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.JITTER);
-                mainLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
+                metricLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
             };
         } else if(!iperf3RunResult.input.iperf3BiDir) {
             if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
-                defaultRTT = new Metric(METRIC_TYPE.RTT);
-                mainLL.addView(defaultRTT.createOneDirection("RTT ms"));
+                //defaultRTT = new Metric(METRIC_TYPE.RTT);
+                //metricLL.addView(defaultRTT.createOneDirection("RTT ms"));
             };
         }
 
+        mainLL.addView(metricLL);
 
 
 

@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
 import java.beans.PropertyChangeListener;
@@ -39,20 +40,27 @@ public class Iperf3Parser {
             while ((line = br.readLine()) != null) {
                 JSONObject obj = new JSONObject(line);
                 String event = obj.getString("event");
-                JSONObject data = obj.getJSONObject("data");
                 switch (event) {
                     case "start":
                         start = new Start();
-                        start.parseStart(data);
+                        JSONObject startData = obj.getJSONObject("data");
+                        start.parseStart(startData);
                         break;
                     case "interval":
                         Interval interval = new Interval();
-                        interval.parse(data);
+                        JSONObject intervalData = obj.getJSONObject("data");
+                        interval.parse(intervalData);
                         support.firePropertyChange("interval", null, interval);
                         intervals.addInterval(interval);
                         break;
                     case "end":
                         System.out.println("End");
+                        break;
+                    case "error":
+                        Error error = new Error();
+                        String errorString = obj.getString("data");
+                        error.parse(errorString);
+                        support.firePropertyChange("error", null, error);
                         break;
                     default:
                         System.out.println("Unknown event");
