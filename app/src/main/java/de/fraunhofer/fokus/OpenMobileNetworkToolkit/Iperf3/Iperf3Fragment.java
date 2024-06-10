@@ -644,6 +644,9 @@ public class Iperf3Fragment extends Fragment {
         }
         stb.add("--json-stream");
 
+        stb.add("--connect-timeout");
+        stb.add("500");
+
 
         String joined = String.join(" ", stb);
 
