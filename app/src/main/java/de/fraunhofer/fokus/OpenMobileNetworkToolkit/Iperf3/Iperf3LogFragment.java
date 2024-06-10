@@ -212,7 +212,7 @@ public class Iperf3LogFragment extends Fragment {
             ((TextView)median.getChildAt(1)).setText(String.format(" %s", getFormatedString(calcMedian())));
             ((TextView)max.getChildAt(1)).setText(String.format(" %s", getFormatedString(calcMax())));
             ((TextView)min.getChildAt(1)).setText(String.format(" %s", getFormatedString(calcMin())));
-            ((TextView)last.getChildAt(1)).setText(String.format(" %s", getFormatedString(meanList.get(meanList.size()-1))));
+            ((TextView)last.getChildAt(1)).setText(String.format(" %s", getFormatedString(value)));
         }
 
         public ArrayList<Double> getMeanList() {
