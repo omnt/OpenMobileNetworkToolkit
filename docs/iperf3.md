@@ -2,13 +2,9 @@
 iPerf3 has been compiled with a [JNI](https://developer.android.com/training/articles/perf-jni) interface to enable OMNT to call it using the specified parameters.
 To see how to integrate iPerf3 into your app, look at [iPerf3 Repo](https://github.com/omnt/iperf)
 
-| Icon                                                                     | Description                         |
-|--------------------------------------------------------------------------|-------------------------------------|
-| <img src="images/upload_fail.png" width="100">                           | iPerf3 run is not uploaded          |
-| <img src="images/upload_success.png" width="100">                        | iPerf3 run is successfully uploaded |
-| <img src="/app/src/main/res/drawable/ic_directions_run.png" width="100"> | iPerf3 run is running               |
-| <img src="/app/src/main/res/drawable/ic_done_all.png" width="100">       | iPerf3 run is done                  |
-| <img src="/app/src/main/res/drawable/ic_error_outline.png" width="100">  | iPerf3 run has an error             |
+| Description                                                                            | iPerf3 run is not uploaded                     | iPerf3 run is successfully uploaded                | iPerf3 run is running                                                   | iPerf3 run is done                                                    | iPerf3 run has an error                                                |
+|----------------------------------------------------------------------------------------|------------------------------------------------|---------------------------------------------------|--------------------------------------------------------------------------|----------------------------------------------------------------------|--------------------------------------------------------------------------|
+| Image                                                                                  | <img src="images/upload_fail.png" width="100"> | <img src="images/upload_success.png" width="100"> | <img src="/app/src/main/res/drawable/ic_directions_run.png" width="100"> | <img src="/app/src/main/res/drawable/ic_done_all.png" width="100"> | <img src="/app/src/main/res/drawable/ic_error_outline.png" width="100">  |
 
 
 ### Usage
