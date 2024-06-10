@@ -36,7 +36,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.TCP.TCP_UL_SUM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.UDP.UDP_DL_SUM;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -48,7 +47,6 @@ import java.io.FileReader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.function.Function;
 
 public class Iperf3LogFragment extends Fragment {
 
@@ -64,7 +62,6 @@ public class Iperf3LogFragment extends Fragment {
     private ImageView uploadIconView;
 
     private TextView iperf3OutputViewer;
-    private SpeedView speedView;
     private LinearLayout parameterLL;
     private Context ct;
     private LinearLayout metricLL;
