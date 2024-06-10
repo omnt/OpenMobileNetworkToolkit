@@ -21,6 +21,6 @@ Each log gets converted into a https://docs.influxdata.com/influxdb/cloud/refere
 If the Influx parameters are set correctly (refer to [Logging -> Remote Logging](settings/logging.md)), the results of the iPerf3 test will be uploaded to the InfluxDB. 
 InfluxDB Remote Logging needs to be enabled.
 If the upload to InfluxDB fails, the logs can be uploaded manually.
-![iPerf3_run_upload.gif](images/iperf3_run_upload.gif)
+![iPerf3_run_upload.gif](images/iPerf3_run_upload.gif)
 
 [Home](OpenMobileNetworkToolkit.md)
