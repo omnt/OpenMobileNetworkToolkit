@@ -1,4 +1,4 @@
-# OpenMobileNetworkToolkit Change Log
+# OpenMobileNetworkToolkit Changelog
 ## Release [0.3]
 
 ### Added
