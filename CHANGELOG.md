@@ -2,13 +2,13 @@
 ## Release [0.3]
 
 ### Added
-- Github Action Workflow for APK Debug/Relase Build and SPDX File
-- Documentation
-- CHANGELOG.md
+- Github Action Workflow for APK Debug/Relase Build and SPDX File [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
+- Documentation [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
+- CHANGELOG.md [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
 
 ### Changed
 - Fix possible [InfluxDB Bug](https://github.com/influxdata/influxdb-client-java/issues/731)
-- [iPerf3 GUI](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
+- iPerf3 GUI [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
 
 ### Breaking Changes
 - see [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
@@ -21,5 +21,5 @@
 - Filter for Carrier Settings Readout
 - Carrier Settings Apply button moved to Settings
 - InfluxDB Cloud is now also supported to be used as logging target. This means we can log to Influx 1.x 2.x and 3.x 
-- [PR](https://github.com/omnt/OpenMobileNetworkToolkit/pull/7)
+- [PR 7](https://github.com/omnt/OpenMobileNetworkToolkit/pull/7)
 - [Release 0.2](https://github.com/omnt/OpenMobileNetworkToolkit/releases/tag/0.2
