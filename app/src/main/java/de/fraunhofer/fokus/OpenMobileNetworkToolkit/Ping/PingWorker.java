@@ -11,6 +11,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
@@ -51,6 +52,8 @@ public class PingWorker extends Worker {
     private String timeRegex = "\\btime=([0-9]+\\.[0-9]+)\\s+ms\\b";
     private Pattern pattern = Pattern.compile(timeRegex);
     private String line = null;
+    private NotificationManager notificationManager;
+
 
     public void parsePingCommand() {
 
@@ -93,9 +96,6 @@ public class PingWorker extends Worker {
 
         PendingIntent intent = WorkManager.getInstance(ct)
             .createCancelPendingIntent(getId());
-
-
-
         notification = notificationBuilder
             .setContentTitle("Ping "+ parsedCommand.get("target"))
             .setContentText(progress)
@@ -116,7 +116,13 @@ public class PingWorker extends Worker {
             Matcher matcher = pattern.matcher(line);
             if(matcher.find()){
                 double rtt = Double.parseDouble(matcher.group(1));
-                setForegroundAsync(createForegroundInfo(rtt+" ms"));
+                if(notification != null){
+                    notificationBuilder.setContentText(rtt+" ms");
+                    notificationManager.notify(notificationID, notificationBuilder.build());
+                } else {
+                    setForegroundAsync(createForegroundInfo(rtt+" ms"));
+                }
+
             }
         }
     };
@@ -133,6 +139,7 @@ public class PingWorker extends Worker {
         lines = new ArrayList<>();
         Data data = null;
         notificationBuilder = new NotificationCompat.Builder(ct, channelId);
+        notificationManager = ct.getSystemService(NotificationManager.class);
         try {
 
             StringBuilder stringBuilder = new StringBuilder();

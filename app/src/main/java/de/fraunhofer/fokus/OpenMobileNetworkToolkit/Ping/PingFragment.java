@@ -8,7 +8,10 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -62,19 +65,19 @@ public class PingFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
       }
+
     private void setupPing(){
         input.setEnabled(false);
         pingViewer.setText("");
-        Intent pingStart = new Intent(ct, LoggingService.class);
-        pingStart.putExtra("input", input.getText().toString());
+        Intent pingStart = new Intent(ct, PingService.class);
+
         pingStart.putExtra("ping", true);
         ct.startService(pingStart);
     }
     private void stopPing(){
         input.setEnabled(true);
-        Intent pingStart = new Intent(ct, LoggingService.class);
-        pingStart.putExtra("ping", true);
-        pingStart.putExtra("ping_stop", true);
+        Intent pingStart = new Intent(ct, PingService.class);
+        pingStart.putExtra("ping", false);
         pingStart.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ct.startService(pingStart);
     }
