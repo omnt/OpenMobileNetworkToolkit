@@ -8,7 +8,7 @@ public class UDP_DL_STREAM extends UDP_STREAM {
     private double jitter_ms;
     private int lost_packets;
     private int packets;
-    private int lost_percent;
+    private double lost_percent;
     public UDP_DL_STREAM(){
         super();
     }
@@ -17,7 +17,7 @@ public class UDP_DL_STREAM extends UDP_STREAM {
         this.jitter_ms = data.getDouble("jitter_ms");
         this.lost_packets = data.getInt("lost_packets");
         this.packets = data.getInt("packets");
-        this.lost_percent = data.getInt("lost_percent");
+        this.lost_percent = data.getDouble("lost_percent");
         this.setStreamType(STREAM_TYPE.UDP_DL);
     }
     public double getJitter_ms() {
@@ -29,7 +29,7 @@ public class UDP_DL_STREAM extends UDP_STREAM {
     public int getPackets() {
         return packets;
     }
-    public int getLost_percent() {
+    public double getLost_percent() {
         return lost_percent;
     }
 
