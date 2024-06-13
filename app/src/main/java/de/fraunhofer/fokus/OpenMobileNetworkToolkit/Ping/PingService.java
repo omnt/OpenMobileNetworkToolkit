@@ -73,7 +73,6 @@ public class PingService extends Service {
     public void onDestroy() {
         Log.d(TAG, "onDestroy: Stop logging service");
         stopPing();
-        pingSP.edit().putBoolean("switch", false).apply();
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -202,11 +201,9 @@ public class PingService extends Service {
                             }
 
                             Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
-
                         }
                         intent.putExtra("ping_line", line);
                         sendBroadcast(intent);
-
                         return;
                     }
                     if(state == WorkInfo.State.ENQUEUED) return;

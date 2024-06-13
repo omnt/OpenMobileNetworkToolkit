@@ -124,7 +124,7 @@ public class PingFragment extends Fragment {
         scrollView = horizontalLL1.findViewById(R.id.ping_scrollviewer);
 
         saveTextInputToSharedPreferences(input, "ping_input");
-        aSwitch.setChecked(sp.getBoolean("switch", false));
+        aSwitch.setChecked(sp.getBoolean("ping", false));
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -132,7 +132,6 @@ public class PingFragment extends Fragment {
                 Log.d(TAG, "onCheckedChanged: "+b);
                 if(b) setupPing();
                 else stopPing();
-                sp.edit().putBoolean("switch", b).apply();
             }
         });
         BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -152,7 +151,4 @@ public class PingFragment extends Fragment {
         pingViewer.setMovementMethod(new ScrollingMovementMethod());
         return v;
     }
-
-
-
 }
