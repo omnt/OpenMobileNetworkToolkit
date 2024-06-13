@@ -34,6 +34,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnectio
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -43,6 +45,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -62,7 +65,12 @@ public class PingService extends Service {
     DataProvider dp;
     InfluxdbConnection influx;
     private static boolean isRunning = false;
+    private static PingParser pingParser;
+    private Process pingProcess;
+    private String pingCommand;
+    private Runtime runtime = Runtime.getRuntime();
 
+    HashMap<String, String> parsedCommand = new HashMap<>();
 
     @Nullable
     @Override
@@ -86,27 +94,13 @@ public class PingService extends Service {
         if(defaultSP.getBoolean("enable_influx", false)) influx = InfluxdbConnections.getRicInstance(context);
         wm = WorkManager.getInstance(context);
         if(intent == null) return START_NOT_STICKY;
-
-        if (intent.getBooleanExtra("ping", false)) {
-            pingInput = intent.getStringExtra("input");
-            pingWRs = new ArrayList<>();
-            setupPing();
-            isRunning = true;
-        } else {
-            stopPing();
-            isRunning = false;
-        }
-
-
+        pingInput = intent.getStringExtra("input");
+        pingWRs = new ArrayList<>();
+        setupPing();
+        isRunning = true;
         return START_STICKY;
     }
 
-
-    private long unixTimestampWithMicrosToMillis(double timestampWithMicros) {
-        long seconds = (long) timestampWithMicros;
-        long microseconds = (long) ((timestampWithMicros - seconds) * 1e6);
-        return seconds * 1000 + microseconds / 1000;
-    }
 
     private void setupPing(){
         Log.d(TAG, "setupLocalFile");
@@ -138,9 +132,61 @@ public class PingService extends Service {
             Toast.makeText(context, "logfile not created", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
-
+        pingSP.edit().putBoolean("ping", true).apply();
         pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        PingParser pingParser = PingParser.getInstance(null);
+        pingParser.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                PingInformation pi = (PingInformation) evt.getNewValue();
+                Log.d(TAG, "propertyChange: "+pi.toString());
+                Point point = Point.measurement("Ping")
+                    .time(pi.getUnixTimestamp(), WritePrecision.MS)
+                    .addTags(dp.getTagsMap())
+                    .addTag("toHost", pi.getHost())
+                    .addField("icmp_seq", pi.getIcmpSeq())
+                    .addField("ttl", pi.getTtl())
+                    .addField("rtt", pi.getRtt());
+                try {
+                    ping_stream.write((point.toLineProtocol() + "\n").getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (defaultSP.getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
+                    try {
+                        influx.writePoints(Arrays.asList(point));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
+            }
+        });
         pingLogging.post(pingUpdate);
+    }
+    public void parsePingCommand() {
+
+        String[] commandParts = pingCommand.split("\\s+");
+
+        String previousPart = null;
+        for (String part : commandParts) {
+            switch (part) {
+                case "ping":
+                    parsedCommand.put("command", part);
+                    break;
+                case "-w":
+                    if (previousPart != null) {
+                        parsedCommand.put("timeout", previousPart);
+                    }
+                    break;
+                default:
+                    parsedCommand.put("target", part);
+                    break;
+            }
+            previousPart = part;
+        }
     }
 
     private final Runnable pingUpdate = new Runnable() {
@@ -162,66 +208,23 @@ public class PingService extends Service {
                     WorkInfo workInfo = (WorkInfo) o;
                     WorkInfo.State state = workInfo.getState();
                     Log.d(TAG, "onChanged: "+state.toString());
-                    if(state == WorkInfo.State.RUNNING) {
-                        String line = workInfo.getProgress().getString("ping_line");
-                        if(line == null) return;
-                        Pattern pattern = Pattern.compile("\\[(\\d+\\.\\d+)\\] (\\d+ bytes from (\\S+|\\d+\\.\\d+\\.\\d+\\.\\d+)): icmp_seq=(\\d+) ttl=(\\d+) time=([\\d.]+) ms");
-                        Matcher matcher = pattern.matcher(line);
-                        Intent intent = new Intent("ping");
-
-                        if(matcher.find()){
-                            long unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
-                            int icmpSeq = Integer.parseInt(matcher.group(4));
-                            int ttl = Integer.parseInt(matcher.group(5));
-                            String host = matcher.group(3);
-                            double rtt = Double.parseDouble(matcher.group(6));
-                            intent.putExtra("ping_running", true);
-                            intent.putExtra("ping_rtt", rtt);
-
-                            // Create an InfluxDB point with the Unix timestamp
-                            Point point = Point.measurement("Ping")
-                                .time(unixTimestamp, WritePrecision.MS)
-                                .addTags(dp.getTagsMap())
-                                .addTag("toHost", host)
-                                .addField("icmp_seq", icmpSeq)
-                                .addField("ttl", ttl)
-                                .addField("rtt", rtt);
+                    switch (state){
+                        case RUNNING:
+                        case ENQUEUED:
+                            return;
+                        case FAILED:
+                        case CANCELLED:
                             try {
-                                ping_stream.write((point.toLineProtocol() + "\n").getBytes());
+                                ping_stream.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
-                            if (defaultSP.getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
-                                try {
-                                    influx.writePoints(Arrays.asList(point));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
-                        }
-                        intent.putExtra("ping_line", line);
-                        sendBroadcast(intent);
-                        return;
-                    }
-                    if(state == WorkInfo.State.ENQUEUED) return;
-                    if(state == WorkInfo.State.CANCELLED) {
-                        try {
-                            ping_stream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return;
-                    };
-                    if(state == WorkInfo.State.FAILED) {
-                        pingLogging.postDelayed(pingUpdate, 1000);
-                        return;
+                            pingLogging.removeCallbacks(pingUpdate);
+                            return;
                     }
 
                     wm.getWorkInfoByIdLiveData(pingWR.getId()).removeObserver(this);
-                    pingLogging.postDelayed(pingUpdate, 1000);
+                    pingLogging.postDelayed(pingUpdate, 200);
                 }
             };
             wm.getWorkInfoByIdLiveData(pingWR.getId()).observeForever(observer);
@@ -229,18 +232,20 @@ public class PingService extends Service {
     };
 
     private void stopPing(){
-        if(pingLogging != null)  pingLogging.removeCallbacks(pingUpdate);
+
+        if (pingLogging != null )pingLogging.removeCallbacks(pingUpdate);
         try {
             if (ping_stream != null) ping_stream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        wm.cancelAllWorkByTag("Ping");
-        Intent intent = new Intent("ping_rtt");
-        intent.putExtra("ping_rtt", 0.0);
-        intent.putExtra("ping_running", false);
-        sendBroadcast(intent);
+        for (OneTimeWorkRequest wr : pingWRs){
+            wm.cancelWorkById(wr.getId());
+
+        }
+
+        pingSP.edit().putBoolean("ping", false).apply();
         pingWRs = new ArrayList<>();
     }
     public static boolean isRunning() {

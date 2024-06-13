@@ -9,9 +9,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -31,12 +29,13 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
-import com.github.anastr.speedviewlib.SpeedView;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.UDP.UDP_DL_SUM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -45,8 +44,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import java.util.ArrayList;
-import java.util.Locale;
 
 public class Iperf3LogFragment extends Fragment {
 
@@ -70,216 +67,6 @@ public class Iperf3LogFragment extends Fragment {
     private Metric defaultRTT;
     private Metric defaultJITTER;
     private Metric PACKET_LOSS;
-    public class Metric {
-        private LinearLayout mean;
-        private LinearLayout median;
-        private LinearLayout max;
-        private LinearLayout min;
-        private LinearLayout last;
-        private TextView directionName;
-        private ArrayList<Double> meanList = new ArrayList<>();
-        private double maxValueSum = Double.MIN_VALUE;
-        private double minValueSum = Double.MAX_VALUE;
-        private METRIC_TYPE metricType;
-        public Metric(METRIC_TYPE metricType){
-            this.metricType = metricType;
-        }
-
-        private LinearLayout createTile(String key) {
-            LinearLayout ll = new LinearLayout(ct);
-
-            GradientDrawable gd = new GradientDrawable();
-            gd.setColor(ct.getColor(R.color.cardview_dark_background));
-            gd.setCornerRadius(10);
-            gd.setStroke(2, 0xFF000000);
-            ll.setBackground(gd);
-            ll.setMinimumHeight(ll.getWidth());
-            ll.setGravity(Gravity.CENTER);
-
-            ll.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams foo = new LinearLayout.LayoutParams(200, 150);
-            foo.weight = 1;
-            foo.setMargins(10, 10, 10, 10);
-            ll.setLayoutParams(foo);
-            TextView keyView = new TextView(ct);
-            keyView.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams keyViewLayoutParams = new LinearLayout.LayoutParams(200, 50);
-            keyViewLayoutParams.setMargins(0, 0, 0, 10);
-            keyView.setLayoutParams(keyViewLayoutParams);
-            keyView.setTypeface(null, Typeface.BOLD);
-
-            keyView.setText(key);
-            ll.addView(keyView);
-            TextView valueView = new TextView(ct);
-            valueView.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams valueViewLayoutParams = new LinearLayout.LayoutParams(200, 50);
-            valueViewLayoutParams.setMargins(0, 0, 0, 0);
-            valueView.setLayoutParams(valueViewLayoutParams);
-            ll.addView(valueView);
-            return ll;
-        }
-
-        private LinearLayout createLL(String key) {
-            LinearLayout ll = null;
-            switch (key) {
-                case "mean":
-                    mean = createTile(key);
-                    ll = mean;
-                    break;
-                case "median":
-                    median = createTile(key);
-                    ll = median;
-                    break;
-                case "max":
-                    max = createTile(key);
-                    ll = max;
-                    break;
-                case "min":
-                    min = createTile(key);
-                    ll = min;
-                    break;
-                case "last":
-                    last = createTile(key);
-                    ll = last;
-                    break;
-            }
-            return ll;
-        }
-        private String getFormatedString(double value){
-            switch (this.metricType){
-                case THROUGHPUT:
-                    return String.format(Locale.getDefault(), "%.2f", value/1e+6);
-                case RTT:
-                case PACKET_LOSS:
-                case JITTER:
-                    return String.format(Locale.getDefault(), "%.2f", value);
-            }
-            return Double.toString(value);
-        }
-        private LinearLayout createOneDirection(String direction) {
-            LinearLayout oneDirection = new LinearLayout(ct);
-            LinearLayout.LayoutParams foo1 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            oneDirection.setOrientation(LinearLayout.VERTICAL);
-            oneDirection.setLayoutParams(foo1);
-
-            directionName = new TextView(ct);
-            directionName.setText(direction);
-            oneDirection.addView(directionName);
-
-            LinearLayout cardViewResult = new LinearLayout(ct);
-            LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            cardViewResult.setOrientation(LinearLayout.HORIZONTAL);
-            cardViewResult.setLayoutParams(cardParams);
-
-            cardViewResult.addView(createLL("mean"));
-            cardViewResult.addView(createLL("median"));
-            cardViewResult.addView(createLL("max"));
-            cardViewResult.addView(createLL("min"));
-            cardViewResult.addView(createLL("last"));
-            oneDirection.addView(cardViewResult);
-            return oneDirection;
-        }
-
-        public double calcMean(){
-            return meanList.stream().mapToDouble(a -> a).sum()/meanList.size();
-        }
-
-        public double calcMedian(){
-            this.getMeanList().sort(Double::compareTo);
-            return meanList.get(Math.round(meanList.size()/2));
-        }
-
-        public double calcMax(){
-            return meanList.stream().mapToDouble(a -> a).max().getAsDouble();
-        }
-
-        public double calcMin(){
-            return meanList.stream().mapToDouble(a -> a).min().getAsDouble();
-        }
-        public void update(Double value){
-            this.meanList.add(value);
-
-            ((TextView)mean.getChildAt(1)).setText(String.format(" %s", getFormatedString(calcMean())));
-            ((TextView)median.getChildAt(1)).setText(String.format(" %s", getFormatedString(calcMedian())));
-            ((TextView)max.getChildAt(1)).setText(String.format(" %s", getFormatedString(calcMax())));
-            ((TextView)min.getChildAt(1)).setText(String.format(" %s", getFormatedString(calcMin())));
-            ((TextView)last.getChildAt(1)).setText(String.format(" %s", getFormatedString(value)));
-        }
-
-        public ArrayList<Double> getMeanList() {
-            return meanList;
-        }
-        public void setMaxValueSum(double maxValueSum) {
-            this.maxValueSum = maxValueSum;
-        }
-        public void setMinValueSum(double minValueSum) {
-            this.minValueSum = minValueSum;
-        }
-        public double getMaxValueSum() {
-            return maxValueSum;
-        }
-        public double getMinValueSum() {
-            return minValueSum;
-        }
-
-        public void setMeanList(ArrayList<Double> meanList) {
-            this.meanList = meanList;
-        }
-
-        public LinearLayout getMean() {
-            return mean;
-        }
-
-        public void setMean(LinearLayout mean) {
-            this.mean = mean;
-        }
-
-        public LinearLayout getMedian() {
-            return median;
-        }
-
-        public void setMedian(LinearLayout median) {
-            this.median = median;
-        }
-
-        public LinearLayout getMax() {
-            return max;
-        }
-
-        public void setMax(LinearLayout max) {
-            this.max = max;
-        }
-
-        public LinearLayout getMin() {
-            return min;
-        }
-
-        public void setMin(LinearLayout min) {
-            this.min = min;
-        }
-
-        public LinearLayout getLast() {
-            return last;
-        }
-
-        public void setLast(LinearLayout last) {
-            this.last = last;
-        }
-
-        public TextView getDirectionName() {
-            return directionName;
-        }
-
-        public void setDirectionName(TextView directionName) {
-            this.directionName = directionName;
-        }
-    }
 
     public Iperf3LogFragment() {
     }
@@ -327,14 +114,14 @@ public class Iperf3LogFragment extends Fragment {
                             defaultJITTER.update(((UDP_DL_SUM)sum).getJitter_ms());
                             PACKET_LOSS.update((double) ((UDP_DL_SUM) sum).getLost_percent());
                         case TCP_DL:
-                            if(throughput.directionName.getText().equals("Throughput")){
-                                throughput.directionName.setText("Downlink Mbit/s");
+                            if(throughput.getDirectionName().getText().equals("Throughput")){
+                                throughput.getDirectionName().setText("Downlink Mbit/s");
                             }
                             break;
                         case UDP_UL:
                         case TCP_UL:
-                            if(throughput.directionName.getText().equals("Throughput")){
-                                throughput.directionName.setText("Uplink Mbit/s");
+                            if(throughput.getDirectionName().getText().equals("Throughput")){
+                                throughput.getDirectionName().setText("Uplink Mbit/s");
                             }
                             break;
                     }
@@ -521,8 +308,8 @@ public class Iperf3LogFragment extends Fragment {
 
 
 
-        defaultThroughput = new Metric(METRIC_TYPE.THROUGHPUT);
-        defaultReverseThroughput = new Metric(METRIC_TYPE.THROUGHPUT);
+        defaultThroughput = new Metric(METRIC_TYPE.THROUGHPUT, ct);
+        defaultReverseThroughput = new Metric(METRIC_TYPE.THROUGHPUT, ct);
 
         metricLL.addView(defaultThroughput.createOneDirection("Throughput"));
 
@@ -533,17 +320,17 @@ public class Iperf3LogFragment extends Fragment {
                 //metricLL.addView(defaultRTT.createOneDirection("RTT"));
             };
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
-                defaultJITTER = new Metric(METRIC_TYPE.JITTER);
+                defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
-                PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS);
+                PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
                 metricLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
             };
         };
         if(iperf3RunResult.input.iperf3Reverse) {
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
-                defaultJITTER = new Metric(METRIC_TYPE.JITTER);
+                defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
-                PACKET_LOSS = new Metric(METRIC_TYPE.JITTER);
+                PACKET_LOSS = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
             };
         } else if(!iperf3RunResult.input.iperf3BiDir) {

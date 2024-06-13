@@ -61,6 +61,7 @@ import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformation;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -95,7 +96,6 @@ public class DataProvider extends PhoneStateListener implements LocationListener
     private List<NetworkInterfaceInformation> nii = new ArrayList<>();
     private ArrayList<SignalStrengthInformation> ssi = new ArrayList<>();
     private SliceInformation si = new SliceInformation();
-    private PingInformation pi = new PingInformation();
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
     private LocationCallback locationCallback;

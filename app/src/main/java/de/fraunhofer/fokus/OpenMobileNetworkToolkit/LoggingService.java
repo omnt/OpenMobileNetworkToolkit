@@ -30,12 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.Observer;
 import androidx.preference.PreferenceManager;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -47,20 +42,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingWorker;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
