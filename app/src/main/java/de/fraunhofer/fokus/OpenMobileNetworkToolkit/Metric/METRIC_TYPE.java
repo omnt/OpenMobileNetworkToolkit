@@ -6,4 +6,5 @@ public enum METRIC_TYPE {
         JITTER,
         PACKET_LOSS,
         PING_RTT,
+        PING_PACKET_LOSS,
     }

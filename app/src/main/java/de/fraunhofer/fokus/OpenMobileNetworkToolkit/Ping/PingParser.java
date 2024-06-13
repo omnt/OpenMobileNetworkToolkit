@@ -30,11 +30,9 @@ public class PingParser {
         try {
             while((line = this.br.readLine()) != null){
                 PingInformation pi = new PingInformation(line);
-                boolean success = pi.parse();
-                if(success){
-                    this.lines.add(pi);
-                    support.firePropertyChange("ping", null, pi);
-                }
+                pi.parse();
+                this.lines.add(pi);
+                support.firePropertyChange("ping", null, pi);
             }
         } catch (IOException e){
 

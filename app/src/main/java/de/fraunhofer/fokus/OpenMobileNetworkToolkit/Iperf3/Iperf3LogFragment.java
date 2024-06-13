@@ -311,27 +311,27 @@ public class Iperf3LogFragment extends Fragment {
         defaultThroughput = new Metric(METRIC_TYPE.THROUGHPUT, ct);
         defaultReverseThroughput = new Metric(METRIC_TYPE.THROUGHPUT, ct);
 
-        metricLL.addView(defaultThroughput.createOneDirection("Throughput"));
+        metricLL.addView(defaultThroughput.createMainLL("Throughput"));
 
         if(iperf3RunResult.input.iperf3BiDir) {
-            metricLL.addView(defaultReverseThroughput.createOneDirection("Throughput"));
+            metricLL.addView(defaultReverseThroughput.createMainLL("Throughput"));
             if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
                 //defaultRTT = new Metric(METRIC_TYPE.RTT);
                 //metricLL.addView(defaultRTT.createOneDirection("RTT"));
             };
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
-                metricLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
+                metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
-                metricLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
+                metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
             };
         };
         if(iperf3RunResult.input.iperf3Reverse) {
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
-                metricLL.addView(defaultJITTER.createOneDirection("Jitter ms"));
+                metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.JITTER, ct);
-                metricLL.addView(PACKET_LOSS.createOneDirection("Packet Loss %"));
+                metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
             };
         } else if(!iperf3RunResult.input.iperf3BiDir) {
             if(iperf3RunResult.input.iperf3IdxProtocol == 0) {

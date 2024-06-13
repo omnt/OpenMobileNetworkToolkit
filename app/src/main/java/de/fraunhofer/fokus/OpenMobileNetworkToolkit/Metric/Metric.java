@@ -22,6 +22,7 @@ public class Metric {
         private double minValueSum = Double.MAX_VALUE;
         private METRIC_TYPE metricType;
         private Context ct;
+        private LinearLayout mainLL;
 
         public Metric(METRIC_TYPE metricType, Context ct){
                 this.metricType = metricType;
@@ -100,18 +101,18 @@ public class Metric {
             }
             return Double.toString(value);
         }
-        public LinearLayout createOneDirection(String direction) {
-            LinearLayout oneDirection = new LinearLayout(ct);
+        public LinearLayout createMainLL(String direction) {
+            mainLL = new LinearLayout(ct);
             LinearLayout.LayoutParams foo1 = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            oneDirection.setOrientation(LinearLayout.VERTICAL);
-            oneDirection.setLayoutParams(foo1);
+            mainLL.setOrientation(LinearLayout.VERTICAL);
+            mainLL.setLayoutParams(foo1);
 
             directionName = new TextView(ct);
             directionName.setText(direction);
-            oneDirection.addView(directionName);
+            mainLL.addView(directionName);
 
             LinearLayout cardViewResult = new LinearLayout(ct);
             LinearLayout.LayoutParams cardParams = new LinearLayout.LayoutParams(
@@ -126,8 +127,8 @@ public class Metric {
             cardViewResult.addView(createLL("max"));
             cardViewResult.addView(createLL("min"));
             cardViewResult.addView(createLL("last"));
-            oneDirection.addView(cardViewResult);
-            return oneDirection;
+            mainLL.addView(cardViewResult);
+            return mainLL;
         }
 
         public double calcMean(){
@@ -229,5 +230,8 @@ public class Metric {
             meanList.clear();
             this.maxValueSum = Double.MIN_VALUE;
             this.minValueSum = Double.MAX_VALUE;
+        }
+        public void setVisibility(int visibility){
+            mainLL.setVisibility(visibility);
         }
     }

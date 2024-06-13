@@ -61,7 +61,6 @@ import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformation;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;

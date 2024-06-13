@@ -29,6 +29,9 @@ import androidx.fragment.app.Fragment;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.FileOutputStream;
@@ -46,6 +49,7 @@ public class PingFragment extends Fragment {
     private Context ct;
     private SharedPreferences sp;
     private Metric rttMetric;
+    private Metric packetLossMetric;
 
     public PingFragment() {
     }
@@ -65,7 +69,14 @@ public class PingFragment extends Fragment {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 PingInformation pi = (PingInformation) evt.getNewValue();
-                rttMetric.update(pi.getRtt());
+                switch (pi.getLineType()){
+                    case RTT:
+                        rttMetric.update( ((RTTLine)pi).getRtt());
+                        break;
+                    case PACKET_LOSS:
+                        packetLossMetric.update(((PacketLossLine)pi).getPacketLoss());
+                        break;
+                }
             }
         });
     }
@@ -126,7 +137,10 @@ public class PingFragment extends Fragment {
             }
         });
         rttMetric = new Metric(METRIC_TYPE.PING_RTT, ct);
-        horizontalLL1.addView(rttMetric.createOneDirection("RTT"));
+        packetLossMetric = new Metric(METRIC_TYPE.PING_PACKET_LOSS, ct);
+        horizontalLL1.addView(rttMetric.createMainLL("RTT"));
+        horizontalLL1.addView(packetLossMetric.createMainLL("Packet Loss"));
+        packetLossMetric.setVisibility(View.INVISIBLE);
         return v;
     }
 }
