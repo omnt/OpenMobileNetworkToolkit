@@ -42,5 +42,10 @@ public class AboutFragment extends Fragment {
         about_text.append("\n\n");
         about_text.append(
             "iPerf3 is licensed under a BSD style license. \nhttps://github.com/esnet/iperf");
+
+        about_text.append("\n\n");
+        about_text.append("Version Code: " + BuildConfig.VERSION_CODE + "\nVersion Name: " + BuildConfig.VERSION_NAME + "\n");
+        about_text.append("Build Type: " + BuildConfig.BUILD_TYPE + "\n");
+        about_text.append("GitHash: " + getString(R.string.git_hash));
     }
 }
