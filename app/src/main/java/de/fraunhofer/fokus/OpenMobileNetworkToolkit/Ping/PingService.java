@@ -36,6 +36,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -69,7 +70,7 @@ public class PingService extends Service {
     private Process pingProcess;
     private String pingCommand;
     private Runtime runtime = Runtime.getRuntime();
-
+    private PropertyChangeListener propertyChangeListener;
     HashMap<String, String> parsedCommand = new HashMap<>();
 
     @Nullable
@@ -103,14 +104,16 @@ public class PingService extends Service {
 
 
     private void setupPing(){
-        Log.d(TAG, "setupLocalFile");
+        Log.d(TAG, "starting Ping Service...");
 
-        // build log file path
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/ping/";
         try {
             Files.createDirectories(Paths.get(path));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Toast.makeText(context, "could not create /omnt/ping Dir!", Toast.LENGTH_SHORT).show();
+            pingSP.edit().putBoolean("ping", false).apply();
+            Log.d(TAG, "setupPing: could not create /omnt/ping Dir!");
+            return;
         }
 
         // create the log file
@@ -122,24 +125,32 @@ public class PingService extends Service {
         try {
             logfile.createNewFile();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Toast.makeText(context, "could not create logfile "+filename, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "setupPing: could not create logfile");
+            pingSP.edit().putBoolean("ping", false).apply();
+            return;
         }
 
         // get an output stream
         try {
             ping_stream = new FileOutputStream(logfile);
         } catch (FileNotFoundException e) {
-            Toast.makeText(context, "logfile not created", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            Toast.makeText(context, "could not create output stream", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "setupPing: could not create output stream");
+            pingSP.edit().putBoolean("ping", false).apply();
+            return;
         }
         pingSP.edit().putBoolean("ping", true).apply();
         pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
         PingParser pingParser = PingParser.getInstance(null);
-        pingParser.addPropertyChangeListener(new PropertyChangeListener() {
+        propertyChangeListener = pingParser.getListener();
+        if(propertyChangeListener != null){
+            pingParser.removePropertyChangeListener(propertyChangeListener);
+        }
+        propertyChangeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 PingInformation pi = (PingInformation) evt.getNewValue();
-                Log.d(TAG, "propertyChange: "+pi.toString());
                 Point point = Point.measurement("Ping")
                     .time(pi.getUnixTimestamp(), WritePrecision.MS)
                     .addTags(dp.getTagsMap())
@@ -147,6 +158,7 @@ public class PingService extends Service {
                     .addField("icmp_seq", pi.getIcmpSeq())
                     .addField("ttl", pi.getTtl())
                     .addField("rtt", pi.getRtt());
+                Log.d(TAG, "propertyChange: "+point.toLineProtocol());
                 try {
                     ping_stream.write((point.toLineProtocol() + "\n").getBytes());
                 } catch (IOException e) {
@@ -161,9 +173,11 @@ public class PingService extends Service {
                     }
                 }
 
-                Log.d(TAG, "doWork: Point:"+point.toLineProtocol());
             }
-        });
+        };
+
+        pingParser.addPropertyChangeListener(propertyChangeListener);
+        pingParser.setListener(propertyChangeListener);
         pingLogging.post(pingUpdate);
     }
     public void parsePingCommand() {
@@ -207,12 +221,10 @@ public class PingService extends Service {
                 public void onChanged(Object o) {
                     WorkInfo workInfo = (WorkInfo) o;
                     WorkInfo.State state = workInfo.getState();
-                    Log.d(TAG, "onChanged: "+state.toString());
                     switch (state){
                         case RUNNING:
                         case ENQUEUED:
                             return;
-                        case FAILED:
                         case CANCELLED:
                             try {
                                 ping_stream.close();

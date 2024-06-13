@@ -158,13 +158,7 @@ public class PingWorker extends Worker {
                     updateNotification.run();
                 }
             });
-
-
-
             pingParser.parse();
-
-
-
             int result = pingProcess.waitFor();
 
             if(isStopped()){

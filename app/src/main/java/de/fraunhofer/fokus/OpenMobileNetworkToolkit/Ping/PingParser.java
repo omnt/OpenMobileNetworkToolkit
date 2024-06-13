@@ -12,6 +12,7 @@ public class PingParser {
     private ArrayList<PingInformation> lines;
 
     private PropertyChangeSupport support;
+    private PropertyChangeListener listener;
     private PingParser(BufferedReader br) {
         this.br = br;
         this.lines = new ArrayList<>();
@@ -42,6 +43,15 @@ public class PingParser {
 
     public void addPropertyChangeListener(PropertyChangeListener listener){
         support.addPropertyChangeListener(listener);
+    }
+    public void setListener(PropertyChangeListener listener){
+        this.listener = listener;
+    }
+    public PropertyChangeListener getListener(){
+        return this.listener;
+    }
+    public void removePropertyChangeListener(PropertyChangeListener listener){
+        support.removePropertyChangeListener(listener);
     }
 
     public void setBr(BufferedReader br){
