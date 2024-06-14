@@ -1,5 +1,9 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.LINEType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
@@ -24,12 +28,40 @@ public class PingParser {
         if(br != null); instance.setBr(br);
         return instance;
     }
-
+    private LINEType getLineType(String line){
+        if (line.contains("bytes from")) {
+            return LINEType.RTT;
+        } else if (line.contains("Unreachable")) {
+            return LINEType.UNREACHABLE;
+        } else if (line.contains("Request timeout")) {
+            return LINEType.TIMEOUT;
+        } else if (line.contains("packets transmitted")){
+            return LINEType.PACKET_LOSS;
+        } else {
+            return LINEType.UNKNOWN;
+        }
+    }
     public void parse(){
         String line;
         try {
             while((line = this.br.readLine()) != null){
-                PingInformation pi = new PingInformation(line);
+                PingInformation pi = null;
+                switch (getLineType(line)){
+                    case RTT:
+                        pi = new RTTLine(line);
+                    case UNREACHABLE:
+                        //TDODO
+                        break;
+                    case TIMEOUT:
+                        //TODO
+                        break;
+                    case PACKET_LOSS:
+                        pi = new PacketLossLine(line);
+                        break;
+                    case UNKNOWN:
+                        break;
+                }
+                if(pi == null) continue;
                 pi.parse();
                 this.lines.add(pi);
                 support.firePropertyChange("ping", null, pi);

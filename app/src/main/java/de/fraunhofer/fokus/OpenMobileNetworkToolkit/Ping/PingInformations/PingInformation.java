@@ -8,6 +8,9 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations;
 
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,7 +18,7 @@ public class PingInformation {
     private String line;
     private LINEType lineType;
     private Double unixTimestamp;
-
+    private DataProvider dp;
     public PingInformation(String line) {
         this.line = line;
     }
@@ -25,58 +28,33 @@ public class PingInformation {
         long microseconds = (long) ((timestampWithMicros - seconds) * 1e6);
         return seconds * 1000 + microseconds / 1000;
     }
-    private LINEType getLineType(String line){
-        if (line.contains("bytes from")) {
-            return LINEType.RTT;
-        } else if (line.contains("Unreachable")) {
-            return LINEType.UNREACHABLE;
-        } else if (line.contains("Request timeout")) {
-            return LINEType.TIMEOUT;
-        } else if (line.contains("packets transmitted")){
-            return LINEType.PACKET_LOSS;
-        } else {
-            return LINEType.UNKNOWN;
-        }
-    }
+
     private void parseUnixTimestamp(){
-        //Matcher matcher = //todo split and also split
-        //if (matcher.find()) {
-        //    unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
-        //}
+        Pattern pattern = Pattern.compile("\\[\\d+\\.\\d+\\]");
+        Matcher matcher = pattern.matcher(line);
+        if (matcher.find()) {
+            unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
+        }
     }
     public void parse() {
-        parseUnixTimestamp();
-        switch (getLineType(line)){
-            case RTT:
-                RTTLine rttLine = new RTTLine(line);
-                rttLine.parse();
-                break;
-            case UNREACHABLE:
-                //TDODO
-                break;
-            case TIMEOUT:
-                //TODO
-                break;
-            case PACKET_LOSS:
-                PacketLossLine packetLossLine = new PacketLossLine(line);
-                packetLossLine.parse();
-                break;
-            case UNKNOWN:
-                break;
-        }
-
+        //parseUnixTimestamp();
     }
-
     public void setLineType(LINEType lineType) {
         this.lineType = lineType;
     }
-
     public LINEType getLineType() {
         return lineType;
     }
-
     public String getLine() {
         return line;
     }
+    public Double getUnixTimestamp() {
+        return unixTimestamp;
+    }
 
+    public Point getPoint(){
+        Point point = new Point("Ping");
+        point.time(this.getUnixTimestamp(), WritePrecision.MS);
+        return point;
+    }
 }

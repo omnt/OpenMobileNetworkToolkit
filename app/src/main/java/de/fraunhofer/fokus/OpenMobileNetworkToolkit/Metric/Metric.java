@@ -97,6 +97,7 @@ public class Metric {
                 case PACKET_LOSS:
                 case JITTER:
                 case PING_RTT:
+                case PING_PACKET_LOSS:
                     return String.format(Locale.getDefault(), "%.2f", value);
             }
             return Double.toString(value);

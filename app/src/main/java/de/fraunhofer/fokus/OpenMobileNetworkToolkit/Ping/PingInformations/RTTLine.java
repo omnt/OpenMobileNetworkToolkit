@@ -1,5 +1,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations;
 
+import com.influxdb.client.domain.WritePrecision;
+import com.influxdb.client.write.Point;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,5 +43,13 @@ public class RTTLine extends PingInformation{
 
     public String getHost() {
         return host;
+    }
+
+    public Point getPoint(){
+        return super.getPoint()
+            .addTag("toHost", this.getHost())
+            .addField("icmp_seq", this.getIcmpSeq())
+            .addField("ttl", this.getTtl())
+            .addField("rtt", this.getRtt());
     }
 }

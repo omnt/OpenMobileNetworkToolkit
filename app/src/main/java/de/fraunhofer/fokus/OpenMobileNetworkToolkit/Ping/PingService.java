@@ -33,6 +33,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -151,13 +152,8 @@ public class PingService extends Service {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 PingInformation pi = (PingInformation) evt.getNewValue();
-                Point point = Point.measurement("Ping")
-                    .time(pi.getUnixTimestamp(), WritePrecision.MS)
-                    .addTags(dp.getTagsMap())
-                    .addTag("toHost", pi.getHost())
-                    .addField("icmp_seq", pi.getIcmpSeq())
-                    .addField("ttl", pi.getTtl())
-                    .addField("rtt", pi.getRtt());
+
+                Point point = pi.getPoint();
                 Log.d(TAG, "propertyChange: "+point.toLineProtocol());
                 try {
                     ping_stream.write((point.toLineProtocol() + "\n").getBytes());

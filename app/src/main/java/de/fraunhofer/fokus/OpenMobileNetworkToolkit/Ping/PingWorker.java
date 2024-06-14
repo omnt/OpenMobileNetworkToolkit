@@ -25,6 +25,8 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -154,7 +156,14 @@ public class PingWorker extends Worker {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     PingInformation pi = (PingInformation) evt.getNewValue();
-                    rtt = pi.getRtt();
+                    switch(pi.getLineType()){
+                        case PACKET_LOSS:
+                            break;
+                        case RTT:
+                            rtt = ((RTTLine)pi).getRtt();
+                            break;
+
+                    }
                     updateNotification.run();
                 }
             });

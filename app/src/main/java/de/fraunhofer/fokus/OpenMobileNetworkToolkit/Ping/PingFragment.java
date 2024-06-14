@@ -75,6 +75,7 @@ public class PingFragment extends Fragment {
                         break;
                     case PACKET_LOSS:
                         packetLossMetric.update(((PacketLossLine)pi).getPacketLoss());
+                        //packetLossMetric.setVisibility(View.VISIBLE);
                         break;
                 }
             }
@@ -138,9 +139,18 @@ public class PingFragment extends Fragment {
         });
         rttMetric = new Metric(METRIC_TYPE.PING_RTT, ct);
         packetLossMetric = new Metric(METRIC_TYPE.PING_PACKET_LOSS, ct);
-        horizontalLL1.addView(rttMetric.createMainLL("RTT"));
-        horizontalLL1.addView(packetLossMetric.createMainLL("Packet Loss"));
-        packetLossMetric.setVisibility(View.INVISIBLE);
+        LinearLayout metricsLL = new LinearLayout(ct);
+        metricsLL.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams foo1 = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        metricsLL.setLayoutParams(foo1);
+        metricsLL.addView(rttMetric.createMainLL("RTT [ms]"));
+        metricsLL.addView(packetLossMetric.createMainLL("Packet Loss [%]"));
+
+        horizontalLL1.addView(metricsLL);
+        //packetLossMetric.setVisibility(View.INVISIBLE);
         return v;
     }
 }
