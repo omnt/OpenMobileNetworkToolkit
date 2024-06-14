@@ -33,11 +33,12 @@ public class PingInformation {
         Pattern pattern = Pattern.compile("\\[\\d+\\.\\d+\\]");
         Matcher matcher = pattern.matcher(line);
         if (matcher.find()) {
-            unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(matcher.group(1)));
+            String unixTimestampString = matcher.group(0).replace("[", "").replace("]", "");
+            unixTimestamp = unixTimestampWithMicrosToMillis(Double.parseDouble(unixTimestampString));
         }
     }
     public void parse() {
-        //parseUnixTimestamp();
+        parseUnixTimestamp();
     }
     public void setLineType(LINEType lineType) {
         this.lineType = lineType;

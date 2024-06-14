@@ -154,6 +154,7 @@ public class PingService extends Service {
                 PingInformation pi = (PingInformation) evt.getNewValue();
 
                 Point point = pi.getPoint();
+                point.addTags(dp.getTagsMap());
                 Log.d(TAG, "propertyChange: "+point.toLineProtocol());
                 try {
                     ping_stream.write((point.toLineProtocol() + "\n").getBytes());

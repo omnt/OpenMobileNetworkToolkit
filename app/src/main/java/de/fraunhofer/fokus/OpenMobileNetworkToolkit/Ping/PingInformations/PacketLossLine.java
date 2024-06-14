@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations;
 
+import com.influxdb.client.write.Point;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,5 +30,12 @@ public class PacketLossLine extends PingInformation{
     }
     public double getPacketLoss() {
         return packetLoss;
+    }
+
+    public Point getPoint(){
+        return super.getPoint()
+            .addField("packets_transmitted", this.getPacketsTransmitted())
+            .addField("packets_received", this.getPacketsReceived())
+            .addField("packet_loss", this.getPacketLoss());
     }
 }
