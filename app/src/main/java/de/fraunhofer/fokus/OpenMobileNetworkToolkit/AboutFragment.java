@@ -33,8 +33,10 @@ public class AboutFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         TextView about_text = requireView().findViewById(R.id.about_text_box);
         about_text.setAutoLinkMask(Linkify.WEB_URLS);
+        about_text.setTextIsSelectable(true);
         about_text.append(getString(R.string.appinfo));
         about_text.append("\n\n");
+        about_text.append("https://omnt.app\n");
         about_text.append("https://github.com/omnt/OpenMobileNetworkToolkit");
         about_text.append("\n\nThird party software used in this app: \n \n");
         about_text.append(
@@ -42,5 +44,11 @@ public class AboutFragment extends Fragment {
         about_text.append("\n\n");
         about_text.append(
             "iPerf3 is licensed under a BSD style license. \nhttps://github.com/esnet/iperf");
+
+        about_text.append("\n\n");
+        about_text.append("Version Code: " + BuildConfig.VERSION_CODE + "\nVersion Name: " + BuildConfig.VERSION_NAME + "\n");
+        about_text.append("Build Type: " + BuildConfig.BUILD_TYPE + "\n");
+        about_text.append("GitHash: " + getString(R.string.git_hash) + "\n");
+        about_text.append("SigningHash sha256: " +  GlobalVars.getInstance().getSigning_hash() + "\n");
     }
 }

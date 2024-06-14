@@ -9,18 +9,13 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,19 +23,19 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Switch;
 
-import android.widget.TextView;
 import androidx.fragment.app.Fragment;
-import androidx.work.WorkManager;
 
-import com.github.anastr.speedviewlib.TubeSpeedometer;
-import com.github.anastr.speedviewlib.components.Style;
-
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.FileOutputStream;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class PingFragment extends Fragment {
@@ -52,9 +47,10 @@ public class PingFragment extends Fragment {
     private FileOutputStream stream;
     private EditText input;
     private Context ct;
-    private TextView pingViewer;
-    private ScrollView scrollView;
     private SharedPreferences sp;
+    private Metric rttMetric;
+    private Metric packetLossMetric;
+
     public PingFragment() {
     }
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -62,21 +58,33 @@ public class PingFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
       }
-    private void setupPing(){
+
+    private void startPingService(){
         input.setEnabled(false);
-        pingViewer.setText("");
-        Intent pingStart = new Intent(ct, LoggingService.class);
-        pingStart.putExtra("input", input.getText().toString());
-        pingStart.putExtra("ping", true);
+        Intent pingStart = new Intent(ct, PingService.class);
         ct.startService(pingStart);
+        rttMetric.resetMetric();
+        PingParser pingParser = PingParser.getInstance(null);
+        pingParser.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                PingInformation pi = (PingInformation) evt.getNewValue();
+                switch (pi.getLineType()){
+                    case RTT:
+                        rttMetric.update( ((RTTLine)pi).getRtt());
+                        break;
+                    case PACKET_LOSS:
+                        packetLossMetric.update(((PacketLossLine)pi).getPacketLoss());
+                        //packetLossMetric.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+        });
     }
-    private void stopPing(){
+    private void stopPingService(){
         input.setEnabled(true);
-        Intent pingStart = new Intent(ct, LoggingService.class);
-        pingStart.putExtra("ping", true);
-        pingStart.putExtra("ping_stop", true);
-        pingStart.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        ct.startService(pingStart);
+        Intent pingStart = new Intent(ct, PingService.class);
+        ct.stopService(pingStart);
     }
 
 
@@ -117,39 +125,32 @@ public class PingFragment extends Fragment {
         input.setText(sp.getString("ping_input", "-w 5 8.8.8.8"));
 
         ct = requireContext();
-        pingViewer = horizontalLL1.findViewById(R.id.ping_viewer);
-        scrollView = horizontalLL1.findViewById(R.id.ping_scrollviewer);
 
         saveTextInputToSharedPreferences(input, "ping_input");
-        aSwitch.setChecked(sp.getBoolean("switch", false));
+        aSwitch.setChecked(PingService.isRunning());
 
         aSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 Log.d(TAG, "onCheckedChanged: "+b);
-                if(b) setupPing();
-                else stopPing();
-                sp.edit().putBoolean("switch", b).apply();
+                if(b) startPingService();
+                else stopPingService();
             }
         });
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                double rtt = intent.getExtras().getDouble("ping_rtt");
-                boolean ping_running = intent.getExtras().getBoolean("ping_running");
-                handleInput(ping_running);
-                String pingLine = intent.getExtras().getString("ping_line");
-                pingViewer.append(pingLine+"\n");
-                scrollView.fullScroll(View.FOCUS_DOWN);
-            }
-        };
-        requireActivity().registerReceiver(receiver, new IntentFilter("ping"), Context.RECEIVER_EXPORTED);
+        rttMetric = new Metric(METRIC_TYPE.PING_RTT, ct);
+        packetLossMetric = new Metric(METRIC_TYPE.PING_PACKET_LOSS, ct);
+        LinearLayout metricsLL = new LinearLayout(ct);
+        metricsLL.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams foo1 = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        metricsLL.setLayoutParams(foo1);
+        metricsLL.addView(rttMetric.createMainLL("RTT [ms]"));
+        metricsLL.addView(packetLossMetric.createMainLL("Packet Loss [%]"));
 
-
-        pingViewer.setMovementMethod(new ScrollingMovementMethod());
+        horizontalLL1.addView(metricsLL);
+        //packetLossMetric.setVisibility(View.INVISIBLE);
         return v;
     }
-
-
-
 }

@@ -29,11 +29,19 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.UDP.UDP_DL_SUM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -53,8 +61,14 @@ public class Iperf3LogFragment extends Fragment {
     private TextView iperf3OutputViewer;
     private LinearLayout parameterLL;
     private Context ct;
+    private LinearLayout metricLL;
+    private Metric defaultReverseThroughput;
+    private Metric defaultThroughput;
+    private Metric defaultRTT;
+    private Metric defaultJITTER;
+    private Metric PACKET_LOSS;
+
     public Iperf3LogFragment() {
-        // Required empty public constructor
     }
 
 
@@ -76,6 +90,7 @@ public class Iperf3LogFragment extends Fragment {
             runIconView.setImageDrawable(runIcon);
             uploadIcon = Iperf3Utils.getDrawableUpload(ct, iperf3RunResult.result, iperf3RunResult.uploaded);
             uploadIconView.setImageDrawable(uploadIcon);
+
             BufferedReader br = null;
             StringBuilder text = new StringBuilder();
 
@@ -87,33 +102,70 @@ public class Iperf3LogFragment extends Fragment {
                 return;
             }
             String line;
-            try {
-                while ((line = br.readLine()) != null) {
-                    text.append(line);
-                    text.append('\n');
+
+            Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3RunResult.input.iperf3rawIperf3file);
+            iperf3Parser.addPropertyChangeListener(new PropertyChangeListener() {
+
+                private void parseSum(Sum sum, Metric throughput){
+                    SUM_TYPE sumType = sum.getSumType();
+                    throughput.update(sum.getBits_per_second());
+                    switch (sumType){
+                        case UDP_DL:
+                            defaultJITTER.update(((UDP_DL_SUM)sum).getJitter_ms());
+                            PACKET_LOSS.update((double) ((UDP_DL_SUM) sum).getLost_percent());
+                        case TCP_DL:
+                            if(throughput.getDirectionName().getText().equals("Throughput")){
+                                throughput.getDirectionName().setText("Downlink Mbit/s");
+                            }
+                            break;
+                        case UDP_UL:
+                        case TCP_UL:
+                            if(throughput.getDirectionName().getText().equals("Throughput")){
+                                throughput.getDirectionName().setText("Uplink Mbit/s");
+                            }
+                            break;
+                    }
+
                 }
-                br.close();
-                iperf3OutputViewer.setText(text.toString());
+                public void propertyChange(PropertyChangeEvent evt) {
 
-            } catch (IOException e) {
-                logHandler.removeCallbacks(logUpdate);
-                Log.d(TAG, "onCreateView: failed");
-                return;
-            }
+                    switch (evt.getPropertyName()){
+                        case "interval":
+                            Interval interval = (Interval) evt.getNewValue();
+                            parseSum(interval.getSum(), defaultThroughput);
+                            if(interval.getSumBidirReverse() != null) parseSum(interval.getSumBidirReverse(),
+                                defaultReverseThroughput);
+                            break;
+                        case "start":
+                            break;
+                        case "end":
+                            break;
+                        case "error":
+                            Error error = (Error) evt.getNewValue();
+                            TextView errorView = new TextView(ct);
+                            errorView.setText(error.getError());
+                            errorView.setTextColor(ct.getColor(R.color.crimson));
+                            errorView.setPadding(10, 10, 10, 10);
+                            errorView.setTextSize(20);
+                            metricLL.addView(errorView);
+                            break;
+                    }
+                }
+            });
 
-
+            iperf3Parser.parse();
             if (iperf3RunResult.result != -100) {
                 logHandler.removeCallbacks(logUpdate);
                 return;
             }
-
-
-
             setFields(iperf3RunResult);
             logHandler.removeCallbacks(logUpdate);
             logHandler.postDelayed(this, 1000);
         }
     };
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -249,8 +301,49 @@ public class Iperf3LogFragment extends Fragment {
             1, 10, 1,
             TypedValue.COMPLEX_UNIT_SP);
         iperf3OutputViewer.setTextIsSelectable(true);
-        scrollView.addView(iperf3OutputViewer);
-        secondRow.addView(scrollView);
+
+        metricLL = new LinearLayout(ct);
+        metricLL.setOrientation(LinearLayout.VERTICAL);
+        metricLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+
+
+        defaultThroughput = new Metric(METRIC_TYPE.THROUGHPUT, ct);
+        defaultReverseThroughput = new Metric(METRIC_TYPE.THROUGHPUT, ct);
+
+        metricLL.addView(defaultThroughput.createMainLL("Throughput"));
+
+        if(iperf3RunResult.input.iperf3BiDir) {
+            metricLL.addView(defaultReverseThroughput.createMainLL("Throughput"));
+            if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
+                //defaultRTT = new Metric(METRIC_TYPE.RTT);
+                //metricLL.addView(defaultRTT.createOneDirection("RTT"));
+            };
+            if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
+                defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
+                metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
+                PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
+                metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
+            };
+        };
+        if(iperf3RunResult.input.iperf3Reverse) {
+            if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
+                defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
+                metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
+                PACKET_LOSS = new Metric(METRIC_TYPE.JITTER, ct);
+                metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
+            };
+        } else if(!iperf3RunResult.input.iperf3BiDir) {
+            if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
+                //defaultRTT = new Metric(METRIC_TYPE.RTT);
+                //metricLL.addView(defaultRTT.createOneDirection("RTT ms"));
+            };
+        }
+
+        mainLL.addView(metricLL);
+
+
+
 
         mainLL.addView(secondRow);
         if(iperf3RunResult.input.iperf3rawIperf3file == null){

@@ -2,25 +2,83 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ 'main', 'rel/**' ]
+    tags:
+      - '*'
   pull_request:
-    branches: [ "main" ]
+    branches: [ 'main' ]
+
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    environment: ngni-omnt
     steps:
-    - uses: actions/checkout@v3
-    - name: set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: gradle
+      - name: Checkout Branch ${{ github.ref }}
+        uses: actions/checkout@v4
+      - name: Get Latest iPerf
+        run: |
+          wget -O jniLibs.zip https://github.com/omnt/iperf/releases/latest/download/jniLibs
+          unzip jniLibs.zip -d app/src/main
+          rm jniLibs.zip
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+      - name: Decode Keystore and Create key.properties
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.STOREPASSWORD }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEYPASSWORD }}
+        run: |
+          echo -n "$ENCODED_STRING" | base64 -d > app/OpenMobileNetworkToolkit-key.jks
+          mkdir android
+          touch android/key.properties
+          echo "storePassword=$RELEASE_KEYSTORE_PASSWORD" > android/key.properties
+          echo "keyPassword=$RELEASE_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$RELEASE_KEYSTORE_ALIAS" >> android/key.properties
+          echo "storeFile=OpenMobileNetworkToolkit-key.jks" >> android/key.properties
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: gradle
+
+      - name: Build Release APK
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Build Release APK
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Generate SPDX
+        env:
+          ENCODED_STRING: ${{ secrets.KEYSTORE }}
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
+          RELEASE_KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
+        run: ./gradlew app:spdxSbomForRelease
+
+      - name: Get release file apk path
+        id: releaseApk
+        run: | 
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          mkdir upload
+          mv app/build/outputs/apk/debug/app-debug.apk ./upload/omnt-debug.apk
+          mv app/build/outputs/apk/release/app-release.apk ./upload/omnt-release.apk
+          mv app/build/spdx/release.spdx.json ./upload/release.spdx.json
+
+      - name: Upload All Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: omnt-${{ steps.releaseApk.outputs.sha_short }}
+          path: ./upload

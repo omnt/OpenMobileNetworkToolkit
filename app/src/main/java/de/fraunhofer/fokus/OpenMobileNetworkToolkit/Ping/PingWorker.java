@@ -11,6 +11,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
@@ -24,7 +25,11 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,6 +56,9 @@ public class PingWorker extends Worker {
     private String timeRegex = "\\btime=([0-9]+\\.[0-9]+)\\s+ms\\b";
     private Pattern pattern = Pattern.compile(timeRegex);
     private String line = null;
+    private double rtt;
+    private NotificationManager notificationManager;
+
 
     public void parsePingCommand() {
 
@@ -93,9 +101,6 @@ public class PingWorker extends Worker {
 
         PendingIntent intent = WorkManager.getInstance(ct)
             .createCancelPendingIntent(getId());
-
-
-
         notification = notificationBuilder
             .setContentTitle("Ping "+ parsedCommand.get("target"))
             .setContentText(progress)
@@ -113,17 +118,12 @@ public class PingWorker extends Worker {
     Runnable updateNotification = new Runnable() {
         @Override
         public void run() {
-            Matcher matcher = pattern.matcher(line);
-            if(matcher.find()){
-                double rtt = Double.parseDouble(matcher.group(1));
+            if(notification != null){
+                notificationBuilder.setContentText(rtt+" ms");
+                notificationManager.notify(notificationID, notificationBuilder.build());
+            } else {
                 setForegroundAsync(createForegroundInfo(rtt+" ms"));
             }
-        }
-    };
-    Runnable sendBroadcast = new Runnable() {
-        @Override
-        public void run() {
-            setProgressAsync(new Data.Builder().putString("ping_line", line).build());
         }
     };
 
@@ -133,6 +133,7 @@ public class PingWorker extends Worker {
         lines = new ArrayList<>();
         Data data = null;
         notificationBuilder = new NotificationCompat.Builder(ct, channelId);
+        notificationManager = ct.getSystemService(NotificationManager.class);
         try {
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -148,29 +149,37 @@ public class PingWorker extends Worker {
                 new BufferedReader(new InputStreamReader(pingProcess.getInputStream()));
 
 
-            while((line = outputReader.readLine()) != null){
-                lines.add(line);
-                updateNotification.run();
-                sendBroadcast.run();
-            }
 
-            data = new Data.Builder().putStringArray("output", lines.toArray(new String[0]))
-                .build();
+            PingParser pingParser = PingParser.getInstance(outputReader);
+
+            pingParser.addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    PingInformation pi = (PingInformation) evt.getNewValue();
+                    switch(pi.getLineType()){
+                        case PACKET_LOSS:
+                            break;
+                        case RTT:
+                            rtt = ((RTTLine)pi).getRtt();
+                            break;
+
+                    }
+                    updateNotification.run();
+                }
+            });
+            pingParser.parse();
+            int result = pingProcess.waitFor();
 
             if(isStopped()){
                 Log.d(TAG, "doWork: got cancelled because Worker got stopped!");
-                return Result.success(data);
+                return Result.success();
             }
 
 
-            int result = pingProcess.waitFor();
             Log.d(TAG, "doWork: result " + result);
             if (result != 0) {
                 return Result.failure();
             }
-            data = new Data.Builder().putStringArray("output", lines.toArray(new String[0]))
-                .build();
-
         } catch (IOException e) {
             e.printStackTrace();
             System.out.printf(e.toString());
@@ -178,6 +187,6 @@ public class PingWorker extends Worker {
             throw new RuntimeException(e);
         }
 
-        return Result.success(data);
+        return Result.success();
     }
 }

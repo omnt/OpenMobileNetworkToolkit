@@ -83,7 +83,7 @@ public class Iperf3Fragment extends Fragment {
     private final String IPERF3CPORT = "iperf3cport";
     private CheckBox iperf3BiDir;
     private CheckBox iperf3Reverse;
-    private CheckBox iperf3Json;
+
     private CheckBox iperf3OneOff;
     private EditText iperf3EtIp;
     private EditText iperf3EtPort;
@@ -169,7 +169,6 @@ public class Iperf3Fragment extends Fragment {
 
                 iperf3Reverse.setChecked(iperf3RunResult.input.iperf3Reverse);
                 iperf3BiDir.setChecked(iperf3RunResult.input.iperf3BiDir);
-                iperf3Json.setChecked(iperf3RunResult.input.iperf3Json);
                 iperf3OneOff.setChecked(iperf3RunResult.input.iperf3OneOff);
                 protocolSpinner.setSelection(iperf3RunResult.input.iperf3IdxProtocol);
                 iperf3ModeSpinner.setSelection(iperf3RunResult.input.iperf3IdxMode);
@@ -304,12 +303,10 @@ public class Iperf3Fragment extends Fragment {
 
         iperf3BiDir = v.findViewById(R.id.iperf_bidir);
         iperf3Reverse = v.findViewById(R.id.iperf3_reverse);
-        iperf3Json = v.findViewById(R.id.iperf3_json);
         iperf3OneOff = v.findViewById(R.id.iperf3_one_off);
 
         saveCheckboxInputToSharedPreferences(iperf3BiDir, IPERF3BIDIR);
         saveCheckboxInputToSharedPreferences(iperf3Reverse, IPERF3REVERSE);
-        saveCheckboxInputToSharedPreferences(iperf3Json, IPERF3JSON);
         saveCheckboxInputToSharedPreferences(iperf3OneOff, IPERF3ONEOFF);
 
         protocolSpinner = v.findViewById(R.id.iperf3_protocol_spinner);
@@ -352,7 +349,6 @@ public class Iperf3Fragment extends Fragment {
 
                         iperf3Reverse.setChecked(iperf3RunResult.input.iperf3Reverse);
                         iperf3BiDir.setChecked(iperf3RunResult.input.iperf3BiDir);
-                        iperf3Json.setChecked(iperf3RunResult.input.iperf3Json);
                         iperf3OneOff.setChecked(iperf3RunResult.input.iperf3OneOff);
                         protocolSpinner.setSelection(iperf3RunResult.input.iperf3IdxProtocol);
                         iperf3ModeSpinner.setSelection(iperf3RunResult.input.iperf3IdxMode);
@@ -375,7 +371,6 @@ public class Iperf3Fragment extends Fragment {
             iperf3BiDir.setChecked(savedInstanceState.getBoolean(IPERF3BIDIR));
 
             iperf3Reverse.setChecked(savedInstanceState.getBoolean(IPERF3REVERSE));
-            iperf3Json.setChecked(savedInstanceState.getBoolean(IPERF3JSON));
             iperf3OneOff.setChecked(savedInstanceState.getBoolean(IPERF3ONEOFF));
             protocolSpinner.setSelection(savedInstanceState.getInt(IPERF3IDXPROTOCOL));
             iperf3ModeSpinner.setSelection(savedInstanceState.getInt(IPERF3IDXMODE));
@@ -391,7 +386,6 @@ public class Iperf3Fragment extends Fragment {
 
             iperf3BiDir.setChecked(preferences.getBoolean(IPERF3BIDIR, false));
             iperf3Reverse.setChecked(preferences.getBoolean(IPERF3REVERSE, false));
-            iperf3Json.setChecked(preferences.getBoolean(IPERF3JSON, false));
             iperf3OneOff.setChecked(preferences.getBoolean(IPERF3ONEOFF, false));
             protocolSpinner.setSelection(preferences.getInt(IPERF3IDXPROTOCOL, 0));
             iperf3ModeSpinner.setSelection(preferences.getInt(IPERF3IDXMODE, 0));
@@ -630,7 +624,7 @@ public class Iperf3Fragment extends Fragment {
         input.iperf3BiDir = false;
         input.iperf3Reverse = false;
         input.iperf3OneOff = false;
-        input.iperf3Json = false;
+        input.iperf3Json = true;
 
         if (!isModeSpinnerClient()) {
             stb.add("-s");
@@ -648,10 +642,11 @@ public class Iperf3Fragment extends Fragment {
             stb.add("--one-off");
             input.iperf3OneOff = true;
         }
-        if (iperf3Json.isChecked()) {
-            stb.add("--json");
-            input.iperf3Json = true;
-        }
+        stb.add("--json-stream");
+
+        stb.add("--connect-timeout");
+        stb.add("500");
+
 
         String joined = String.join(" ", stb);
 
@@ -682,7 +677,6 @@ public class Iperf3Fragment extends Fragment {
 
         editor.putBoolean(IPERF3BIDIR, iperf3BiDir.isChecked());
         editor.putBoolean(IPERF3REVERSE, iperf3Reverse.isChecked());
-        editor.putBoolean(IPERF3JSON, iperf3Json.isChecked());
         editor.putBoolean(IPERF3ONEOFF, iperf3OneOff.isChecked());
         editor.apply();
     }
