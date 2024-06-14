@@ -35,6 +35,7 @@ public class GlobalVars {
     public static String CQI = "CQI";
     public static String EvoDbm = "EvoDbm";
     private static GlobalVars instance;
+    ImageView log_status;
     private DataProvider dp;
     private boolean feature_telephony;
     private boolean carrier_permissions;
@@ -45,6 +46,26 @@ public class GlobalVars {
     private boolean feature_admin;
     private boolean feature_work_profile;
     private boolean permission_phone_state;
+    private String signing_hash;
+    private boolean permission_fine_location;
+
+    private GlobalVars() {
+    }
+
+    public static synchronized GlobalVars getInstance() {
+        if (instance == null) {
+            instance = new GlobalVars();
+        }
+        return instance;
+    }
+
+    public String getSigning_hash() {
+        return signing_hash;
+    }
+
+    public void setSigning_hash(String signing_hash) {
+        this.signing_hash = signing_hash;
+    }
 
     public ImageView getLog_status() {
         return log_status;
@@ -52,16 +73,6 @@ public class GlobalVars {
 
     public void setLog_status(ImageView log_status) {
         this.log_status = log_status;
-    }
-
-    ImageView log_status;
-    private GlobalVars(){}
-
-    public static synchronized GlobalVars getInstance(){
-        if(instance==null){
-            instance=new GlobalVars();
-        }
-        return instance;
     }
 
     public DataProvider get_dp() {
@@ -151,7 +162,5 @@ public class GlobalVars {
     public void setPermission_fine_location(boolean permission_fine_location) {
         this.permission_fine_location = permission_fine_location;
     }
-
-    private boolean permission_fine_location;
 
 }

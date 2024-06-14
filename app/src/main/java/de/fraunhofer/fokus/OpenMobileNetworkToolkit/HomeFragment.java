@@ -123,6 +123,7 @@ public class HomeFragment extends Fragment {
                 md = MessageDigest.getInstance("SHA256");
                 md.update(signature.toByteArray());
                 String hash = new String(Base64.encode(md.digest(), 0));
+                gv.setSigning_hash(hash);
                 Log.d(TAG, "Signature: " + toHexString(md.digest()));
             }
         } catch (PackageManager.NameNotFoundException e1) {
