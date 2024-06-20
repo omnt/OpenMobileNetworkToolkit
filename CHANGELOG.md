@@ -11,7 +11,7 @@
 - iPerf3 GUI [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
 - Fix Ping Bug, where button is enabled but now Ping is running after app restart [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
 - Update Ping Fragment, now uses the Metric class to display [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
-- 
+
 ### Breaking Changes
 - see [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
 
