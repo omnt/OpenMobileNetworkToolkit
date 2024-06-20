@@ -1,4 +1,10 @@
 # OpenMobileNetworkToolkit Changelog
+## Release [0.3.1]
+
+### Changed
+- Fix Bug if DP is not available
+- Use [TelephonyCallback](https://developer.android.com/reference/android/telephony/TelephonyCallback) instead of [PhoneStateListener](https://developer.android.com/reference/android/telephony/PhoneStateListener)
+
 ## Release [0.3]
 
 ### Added
