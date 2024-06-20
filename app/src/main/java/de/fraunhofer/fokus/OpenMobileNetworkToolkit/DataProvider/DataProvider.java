@@ -206,6 +206,9 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         }
         di.setAndroidSDK(String.valueOf(Build.VERSION.SDK_INT));
         di.setAndroidRelease(Build.VERSION.RELEASE);
+        if (permission_phone_state) {
+            di.setDeviceSoftwareVersion(String.valueOf(tm.getDeviceSoftwareVersion()));
+        }
         if (cp) { // todo try root privileges or more fine granular permission
             try {
                 di.setIMEI(tm.getImei());
