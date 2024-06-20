@@ -64,22 +64,7 @@ public class PingFragment extends Fragment {
         Intent pingStart = new Intent(ct, PingService.class);
         ct.startService(pingStart);
         rttMetric.resetMetric();
-        PingParser pingParser = PingParser.getInstance(null);
-        pingParser.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                PingInformation pi = (PingInformation) evt.getNewValue();
-                switch (pi.getLineType()){
-                    case RTT:
-                        rttMetric.update( ((RTTLine)pi).getRtt());
-                        break;
-                    case PACKET_LOSS:
-                        packetLossMetric.update(((PacketLossLine)pi).getPacketLoss());
-                        //packetLossMetric.setVisibility(View.VISIBLE);
-                        break;
-                }
-            }
-        });
+        packetLossMetric.resetMetric();
     }
     private void stopPingService(){
         input.setEnabled(true);
@@ -123,7 +108,7 @@ public class PingFragment extends Fragment {
         aSwitch = verticalLL.findViewById(R.id.ping_switch);
         input = verticalLL.findViewById(R.id.ping_input);
         input.setText(sp.getString("ping_input", "-w 5 8.8.8.8"));
-
+        input.setEnabled(!PingService.isRunning());
         ct = requireContext();
 
         saveTextInputToSharedPreferences(input, "ping_input");
@@ -150,6 +135,25 @@ public class PingFragment extends Fragment {
         metricsLL.addView(packetLossMetric.createMainLL("Packet Loss [%]"));
 
         horizontalLL1.addView(metricsLL);
+
+
+        PingParser pingParser = PingParser.getInstance(null);
+        pingParser.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                PingInformation pi = (PingInformation) evt.getNewValue();
+                switch (pi.getLineType()){
+                    case RTT:
+                        rttMetric.update( ((RTTLine)pi).getRtt());
+                        break;
+                    case PACKET_LOSS:
+                        packetLossMetric.update(((PacketLossLine)pi).getPacketLoss());
+                        //packetLossMetric.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+        });
+
         //packetLossMetric.setVisibility(View.INVISIBLE);
         return v;
     }

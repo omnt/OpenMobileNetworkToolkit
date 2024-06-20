@@ -103,6 +103,7 @@ public class LoggingService extends Service {
     private final Runnable notification_updater = new Runnable() {
         @Override
         public void run() {
+            if(dp == null) return;
             List<CellInformation> cil = dp.getRegisteredCells();
             StringBuilder s = new StringBuilder();
             for (CellInformation ci : cil) {

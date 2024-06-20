@@ -57,7 +57,6 @@ public class PingService extends Service {
     private static final String TAG = "PingService";
     private FileOutputStream ping_stream;
     private Handler pingLogging;
-    private String pingInput;
     private WorkManager wm;
     private Context context;
     private ArrayList<OneTimeWorkRequest> pingWRs;
@@ -67,10 +66,7 @@ public class PingService extends Service {
     DataProvider dp;
     InfluxdbConnection influx;
     private static boolean isRunning = false;
-    private static PingParser pingParser;
-    private Process pingProcess;
     private String pingCommand;
-    private Runtime runtime = Runtime.getRuntime();
     private PropertyChangeListener propertyChangeListener;
     HashMap<String, String> parsedCommand = new HashMap<>();
 
@@ -95,9 +91,10 @@ public class PingService extends Service {
         defaultSP = PreferenceManager.getDefaultSharedPreferences(context);
         if(defaultSP.getBoolean("enable_influx", false)) influx = InfluxdbConnections.getRicInstance(context);
         wm = WorkManager.getInstance(context);
+        wm.cancelAllWorkByTag("Ping");
         if(intent == null) return START_NOT_STICKY;
-        pingInput = intent.getStringExtra("input");
         pingWRs = new ArrayList<>();
+
         setupPing();
         isRunning = true;
         return START_STICKY;
@@ -233,6 +230,7 @@ public class PingService extends Service {
                     }
 
                     wm.getWorkInfoByIdLiveData(pingWR.getId()).removeObserver(this);
+                    pingWRs.remove(pingWR);
                     pingLogging.postDelayed(pingUpdate, 200);
                 }
             };

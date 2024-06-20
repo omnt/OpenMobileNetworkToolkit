@@ -162,7 +162,6 @@ public class PingWorker extends Worker {
                         case RTT:
                             rtt = ((RTTLine)pi).getRtt();
                             break;
-
                     }
                     updateNotification.run();
                 }
