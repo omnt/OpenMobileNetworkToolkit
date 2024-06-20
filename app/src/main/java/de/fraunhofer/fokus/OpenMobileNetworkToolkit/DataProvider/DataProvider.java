@@ -95,6 +95,8 @@ public class DataProvider extends PhoneStateListener implements LocationListener
     private List<NetworkInterfaceInformation> nii = new ArrayList<>();
     private ArrayList<SignalStrengthInformation> ssi = new ArrayList<>();
     private SliceInformation si = new SliceInformation();
+
+    private LocationManager lm;
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
     private LocationCallback locationCallback;
@@ -103,7 +105,6 @@ public class DataProvider extends PhoneStateListener implements LocationListener
     public DataProvider(Context context) {
         GlobalVars gv = GlobalVars.getInstance();
         ct = context;
-        LocationManager lm;
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
         permission_phone_state = gv.isPermission_phone_state();
 
@@ -688,6 +689,9 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         li.setProvider(location.getProvider());
         li.setAccuracy(location.getAccuracy());
         li.setSpeed(location.getSpeed());
+        if (lm != null) {
+            li.setProviderList(lm.getProviders(true));
+        }
     }
 
     public void onProviderDisabled(@NonNull String provider) {

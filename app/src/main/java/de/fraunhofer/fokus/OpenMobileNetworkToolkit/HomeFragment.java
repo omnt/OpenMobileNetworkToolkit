@@ -355,8 +355,9 @@ public class HomeFragment extends Fragment {
             tl.addView(rowBuilder("Latitude", String.valueOf(loc.getLatitude())));
             tl.addView(rowBuilder("Altitude", String.valueOf(loc.getAltitude())));
             tl.addView(rowBuilder("Speed", String.valueOf(loc.getSpeed())));
-            tl.addView(rowBuilder("Provider", String.valueOf(loc.getProvider())));
             tl.addView(rowBuilder("Accuracy", String.valueOf(loc.getAccuracy())));
+            tl.addView(rowBuilder("Provider List", String.valueOf(loc.getProviderList())));
+            tl.addView(rowBuilder("Provider", loc.getProvider()));
         } else {
             tl.addView(rowBuilder("Location not available",""));
         }
