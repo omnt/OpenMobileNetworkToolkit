@@ -229,8 +229,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         })
                         .setIcon(android.R.drawable.ic_dialog_map)
                         .show();
-            } else {
-                Log.i(TAG, "location API is disabled but fake location enabled");
             }
         }
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
