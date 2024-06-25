@@ -70,6 +70,6 @@ Here we configure what data should be written to the database. Note that this al
 
 If everything is set up you can now scroll up to the top of the logging settings and enable the logging system. If your phone has a internet connection the logging logo will tun green when data is successfully transmitted to the database.
 
-You should now see the device and measurement selectable in the dashboards and graphs ans maps filling with data points.
+You should now see the device and measurement selectable in the dashboards and graphs and maps filling with data points.
 
 [Home](OpenMobileNetworkToolkit.md)
