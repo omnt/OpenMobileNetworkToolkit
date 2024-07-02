@@ -17,6 +17,7 @@ both services can be used for free to get a first impression, more advanced usag
 
 # Installation
 The simplest way to install the app is by downloading it on the phone, if ADB is at hand installing via adb more convenient.
+The latest release APK can be found on the [Github release page](https://github.com/omnt/OpenMobileNetworkToolkit/releases/).
 
     adb install release.apk
 
