@@ -8,9 +8,6 @@ assignees: ""
 
 ## Bug Report
 
-### Short Description
-<!-- A brief summary of the bug. -->
-
 ### Context
 - **Device:**
 - **Carrier Privileges (Y/N):**
