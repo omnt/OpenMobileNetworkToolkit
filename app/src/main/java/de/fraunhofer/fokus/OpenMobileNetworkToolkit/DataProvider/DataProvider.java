@@ -209,6 +209,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         if (permission_phone_state) {
             di.setDeviceSoftwareVersion(String.valueOf(tm.getDeviceSoftwareVersion()));
         }
+        Log.d(TAG, "refreshDeviceInformation: Carrier Privileges is " + cp);
         if (cp) { // todo try root privileges or more fine granular permission
             try {
                 di.setIMEI(tm.getImei());
@@ -217,7 +218,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                 di.setSubscriberId(tm.getSubscriberId());
                 di.setNetworkAccessIdentifier(tm.getNai());
             } catch (SecurityException e) {
-                Log.d(TAG, "Carrier Privileges not available");
+                Log.d(TAG, "Can't get IMEI, MEID, SimSerial or SubscriberId");
             }
             di.setIMSI(getIMSI());
 
