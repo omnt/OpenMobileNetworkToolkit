@@ -839,7 +839,15 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         } else {
             subscriptions = sm.getActiveSubscriptionInfoList();
         }
-        return subscriptions;
+
+        ArrayList<SubscriptionInfo> activeSubscriptions = new ArrayList<>();
+        for (SubscriptionInfo info : Objects.requireNonNull(subscriptions)) {
+            Log.d(TAG, "Subscription Info: " + info.toString());
+            if(tm.getSimState(info.getSimSlotIndex()) == TelephonyManager.SIM_STATE_READY){
+                activeSubscriptions.add(info);
+            }
+        }
+        return activeSubscriptions;
     }
 
     /**

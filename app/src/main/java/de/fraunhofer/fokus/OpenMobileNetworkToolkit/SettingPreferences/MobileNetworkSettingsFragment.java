@@ -70,8 +70,16 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     }
 
     private void handleSetNetwork(){
-        boolean result = setNetworkSelection();
-        Toast.makeText(ct, String.valueOf(result), Toast.LENGTH_SHORT).show();
+        if(gv.isCarrier_permissions()){
+            if(setNetworkSelection()){
+                Toast.makeText(ct, "Network Selection Successful", Toast.LENGTH_SHORT).show();
+                return;
+            } else {
+                Toast.makeText(ct, "Network Selection Failed", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        Toast.makeText(ct, "App doesn't have Carrier Permissions", Toast.LENGTH_SHORT).show();
     }
 
     @Override
