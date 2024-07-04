@@ -1,9 +1,16 @@
 # OpenMobileNetworkToolkit Changelog
 ## Release [0.3.1]
 
+### Added
+- Add Issue Template [PR 21](https://github.com/omnt/OpenMobileNetworkToolkit/pull/21)
+
 ### Changed
-- Fix Bug if DP is not available
 - Use [TelephonyCallback](https://developer.android.com/reference/android/telephony/TelephonyCallback) instead of [PhoneStateListener](https://developer.android.com/reference/android/telephony/PhoneStateListener)
+- Bump gradle to 8.5.0
+
+### Fixed
+- Fix Bug if DP is not available, resulting in a crash
+- Fix Bug if two Sim Cards are available, see [Issue 22](https://github.com/omnt/OpenMobileNetworkToolkit/issues/22)
 
 ## Release [0.3]
 
