@@ -17,6 +17,7 @@ both services can be used for free to get a first impression, more advanced usag
 
 # Installation
 The simplest way to install the app is by downloading it on the phone, if ADB is at hand installing via adb more convenient.
+The latest release APK can be found on the [Github release page](https://github.com/omnt/OpenMobileNetworkToolkit/releases/).
 
     adb install release.apk
 
@@ -70,6 +71,6 @@ Here we configure what data should be written to the database. Note that this al
 
 If everything is set up you can now scroll up to the top of the logging settings and enable the logging system. If your phone has a internet connection the logging logo will tun green when data is successfully transmitted to the database.
 
-You should now see the device and measurement selectable in the dashboards and graphs ans maps filling with data points.
+You should now see the device and measurement selectable in the dashboards and graphs and maps filling with data points.
 
 [Home](OpenMobileNetworkToolkit.md)

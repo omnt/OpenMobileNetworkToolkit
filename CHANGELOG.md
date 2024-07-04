@@ -8,7 +8,7 @@
 ## Release [0.3]
 
 ### Added
-- Github Action Workflow for APK Debug/Relase Build and SPDX File [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
+- Github Action Workflow for APK Debug/Release Build and SPDX File [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
 - Documentation [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
 - CHANGELOG.md [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
 
