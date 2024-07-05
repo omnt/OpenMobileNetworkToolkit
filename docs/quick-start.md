@@ -17,9 +17,11 @@ both services can be used for free to get a first impression, more advanced usag
 
 # Installation
 The simplest way to install the app is by downloading it on the phone, if ADB is at hand installing via adb more convenient.
-The latest release APK can be found on the [Github release page](https://github.com/omnt/OpenMobileNetworkToolkit/releases/).
+The latest release APK ```omnt-release.apk``` can be found on the [Github release page](https://github.com/omnt/OpenMobileNetworkToolkit/releases/).
 
-    adb install release.apk
+
+    adb install omnt-release.apk
+
 
 or use android studio to build and install OMNT. Follow [build](build.md) for more information on building the app.
 
