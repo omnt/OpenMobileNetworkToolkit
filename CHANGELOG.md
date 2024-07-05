@@ -7,6 +7,7 @@
 ### Changed
 - Use [TelephonyCallback](https://developer.android.com/reference/android/telephony/TelephonyCallback) instead of [PhoneStateListener](https://developer.android.com/reference/android/telephony/PhoneStateListener)
 - Bump gradle to 8.5.0
+- disable Radio Settings if Carrier Permissions are not available
 
 ### Fixed
 - Fix Bug if DP is not available, resulting in a crash
