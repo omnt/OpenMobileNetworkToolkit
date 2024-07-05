@@ -74,7 +74,7 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 
-public class DataProvider extends PhoneStateListener implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener {
+public class DataProvider extends TelephonyCallback implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener, TelephonyCallback.SignalStrengthsListener {
     private static final String TAG = "DataProvider";
     private final Context ct;
     private final SharedPreferences sp;
@@ -191,7 +191,6 @@ public class DataProvider extends PhoneStateListener implements LocationListener
 
 
     // ## Device Information
-    @SuppressLint({"MissingPermission", "HardwareIds", "ObsoleteSdkInt"})
     public void refreshDeviceInformation() {
         updateTimestamp();
         di.setTimeStamp(ts);
@@ -210,13 +209,19 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         if (permission_phone_state) {
             di.setDeviceSoftwareVersion(String.valueOf(tm.getDeviceSoftwareVersion()));
         }
+        Log.d(TAG, "refreshDeviceInformation: Carrier Privileges is " + cp);
         if (cp) { // todo try root privileges or more fine granular permission
-            di.setIMEI(tm.getImei());
-            di.setMEID(tm.getMeid());
+            try {
+                di.setIMEI(tm.getImei());
+                di.setMEID(tm.getMeid());
+                di.setSimSerial(tm.getSimSerialNumber());
+                di.setSubscriberId(tm.getSubscriberId());
+                di.setNetworkAccessIdentifier(tm.getNai());
+            } catch (SecurityException e) {
+                Log.d(TAG, "Can't get IMEI, MEID, SimSerial or SubscriberId");
+            }
             di.setIMSI(getIMSI());
-            di.setSimSerial(tm.getSimSerialNumber());
-            di.setSubscriberId(tm.getSubscriberId());
-            di.setNetworkAccessIdentifier(tm.getNai());
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 di.setSubscriberId(String.valueOf(tm.getSubscriptionId()));
             }
@@ -279,7 +284,6 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         }
         return points;
     }
-
 
     // ### Cell Information ###
 
@@ -526,8 +530,6 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         point.addField("MobileRxBytes", TrafficStats.getMobileRxBytes());
         return point;
     }
-
-
     // ### Signal Strength Information ###
     @SuppressLint("ObsoleteSdkInt")
     @Override
@@ -837,7 +839,15 @@ public class DataProvider extends PhoneStateListener implements LocationListener
         } else {
             subscriptions = sm.getActiveSubscriptionInfoList();
         }
-        return subscriptions;
+
+        ArrayList<SubscriptionInfo> activeSubscriptions = new ArrayList<>();
+        for (SubscriptionInfo info : Objects.requireNonNull(subscriptions)) {
+            Log.d(TAG, "Subscription Info: " + info.toString());
+            if(tm.getSimState(info.getSimSlotIndex()) == TelephonyManager.SIM_STATE_READY){
+                activeSubscriptions.add(info);
+            }
+        }
+        return activeSubscriptions;
     }
 
     /**
