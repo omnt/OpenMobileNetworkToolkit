@@ -235,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
-        tm.listen(dp, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
 

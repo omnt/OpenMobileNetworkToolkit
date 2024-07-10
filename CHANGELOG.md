@@ -1,8 +1,24 @@
 # OpenMobileNetworkToolkit Changelog
+## Release [0.3.1]
+
+### Added
+- Add Issue Template [PR 21](https://github.com/omnt/OpenMobileNetworkToolkit/pull/21)
+
+### Changed
+- Use [TelephonyCallback](https://developer.android.com/reference/android/telephony/TelephonyCallback) instead of [PhoneStateListener](https://developer.android.com/reference/android/telephony/PhoneStateListener)
+- Bump gradle to 8.5.0
+- Bump lib depencies
+- disable Radio Settings if Carrier Permissions are not available
+- minor documentation update
+
+### Fixed
+- Fix Bug if DP is not available, resulting in a crash
+- Fix Bug if two Sim Cards are available, see [Issue 22](https://github.com/omnt/OpenMobileNetworkToolkit/issues/22)
+
 ## Release [0.3]
 
 ### Added
-- Github Action Workflow for APK Debug/Relase Build and SPDX File [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
+- Github Action Workflow for APK Debug/Release Build and SPDX File [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
 - Documentation [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
 - CHANGELOG.md [PR 13](https://github.com/omnt/OpenMobileNetworkToolkit/pull/13)
 
@@ -11,7 +27,7 @@
 - iPerf3 GUI [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
 - Fix Ping Bug, where button is enabled but now Ping is running after app restart [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
 - Update Ping Fragment, now uses the Metric class to display [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
-- 
+
 ### Breaking Changes
 - see [PR 14](https://github.com/omnt/OpenMobileNetworkToolkit/pull/14)
 

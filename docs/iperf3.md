@@ -13,6 +13,15 @@ You can type into the GUI the server IP and port, the duration of the test, and 
 You can also choose the protocol you want to use, TCP or UDP.
 ![iPerf3](images/iperf3.png)
 
+#### Stop iPerf3 Run
+To stop an iPerf3 run, click on the `Instance` button, swipe left on the instance you want to stop, and click on the `Stop` button.
+![iPerf3_stop](images/iperf3_stop.gif)
+
+#### Edit iPerf3 Run
+To stop an iPerf3 run, click on the `Instance` button, swipe right on the instance you want to stop, and click on the `Edit` button.
+![iPerf3_edit](images/iperf3_edit.gif)
+
+
 ### Results
 The results of the iPerf3 test are displayed in the GUI.
 ![iPerf3_results](images/iPerf3_run_view.gif)
