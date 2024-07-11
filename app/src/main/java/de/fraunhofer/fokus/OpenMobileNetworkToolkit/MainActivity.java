@@ -414,6 +414,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case "mobile_network_settings":
                 navController.navigate(R.id.flagSettingFragment);
                 break;
+            case "shared_preferences_io":
+                navController.navigate(R.id.fragment_shared_preferences_io);
+                break;
         }
         return true;
     }

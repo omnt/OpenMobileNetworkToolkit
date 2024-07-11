@@ -50,4 +50,9 @@
         android:icon="@drawable/baseline_restart_alt_24"
         app:key="reset_modem"
         app:title="Reboot Modem" />
+    <Preference
+        android:icon="@drawable/ic_action_share_white"
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SharedPreferencesIOFragment"
+        app:key="shared_preferences_io"
+        app:title="Config IO" />
 </PreferenceScreen>
