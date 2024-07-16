@@ -39,6 +39,7 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if(s == null) return;
         if (s.equals("enable_logging")) {
             boolean logger = sharedPreferences.getBoolean("enable_logging", false);
             Log.d(TAG, "Logger update: " + logger);

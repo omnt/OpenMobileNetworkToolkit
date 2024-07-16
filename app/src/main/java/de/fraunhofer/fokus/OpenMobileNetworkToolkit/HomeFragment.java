@@ -64,6 +64,7 @@ public class HomeFragment extends Fragment {
     private boolean cp;
     private GlobalVars gv;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SharedPreferencesGrouper spg;
     DataProvider dp;
 
     Context context;
@@ -75,7 +76,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = requireContext();
-
+        spg = SharedPreferencesGrouper.getInstance(context);
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
     }
 
@@ -432,7 +433,7 @@ public class HomeFragment extends Fragment {
         List<CellInformation> cil = dp.getCellInformation();
         int cell = 1;
         for (CellInformation ci : cil) {
-            if ( !PreferenceManager.getDefaultSharedPreferences(context).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
+            if ( ! spg.getSharedPreference(SPType.logging_sp).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
                 continue;
             }
 

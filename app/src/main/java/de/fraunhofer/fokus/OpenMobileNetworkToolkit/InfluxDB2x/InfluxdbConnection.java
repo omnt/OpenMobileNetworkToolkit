@@ -9,11 +9,9 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.util.Log;
 
-import androidx.preference.PreferenceManager;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
@@ -30,12 +28,14 @@ import java.io.IOException;
 import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 
 public class InfluxdbConnection {
     private final static String TAG = "InfluxDBConnection";
-    SharedPreferences sp;
+    SharedPreferencesGrouper spg;
     private final char[] token;
     private final String org;
     private final String bucket;
@@ -53,7 +53,7 @@ public class InfluxdbConnection {
         this.bucket = bucket;
         this.context = context;
         this.gv = GlobalVars.getInstance();
-        sp = PreferenceManager.getDefaultSharedPreferences(context);
+        spg = SharedPreferencesGrouper.getInstance(context);
         influxDBClient = InfluxDBClientFactory.create(this.url, this.token, this.org, this.bucket);
         influxDBClient.enableGzip(); // maybe we want a setting for this?
     }
@@ -79,13 +79,13 @@ public class InfluxdbConnection {
                 value.logEvent();
             });
             writeApi.listenEvents(WriteSuccessEvent.class, value -> {
-                if ( sp.getBoolean("enable_influx", false)) {
+                if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 0, 255, 0));
                 }
             });
             writeApi.listenEvents(WriteRetriableErrorEvent.class, value -> {
                 value.logEvent();
-                if ( sp.getBoolean("enable_influx", false)) {
+                if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
                 }
             });

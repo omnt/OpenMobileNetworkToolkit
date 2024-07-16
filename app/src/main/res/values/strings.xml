@@ -146,7 +146,15 @@
     <string name="home_screen_settings">Home screen settings</string>
     <string name="app_settings">App settings</string>
     <string name="action_android_ims">Android IMS</string>>
-
+    <!-- -->
+    <!-- SharedPreferences Identifier -->
+    <string name="logging_sp">logging_sp</string>
+    <string name="iperf3_sp">iperf3_sp</string>
+    <string name="carrier_sp">carrier_sp</string>
+    <string name="mobile_network_sp">mobile_network_sp</string>
+    <string name="clear_preferences_message">Do you want to clear all Configuartions?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <!-- -->
 
 </resources>

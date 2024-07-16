@@ -40,14 +40,16 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformati
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private SharedPreferences sp;
     private String rawIperf3file;
     private String measurementName;
     private String ip;
+    private SharedPreferencesGrouper spg;
 
     private String port;
     private String bandwidth;
@@ -106,7 +108,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         oneOff = getInputData().getBoolean("oneOff",false);
         client = getInputData().getBoolean("client",false);
         runID = getInputData().getString("iperf3WorkerID");
-        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
     }
 
     private void setup(){
@@ -115,7 +117,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
 
     public Map<String, String> getTagsMap() {
-        String tags = sp.getString("tags", "").strip().replace(" ", "");
+        String tags = spg.getSharedPreference(SPType.iperf3_sp).getString("tags", "").strip().replace(" ", "");
         Map<String, String> tags_map = Collections.emptyMap();
         if (!tags.isEmpty()) {
             try {
@@ -125,7 +127,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             }
         }
         Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
-        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
+        tags_map_modifiable.put("measurement_name", spg.getSharedPreference(SPType.logging_sp).getString("measurement_name", "OMNT"));
         tags_map_modifiable.put("manufacturer", di.getManufacturer());
         tags_map_modifiable.put("model", di.getModel());
         tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));

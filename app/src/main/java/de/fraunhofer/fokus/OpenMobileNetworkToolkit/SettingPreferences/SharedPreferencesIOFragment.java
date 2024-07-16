@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,19 +18,25 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.ClearPreferencesFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesIO;
 
 public class SharedPreferencesIOFragment extends Fragment {
 
     private static final String TAG = "SharedPreferencesIOFragment";
-    private Context ct; 
+    private Context ct;
+    private String configDir;
+    private Uri uri;
 
     private final ActivityResultLauncher<Intent> exportPreferences = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -63,18 +71,32 @@ public class SharedPreferencesIOFragment extends Fragment {
         this.ct = requireContext();
         Button exportButton = view.findViewById(R.id.export_button);
         Button importButton = view.findViewById(R.id.import_button);
+        Button clearConfig = view.findViewById(R.id.clear_button);
 
         exportButton.setOnClickListener(v -> createFile());
         importButton.setOnClickListener(v -> pickFile());
+        clearConfig.setOnClickListener(v -> {
+            new ClearPreferencesFragment().show(getParentFragmentManager(), "clear_preferences");
+        });
+
+        this.configDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+                .getAbsolutePath() + "/omnt/configs/";
+        File configFolder = new File(this.configDir);
+        if (!configFolder.exists()) {
+            configFolder.mkdir();
+        }
+        this.uri =  Uri.parse(this.configDir);
 
         return view;
     }
 
     private void createFile() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/json");
-        intent.putExtra(Intent.EXTRA_TITLE, "shared_preferences.json");
+        intent.putExtra(Intent.EXTRA_TITLE, "omnt_config.json");
         intent.putExtra("CREATE_FILE", true);
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, this.uri);
         exportPreferences.launch(intent);
     }
 
@@ -82,6 +104,7 @@ public class SharedPreferencesIOFragment extends Fragment {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("application/json");
         intent.putExtra("CREATE_FILE", false);
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, this.uri);
         importPreferences.launch(intent);
     }
 

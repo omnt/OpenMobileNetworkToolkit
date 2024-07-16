@@ -17,14 +17,13 @@ import androidx.preference.PreferenceManager;
 
 
 public class LoggingServiceOnBootReceiver extends BroadcastReceiver {
-    SharedPreferences sp;
-
+    SharedPreferencesGrouper spg;
     @Override
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            sp = PreferenceManager.getDefaultSharedPreferences(context);
-            if (sp.getBoolean("start_logging_on_boot", false) &&
-                sp.getBoolean("enable_logging", false)) {
+            spg = SharedPreferencesGrouper.getInstance(context);
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("start_logging_on_boot", false) &&
+                spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
                 Intent serviceIntent = new Intent(context, LoggingService.class);
                 context.startService(serviceIntent);
             }

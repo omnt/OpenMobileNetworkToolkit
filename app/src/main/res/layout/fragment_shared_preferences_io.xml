@@ -10,12 +10,20 @@
         android:id="@+id/export_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Export Preferences" />
+        android:text="EXPORT CONFIG" />
 
     <Button
         android:id="@+id/import_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Import Preferences"
+        android:text="IMPORT CONFIG"
         android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/clear_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CLEAR CONFIG"
+        android:layout_marginTop="16dp" />
+
 </LinearLayout>

@@ -37,6 +37,8 @@ import java.beans.PropertyChangeListener;
 import java.io.FileOutputStream;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
 
 public class PingFragment extends Fragment {
     private final String TAG = "PingFragment";
@@ -47,7 +49,7 @@ public class PingFragment extends Fragment {
     private FileOutputStream stream;
     private EditText input;
     private Context ct;
-    private SharedPreferences sp;
+    private SharedPreferencesGrouper spg;
     private Metric rttMetric;
     private Metric packetLossMetric;
 
@@ -82,7 +84,7 @@ public class PingFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                sp.edit().putString(name, field.getText().toString()).apply();
+                spg.getSharedPreference(SPType.ping_sp).edit().putString(name, field.getText().toString()).apply();
             }
 
             @Override
@@ -100,17 +102,16 @@ public class PingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_ping, container, false);
+        ct = requireContext();
+        spg = SharedPreferencesGrouper.getInstance(ct);
 
-        sp = getContext().getSharedPreferences("Ping", Context.MODE_PRIVATE);
         verticalLL = v.findViewById(R.id.ping_vertical_ll);
         horizontalLL1 = verticalLL.findViewById(R.id.ping_horizontal1_ll);
 
         aSwitch = verticalLL.findViewById(R.id.ping_switch);
         input = verticalLL.findViewById(R.id.ping_input);
-        input.setText(sp.getString("ping_input", "-w 5 8.8.8.8"));
+        input.setText(spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "-w 5 8.8.8.8"));
         input.setEnabled(!PingService.isRunning());
-        ct = requireContext();
-
         saveTextInputToSharedPreferences(input, "ping_input");
         aSwitch.setChecked(PingService.isRunning());
 

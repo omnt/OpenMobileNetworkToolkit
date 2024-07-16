@@ -73,11 +73,13 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
 
 public class DataProvider extends TelephonyCallback implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener, TelephonyCallback.SignalStrengthsListener {
     private static final String TAG = "DataProvider";
     private final Context ct;
-    private final SharedPreferences sp;
+    private final SharedPreferencesGrouper spg;
     private boolean permission_phone_state;
     private ConnectivityManager cm;
     private boolean cp;
@@ -105,7 +107,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     public DataProvider(Context context) {
         GlobalVars gv = GlobalVars.getInstance();
         ct = context;
-        sp = PreferenceManager.getDefaultSharedPreferences(ct);
+        spg = SharedPreferencesGrouper.getInstance(ct);
         permission_phone_state = gv.isPermission_phone_state();
 
         // we can only relay on some APIs if this is a phone.
@@ -396,7 +398,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     @SuppressLint("ObsoleteSdkInt")
     public List<Point> getCellInformationPoint() {
         List<Point> points = new ArrayList<>();
-        boolean nc = sp.getBoolean("log_neighbour_cells", false);
+        boolean nc = spg.getSharedPreference(SPType.logging_sp).getBoolean("log_neighbour_cells", false);
         for (CellInformation ci_ : ci) {
             // check if want to log neighbour cells and skip non registered cells
             if (!nc) {
@@ -666,7 +668,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         point.time(System.currentTimeMillis(), WritePrecision.MS);
         // falling back to fake if no location is available is not the best solution.
         // We should ask the user / add configuration what to do
-        if (sp.getBoolean("fake_location", false) || li == null) {
+        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("fake_location", false) || li == null) {
             point.addField("longitude", 13.3143266);
             point.addField("latitude", 52.5259678);
             point.addField("altitude", 34.0);
@@ -767,7 +769,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
      */
     @SuppressLint("ObsoleteSdkInt")
     public Map<String, String> getTagsMap() {
-        String tags = sp.getString("tags", "").strip().replace(" ", "");
+        String tags = spg.getSharedPreference(SPType.logging_sp).getString("tags", "").strip().replace(" ", "");
         Map<String, String> tags_map = Collections.emptyMap();
         if (!tags.isEmpty()) {
             try {
@@ -779,7 +781,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         DeviceInformation di = getDeviceInformation();
 
         Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
-        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
+        tags_map_modifiable.put("measurement_name", spg.getSharedPreference(SPType.logging_sp).getString("measurement_name", "OMNT"));
         tags_map_modifiable.put("manufacturer", di.getManufacturer());
         tags_map_modifiable.put("model", di.getModel());
         tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));
