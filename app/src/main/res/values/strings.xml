@@ -145,7 +145,8 @@
     <string name="show_neighbour_cells">Show neighbour cells\n</string>
     <string name="home_screen_settings">Home screen settings</string>
     <string name="app_settings">App settings</string>
-    <string name="action_android_ims">Android IMS</string>>
+    <string name="action_android_ims">Android IMS</string>
+    <string name="influx_wifi_data">Log WiFi information</string>>
 
     <!-- -->
 

@@ -357,6 +357,17 @@ public class LoggingService extends Service {
             }
         }
 
+        if (sp.getBoolean("log_wifi_data", false)) {
+            Point p = dp.getWifiInformationPoint();
+            if (p.hasFields()) {
+                p.time(time, WritePrecision.MS);
+                p.addTags(tags_map);
+                logPoints.add(p);
+            } else {
+                Log.w(TAG, "Point without fields from getWifiInformationPoint");
+            }
+        }
+
         if (sp.getBoolean("influx_cell_data", false)) {
             List<Point> ps = dp.getCellInformationPoint();
             for (Point p : ps) {

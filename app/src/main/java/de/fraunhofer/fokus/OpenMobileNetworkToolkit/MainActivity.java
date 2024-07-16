@@ -29,7 +29,6 @@ import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CellInfo;
-import android.telephony.PhoneStateListener;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
@@ -100,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 for (SubscriptionInfo info : dp.getSubscriptions()) {
                     if (Integer.parseInt(pref_subscription_str) == info.getSubscriptionId()) {
                         valid_subscription = true;
-                        Log.d(TAG, "pref sub: " + pref_subscription_str);
                     }
                 }
                 if (!valid_subscription) {
@@ -186,31 +184,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         sp.registerOnSharedPreferenceChangeListener(listener);
 
-        // check permissions
-        // todo handle waiting for permissions
-        List<String> permissions = new ArrayList<String>();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
-            permissions.add(Manifest.permission.READ_PHONE_STATE);
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting FINE_LOCATION Permission");
-            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-        // on android 13 an newer we need to ask for permission to show the notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Requesting POST_NOTIFICATIONS Permission");
-                permissions.add(Manifest.permission.POST_NOTIFICATIONS);
-            }
-        }
-        if (!permissions.isEmpty()){
-            String[] perms = permissions.toArray(new String[0]);
-            ActivityCompat.requestPermissions(this, perms , 1337);
-        }
+        // request permissions from the user
+        requestPermission();
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            // if the location API on android is disabled and we don't want a fake location make a popup
             if (!lm.isLocationEnabled() && !sp.getBoolean("fake_location", false)) {
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(R.string.dialog_no_location_title)
@@ -229,13 +208,75 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         })
                         .setIcon(android.R.drawable.ic_dialog_map)
                         .show();
-            } else {
-                Log.i(TAG, "location API is disabled but fake location enabled");
             }
         }
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
     }
+
+    private void requestPermission(){
+        List<String> permissions = new ArrayList<String>();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
+            permissions.add(Manifest.permission.READ_PHONE_STATE);
+        } else {
+            Log.d(TAG, "Got READ_PHONE_STATE Permission");
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting COARSE_LOCATION Permission");
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        } else {
+            Log.d(TAG, "Got COARSE_LOCATION_LOCATION Permission");
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting FINE_LOCATION Permission");
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        } else {
+            Log.d(TAG, "Got FINE_LOCATION Permission");
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting WIFI_STATE Permission");
+            permissions.add(Manifest.permission.ACCESS_WIFI_STATE);
+        } else {
+            Log.d(TAG, "Got WIFI_STATE Permission");
+        }
+
+        // on android 13 an newer we need to ask for permission to show the notification
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Requesting POST_NOTIFICATIONS Permission");
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                Log.d(TAG, "Got POST_NOTIFICATIONS Permission");
+            }
+        }
+
+        if (!permissions.isEmpty()){
+            String[] perms = permissions.toArray(new String[0]);
+            ActivityCompat.requestPermissions(this, perms , 1337);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int i, @NonNull String[] strArr, @NonNull int[] iArr) {
+        super.onRequestPermissionsResult(i, strArr, iArr);
+
+        for (int j = 0; j < strArr.length; j = j+1 ){
+            Log.d(TAG, "Permission Request Result with ID: " + i + " for " + strArr[j].toString() + " is: " + iArr[j]);
+            // we need to request background location after we got foreground.
+            if (Objects.equals(strArr[j], "android.permission.ACCESS_FINE_LOCATION") && iArr[j] == 0) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
+                } else {
+                    Log.d(TAG, "Got ACCESS_BACKGROUND_LOCATION Permission");
+                }
+            }
+        }
+    }
+
 
 
     private final Runnable requestCellInfoUpdate = new Runnable() {
@@ -350,50 +391,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         return true;
     }
 
-    @Override
-    public void onRequestPermissionsResult(int i, @NonNull String[] strArr, @NonNull int[] iArr) {
-        super.onRequestPermissionsResult(i, strArr, iArr);
-        switch (i) {
-            case 1: {
-                if (iArr.length == 0 || iArr[0] != 0) {
-                    Log.d(TAG, "Could not get READ_PHONE_STATE permission");
-                    Toast.makeText(this, "Could not get READ_PHONE_STATE permission ", Toast.LENGTH_LONG).show();
-
-                } else {
-                    Log.d(TAG, "Got READ_PHONE_STATE_PERMISSIONS");
-                    Toast.makeText(this, "Got READ_PHONE_STATE_PERMISSIONS", Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            case 2: {
-                if (iArr.length <= 0 || iArr[0] != 0) {
-                    Log.d(TAG, "Could not get LOCATION permission");
-                    Toast.makeText(this, "Could not get LOCATION permissions", Toast.LENGTH_LONG).show();
-                } else {
-                    Log.d(TAG, "Got LOCATION permission");
-                    Toast.makeText(this, "Got LOCATION permissions", Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-
-            case 3: {
-                if (iArr.length == 0 || iArr[0] != 0) {
-                    Log.d(TAG, "Could not get BACKGROUND_LOCATION permission");
-                    Toast.makeText(this, "Could not get BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
-                } else {
-                    Log.d(TAG, "Got BACKGROUND_LOCATION permission");
-                    Toast.makeText(this, "Got BACKGROUND_LOCATION permissions", Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            case 1337:
-                // we need to request background location after we got foreground. todo add more checks here if the user said yes
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
-                }
-        }
-    }
 
     public boolean HasCarrierPermissions() {
         Log.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());

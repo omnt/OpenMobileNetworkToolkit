@@ -8,6 +8,9 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+import static androidx.core.content.ContextCompat.registerReceiver;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,8 +22,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.LinkProperties;
+import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.TrafficStats;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Looper;
@@ -37,7 +45,6 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
-import android.telephony.PhoneStateListener;
 import android.telephony.PhysicalChannelConfig;
 import android.telephony.SignalStrength;
 import android.telephony.SubscriptionInfo;
@@ -95,6 +102,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     private List<NetworkInterfaceInformation> nii = new ArrayList<>();
     private ArrayList<SignalStrengthInformation> ssi = new ArrayList<>();
     private SliceInformation si = new SliceInformation();
+    private WifiInfo wi = null;
+
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
     private LocationCallback locationCallback;
@@ -111,7 +120,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         if (gv.isFeature_telephony()) {
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
             tm = gv.getTm();
-            cp = gv.isCarrier_permissions();
+            cp = tm.hasCarrierPrivileges();
             sm = (SubscriptionManager) ct.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         }
 
@@ -146,7 +155,10 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                 onLocationChanged(locationResult.getLocations().get(0));
             }
         };
+
         startLocationUpdates();
+        registerWiFiCallback();
+
         // initialize internal state
         refreshAll();
     }
@@ -166,7 +178,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                     tm.getPreferredOpportunisticDataSubscription()
             );
         } else {
-            Log.d(TAG, "refreshNetworkInformation called by permission phone satate is missing");
+            Log.d(TAG, "refreshNetworkInformation called but permission phone state is missing");
         }
     }
 
@@ -209,8 +221,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         if (permission_phone_state) {
             di.setDeviceSoftwareVersion(String.valueOf(tm.getDeviceSoftwareVersion()));
         }
-        Log.d(TAG, "refreshDeviceInformation: Carrier Privileges is " + cp);
-        if (cp) { // todo try root privileges or more fine granular permission
+        if (tm.hasCarrierPrivileges()) { // todo try root privileges or more fine granular permission
             try {
                 di.setIMEI(tm.getImei());
                 di.setMEID(tm.getMeid());
@@ -289,6 +300,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * Callback to receive current cell information
+     *
      * @param list is the list of currently visible cells.
      */
     @SuppressLint("ObsoleteSdkInt")
@@ -389,7 +401,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     }
 
     /**
-     * Fill an Influx point with the current CellInfomation data
+     * Fill an Influx point with the current CellInformation data
+     *
      * @return List of InfluxPoints
      */
     @SuppressLint("ObsoleteSdkInt")
@@ -483,6 +496,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * return a list of CellInfo. This list also contains not available cells
+     *
      * @return CellInfo list
      */
     public List<CellInfo> getAllCellInfo() {
@@ -498,6 +512,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * Filter CellInfo objects for the registered cells
+     *
      * @return List of registered cells
      */
     public List<CellInformation> getRegisteredCells() {
@@ -509,7 +524,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         }
         return rcil;
     }
-
 
     // ### Network Capabilities ###
     public Point getNetworkCapabilitiesPoint() {
@@ -530,6 +544,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         point.addField("MobileRxBytes", TrafficStats.getMobileRxBytes());
         return point;
     }
+
     // ### Signal Strength Information ###
     @SuppressLint("ObsoleteSdkInt")
     @Override
@@ -650,6 +665,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * get location object if available
+     *
      * @return LocationInformation object
      */
     public LocationInformation getLocation() {
@@ -658,6 +674,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * return the location as influx point
+     *
      * @return influx point of current location
      */
     public Point getLocationPoint() {
@@ -683,6 +700,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         }
         return point;
     }
+
     public void onLocationChanged(@NonNull Location location) {
         li.setLatitude(location.getLatitude());
         li.setLongitude(location.getLongitude());
@@ -705,8 +723,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
      */
     private void startLocationUpdates() {
         LocationRequest locationRequest = new LocationRequest.Builder(200)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .build();
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .build();
         FusedLocationProviderClient flpc = LocationServices.getFusedLocationProviderClient(ct);
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             flpc.requestLocationUpdates(locationRequest,
@@ -722,15 +740,16 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
      * Refresh the internal BatteryInformation Object
      */
     public void refreshBatteryInfo() {
-            IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-            Intent batteryStatus = ct.registerReceiver(null, iFilter);
-            bi.setLevel(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1);
-            bi.setScale(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1);
-            bi.setCharge_type(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1) : -1);
+        IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = ct.registerReceiver(null, iFilter);
+        bi.setLevel(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1);
+        bi.setScale(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1);
+        bi.setCharge_type(batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1) : -1);
     }
 
     /**
-     * Return an BateryInformation object
+     * Return an BatteryInformation object
+     *
      * @return BatteryInformation object
      */
     public BatteryInformation getBatteryInformation() {
@@ -740,7 +759,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * Build an influx point from the BatteryInformation object
-     * @return Inlfux Point with current battery information
+     *
+     * @return Influx Point with current battery information
      */
     public Point getBatteryInformationPoint() {
         refreshBatteryInfo();
@@ -759,6 +779,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     /**
      * return a Map of key values pairs to be used as tags in the influx points
      * List consist of device information and user defined tags
+     *
      * @return Map of k,v strings
      */
     @SuppressLint("ObsoleteSdkInt")
@@ -784,7 +805,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             tags_map_modifiable.put("soc_model", di.getSOCModel());
         }
-        if (cp) {
+        if (tm.hasCarrierPrivileges()) {
             tags_map_modifiable.put("imei", di.getIMEI());
             tags_map_modifiable.put("imsi", getIMSI());
         }
@@ -794,6 +815,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * WIP Physical Channel Config Listener
+     *
      * @param list List of the current {@link PhysicalChannelConfig}s
      */
     @Override
@@ -803,6 +825,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * get the phone IMEI if accessible
+     *
      * @return String of IMEI if available
      */
     public String getIMEI() {
@@ -816,7 +839,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     /**
      * get the SIMs IMSI if accessible
      * We suppress the linter warning as we need IMSI even that not recommended for most apps.
-     * @return  String of IMSI is available
+     *
+     * @return String of IMSI is available
      */
     @SuppressLint("HardwareIds")
     public String getIMSI() {
@@ -829,6 +853,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * Get a list of subscription information
+     *
      * @return List of SubscriptionIno
      */
     @SuppressLint("ObsoleteSdkInt")
@@ -842,8 +867,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
         ArrayList<SubscriptionInfo> activeSubscriptions = new ArrayList<>();
         for (SubscriptionInfo info : Objects.requireNonNull(subscriptions)) {
-            Log.d(TAG, "Subscription Info: " + info.toString());
-            if(tm.getSimState(info.getSimSlotIndex()) == TelephonyManager.SIM_STATE_READY){
+            if (tm.getSimState(info.getSimSlotIndex()) == TelephonyManager.SIM_STATE_READY) {
                 activeSubscriptions.add(info);
             }
         }
@@ -869,6 +893,98 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         ts = System.currentTimeMillis();
     }
 
+    /**
+     * Return a influx point representation of the wifi information
+     *
+     * @return Influx Point
+     */
+    public Point getWifiInformationPoint() {
+        Point point = new Point("WifiInformation");
+        point.time(System.currentTimeMillis(), WritePrecision.MS);
+        WifiInfo wi_ = wi;
+        point.addField("SSID", wi_.getSSID());
+        point.addField("BSSID", wi_.getBSSID());
+        point.addField("RSSI", wi_.getRssi());
+        point.addField("Frequency", wi_.getFrequency());
+        point.addField("Link Speed", wi_.getLinkSpeed());
+        point.addField("TXLink Speed", wi_.getTxLinkSpeedMbps());
+        point.addField("Max Supported RX Speed", wi_.getMaxSupportedRxLinkSpeedMbps());
+        point.addField("RX Link Speed", wi_.getRxLinkSpeedMbps());
+        point.addField("Max Supported TX Speed", wi_.getMaxSupportedTxLinkSpeedMbps());
+        point.addField("TX Link Speed", wi_.getTxLinkSpeedMbps());
+        return point;
+    }
+
+    /**
+     * Return wifi info if available
+     *
+     * @return Wifi info or null
+     */
+    public WifiInfo getWifiInfo() {
+        if (wi != null) {
+            return wi;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Register the wifi callback
+     */
+    @SuppressLint("ObsoleteSdkInt")
+    public void registerWiFiCallback() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                final NetworkRequest request = new NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build();
+                final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback(1) {
+                    @Override
+                    public void onAvailable(@NonNull android.net.Network network) {
+                        super.onAvailable(network);
+                    }
+
+                    @Override
+                    public void onLost(@NonNull android.net.Network network) {
+                        super.onLost(network);
+                        wi = null;
+                    }
+
+                    @Override
+                    public void onBlockedStatusChanged(@NonNull Network network, boolean blocked) {
+                        super.onBlockedStatusChanged(network, blocked);
+                    }
+
+                    @Override
+                    public void onCapabilitiesChanged(@NonNull Network network, @NonNull
+                    NetworkCapabilities networkCapabilities) {
+                        super.onCapabilitiesChanged(network, networkCapabilities);
+                        wi = (WifiInfo) networkCapabilities.getTransportInfo();
+                    }
+
+                    @Override
+                    public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties linkProperties) {
+                        super.onLinkPropertiesChanged(network, linkProperties);
+                    }
+
+                    @Override
+                    public void onLosing(@NonNull Network network, int maxMsToLive) {
+                        super.onLosing(network, maxMsToLive);
+                        wi = null;
+                    }
+
+                    @Override
+                    public void onUnavailable() {
+                        super.onUnavailable();
+                        wi = null;
+                    }
+                };
+                cm.registerNetworkCallback(request, networkCallback);
+                cm.requestNetwork(request,networkCallback);
+            }
+        } catch (Exception e) {
+            Log.d("Network Callback: Exception in registerNetworkCallback", "Catch exception");
+        }
+    }
+
     // ### Helper function ###
 
     /**
@@ -879,4 +995,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             point.addField(key, value);
         }
     }
+
 }
+
+

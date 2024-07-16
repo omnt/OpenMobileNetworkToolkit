@@ -155,6 +155,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"
+            android:title="@string/influx_wifi_data"
+            app:iconSpaceReserved="false"
+            app:key="log_wifi_data" />
+        <SwitchPreference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:defaultValue="false"
             android:title="@string/influx_battery_data"
             app:iconSpaceReserved="false"
             app:key="influx_battery_data" />

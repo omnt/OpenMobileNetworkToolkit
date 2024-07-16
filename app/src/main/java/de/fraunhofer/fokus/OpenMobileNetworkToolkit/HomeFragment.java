@@ -18,6 +18,7 @@ import android.content.pm.Signature;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.wifi.WifiInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.CellInfo;
@@ -102,12 +103,13 @@ public class HomeFragment extends Fragment {
             dp.refreshAll();
             ll.addView(get_cell_card_view(), 0);
             ll.addView(get_signal_strength_card_view(), 1);
-            ll.addView(get_network_card_view(), 2);
-            ll.addView(get_device_card_view(), 3);
-            ll.addView(get_features_card_view(), 4);
-            ll.addView(get_permissions_card_view(), 5);
-            ll.addView(get_interfaces_card_view(), 6);
-            ll.addView(get_location_card_view(), 7);
+            ll.addView(get_wifi_card_view(), 2);
+            ll.addView(get_network_card_view(), 3);
+            ll.addView(get_device_card_view(), 4);
+            ll.addView(get_features_card_view(), 5);
+            ll.addView(get_permissions_card_view(), 6);
+            ll.addView(get_interfaces_card_view(), 7);
+            ll.addView(get_location_card_view(), 8);
             swipeRefreshLayout.setRefreshing(false);
         });
         //SubscriptionManager sm = (SubscriptionManager) ma.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
@@ -152,12 +154,13 @@ public class HomeFragment extends Fragment {
       LinearLayout ll = requireView().findViewById(R.id.home_layout);
       ll.addView(get_cell_card_view(), 0);
       ll.addView(get_signal_strength_card_view(), 1);
-      ll.addView(get_network_card_view(), 2);
-      ll.addView(get_device_card_view(), 3);
-      ll.addView(get_features_card_view(), 4);
-      ll.addView(get_permissions_card_view(), 5);
-      ll.addView(get_interfaces_card_view(), 6);
-      ll.addView(get_location_card_view(), 7);
+      ll.addView(get_wifi_card_view(), 2);
+      ll.addView(get_network_card_view(), 3);
+      ll.addView(get_device_card_view(), 4);
+      ll.addView(get_features_card_view(), 5);
+      ll.addView(get_permissions_card_view(), 6);
+      ll.addView(get_interfaces_card_view(), 7);
+      ll.addView(get_location_card_view(), 8);
     }
 
     private CardView cardView_from_table_builder(String title, TableLayout tl) {
@@ -498,6 +501,25 @@ public class HomeFragment extends Fragment {
         }
         return cardView_from_table_builder("Cell Information", tl);
     }
+
+    private CardView get_wifi_card_view() {
+        TableLayout tl = new TableLayout(context);
+        WifiInfo wi = dp.getWifiInfo();
+        if (wi != null) {
+            tl.addView(rowBuilder("SSID", wi.getSSID()));
+            tl.addView(rowBuilder("BSSID", wi.getBSSID()));
+            tl.addView(rowBuilder("RSSI", String.valueOf(wi.getRssi())));
+            tl.addView(rowBuilder("Frequency", String.valueOf(wi.getFrequency())));
+            tl.addView(rowBuilder("Link Speed", String.valueOf(wi.getLinkSpeed())));
+            tl.addView(rowBuilder("TXLink Speed", String.valueOf(wi.getTxLinkSpeedMbps())));
+            tl.addView(rowBuilder("Max Supported RX Speed", String.valueOf(wi.getMaxSupportedRxLinkSpeedMbps())));
+            tl.addView(rowBuilder("RX Link Speed", String.valueOf(wi.getRxLinkSpeedMbps())));
+            tl.addView(rowBuilder("Max Supported TX Speed", String.valueOf(wi.getMaxSupportedTxLinkSpeedMbps())));
+            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTxLinkSpeedMbps())));
+        }
+        return cardView_from_table_builder("Wifi Information", tl);
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
