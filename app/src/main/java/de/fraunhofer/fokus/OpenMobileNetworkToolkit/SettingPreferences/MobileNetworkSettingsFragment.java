@@ -70,9 +70,18 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     }
 
     private void handleSetNetwork(){
-        boolean result = setNetworkSelection();
-        Toast.makeText(ct, String.valueOf(result), Toast.LENGTH_SHORT).show();
+        if(gv.isCarrier_permissions()){
+            if(setNetworkSelection()){
+                Toast.makeText(ct, "Network Selection Successful", Toast.LENGTH_SHORT).show();
+                return;
+            } else {
+                Toast.makeText(ct, "Network Selection Failed", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+        Toast.makeText(ct, "App doesn't have Carrier Permissions", Toast.LENGTH_SHORT).show();
     }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,6 +89,12 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
         DropDownPreference selectNetworkType = findPreference(SELECTNETWORKTYPE);
         EditTextPreference inputPLMN = findPreference(ADDPLMN);
         SwitchPreference reboot = findPreference(PERSISTREBOOT);
+
+        if(!gv.isCarrier_permissions()){
+            selectNetworkType.setEnabled(false);
+            inputPLMN.setEnabled(false);
+            reboot.setEnabled(false);
+        }
         ct = requireContext();
         plmnId = ct.getString(R.string.select_plmn);
         accessNetworkType = ct.getString(R.string.access_networktype);

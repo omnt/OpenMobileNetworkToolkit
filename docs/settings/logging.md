@@ -7,7 +7,7 @@
 * Enable Notification Update: Show current cell information in the notification area of android. This will wake up the screen and my raise power consumption.
 
 ## Local Logging
-* InfluxDB log: This is work in progress and should allow the usage of a on device database
+* InfluxDB log: This is work in progress and should allow the usage of an on-device database
 * Log file: Measurements a written to a file on the phones internal memory.
 
 ## Remote Logging
