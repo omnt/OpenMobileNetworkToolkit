@@ -8,7 +8,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ClearPreferencesListener;
+
 public class ClearPreferencesFragment extends DialogFragment {
+    private ClearPreferencesListener listener;
+
+    public void setClearPreferencesListener(ClearPreferencesListener listener) {
+        this.listener = listener;
+    }
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction.
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -27,4 +34,5 @@ public class ClearPreferencesFragment extends DialogFragment {
         // Create the AlertDialog object and return it.
         return builder.create();
     }
+
 }

@@ -22,12 +22,16 @@ import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preference, rootKey);
+        SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
+        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
         ListPreference sub_select = findPreference("select_subscription");
         ArrayList<String> entries = new ArrayList<>();
         ArrayList<String> entryValues = new ArrayList<>();

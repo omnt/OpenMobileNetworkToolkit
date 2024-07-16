@@ -1,5 +1,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import androidx.room.util.StringUtil;
+
 public enum SPType {
     logging_sp,
     iperf3_sp,
@@ -8,6 +10,8 @@ public enum SPType {
     mobile_network_sp,
     default_sp;
 
+
+
     public static SPType fromString(String text) {
         for (SPType b : SPType.values()) {
             if (b.toString().equalsIgnoreCase(text)) {
@@ -15,5 +19,22 @@ public enum SPType {
             }
         }
         return null;
+    }
+
+    public String toReadable(){
+        String name = this.name().split("_")[0];
+        switch(this){
+            case logging_sp:
+            case ping_sp:
+            case carrier_sp:
+            case default_sp:
+                return name.substring(0,1).toUpperCase() + name.substring(1);
+            case mobile_network_sp:
+                return "Mobile Network";
+            case iperf3_sp:
+                return "iPerf3";
+            default:
+                return null;
+        }
     }
 }

@@ -66,7 +66,6 @@ public class SharedPreferencesIO {
                 editor.clear();
                 Log.d(TAG, "Imported: " + key);
             }
-            Toast.makeText(context, "Preferences imported", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             Log.e(TAG, "Failed to import preferences", e);
             Toast.makeText(context, "Failed to import preferences", Toast.LENGTH_SHORT).show();
