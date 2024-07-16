@@ -45,6 +45,7 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
+import android.telephony.PhoneStateListener;
 import android.telephony.PhysicalChannelConfig;
 import android.telephony.SignalStrength;
 import android.telephony.SubscriptionInfo;
@@ -104,6 +105,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     private SliceInformation si = new SliceInformation();
     private WifiInfo wi = null;
 
+
+    private LocationManager lm;
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
     private LocationCallback locationCallback;
@@ -112,7 +115,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     public DataProvider(Context context) {
         GlobalVars gv = GlobalVars.getInstance();
         ct = context;
-        LocationManager lm;
         sp = PreferenceManager.getDefaultSharedPreferences(ct);
         permission_phone_state = gv.isPermission_phone_state();
 
@@ -300,7 +302,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * Callback to receive current cell information
-     *
      * @param list is the list of currently visible cells.
      */
     @SuppressLint("ObsoleteSdkInt")
@@ -665,7 +666,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * get location object if available
-     *
      * @return LocationInformation object
      */
     public LocationInformation getLocation() {
@@ -674,7 +674,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
     /**
      * return the location as influx point
-     *
      * @return influx point of current location
      */
     public Point getLocationPoint() {
@@ -708,6 +707,9 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         li.setProvider(location.getProvider());
         li.setAccuracy(location.getAccuracy());
         li.setSpeed(location.getSpeed());
+        if (lm != null) {
+            li.setProviderList(lm.getProviders(true));
+        }
     }
 
     public void onProviderDisabled(@NonNull String provider) {
@@ -995,7 +997,4 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             point.addField(key, value);
         }
     }
-
 }
-
-
