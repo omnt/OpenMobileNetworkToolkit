@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -30,6 +31,7 @@ import androidx.preference.SwitchPreference;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
@@ -49,18 +51,19 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     PackageManager pm;
     GlobalVars gv;
     SharedPreferences preferences;
+    @SuppressLint("ObsoleteSdkInt")
     private boolean setNetworkSelection(){
         String networkType = preferences.getString(SELECTNETWORKTYPE, "");
         String plmn = preferences.getString(ADDPLMN, "");
         boolean persist = preferences.getBoolean(PERSISTREBOOT, false);
-        if(networkType.equals("")){
+        if(networkType.isEmpty()){
             Toast.makeText(ct, "Please specify PLMN", Toast.LENGTH_SHORT).show();
             return false;
         }
         if(!pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS)){
             Toast.makeText(ct, "App doesn't have the rights", Toast.LENGTH_SHORT).show();
             return false;
-        };
+        }
         int networkTypeId = NetworkInformation.getAccessNetworkID(networkType);
         if (gv.isCarrier_permissions() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return tm.setNetworkSelectionModeManual(plmn, persist,
@@ -83,6 +86,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     }
 
 
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,50 +141,43 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
                 selectNetworkType.setDefaultValue(NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.NGRAN));
             }
 
-        };
+        }
         tm = gv.getTm();
         pm = gv.getPm();
 
 
-        selectNetworkType.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                String updatedValue = (String) newValue;
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(SELECTNETWORKTYPE, updatedValue);
-                editor.apply();
-                selectNetworkType.setTitle(String.format("%s Current:%s", accessNetworkType, newValue));
-                handleSetNetwork();
-                return true;
-            }
-        });
-        inputPLMN.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                String updatedValue = (String) newValue;
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(ADDPLMN, updatedValue);
-                editor.apply();
-                inputPLMN.setTitle(String.format("%s Current:%s", plmnId, newValue));
-                handleSetNetwork();
-                return true;
-            }
+        selectNetworkType.setOnPreferenceChangeListener((preference, newValue) -> {
+            String updatedValue = (String) newValue;
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(SELECTNETWORKTYPE, updatedValue);
+            editor.apply();
+            selectNetworkType.setTitle(String.format("%s Current:%s", accessNetworkType, newValue));
+            handleSetNetwork();
+            return true;
         });
 
-        reboot.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean updatedValue = (boolean) newValue;
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean(PERSISTREBOOT, updatedValue);
-                editor.apply();
-                reboot.setChecked(updatedValue);
-                handleSetNetwork();
-                return true;
-            }
+        inputPLMN.setOnPreferenceChangeListener((preference, newValue) -> {
+            String updatedValue = (String) newValue;
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(ADDPLMN, updatedValue);
+            editor.apply();
+            inputPLMN.setTitle(String.format("%s Current:%s", plmnId, newValue));
+            handleSetNetwork();
+            return true;
+        });
+
+        reboot.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean updatedValue = (boolean) newValue;
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(PERSISTREBOOT, updatedValue);
+            editor.apply();
+            reboot.setChecked(updatedValue);
+            handleSetNetwork();
+            return true;
         });
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -189,12 +186,9 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
         Preference button = getPreferenceManager().findPreference("apply_cs_settings");
         if (button != null) {
             if (gv.isCarrier_permissions()) {
-                button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference arg0) {
-                        apply_settings();
-                        return true;
-                    }
+                button.setOnPreferenceClickListener(arg0 -> {
+                    apply_settings();
+                    return true;
                 });
             } else {
                 button.setEnabled(false);
@@ -206,10 +200,8 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        switch (key){
+        switch (Objects.requireNonNull(key)){
             case "selected_plmn":
-                Toast.makeText(requireContext(), sharedPreferences.getString(key, "null"), Toast.LENGTH_LONG).show();
-                break;
             case "select_network_type":
                 Toast.makeText(requireContext(), sharedPreferences.getString(key, "null"), Toast.LENGTH_LONG).show();
                 break;

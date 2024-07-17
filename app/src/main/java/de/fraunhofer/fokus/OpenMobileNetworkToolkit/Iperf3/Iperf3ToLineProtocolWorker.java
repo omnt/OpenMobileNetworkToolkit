@@ -44,27 +44,27 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnectio
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private SharedPreferences sp;
-    private String rawIperf3file;
-    private String measurementName;
-    private String ip;
+    private final SharedPreferences sp;
+    private final String rawIperf3file;
+    private final String measurementName;
+    private final String ip;
 
     private String port;
     private String bandwidth;
     private String duration;
     private String intervalIperf;
     private String bytes;
-    private String protocol;
-    private String iperf3LineProtocolFile;
+    private final String protocol;
+    private final String iperf3LineProtocolFile;
 
-    private DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
+    private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
 
-    private boolean rev;
-    private boolean biDir;
-    private boolean oneOff;
-    private boolean client;
+    private final boolean rev;
+    private final boolean biDir;
+    private final boolean oneOff;
+    private final boolean client;
 
-    private String runID;
+    private final String runID;
     public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         rawIperf3file = getInputData().getString("rawIperf3file");

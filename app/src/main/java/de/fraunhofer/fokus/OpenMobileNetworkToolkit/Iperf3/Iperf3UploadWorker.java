@@ -31,8 +31,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnectio
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private SharedPreferences sp;
-    private String iperf3LineProtocolFile;
+    private final SharedPreferences sp;
+    private final String iperf3LineProtocolFile;
 
 
     public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {

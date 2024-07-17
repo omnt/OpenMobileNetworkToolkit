@@ -56,8 +56,6 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -236,8 +234,7 @@ public class Iperf3Fragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length() >0) iperf3EtBytes.setEnabled(false);
-                else iperf3EtBytes.setEnabled(true);
+                iperf3EtBytes.setEnabled(s.length() <= 0);
             }
 
             @Override
@@ -255,8 +252,7 @@ public class Iperf3Fragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length() >0) iperf3EtDuration.setEnabled(false);
-                else iperf3EtDuration.setEnabled(true);
+                iperf3EtDuration.setEnabled(s.length() <= 0);
             }
 
             @Override
@@ -728,7 +724,7 @@ public class Iperf3Fragment extends Fragment {
                 0,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
             parameterLayoutName.weight = 1F;
-            TextView parameterName = new TextView(ct);;
+            TextView parameterName = new TextView(ct);
             parameterName.setTextIsSelectable(true);
             parameterName.setText(String.format("%s", name));
             parameterName.setLayoutParams(parameterLayoutName);

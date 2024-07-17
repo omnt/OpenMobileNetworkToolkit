@@ -16,7 +16,6 @@ import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -176,18 +175,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(R.string.dialog_no_location_title)
                         .setMessage(R.string.dialog_no_location)
-                        .setPositiveButton(R.string.dialog_no_location_enable, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                getApplicationContext().startActivity(intent);
-                            }
+                        .setPositiveButton(R.string.dialog_no_location_enable, (dialog, which) -> {
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            getApplicationContext().startActivity(intent);
                         })
-                        .setNegativeButton(R.string.dialog_no_location_fake, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                sp.edit().putBoolean("fake_location", true).apply();
-                            }
-                        })
+                        .setNegativeButton(R.string.dialog_no_location_fake, (dialog, which) -> sp.edit().putBoolean("fake_location", true).apply())
                         .setIcon(android.R.drawable.ic_dialog_map)
                         .show();
             }
@@ -202,16 +195,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             context.startForegroundService(loggingServiceIntent);
         }
 
-        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (Objects.equals(key, "enable_logging")) {
-                    if (prefs.getBoolean(key, false)) {
-                        Log.i(TAG, "Start logging service");
-                        context.startForegroundService(loggingServiceIntent);
-                    } else {
-                        Log.i(TAG, "Stop logging service");
-                        context.stopService(loggingServiceIntent);
-                    }
+        listener = (prefs, key) -> {
+            if (Objects.equals(key, "enable_logging")) {
+                if (prefs.getBoolean(key, false)) {
+                    Log.i(TAG, "Start logging service");
+                    context.startForegroundService(loggingServiceIntent);
+                } else {
+                    Log.i(TAG, "Stop logging service");
+                    context.stopService(loggingServiceIntent);
                 }
             }
         };
@@ -221,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
      * Check and request permission the app needs to access APIs and so on
      */
     private void requestPermission() {
-        List<String> permissions = new ArrayList<String>();
+        List<String> permissions = new ArrayList<>();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
             permissions.add(Manifest.permission.READ_PHONE_STATE);

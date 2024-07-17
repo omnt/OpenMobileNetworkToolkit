@@ -49,13 +49,13 @@ public class PingWorker extends Worker {
     HashMap<String, String> parsedCommand = new HashMap<>();
     private String pingCommand;
     private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
-    private Context ct;
-    private String channelId = "OMNT_notification_channel";
+    private final Context ct;
+    private final String channelId = "OMNT_notification_channel";
     private NotificationCompat.Builder notificationBuilder;
     private Notification notification;
-    private String timeRegex = "\\btime=([0-9]+\\.[0-9]+)\\s+ms\\b";
-    private Pattern pattern = Pattern.compile(timeRegex);
-    private String line = null;
+    private final String timeRegex = "\\btime=([0-9]+\\.[0-9]+)\\s+ms\\b";
+    private final Pattern pattern = Pattern.compile(timeRegex);
+    private final String line = null;
     private double rtt;
     private NotificationManager notificationManager;
 

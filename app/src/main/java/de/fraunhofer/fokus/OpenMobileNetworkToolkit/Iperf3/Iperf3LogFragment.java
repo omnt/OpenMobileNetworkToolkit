@@ -112,7 +112,7 @@ public class Iperf3LogFragment extends Fragment {
                     switch (sumType){
                         case UDP_DL:
                             defaultJITTER.update(((UDP_DL_SUM)sum).getJitter_ms());
-                            PACKET_LOSS.update((double) ((UDP_DL_SUM) sum).getLost_percent());
+                            PACKET_LOSS.update(((UDP_DL_SUM) sum).getLost_percent());
                         case TCP_DL:
                             if(throughput.getDirectionName().getText().equals("Throughput")){
                                 throughput.getDirectionName().setText("Downlink Mbit/s");
@@ -318,26 +318,26 @@ public class Iperf3LogFragment extends Fragment {
             if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
                 //defaultRTT = new Metric(METRIC_TYPE.RTT);
                 //metricLL.addView(defaultRTT.createOneDirection("RTT"));
-            };
+            }
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
                 metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
-            };
-        };
+            }
+        }
         if(iperf3RunResult.input.iperf3Reverse) {
             if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
-            };
+            }
         } else if(!iperf3RunResult.input.iperf3BiDir) {
             if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
                 //defaultRTT = new Metric(METRIC_TYPE.RTT);
                 //metricLL.addView(defaultRTT.createOneDirection("RTT ms"));
-            };
+            }
         }
 
         mainLL.addView(metricLL);
@@ -347,7 +347,7 @@ public class Iperf3LogFragment extends Fragment {
 
         mainLL.addView(secondRow);
         if(iperf3RunResult.input.iperf3rawIperf3file == null){
-            iperf3OutputViewer.setText(String.format("iPerf3 file path empty!"));
+            iperf3OutputViewer.setText("iPerf3 file path empty!");
             return v;
         }
         file = new File(iperf3RunResult.input.iperf3rawIperf3file);

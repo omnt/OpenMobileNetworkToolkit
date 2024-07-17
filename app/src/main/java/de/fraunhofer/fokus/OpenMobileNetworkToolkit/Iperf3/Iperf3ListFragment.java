@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -77,7 +76,7 @@ public class Iperf3ListFragment extends Fragment {
                 WorkManager iperf3WM = WorkManager.getInstance(getContext());
                 String uid = uids.get(position);
                 iperf3WM.cancelAllWorkByTag(uid);
-                Iperf3RunResultDao iperf3RunResultDao = db.getDatabase(requireContext()).iperf3RunResultDao();
+                Iperf3RunResultDao iperf3RunResultDao = Iperf3ResultsDataBase.getDatabase(requireContext()).iperf3RunResultDao();
                 Iperf3RunResult runResult = iperf3RunResultDao.getRunResult(uid);
                 if(runResult.result != 0)
                     iperf3RunResultDao.updateResult(uid, 1);

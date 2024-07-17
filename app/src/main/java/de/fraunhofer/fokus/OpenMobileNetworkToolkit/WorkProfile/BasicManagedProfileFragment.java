@@ -116,11 +116,11 @@ public class BasicManagedProfileFragment extends Fragment implements
         view.findViewById(R.id.preferential_switch).setOnClickListener(this);
 
 
-        mButtonRemoveProfile = (Button) view.findViewById(R.id.remove_profile);
+        mButtonRemoveProfile = view.findViewById(R.id.remove_profile);
         mButtonRemoveProfile.setOnClickListener(this);
 
 
-        Switch preferentialNetwork = (Switch) view.findViewById(R.id.preferential_switch);
+        Switch preferentialNetwork = view.findViewById(R.id.preferential_switch);
         preferentialNetwork.setChecked(setPreferentialEnabled());
         preferentialNetwork.setOnClickListener(this);
     }
