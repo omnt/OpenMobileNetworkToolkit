@@ -29,7 +29,6 @@ import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
 import android.telephony.CellInfo;
-import android.telephony.PhoneStateListener;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
@@ -48,7 +47,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +55,8 @@ import java.util.concurrent.Executors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {

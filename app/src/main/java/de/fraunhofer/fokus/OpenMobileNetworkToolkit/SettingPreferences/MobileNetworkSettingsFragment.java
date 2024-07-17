@@ -25,7 +25,6 @@ import androidx.preference.DropDownPreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
 
 import java.util.Arrays;
@@ -34,8 +33,8 @@ import java.util.List;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     implements OnSharedPreferenceChangeListener {

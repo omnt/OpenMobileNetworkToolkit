@@ -11,7 +11,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
@@ -37,8 +36,8 @@ import java.beans.PropertyChangeListener;
 import java.io.FileOutputStream;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class PingFragment extends Fragment {
     private final String TAG = "PingFragment";

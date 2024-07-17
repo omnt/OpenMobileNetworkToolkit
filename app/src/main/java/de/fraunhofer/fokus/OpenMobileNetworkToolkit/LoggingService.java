@@ -30,7 +30,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -52,6 +51,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";

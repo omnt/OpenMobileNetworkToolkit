@@ -1,6 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
-
-import androidx.room.util.StringUtil;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences;
 
 public enum SPType {
     logging_sp,

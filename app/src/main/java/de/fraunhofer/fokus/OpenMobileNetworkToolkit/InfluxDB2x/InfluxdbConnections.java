@@ -16,8 +16,8 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class InfluxdbConnections {
     private static final String TAG = "InfluxdbConnections";

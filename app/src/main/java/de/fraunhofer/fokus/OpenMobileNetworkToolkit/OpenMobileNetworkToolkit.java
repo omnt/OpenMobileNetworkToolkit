@@ -9,7 +9,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.service.carrier.CarrierIdentifier;
@@ -17,10 +16,11 @@ import android.service.carrier.CarrierService;
 import android.telephony.CarrierConfigManager;
 import android.util.Log;
 
-import androidx.preference.PreferenceManager;
-
 import java.util.Arrays;
 import java.util.HashSet;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class OpenMobileNetworkToolkit extends CarrierService {
     private static final String TAG = "OpenMobileNetworkToolkit";

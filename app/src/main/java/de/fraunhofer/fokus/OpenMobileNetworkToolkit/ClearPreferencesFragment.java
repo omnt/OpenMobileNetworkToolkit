@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ClearPreferencesListener;
 
 public class ClearPreferencesFragment extends DialogFragment {

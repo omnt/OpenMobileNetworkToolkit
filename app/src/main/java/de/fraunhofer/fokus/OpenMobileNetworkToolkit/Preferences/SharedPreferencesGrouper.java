@@ -1,4 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences;
 
 
 import android.content.Context;

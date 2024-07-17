@@ -13,7 +13,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -37,7 +36,6 @@ import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
-import android.telephony.PhoneStateListener;
 import android.telephony.PhysicalChannelConfig;
 import android.telephony.SignalStrength;
 import android.telephony.SubscriptionInfo;
@@ -49,7 +47,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -73,8 +70,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class DataProvider extends TelephonyCallback implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener, TelephonyCallback.SignalStrengthsListener {
     private static final String TAG = "DataProvider";

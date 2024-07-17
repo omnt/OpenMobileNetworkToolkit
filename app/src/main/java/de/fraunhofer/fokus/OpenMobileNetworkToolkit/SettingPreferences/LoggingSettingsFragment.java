@@ -13,14 +13,12 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class LoggingSettingsFragment extends PreferenceFragmentCompat
     implements SharedPreferences.OnSharedPreferenceChangeListener {

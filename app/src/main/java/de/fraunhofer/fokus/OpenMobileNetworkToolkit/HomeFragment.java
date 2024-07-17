@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.security.MessageDigest;
@@ -54,6 +53,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInterfaceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.SignalStrengthInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 
 public class HomeFragment extends Fragment {

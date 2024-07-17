@@ -1,4 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,14 +31,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.ClearPreferencesFragment;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MultiSelectDialogFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesIO;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ClearPreferencesListener;
 
+import org.json.JSONObject;
 
 public class SharedPreferencesIOFragment extends Fragment implements ClearPreferencesListener {
 
@@ -175,6 +178,23 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         }
     }
 
+
+
+    private List<String> getKeysFromJson(String jsonString) {
+        List<String> keys = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            Iterator<String> iter = jsonObject.keys();
+            while (iter.hasNext()) {
+                keys.add(iter.next());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to parse JSON", e);
+        }
+        return keys;
+    }
+
+
     private void importPreferencesFromFile(Uri uri) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(context.getContentResolver().openInputStream(uri)))) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -182,11 +202,34 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
             while ((line = reader.readLine()) != null) {
                 stringBuilder.append(line);
             }
-            SharedPreferencesIO.importPreferences(context, stringBuilder.toString());
-            showToast("Preferences imported");
+            String jsonString = stringBuilder.toString();
+            List<String> keys = getKeysFromJson(jsonString);
+
+            MultiSelectDialogFragment.OnMultiSelectListener listener = new MultiSelectDialogFragment.OnMultiSelectListener() {
+                @Override
+                public void onItemsSelected(List<String> selectedItems) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        JSONObject filteredJsonObject = new JSONObject();
+                        for (String key : selectedItems) {
+                            filteredJsonObject.put(key, jsonObject.get(key));
+                        }
+                        SharedPreferencesIO.importPreferences(context, filteredJsonObject.toString());
+                        showToast("Config imported");
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to import Config", e);
+                        showToast("Failed to import Config");
+                    }
+                }
+            };
+
+            MultiSelectDialogFragment dialogFragment = new MultiSelectDialogFragment(keys, listener);
+
+            dialogFragment.show(getParentFragmentManager(), "multiSelectDialog");
+            showToast("Config imported");
         } catch (Exception e) {
-            Log.e(TAG, "Failed to import preferences", e);
-            showToast("Failed to import preferences");
+            Log.e(TAG, "Failed to import Config", e);
+            showToast("Failed to import Config");
         }
     }
 

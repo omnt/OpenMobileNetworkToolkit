@@ -9,13 +9,11 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -40,8 +38,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformati
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";

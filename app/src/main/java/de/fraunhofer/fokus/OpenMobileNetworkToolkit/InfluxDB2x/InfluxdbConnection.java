@@ -28,8 +28,8 @@ import java.io.IOException;
 import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 

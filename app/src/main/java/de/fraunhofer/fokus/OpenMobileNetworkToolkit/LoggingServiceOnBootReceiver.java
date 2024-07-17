@@ -11,9 +11,9 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
-import androidx.preference.PreferenceManager;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 
 public class LoggingServiceOnBootReceiver extends BroadcastReceiver {
