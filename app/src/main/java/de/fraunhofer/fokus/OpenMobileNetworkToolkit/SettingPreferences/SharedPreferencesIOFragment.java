@@ -105,8 +105,8 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
     private void setupUI(View view) {
         mainLayout = view.findViewById(R.id.fragment_shared_preferences_io);
 
-        Button exportButton = createButton("Export Preferences", v -> createFile());
-        Button importButton = createButton("Import Preferences", v -> pickFile());
+        Button exportButton = createButton("Export Config", v -> createFile());
+        Button importButton = createButton("Import Config", v -> pickFile());
         Button clearConfigButton = createButton("Clear Config", v -> clearConfig());
 
         buttonLayout = new LinearLayout(context);
