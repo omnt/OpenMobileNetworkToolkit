@@ -314,8 +314,7 @@ public class LoggingService extends Service {
         }
 
         // Stop foreground service and remove the notification.
-        stopForeground(true);
-
+        stopForeground(STOP_FOREGROUND_DETACH);
         // Stop the foreground service.
         stopSelf();
     }

@@ -146,9 +146,6 @@ public class NetworkInformation {
             case TelephonyManager.NETWORK_TYPE_HSPA:
                 dataNetworkTypeString = "HSUPA";
                 break;
-            case TelephonyManager.NETWORK_TYPE_IDEN:
-                dataNetworkTypeString = "IDEN";
-                break;
             case TelephonyManager.NETWORK_TYPE_EVDO_B:
                 dataNetworkTypeString = "EVDO B";
                 break;
