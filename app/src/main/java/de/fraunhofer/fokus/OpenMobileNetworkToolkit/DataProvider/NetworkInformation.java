@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
@@ -56,10 +57,6 @@ public class NetworkInformation {
 
     public int getDataState() {
         return dataState;
-    }
-
-    public int getDataNetworkType() {
-        return dataNetworkType;
     }
 
     public int getPhoneType() {
@@ -144,7 +141,7 @@ public class NetworkInformation {
                 dataNetworkTypeString = "HSUPA";
                 break;
             case TelephonyManager.NETWORK_TYPE_HSPA:
-                dataNetworkTypeString = "HSUPA";
+                dataNetworkTypeString = "HSPA";
                 break;
             case TelephonyManager.NETWORK_TYPE_EVDO_B:
                 dataNetworkTypeString = "EVDO B";
@@ -175,7 +172,7 @@ public class NetworkInformation {
     }
 
     public static String getAccessNetworkType(int acceesNetworkID) {
-        String accessNetworkType = "N/A";
+        String accessNetworkType;
         switch (acceesNetworkID){
             case AccessNetworkConstants.AccessNetworkType.CDMA2000:
                 accessNetworkType =  "CDMA2000";
@@ -204,6 +201,7 @@ public class NetworkInformation {
         return accessNetworkType;
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     public static int getAccessNetworkID(String accessNetworkType) {
         switch (accessNetworkType) {
             case "CDMA2000":
