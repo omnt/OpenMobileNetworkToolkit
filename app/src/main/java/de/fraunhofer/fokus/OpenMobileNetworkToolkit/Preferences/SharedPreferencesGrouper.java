@@ -44,7 +44,7 @@ public class SharedPreferencesGrouper {
 
     public static SharedPreferencesGrouper getInstance(Context ct) {
         if(instance == null) {
-            instance = new SharedPreferencesGrouper(ct);
+            instance = new SharedPreferencesGrouper(ct.getApplicationContext());
         }
         return instance;
     }
