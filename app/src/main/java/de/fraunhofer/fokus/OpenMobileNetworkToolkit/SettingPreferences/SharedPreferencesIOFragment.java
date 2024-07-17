@@ -40,7 +40,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SharedPreferencesIO;
 
 
-public class SharedPreferencesIOFragment extends Fragment implements ClearPreferencesFragment.ClearPreferencesListener {
+public class SharedPreferencesIOFragment extends Fragment implements ClearPreferencesListener {
 
     private static final String TAG = "SharedPreferencesIOFragment";
     private Context context;
@@ -139,7 +139,6 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
     private void addSharedPreferencesViews() {
         LinearLayout preferencesLayout = new LinearLayout(context);
         preferencesLayout.setOrientation(LinearLayout.VERTICAL);
-
         for (Map.Entry<SPType, SharedPreferences> spEntry : SharedPreferencesGrouper.getInstance(context).getAllSharedPreferences().entrySet()) {
             preferencesLayout.addView(generateSharedPreferencesView(spEntry.getKey(), spEntry.getValue()));
         }
