@@ -35,7 +35,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,33 +58,85 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+    private static final String TAG = "MainActivity";
     public TelephonyManager tm;
     public PackageManager pm;
     public DataProvider dp;
-    SharedPreferences sp;
-    SharedPreferences.OnSharedPreferenceChangeListener listener;
     public boolean cp = false;
     public boolean feature_telephony = false;
+    SharedPreferences sp;
+    SharedPreferences.OnSharedPreferenceChangeListener listener;
     Intent loggingServiceIntent;
-    private static final String TAG = "MainActivity";
     NavController navController;
     private Handler requestCellInfoUpdateHandler;
     private GlobalVars gv;
+    /**
+     * Runnable to handle Cell Info Updates
+     */
+    private final Runnable requestCellInfoUpdate = new Runnable() {
+        @SuppressLint("MissingPermission") // we check them already in the Main activity
+        @Override
+        public void run() {
+            if (gv.isPermission_fine_location()) {
+                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
+                    @Override
+                    public void onCellInfo(@NonNull List<CellInfo> list) {
+                        dp.onCellInfoChanged(list);
+                    }
+                });
+            }
+            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(sp.getString("logging_interval", "1000")));
+        }
+    };
+    private Context context;
 
     @SuppressLint("ObsoleteSdkInt")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // check and request permissions from the user
+        requestPermission();
+
+        // initialize variables we need later on
+        context = getApplicationContext();
         gv = GlobalVars.getInstance();
         sp = PreferenceManager.getDefaultSharedPreferences(this);
+        sp.registerOnSharedPreferenceChangeListener(listener);
         pm = getPackageManager();
+        feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+
+        // populate global vars we use in other parts of the app.
         gv.setPm(pm);
         gv.setPermission_phone_state(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
         gv.setPermission_fine_location(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
         gv.setFeature_admin(pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN));
         gv.setFeature_work_profile(pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS));
-        feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         gv.setFeature_telephony(feature_telephony);
+        gv.setLog_status(findViewById(R.id.log_status_icon));
+
+        // initialize android UX related thing the app needs
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
+        navController = Objects.requireNonNull(navHostFragment).getNavController();
+        // create notification channel
+        CharSequence name = getString(R.string.channel_name);
+        String description = getString(R.string.channel_description);
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel("OMNT_notification_channel", name, importance);
+        channel.setDescription(description);
+        // Register the channel with the system; you can't change the importance
+        // or other notification behaviors after this
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
+
+        // allow HTTP / insecure connections for the influxDB client
+        // todo this should be a setting in the settings dialog
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
         if (feature_telephony) {
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             gv.setTm(tm);
@@ -94,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 // make sure the subscription in the app settings exists in the current subscription list.
                 // if it is not in the subscription list change it to the first one of the current list
                 boolean valid_subscription = false;
-                String pref_subscription_str = sp.getString("select_subscription","99999");
+                String pref_subscription_str = sp.getString("select_subscription", "99999");
                 //int pref_subscription = sp.getInt("select_subscription",9999999);
                 for (SubscriptionInfo info : dp.getSubscriptions()) {
                     if (Integer.parseInt(pref_subscription_str) == info.getSubscriptionId()) {
@@ -109,83 +160,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
 
             gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
-            cp = HasCarrierPermissions();
+            cp = tm.hasCarrierPrivileges();
             gv.setCarrier_permissions(cp);
             if (cp) {
                 gv.setCcm((CarrierConfigManager) getSystemService(Context.CARRIER_CONFIG_SERVICE));
             }
+        } //todo this will go very wrong on android devices without telephony api, maybe show warning and exit?
 
-
-        }
         gv.set_dp(dp);
-
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
-
-        gv.setLog_status(findViewById(R.id.log_status_icon));
-
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-        navController = Objects.requireNonNull(navHostFragment).getNavController();
-
-        // allow HTTP / insecure connections for the influxDB client
-        // todo this should be a setting in the settings dialog
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-        // set up foreground service for logging of cell and location data
-
-        // create notification channel
-        CharSequence name = getString(R.string.channel_name);
-        String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        NotificationChannel channel = new NotificationChannel("OMNT_notification_channel", name, importance);
-        channel.setDescription(description);
-        // Register the channel with the system; you can't change the importance
-        // or other notification behaviors after this
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
-
-
-        loggingServiceIntent = new Intent(this, LoggingService.class);
-        Context context = getApplicationContext();
-        if (sp.getBoolean("enable_logging", false)) {
-            Log.d(TAG, "Start logging service");
-            context.startForegroundService(loggingServiceIntent);
-        }
-
-        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (Objects.equals(key, "enable_logging")) {
-                    if (prefs.getBoolean(key, false)) {
-                        Log.i(TAG, "Start logging service");
-                        context.startForegroundService(loggingServiceIntent);
-                    } else {
-                        Log.i(TAG, "Stop logging service");
-                        context.stopService(loggingServiceIntent);
-                    }
-                }
-                if (Objects.equals(key, "carrier_Permission")) {
-                    if(prefs.getBoolean(key, true)) {
-                        Log.i(TAG, "Carrier Permission Approved");
-                        cp = tm.hasCarrierPrivileges();
-                        if(cp){
-                            Toast.makeText(context, "Carrier Permission Approved!", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(context,"Carrier Permissions Rejected!", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Log.i(TAG,"Carrier Permission Denied!");
-                    }
-                }
-            }
-        };
-
-        sp.registerOnSharedPreferenceChangeListener(listener);
-
-        // request permissions from the user
-        requestPermission();
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -210,11 +192,35 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         .show();
             }
         }
+
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
+
+        loggingServiceIntent = new Intent(this, LoggingService.class);
+        if (sp.getBoolean("enable_logging", false)) {
+            Log.d(TAG, "Start logging service");
+            context.startForegroundService(loggingServiceIntent);
+        }
+
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                if (Objects.equals(key, "enable_logging")) {
+                    if (prefs.getBoolean(key, false)) {
+                        Log.i(TAG, "Start logging service");
+                        context.startForegroundService(loggingServiceIntent);
+                    } else {
+                        Log.i(TAG, "Stop logging service");
+                        context.stopService(loggingServiceIntent);
+                    }
+                }
+            }
+        };
     }
 
-    private void requestPermission(){
+    /**
+     * Check and request permission the app needs to access APIs and so on
+     */
+    private void requestPermission() {
         List<String> permissions = new ArrayList<String>();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
@@ -253,18 +259,25 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }
 
-        if (!permissions.isEmpty()){
+        if (!permissions.isEmpty()) {
             String[] perms = permissions.toArray(new String[0]);
-            ActivityCompat.requestPermissions(this, perms , 1337);
+            ActivityCompat.requestPermissions(this, perms, 1337);
         }
     }
 
+    /**
+     * @param i      The request code passed in by the callback
+     * @param strArr The requested permissions. Never null.
+     * @param iArr   The grant results for the corresponding permissions
+     *               which is either {@link PackageManager#PERMISSION_GRANTED}
+     *               or {@link PackageManager#PERMISSION_DENIED}. Never null.
+     */
     @Override
     public void onRequestPermissionsResult(int i, @NonNull String[] strArr, @NonNull int[] iArr) {
         super.onRequestPermissionsResult(i, strArr, iArr);
 
-        for (int j = 0; j < strArr.length; j = j+1 ){
-            Log.d(TAG, "Permission Request Result with ID: " + i + " for " + strArr[j].toString() + " is: " + iArr[j]);
+        for (int j = 0; j < strArr.length; j = j + 1) {
+            Log.d(TAG, "Permission Request Result with ID: " + i + " for " + strArr[j] + " is: " + iArr[j]);
             // we need to request background location after we got foreground.
             if (Objects.equals(strArr[j], "android.permission.ACCESS_FINE_LOCATION") && iArr[j] == 0) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -277,48 +290,42 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
-
-
-    private final Runnable requestCellInfoUpdate = new Runnable() {
-        @SuppressLint("MissingPermission") // we check them already in the Mainactivity
-        @Override
-        public void run() {
-            if (gv.isPermission_fine_location()) {
-                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
-                    @Override
-                    public void onCellInfo(@NonNull List<CellInfo> list) {
-                        dp.onCellInfoChanged(list);
-                    }
-                });
-            }
-            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(sp.getString("logging_interval", "1000")));
-        }
-    };
-
-
+    /**
+     * Inflate the menu; this adds items to the action bar if it is present.
+     *
+     * @param menu reference to the menu we want to inflate
+     * @return boolean as defined by super class
+     */
     @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         // All other menus show icons, why leave the overflow menu out? It should match.
-        if(menu instanceof MenuBuilder) {
+        if (menu instanceof MenuBuilder) {
             ((MenuBuilder) menu).setOptionalIconsVisible(true);
         }
         return true;
     }
 
-     public ComponentName getComponentName(Context context) {
+    /**
+     * Get the component name
+     *
+     * @param context the current context
+     * @return Component Name
+     */
+    public ComponentName getComponentName(Context context) {
         return new ComponentName(context.getApplicationContext(), NetworkCallback.class);
     }
 
-    public boolean getOrganization(Context context) {
-        boolean flag = false;
-
+    /**
+     * Set device admin
+     *
+     * @param context the current context
+     */
+    public void getOrganization(Context context) {
         DevicePolicyManager dpm = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         PackageManager pm = context.getPackageManager();
         ComponentName componentName = getComponentName(context);
-
         if (dpm != null) {
             if (pm != null) {
                 Log.d(TAG, "isProfileOwnerApp:" + dpm.isProfileOwnerApp(context.getPackageName()));
@@ -326,18 +333,20 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 Log.d(TAG, "Component Name: " + componentName);
             }
         }
-
         Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
         intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
                 getString(R.string.device_admin_description));
         startActivity(intent);
-
         Log.d(TAG, "Is admin active: " + Objects.requireNonNull(dpm).isAdminActive(componentName));
-
-        return flag;
     }
 
+    /**
+     * Handle menu buttons
+     *
+     * @param item the selected menu item
+     * @return weather the select was successful or not
+     */
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -382,21 +391,24 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * tiny navigation helper
+     *
+     * @return always true
+     */
     @Override
     public boolean onSupportNavigateUp() {
         navController.navigate(R.id.HomeFragment);
-        // NavController navController = Navigation.findNavController(this, R.id.home_fragment);
-        //return NavigationUI.navigateUp(navController, appBarConfiguration)
-        //        || super.onSupportNavigateUp();
         return true;
     }
 
-
-    public boolean HasCarrierPermissions() {
-        Log.d(TAG,"Carrier Privileges: " + tm.hasCarrierPrivileges());
-        return tm.hasCarrierPrivileges();
-    }
-
+    /**
+     * Handle settings navigation
+     *
+     * @param caller The fragment requesting navigation
+     * @param pref   The preference requesting the fragment
+     * @return always true
+     */
     @Override
     public boolean onPreferenceStartFragment(@NonNull PreferenceFragmentCompat caller, Preference pref) {
         // Instantiate the new Fragment
