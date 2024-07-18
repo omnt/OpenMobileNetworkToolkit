@@ -18,7 +18,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +33,7 @@ import android.telephony.CellInfo;
 import android.telephony.SubscriptionInfo;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +50,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -206,6 +210,48 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 }
             }
         };
+        getAppSignature();
+    }
+
+    /**
+     * Get app signature and populate it in global vars
+     */
+    private void getAppSignature() {
+        PackageInfo info;
+        try {
+            info = pm.getPackageInfo("de.fraunhofer.fokus.OpenMobileNetworkToolkit", PackageManager.GET_SIGNING_CERTIFICATES);
+            assert info.signingInfo != null;
+            Log.d(TAG, "Apk hash: " + info.signingInfo.getApkContentsSigners().length);
+            for (Signature signature : info.signingInfo.getApkContentsSigners()) {
+                MessageDigest md;
+                md = MessageDigest.getInstance("SHA256");
+                md.update(signature.toByteArray());
+                String hash = new String(Base64.encode(md.digest(), 0));
+                gv.setSigning_hash(hash);
+                Log.d(TAG, "Signature: " + toHexString(md.digest()));
+            }
+        } catch (PackageManager.NameNotFoundException e1) {
+            Log.e("name not found", e1.toString());
+        } catch (Exception e) {
+            Log.e("exception", e.toString());
+        }
+    }
+
+    /**
+     * Helper function to parse hex value to a string
+     * @param bytes hex string
+     * @return String of hex
+     */
+    public static String toHexString(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(0xFF & aByte);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     /**
