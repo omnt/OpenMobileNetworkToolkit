@@ -115,13 +115,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         gv.setFeature_admin(pm.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN));
         gv.setFeature_work_profile(pm.hasSystemFeature(PackageManager.FEATURE_MANAGED_USERS));
         gv.setFeature_telephony(feature_telephony);
-        gv.setLog_status(findViewById(R.id.log_status_icon));
 
         // initialize android UX related thing the app needs
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+        gv.setLog_status(findViewById(R.id.log_status_icon));
+
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = Objects.requireNonNull(navHostFragment).getNavController();
         // create notification channel
