@@ -24,7 +24,7 @@ public class ClearPreferencesFragment extends DialogFragment {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         SharedPreferencesGrouper.getInstance(getContext()).clearConfig();
-                        listener.onClearPreferencesAccepted();
+                        listener.onPreferenceChanged();
                         Toast.makeText(getContext(), "All Config Cleared!", Toast.LENGTH_SHORT).show();
                     }
                 })

@@ -186,8 +186,12 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
             JSONObject jsonObject = new JSONObject(jsonString);
             Iterator<String> iter = jsonObject.keys();
             while (iter.hasNext()) {
-                keys.add(iter.next());
+                String current = iter.next();
+                if (SPType.fromString(current) != null) {
+                    keys.add(current);
+                }
             }
+
         } catch (Exception e) {
             Log.e(TAG, "Failed to parse JSON", e);
         }
@@ -215,6 +219,7 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
                             filteredJsonObject.put(key, jsonObject.get(key));
                         }
                         SharedPreferencesIO.importPreferences(context, filteredJsonObject.toString());
+                        onPreferenceChanged();
                         showToast("Config imported");
                     } catch (Exception e) {
                         Log.e(TAG, "Failed to import Config", e);
@@ -223,10 +228,8 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
                 }
             };
 
-            MultiSelectDialogFragment dialogFragment = new MultiSelectDialogFragment(keys, listener);
-
+            MultiSelectDialogFragment dialogFragment = new MultiSelectDialogFragment(keys, listener, "Select Config to import");
             dialogFragment.show(getParentFragmentManager(), "multiSelectDialog");
-            showToast("Config imported");
         } catch (Exception e) {
             Log.e(TAG, "Failed to import Config", e);
             showToast("Failed to import Config");
@@ -354,7 +357,7 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
     }
 
     @Override
-    public void onClearPreferencesAccepted() {
+    public void onPreferenceChanged() {
         mainLayout.removeView(scrollView);
         addSharedPreferencesViews();
     }

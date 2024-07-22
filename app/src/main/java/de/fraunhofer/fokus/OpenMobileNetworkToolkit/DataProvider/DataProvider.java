@@ -99,6 +99,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     private ArrayList<SignalStrengthInformation> ssi = new ArrayList<>();
     private WifiInfo wi = null;
     private LocationManager lm;
+    private BuildInformation buildInformation = new BuildInformation();
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
 
@@ -407,6 +408,15 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             ciml.add(cim);
         }
         ci = ciml;
+    }
+
+    /**
+     * Get BuildInformation object
+     *
+     * @return BuildInformation
+     */
+    public BuildInformation getBuildInformation() {
+        return buildInformation;
     }
 
     /**

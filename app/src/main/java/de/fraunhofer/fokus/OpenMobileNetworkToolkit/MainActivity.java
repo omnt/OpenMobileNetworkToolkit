@@ -16,9 +16,7 @@ import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     }
                 });
             }
-            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(sp.getString("logging_interval", "1000")));
+            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000")));
         }
     };
     private Context context;
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(intent);
                         })
-                        .setNegativeButton(R.string.dialog_no_location_fake, (dialog, which) -> sp.edit().putBoolean("fake_location", true).apply())
+                        .setNegativeButton(R.string.dialog_no_location_fake, (dialog, which) -> spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("fake_location", true).apply())
                         .setIcon(android.R.drawable.ic_dialog_map)
                         .show();
             }
@@ -199,16 +197,14 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             context.startForegroundService(loggingServiceIntent);
         }
 
-        spg.setListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (Objects.equals(key, "enable_logging")) {
-                    if (prefs.getBoolean(key, false)) {
-                        Log.i(TAG, "Start logging service");
-                        context.startForegroundService(loggingServiceIntent);
-                    } else {
-                        Log.i(TAG, "Stop logging service");
-                        context.stopService(loggingServiceIntent);
-                    }
+        spg.setListener((prefs, key) -> {
+            if (Objects.equals(key, "enable_logging")) {
+                if (prefs.getBoolean(key, false)) {
+                    Log.i(TAG, "Start logging service");
+                    context.startForegroundService(loggingServiceIntent);
+                } else {
+                    Log.i(TAG, "Stop logging service");
+                    context.stopService(loggingServiceIntent);
                 }
             }
         }, SPType.logging_sp);

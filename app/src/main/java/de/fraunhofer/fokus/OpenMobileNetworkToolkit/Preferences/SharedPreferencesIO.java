@@ -5,11 +5,14 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Iterator;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.BuildInformation;
 
 public class SharedPreferencesIO {
 
@@ -28,6 +31,7 @@ public class SharedPreferencesIO {
             }
         }
         try {
+            preferencesJson.put("BuildInformation", new BuildInformation().toJSON());
             return preferencesJson.toString(4);
         } catch (JSONException e) {
             Log.e(TAG, "Failed to Preference JSON to String", e);
@@ -38,18 +42,30 @@ public class SharedPreferencesIO {
     public static void importPreferences(Context context, String jsonString) {
         try {
             JSONObject spJSON = new JSONObject(jsonString);
-            for (Iterator<String> iter = spJSON.keys(); iter.hasNext(); ) {
-                String key = iter.next();
+
+            spJSON.keys().forEachRemaining(key -> {
                 SPType spType = SPType.fromString(key);
-                if(spType == null) {
-                    Log.e(TAG, "Unknown preference type: "+key);
-                    continue;
+                if (spType == null) {
+                    Log.e(TAG, "Unknown preference type: " + key);
+                    return;
                 }
                 SharedPreferences prefs = SharedPreferencesGrouper.getInstance(context).getSharedPreference(spType);
                 SharedPreferences.Editor editor = prefs.edit();
-                for (Iterator<String> it = spJSON.keys(); it.hasNext(); ) {
-                    String preferenceKey = it.next();
-                    Object value = spJSON.get(preferenceKey);
+                @NonNull JSONObject preferences;
+                try {
+                    preferences = spJSON.getJSONObject(key);
+                } catch (JSONException e) {
+                    Log.e(TAG, "Failed to get preferences for: " + key, e);
+                    return;
+                }
+                preferences.keys().forEachRemaining(preferenceKey -> {
+                    @NonNull Object value;
+                    try {
+                        value = preferences.get(preferenceKey);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed to get value for: " + preferenceKey, e);
+                        return;
+                    }
                     if (value instanceof Boolean) {
                         editor.putBoolean(preferenceKey, (Boolean) value);
                     } else if (value instanceof Float) {
@@ -61,15 +77,16 @@ public class SharedPreferencesIO {
                     } else if (value instanceof String) {
                         editor.putString(preferenceKey, (String) value);
                     }
-                }
+                });
                 editor.apply();
-                editor.clear();
                 Log.d(TAG, "Imported: " + key);
-            }
+            });
+
         } catch (Exception e) {
             Log.e(TAG, "Failed to import preferences", e);
             Toast.makeText(context, "Failed to import preferences", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 }
