@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.graphics.text.LineBreakConfig;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
@@ -15,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -48,10 +49,8 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
 
     private static final String TAG = "SharedPreferencesIOFragment";
     private Context context;
-    private String configDir;
     private Uri uri;
     private LinearLayout mainLayout;
-    private LinearLayout buttonLayout;
     private ScrollView scrollView;
 
     private final ActivityResultLauncher<Intent> exportPreferencesLauncher = registerForActivityResult(
@@ -86,11 +85,15 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
 
         setupUI(view);
 
-        configDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        String configDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
                 .getAbsolutePath() + "/omnt/configs/";
         File configFolder = new File(configDir);
+
         if (!configFolder.exists()) {
-            configFolder.mkdir();
+            boolean success = configFolder.mkdir();
+            if(!success) {
+                Log.e(TAG, "Failed to create config folder");
+            }
         }
         uri = Uri.parse(configDir);
 
@@ -113,7 +116,7 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         Button importButton = createButton("Import Config", v -> pickFile());
         Button clearConfigButton = createButton("Clear Config", v -> clearConfig());
 
-        buttonLayout = new LinearLayout(context);
+        LinearLayout buttonLayout = new LinearLayout(context);
         buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
         buttonLayout.addView(exportButton);
         buttonLayout.addView(importButton);
@@ -210,31 +213,33 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
             String jsonString = stringBuilder.toString();
             List<String> keys = getKeysFromJson(jsonString);
 
-            MultiSelectDialogFragment.OnMultiSelectListener listener = new MultiSelectDialogFragment.OnMultiSelectListener() {
-                @Override
-                public void onItemsSelected(List<String> selectedItems) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(jsonString);
-                        JSONObject filteredJsonObject = new JSONObject();
-                        for (String key : selectedItems) {
-                            filteredJsonObject.put(key, jsonObject.get(key));
-                        }
-                        SharedPreferencesIO.importPreferences(context, filteredJsonObject.toString());
-                        onPreferenceChanged();
-                        showToast("Config imported");
-                    } catch (Exception e) {
-                        Log.e(TAG, "Failed to import Config", e);
-                        showToast("Failed to import Config");
-                    }
-                }
-            };
-
-            MultiSelectDialogFragment dialogFragment = new MultiSelectDialogFragment(keys, listener, "Select Config to import");
+            MultiSelectDialogFragment dialogFragment = getMultiSelectDialogFragment(jsonString, keys);
             dialogFragment.show(getParentFragmentManager(), "multiSelectDialog");
         } catch (Exception e) {
             Log.e(TAG, "Failed to import Config", e);
             showToast("Failed to import Config");
         }
+    }
+
+    private @NonNull MultiSelectDialogFragment getMultiSelectDialogFragment(String jsonString, List<String> keys) {
+        MultiSelectDialogFragment.OnMultiSelectListener listener = selectedItems -> {
+            try {
+                JSONObject jsonObject = new JSONObject(jsonString);
+                JSONObject filteredJsonObject = new JSONObject();
+                for (String key : selectedItems) {
+                    filteredJsonObject.put(key, jsonObject.get(key));
+                }
+                SharedPreferencesIO.importPreferences(context, filteredJsonObject.toString());
+                onPreferenceChanged();
+                showToast("Config imported");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to import Config", e);
+                showToast("Failed to import Config");
+            }
+        };
+
+        MultiSelectDialogFragment dialogFragment = new MultiSelectDialogFragment(keys, listener, "Select Config to import");
+        return dialogFragment;
     }
 
     private LinearLayout generateSharedPreferencesView(SPType type, SharedPreferences sharedPreferences) {
@@ -323,7 +328,9 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
             valueEditText.setText(entry.getValue().toString());
             valueEditText.setTextSize(10);
             valueEditText.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-            valueEditText.setLineBreakStyle(Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                valueEditText.setLineBreakStyle(LineBreakConfig.LINE_BREAK_STYLE_STRICT);
+            }
             valueEditText.setPadding(8, 8, 8, 8); // Add padding
 
             entryLayout.addView(keyTextView);
