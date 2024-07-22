@@ -17,8 +17,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -72,40 +70,6 @@ public class BasicManagedProfileFragment extends Fragment implements
         return inflater.inflate(R.layout.basic_managed_profile_fragment, container, false);
     }
 
-
-    /**
-     * Checks if the application is available in this profile.
-     *
-     * @param packageName The package name
-     * @return True if the application is available in this profile.
-     */
-    private boolean isApplicationEnabled(String packageName) {
-        Activity activity = getActivity();
-        PackageManager packageManager = activity.getPackageManager();
-        try {
-            int packageFlags;
-            if (Build.VERSION.SDK_INT < 24) {
-                //noinspection deprecation
-                packageFlags = PackageManager.GET_UNINSTALLED_PACKAGES;
-            } else {
-                packageFlags = PackageManager.MATCH_UNINSTALLED_PACKAGES;
-            }
-            ApplicationInfo applicationInfo =
-                packageManager.getApplicationInfo(packageName, packageFlags);
-            // Return false if the app is not installed in this profile
-            if (0 == (applicationInfo.flags & ApplicationInfo.FLAG_INSTALLED)) {
-                return false;
-            }
-            // Check if the app is not hidden in this profile
-            DevicePolicyManager devicePolicyManager =
-                (DevicePolicyManager) activity.getSystemService(Activity.DEVICE_POLICY_SERVICE);
-            return !devicePolicyManager.isApplicationHidden(
-                BasicDeviceAdminReceiver.getComponentName(activity), packageName);
-        } catch (PackageManager.NameNotFoundException exception) {
-            return false;
-        }
-    }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         // Bind event listeners and initial states
@@ -116,11 +80,11 @@ public class BasicManagedProfileFragment extends Fragment implements
         view.findViewById(R.id.preferential_switch).setOnClickListener(this);
 
 
-        mButtonRemoveProfile = (Button) view.findViewById(R.id.remove_profile);
+        mButtonRemoveProfile = view.findViewById(R.id.remove_profile);
         mButtonRemoveProfile.setOnClickListener(this);
 
 
-        Switch preferentialNetwork = (Switch) view.findViewById(R.id.preferential_switch);
+        Switch preferentialNetwork = view.findViewById(R.id.preferential_switch);
         preferentialNetwork.setChecked(setPreferentialEnabled());
         preferentialNetwork.setOnClickListener(this);
     }
@@ -153,58 +117,6 @@ public class BasicManagedProfileFragment extends Fragment implements
         if (buttonView.getId() == R.id.preferential_switch) {
             setPreferentialEnabled();
             mPreferentialNetwork = isChecked;
-        }
-    }
-
-    /**
-     * Enables or disables the specified app in this profile.
-     *
-     * @param packageName The package name of the target app.
-     * @param enabled     Pass true to enable the app.
-     */
-
-    private void setAppEnabled(String packageName, boolean enabled) {
-        Activity activity = getActivity();
-        if (null == activity) {
-            return;
-        }
-        PackageManager packageManager = activity.getPackageManager();
-        DevicePolicyManager devicePolicyManager =
-            (DevicePolicyManager) activity.getSystemService(Context.DEVICE_POLICY_SERVICE);
-
-        try {
-            int packageFlags;
-            if (Build.VERSION.SDK_INT < 24) {
-                //noinspection deprecation
-                packageFlags = PackageManager.GET_UNINSTALLED_PACKAGES;
-            } else {
-                packageFlags = PackageManager.MATCH_UNINSTALLED_PACKAGES;
-            }
-            ApplicationInfo applicationInfo =
-                packageManager.getApplicationInfo(packageName, packageFlags);
-            // Here, we check the ApplicationInfo of the target app, and see if the flags have
-            // ApplicationInfo.FLAG_INSTALLED turned on using bitwise operation.
-            if (0 == (applicationInfo.flags & ApplicationInfo.FLAG_INSTALLED)) {
-                // If the app is not installed in this profile, we can enable it by
-                // DPM.enableSystemApp
-                if (enabled) {
-                    devicePolicyManager.enableSystemApp(
-                        BasicDeviceAdminReceiver.getComponentName(activity), packageName);
-                } else {
-                    // But we cannot disable the app since it is already disabled
-                    Log.e(TAG, "Cannot disable this app: " + packageName);
-                    return;
-                }
-            } else {
-                // If the app is already installed, we can enable or disable it by
-                // DPM.setApplicationHidden
-                devicePolicyManager.setApplicationHidden(
-                    BasicDeviceAdminReceiver.getComponentName(activity), packageName, !enabled);
-            }
-            Toast.makeText(activity, enabled ? R.string.enabled : R.string.disabled,
-                Toast.LENGTH_SHORT).show();
-        } catch (PackageManager.NameNotFoundException exception) {
-            Log.e(TAG, "The app cannot be found: " + packageName, exception);
         }
     }
 

@@ -28,9 +28,17 @@ public class OpenMobileNetworkToolkit extends CarrierService {
         Log.d(TAG, "OpenMobileNetworkToolkit Carrier Config Service created");
     }
 
+    // we keep this for older SDK version
     @Override
     public PersistableBundle onLoadConfig(CarrierIdentifier id) {
         Log.i(TAG, "CarrierIdentifier id " + id.toString());
+        return applyCarrierSettings();
+    }
+
+    // from api 33 on we use
+    @Override
+    public PersistableBundle onLoadConfig(int subscription, CarrierIdentifier id) {
+        Log.i(TAG, "CarrierIdentifier id: " + id.toString() + " for subscription: " + subscription);
         return applyCarrierSettings();
     }
 

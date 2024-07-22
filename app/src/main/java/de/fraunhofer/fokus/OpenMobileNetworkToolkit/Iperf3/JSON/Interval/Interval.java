@@ -18,7 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Interval {
-    private Streams streams;
+    private final Streams streams;
     private Sum sum;
     public Sum sumBidirReverse;
 
@@ -41,19 +41,19 @@ public class Interval {
         switch (getSumType(data)){
             case TCP_DL:
                 identifiedSum = new TCP_DL_SUM();
-                ((TCP_DL_SUM) identifiedSum).parse(data);
+                identifiedSum.parse(data);
                 break;
             case TCP_UL:
                 identifiedSum = new TCP_UL_SUM();
-                ((TCP_UL_SUM) identifiedSum).parse(data);
+                identifiedSum.parse(data);
                 break;
             case UDP_DL:
                 identifiedSum = new UDP_DL_SUM();
-                ((UDP_DL_SUM) identifiedSum).parse(data);
+                identifiedSum.parse(data);
                 break;
             case UDP_UL:
                 identifiedSum = new UDP_UL_SUM();
-                ((UDP_UL_SUM) identifiedSum).parse(data);
+                identifiedSum.parse(data);
                 break;
         }
         return identifiedSum;

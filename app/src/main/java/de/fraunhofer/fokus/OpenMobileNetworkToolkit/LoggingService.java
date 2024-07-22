@@ -313,8 +313,7 @@ public class LoggingService extends Service {
         }
 
         // Stop foreground service and remove the notification.
-        stopForeground(true);
-
+        stopForeground(STOP_FOREGROUND_DETACH);
         // Stop the foreground service.
         stopSelf();
     }
@@ -353,6 +352,18 @@ public class LoggingService extends Service {
                 logPoints.add(p);
             } else {
                 Log.w(TAG, "Point without fields from getSignalStrengthPoint");
+            }
+        }
+
+        if
+        (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
+            Point p = dp.getWifiInformationPoint();
+            if (p.hasFields()) {
+                p.time(time, WritePrecision.MS);
+                p.addTags(tags_map);
+                logPoints.add(p);
+            } else {
+                Log.w(TAG, "Point without fields from getWifiInformationPoint");
             }
         }
 

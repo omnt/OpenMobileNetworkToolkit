@@ -1,26 +1,28 @@
 /*
- *  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *  SPDX-FileCopyrightText: 2024 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2024 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2024 Fraunhofer FOKUS
  *
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
 
 public class NetworkInformation {
-    private String networkOperatorName;
-    private String simOperatorName;
-    private String networkSpecifier;
-    private int dataState;
-    private int dataNetworkType;
-    private int phoneType;
-    private int preferredOpportunisticDataSubscriptionId;
+    private final String networkOperatorName;
+    private final String simOperatorName;
+    private final String networkSpecifier;
+    private final int dataState;
+    private final int dataNetworkType;
+    private final int phoneType;
+    private final int preferredOpportunisticDataSubscriptionId;
     private long timeStamp;
+
     public NetworkInformation(String networkOperatorName, String simOperatorName, String networkSpecifier, int dataState, int dataNetworkType, int phoneType, int preferredOpportunisitcDataSubscitptionId) {
         this.networkOperatorName = networkOperatorName;
         this.simOperatorName = simOperatorName;
@@ -31,43 +33,69 @@ public class NetworkInformation {
         this.preferredOpportunisticDataSubscriptionId = preferredOpportunisitcDataSubscitptionId;
         this.timeStamp = System.currentTimeMillis();
     }
-    public NetworkInformation() {
-    }
 
+    /**
+     * Get the current timestamp
+     * @return last updated timestamp
+     */
     public long getTimeStamp() {
         return timeStamp;
     }
 
+    /**
+     * Update the timestamp
+     * @param timeStamp new timestamp
+     */
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 
+    /**
+     * Get the Network Operator Name
+     * @return Operator Name string
+     */
     public String getNetworkOperatorName() {
         return networkOperatorName;
     }
 
+    /**
+     * Get the SIM Operator Name
+     * @return Operator Name
+     */
     public String getSimOperatorName() {
         return simOperatorName;
     }
 
+    /**
+     * Get the network specifier
+     * @return Network specifier
+     */
     public String getNetworkSpecifier() {
         return networkSpecifier;
     }
 
+    /**
+     * Get the network data state id
+     * @return ID of the current network data state
+     */
     public int getDataState() {
         return dataState;
     }
 
-    public int getDataNetworkType() {
-        return dataNetworkType;
-    }
-
+    /**
+     * Get the Phone type id
+     * @return Phone type id
+     */
     public int getPhoneType() {
         return phoneType;
     }
 
+    /**
+     * Get the phone type string representation
+     * @return Phone type string representation
+     */
     public String getPhoneTypeString() {
-        String phoneTypeString = "N/A";
+        String phoneTypeString;
         switch (phoneType){
             case 0:
                 phoneTypeString = "None";
@@ -81,12 +109,19 @@ public class NetworkInformation {
             case 3:
                 phoneTypeString = "SIP";
                 break;
+            default:
+                phoneTypeString = "N/A";
+                break;
         }
         return phoneTypeString;
     }
 
+    /**
+     * Get the current data state as string name
+     * @return String representation of the data state
+     */
     public String getDataStateString() {
-        String dataStateString = "N/A";
+        String dataStateString;
         switch (dataState){
             case TelephonyManager.DATA_DISCONNECTED:
                 dataStateString = "Disconnected";
@@ -106,12 +141,19 @@ public class NetworkInformation {
             case TelephonyManager.DATA_HANDOVER_IN_PROGRESS:
                 dataStateString = "Handover in progress";
                 break;
+            default:
+                dataStateString = "N/A";
+                break;
         }
         return dataStateString;
     }
 
+    /**
+     * Get the current data network type string
+     * @return Data network type string representation
+     */
     public String getDataNetworkTypeString() {
-        String dataNetworkTypeString = "N/A";
+        String dataNetworkTypeString;
         switch (dataNetworkType){
             case TelephonyManager.NETWORK_TYPE_UNKNOWN:
                 dataNetworkTypeString =  "Unknown";
@@ -144,10 +186,7 @@ public class NetworkInformation {
                 dataNetworkTypeString = "HSUPA";
                 break;
             case TelephonyManager.NETWORK_TYPE_HSPA:
-                dataNetworkTypeString = "HSUPA";
-                break;
-            case TelephonyManager.NETWORK_TYPE_IDEN:
-                dataNetworkTypeString = "IDEN";
+                dataNetworkTypeString = "HSPA";
                 break;
             case TelephonyManager.NETWORK_TYPE_EVDO_B:
                 dataNetworkTypeString = "EVDO B";
@@ -173,13 +212,21 @@ public class NetworkInformation {
             case TelephonyManager.NETWORK_TYPE_NR:
                 dataNetworkTypeString = "NR";
                 break;
+            default:
+                dataNetworkTypeString = "N/A";
+                break;
         }
         return dataNetworkTypeString;
     }
 
-    public static String getAccessNetworkType(int acceesNetworkID) {
-        String accessNetworkType = "N/A";
-        switch (acceesNetworkID){
+    /**
+     *
+     * @param accessNetworkID Get Network access type string from ID
+     * @return Network access type String
+     */
+    public static String getAccessNetworkType(int accessNetworkID) {
+        String accessNetworkType;
+        switch (accessNetworkID){
             case AccessNetworkConstants.AccessNetworkType.CDMA2000:
                 accessNetworkType =  "CDMA2000";
                 break;
@@ -202,11 +249,17 @@ public class NetworkInformation {
                 accessNetworkType = "UTRAN";
                 break;
             default:
-                accessNetworkType = "Unknown";
+                accessNetworkType = "N/A";
         }
         return accessNetworkType;
     }
 
+    /**
+     * Get the Network access type id from string
+     * @param accessNetworkType Network access type string
+     * @return Network access type id
+     */
+    @SuppressLint("ObsoleteSdkInt")
     public static int getAccessNetworkID(String accessNetworkType) {
         switch (accessNetworkType) {
             case "CDMA2000":
@@ -228,9 +281,10 @@ public class NetworkInformation {
         }
     }
 
-
-
-
+    /**
+     * Get the preferred opportunistic data subscription id
+     * @return preferred opportunistic data subscription id
+     */
     public int getPreferredOpportunisticDataSubscriptionId() {
         return preferredOpportunisticDataSubscriptionId;
     }

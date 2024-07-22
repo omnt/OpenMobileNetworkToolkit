@@ -36,26 +36,19 @@ import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 public class InfluxdbConnection {
     private final static String TAG = "InfluxDBConnection";
     SharedPreferencesGrouper spg;
-    private final char[] token;
-    private final String org;
-    private final String bucket;
     private final String url;
-    private final Context context;
     private InfluxDBClient influxDBClient;
     private WriteApi writeApi;
-    private GlobalVars gv;
+    private final GlobalVars gv;
 
     public InfluxdbConnection(String URL, String token, String org, String bucket,
                               Context context) {
-        this.token = token.toCharArray();
-        this.org = org;
+        char[] token1 = token.toCharArray();
         this.url = URL;
-        this.bucket = bucket;
-        this.context = context;
         this.gv = GlobalVars.getInstance();
+        influxDBClient = InfluxDBClientFactory.create(this.url, token1, org, bucket);
+        influxDBClient.enableGzip();
         spg = SharedPreferencesGrouper.getInstance(context);
-        influxDBClient = InfluxDBClientFactory.create(this.url, this.token, this.org, this.bucket);
-        influxDBClient.enableGzip(); // maybe we want a setting for this?
     }
 
     /**
@@ -127,7 +120,7 @@ public class InfluxdbConnection {
     /**
      * Add a point to the message queue
      */
-    public boolean writePoint(Point point) throws IOException {
+    public boolean writePoint(Point point) {
         if (influxDBClient != null && influxDBClient.ping()) {
             try {
                 writeApi.writePoint(point);
@@ -147,27 +140,24 @@ public class InfluxdbConnection {
      * Write string records to the queue
      * @param points String list of records
      * @return not yet useful
-     * @throws IOException
+     * @throws IOException if record cant be written
      */
     public boolean writeRecords(List<String> points) throws IOException {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (influxDBClient != null && influxDBClient.ping()) {
-                        try {
-                            writeApi.writeRecords(WritePrecision.MS, points);
-                        } catch (com.influxdb.exceptions.InfluxException e) {
-                            Log.d(TAG, "writeRecords: Error while writing points to influx DB");
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.d(TAG, "writeRecords: InfluxDB not reachable: " + url);
+        new Thread(() -> {
+            try {
+                if (influxDBClient != null && influxDBClient.ping()) {
+                    try {
+                        writeApi.writeRecords(WritePrecision.MS, points);
+                    } catch (com.influxdb.exceptions.InfluxException e) {
+                        Log.d(TAG, "writeRecords: Error while writing points to influx DB");
+                        e.printStackTrace();
                     }
+                } else {
+                    Log.d(TAG, "writeRecords: InfluxDB not reachable: " + url);
                 }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
             }
         }).start();
         return true;
@@ -175,29 +165,26 @@ public class InfluxdbConnection {
 
     /**
      *
-     * @param points
-     * @return
-     * @throws IOException
+     * @param points influx points to write
+     * @return true if no exception happen
+     * @throws IOException if points cant be written
      */
     public boolean writePoints(List<Point> points) throws IOException {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (influxDBClient != null && influxDBClient.ping()) {
-                        try {
-                            writeApi.writePoints(points);
-                        } catch (com.influxdb.exceptions.InfluxException e) {
-                            Log.d(TAG, "writePoint: Error while writing points to influx DB");
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Log.d(TAG, "writePoints: InfluxDB not reachable: " + url);
+        new Thread(() -> {
+            try {
+                if (influxDBClient != null && influxDBClient.ping()) {
+                    try {
+                        writeApi.writePoints(points);
+                    } catch (com.influxdb.exceptions.InfluxException e) {
+                        Log.d(TAG, "writePoint: Error while writing points to influx DB");
+                        e.printStackTrace();
                     }
+                } else {
+                    Log.d(TAG, "writePoints: InfluxDB not reachable: " + url);
                 }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
             }
         }).start();
         return true;
@@ -205,7 +192,7 @@ public class InfluxdbConnection {
 
     /**
      * Onboard a influxDB and store credentials
-     * @return
+     * @return if onboarding was successful or not
      */
     public boolean onboard() {
         try {
@@ -230,20 +217,16 @@ public class InfluxdbConnection {
 
     /**
      * If we can reach the influxDB call flush on the write API
-     * @return
+     * @return true if flush was successful
      */
-    // todo handle unreachable DB
     public boolean flush() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (influxDBClient.ping()) {
-                        writeApi.flush();
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+        new Thread(() -> {
+            try {
+                if (influxDBClient.ping()) {
+                    writeApi.flush();
                 }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }).start();
         return true;

@@ -44,7 +44,7 @@ public class Iperf3RecyclerViewAdapter
     extends RecyclerView.Adapter<Iperf3RecyclerViewAdapter.ViewHolder> {
     private final String TAG = "Iperf3RecyclerViewAdapter";
     private final Iperf3ResultsDataBase db;
-    private ArrayList<String> uids;
+    private final ArrayList<String> uids;
     private Context context;
     private final FragmentActivity c;
     private final HashMap<String, Integer> selectedRuns;
@@ -169,7 +169,7 @@ public class Iperf3RecyclerViewAdapter
         public TextView iperf3State;
         public ImageView runIcon;
         public ImageView uploadIcon;
-        private LinearLayout linearLayout;
+        private final LinearLayout linearLayout;
         private LinearLayout iPerf3Parameters;
 
         private LinearLayout firstRow(LinearLayout ll){

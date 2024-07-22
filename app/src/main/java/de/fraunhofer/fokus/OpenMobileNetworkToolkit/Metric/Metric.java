@@ -6,9 +6,11 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
 import java.util.ArrayList;
 import java.util.Locale;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Metric {
         private LinearLayout mean;
@@ -20,8 +22,8 @@ public class Metric {
         private ArrayList<Double> meanList = new ArrayList<>();
         private double maxValueSum = Double.MIN_VALUE;
         private double minValueSum = Double.MAX_VALUE;
-        private METRIC_TYPE metricType;
-        private Context ct;
+        private final METRIC_TYPE metricType;
+        private final Context ct;
         private LinearLayout mainLL;
 
         public Metric(METRIC_TYPE metricType, Context ct){

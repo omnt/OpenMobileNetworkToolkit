@@ -10,7 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Streams {
-    private ArrayList<Stream> streams;
+    private final ArrayList<Stream> streams;
     public Streams(){
         this.streams = new ArrayList<>();
     }
