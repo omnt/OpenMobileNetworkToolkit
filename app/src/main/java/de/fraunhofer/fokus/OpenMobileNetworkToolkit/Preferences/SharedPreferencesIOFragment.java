@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -314,13 +315,15 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
             keyTextView.setPadding(8, 8, 8, 8); // Add padding
 
             // Create and style the valueEditText
-            EditText valueEditText = new EditText(context);
+            TextView valueEditText = new TextView(context);
             valueEditText.setLayoutParams(new LinearLayout.LayoutParams(
                     0,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     0.4f)); // Adjusted weight for better appearance
             valueEditText.setText(entry.getValue().toString());
             valueEditText.setTextSize(10);
+            valueEditText.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+            valueEditText.setLineBreakStyle(Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             valueEditText.setPadding(8, 8, 8, 8); // Add padding
 
             entryLayout.addView(keyTextView);
