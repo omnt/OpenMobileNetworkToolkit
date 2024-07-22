@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
-import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -238,8 +237,7 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
             }
         };
 
-        MultiSelectDialogFragment dialogFragment = new MultiSelectDialogFragment(keys, listener, "Select Config to import");
-        return dialogFragment;
+        return new MultiSelectDialogFragment(keys, listener, "Select Config to import");
     }
 
     private LinearLayout generateSharedPreferencesView(SPType type, SharedPreferences sharedPreferences) {
