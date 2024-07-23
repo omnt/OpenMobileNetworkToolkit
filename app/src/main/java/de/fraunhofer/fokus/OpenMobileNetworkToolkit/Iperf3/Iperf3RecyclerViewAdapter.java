@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3RecyclerViewAdapter
@@ -63,8 +65,7 @@ public class Iperf3RecyclerViewAdapter
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
-                SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences preferences = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.logging_sp);
                 Iperf3ResultsDataBase db = Iperf3ResultsDataBase.getDatabase(context);
                 Iperf3RunResultDao iperf3RunResultDao = db.iperf3RunResultDao();
                 if (preferences.getBoolean("enable_influx", false)) {
