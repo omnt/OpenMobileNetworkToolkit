@@ -26,7 +26,6 @@ import androidx.preference.DropDownPreference;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreference;
 
 import java.util.Arrays;
@@ -36,6 +35,8 @@ import java.util.Objects;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     implements OnSharedPreferenceChangeListener {
@@ -102,7 +103,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
         ct = requireContext();
         plmnId = ct.getString(R.string.select_plmn);
         accessNetworkType = ct.getString(R.string.access_networktype);
-        preferences = PreferenceManager.getDefaultSharedPreferences(ct);
+        preferences = SharedPreferencesGrouper.getInstance(ct).getSharedPreference(SPType.mobile_network_sp);
 
 
         int sdk_version = Build.VERSION.SDK_INT;
@@ -182,6 +183,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         gv = GlobalVars.getInstance();
+        getPreferenceManager().setSharedPreferencesName(SharedPreferencesGrouper.getInstance(requireContext()).getSharedPreferenceIdentifier(SPType.carrier_sp));
         setPreferencesFromResource(R.xml.preference_mobile_network, rootKey);
         Preference button = getPreferenceManager().findPreference("apply_cs_settings");
         if (button != null) {

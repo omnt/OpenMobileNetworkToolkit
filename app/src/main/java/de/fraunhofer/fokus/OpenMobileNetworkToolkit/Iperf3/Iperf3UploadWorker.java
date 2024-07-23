@@ -31,14 +31,12 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnectio
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private final SharedPreferences sp;
     private final String iperf3LineProtocolFile;
 
 
     public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         iperf3LineProtocolFile = getInputData().getString("iperf3LineProtocolFile");
-        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
     private void setup(){
         influx = InfluxdbConnections.getRicInstance(getApplicationContext());

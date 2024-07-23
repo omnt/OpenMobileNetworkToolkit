@@ -17,6 +17,8 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class LoggingSettingsFragment extends PreferenceFragmentCompat
     implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -25,11 +27,14 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
+        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.logging_sp));
         setPreferencesFromResource(R.xml.preference_logging, rootKey);
         getPreferenceScreen().getSharedPreferences()
             .registerOnSharedPreferenceChangeListener(this);
 
         enable_influx_switch = findPreference("enable_influx");
+
 
         androidx.preference.EditTextPreference editTextPreference =
             getPreferenceManager().findPreference("logging_interval");
@@ -39,6 +44,7 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if(s == null) return;
         if (s.equals("enable_logging")) {
             boolean logger = sharedPreferences.getBoolean("enable_logging", false);
             Log.d(TAG, "Logger update: " + logger);

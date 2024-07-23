@@ -33,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
@@ -49,6 +48,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInterfaceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.SignalStrengthInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 
 public class HomeFragment extends Fragment {
@@ -59,6 +60,7 @@ public class HomeFragment extends Fragment {
     private boolean cp;
     private GlobalVars gv;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SharedPreferencesGrouper spg;
 
     public HomeFragment() {
         super(R.layout.fragment_home);
@@ -68,7 +70,7 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = requireContext();
-
+        spg = SharedPreferencesGrouper.getInstance(context);
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
     }
 
@@ -403,7 +405,7 @@ public class HomeFragment extends Fragment {
         List<CellInformation> cil = dp.getCellInformation();
         int cell = 1;
         for (CellInformation ci : cil) {
-            if (!PreferenceManager.getDefaultSharedPreferences(context).getBoolean("show_neighbour_cells", false) && !ci.isRegistered()) {
+            if (!spg.getSharedPreference(SPType.logging_sp).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
                 continue;
             }
 

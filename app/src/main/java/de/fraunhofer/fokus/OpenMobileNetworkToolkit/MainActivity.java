@@ -17,7 +17,6 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -48,7 +47,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -58,6 +56,8 @@ import java.util.concurrent.Executors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
@@ -65,10 +65,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public TelephonyManager tm;
     public PackageManager pm;
     public DataProvider dp;
+    public SharedPreferencesGrouper spg;
     public boolean cp = false;
     public boolean feature_telephony = false;
-    SharedPreferences sp;
-    SharedPreferences.OnSharedPreferenceChangeListener listener;
     Intent loggingServiceIntent;
     NavController navController;
     private Handler requestCellInfoUpdateHandler;
@@ -88,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     }
                 });
             }
-            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(sp.getString("logging_interval", "1000")));
+            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000")));
         }
     };
     private Context context;
@@ -103,8 +102,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // initialize variables we need later on
         context = getApplicationContext();
         gv = GlobalVars.getInstance();
-        sp = PreferenceManager.getDefaultSharedPreferences(this);
-        sp.registerOnSharedPreferenceChangeListener(listener);
+        spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
         pm = getPackageManager();
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
 
@@ -149,18 +147,17 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 // make sure the subscription in the app settings exists in the current subscription list.
                 // if it is not in the subscription list change it to the first one of the current list
                 boolean valid_subscription = false;
-                String pref_subscription_str = sp.getString("select_subscription", "99999");
-                //int pref_subscription = sp.getInt("select_subscription",9999999);
+                String pref_subscription_str = spg.getSharedPreference(SPType.mobile_network_sp).getString("select_subscription","99999");
                 for (SubscriptionInfo info : dp.getSubscriptions()) {
                     if (Integer.parseInt(pref_subscription_str) == info.getSubscriptionId()) {
                         valid_subscription = true;
                     }
                 }
                 if (!valid_subscription) {
-                    sp.edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
+                    spg.getSharedPreference(SPType.mobile_network_sp).edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
                 }
                 // switch the telephony manager to a new one according to the app settings
-                tm = tm.createForSubscriptionId(Integer.parseInt(sp.getString("select_subscription", "0")));
+                tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.mobile_network_sp).getString("select_subscription", "0")));
             }
 
             gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
@@ -176,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             // if the location API on android is disabled and we don't want a fake location make a popup
-            if (!lm.isLocationEnabled() && !sp.getBoolean("fake_location", false)) {
+            if (!lm.isLocationEnabled() && !spg.getSharedPreference(SPType.logging_sp).getBoolean("fake_location", false)) {
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(R.string.dialog_no_location_title)
                         .setMessage(R.string.dialog_no_location)
@@ -185,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(intent);
                         })
-                        .setNegativeButton(R.string.dialog_no_location_fake, (dialog, which) -> sp.edit().putBoolean("fake_location", true).apply())
+                        .setNegativeButton(R.string.dialog_no_location_fake, (dialog, which) -> spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("fake_location", true).apply())
                         .setIcon(android.R.drawable.ic_dialog_map)
                         .show();
             }
@@ -195,12 +192,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
 
         loggingServiceIntent = new Intent(this, LoggingService.class);
-        if (sp.getBoolean("enable_logging", false)) {
+        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
             Log.d(TAG, "Start logging service");
             context.startForegroundService(loggingServiceIntent);
         }
 
-        listener = (prefs, key) -> {
+        spg.setListener((prefs, key) -> {
             if (Objects.equals(key, "enable_logging")) {
                 if (prefs.getBoolean(key, false)) {
                     Log.i(TAG, "Start logging service");
@@ -210,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     context.stopService(loggingServiceIntent);
                 }
             }
-        };
+        }, SPType.logging_sp);
         getAppSignature();
     }
 
@@ -460,6 +457,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 break;
             case "mobile_network_settings":
                 navController.navigate(R.id.flagSettingFragment);
+                break;
+            case "shared_preferences_io":
+                navController.navigate(R.id.fragment_shared_preferences_io);
                 break;
         }
         return true;
