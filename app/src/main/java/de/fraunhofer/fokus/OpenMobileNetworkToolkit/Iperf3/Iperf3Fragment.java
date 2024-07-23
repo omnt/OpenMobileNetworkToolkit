@@ -479,7 +479,7 @@ public class Iperf3Fragment extends Fragment {
 
 
 
-        if (spg.getSharedPreference(SPType.iperf3_sp).getBoolean("enable_influx", false) && input.iperf3Json) {
+        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && input.iperf3Json) {
             iperf3WM.beginWith(iperf3WR).then(iperf3LP).then(iperf3UP).enqueue();
         } else if(input.iperf3Json) {
             iperf3WM.beginWith(iperf3WR).then(iperf3LP).enqueue();
@@ -507,10 +507,12 @@ public class Iperf3Fragment extends Fragment {
             } else if (iperf3_result != 0) {
                 progressIndicator.setIndicatorColor(failedColors);
                 progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
+
             } else {
                 progressIndicator.setIndicatorColor(succesColors);
                 progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
             }
+
         });
         iperf3WM.getWorkInfoByIdLiveData(iperf3UP.getId()).observeForever(workInfo -> {
             boolean iperf3_upload;

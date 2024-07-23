@@ -115,7 +115,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
 
     public Map<String, String> getTagsMap() {
-        String tags = spg.getSharedPreference(SPType.iperf3_sp).getString("tags", "").strip().replace(" ", "");
+        String tags = spg.getSharedPreference(SPType.logging_sp).getString("tags", "").strip().replace(" ", "");
         Map<String, String> tags_map = Collections.emptyMap();
         if (!tags.isEmpty()) {
             try {

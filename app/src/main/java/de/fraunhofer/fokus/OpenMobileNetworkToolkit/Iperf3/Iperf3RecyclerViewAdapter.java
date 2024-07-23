@@ -84,12 +84,12 @@ public class Iperf3RecyclerViewAdapter
 
                     Data.Builder data = new Data.Builder();
                     data.putString("iperf3LineProtocolFile", runResult.input.iperf3LineProtocolFile);
-
                     OneTimeWorkRequest iperf3UP =
                         new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class)
                             .setInputData(data.build())
                             .addTag("iperf3_upload")
                             .build();
+
                     uploads.add(iperf3UP);
                     iperf3WM.getWorkInfoByIdLiveData(iperf3UP.getId()).observeForever(workInfo -> {
                         boolean iperf3_upload;
