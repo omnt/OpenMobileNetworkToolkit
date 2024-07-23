@@ -18,7 +18,7 @@ public class Iperf3CardAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         // Return a new instance of the Iperf3CardFragment
-        return Iperf3CardFragment.newInstance();
+        return Iperf3CardFragment.newInstance(position);
     }
 
     @Override

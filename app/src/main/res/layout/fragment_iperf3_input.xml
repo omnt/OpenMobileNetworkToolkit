@@ -15,158 +15,70 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- First LinearLayout for Title, Progress Indicator, and Input Fields -->
-    <LinearLayout
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        tools:context=".Iperf3.Iperf3Fragment">
+        android:text="@string/iperf3_title"
+        android:textAlignment="center"
+        android:textSize="16sp"/>
 
-        <!-- Title TextView -->
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/iperf3_title"
-            android:textAlignment="center"
-            android:textSize="16sp"
-            android:layout_marginBottom="1dp"/>
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerInsetStart="16dp"
+        app:dividerInsetEnd="16dp"/>
 
-        <!-- Progress Indicator -->
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/iperf3_progress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:layout_marginBottom="12dp"/>
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
-
-    <!-- Second LinearLayout for Toggles and Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="0.5"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="2dp"
+        tools:context=".Iperf3.Iperf3Fragment">
+        <ScrollView
+             android:layout_height="match_parent"
+            android:layout_width="match_parent">
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-        <!-- Mode Toggle Group -->
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/iperf3_mode_toggle_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            android:layout_marginBottom="12dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_client_button"
-                style="@style/CustomUnifiedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Client" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_server_button"
-                style="@style/CustomUnifiedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Server" />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-        <!-- Protocol Toggle Group -->
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/iperf3_protocol_toggle_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            android:layout_marginBottom="12dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_tcp_button"
-                style="@style/CustomUnifiedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TCP" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_udp_button"
-                style="@style/CustomUnifiedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="UDP" />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-        <!-- Direction Toggle Group -->
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/iperf3_direction_toggle_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:singleSelection="true"
-            android:layout_marginBottom="12dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_download_button"
-                style="@style/CustomUnifiedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Download" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_upload_button"
-                style="@style/CustomUnifiedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Upload" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_bidir_button"
-                style="@style/CustomUnifiedButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="BiDir" />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-        <!-- Buttons Section -->
-        <LinearLayout
-            android:id="@+id/iperf3_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="12dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_send"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/execute_iperf_command" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_instances_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/iperf3_instances" />
-
-        </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
+
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerInsetStart="16dp"
+        app:dividerInsetEnd="16dp"/>
+    <LinearLayout
+        android:id="@+id/iperf3_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/iperf3_send"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/execute_iperf_command"
+            android:layout_margin="5dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/iperf3_instances_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/iperf3_instances"
+            android:layout_margin="5dp"/>
+    </LinearLayout>
+
 
 </LinearLayout>
