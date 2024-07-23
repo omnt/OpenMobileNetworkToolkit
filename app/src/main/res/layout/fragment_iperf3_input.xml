@@ -7,287 +7,166 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_iperf3_input"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Iperf3.Iperf3Fragment">
+    android:orientation="vertical">
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/iperf3_progress"
+    <!-- First LinearLayout for Title, Progress Indicator, and Input Fields -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:indeterminate="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/iperf3_bytes"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="420dp"
-        android:hint="@string/iperf_bytes"
-        android:inputType="number"
-        android:enabled="false"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/iperf3_streams"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="476dp"
-        android:autofillHints="100"
-        android:ems="10"
-        android:hint="@string/iperf_streams"
-        android:inputType="number"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/iperf3_cport"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="532dp"
-        android:autofillHints="100"
-        android:ems="10"
-        android:hint="@string/iperf3_cport"
-        android:inputType="number"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/iperf3_interval"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="360dp"
-        android:autofillHints="10"
-        android:ems="10"
-        android:hint="@string/iperf_interval"
-        android:inputType="phone"
-        android:digits="0123456789."
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/iperf3_duration"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="308dp"
-        android:hint="@string/iperf_duration"
-        android:inputType="number"
-        android:enabled="true"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-     <EditText
-            android:id="@+id/iperf3_bandwidth"
-            android:layout_width="226dp"
-            android:layout_height="58dp"
-            android:layout_marginTop="248dp"
-            android:autofillHints="100"
-            android:ems="10"
-            android:hint="@string/iperf_bandwidth"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-    <EditText
-        android:id="@+id/iperf3_port"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="196dp"
-        android:autofillHints="5201"
-        android:ems="10"
-        android:hint="@string/iperf_port"
-        android:inputType="number"
-
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/iperf3_ip"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="140dp"
-        android:autofillHints="172.17.0.1"
-        android:ems="10"
-        android:hint="@string/iperf_ip"
-        android:inputType="textUri"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/iperf3_send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/execute_iperf_command"
-        app:layout_constraintBottom_toTopOf="@+id/guideline16"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/guideline15" />
-
-
-    <Spinner
-        android:id="@+id/iperf3_mode_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.147"
-        app:layout_constraintStart_toStartOf="@+id/guideline210"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <CheckBox
-        android:id="@+id/iperf3_one_off"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/iperf_one_off"
-        app:layout_constraintBottom_toBottomOf="@+id/guideline9"
-        app:layout_constraintBottom_toTopOf="@+id/guideline9"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline210"
-        app:layout_constraintTop_toTopOf="@+id/guideline8" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="326dp"
-        android:layout_height="34dp"
-        android:layout_marginTop="28dp"
-        android:text="@string/iperf3_title"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-            android:id="@+id/iperf3_instances_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="36dp"
-            android:layout_marginBottom="36dp"
-            android:text="@string/iperf3_instances"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline210"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="268dp" />
-
-
-    <CheckBox
-        android:id="@+id/iperf_bidir"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/iperf_bidir"
-        app:layout_constraintBottom_toTopOf="@+id/guideline10"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline210"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
-
-    <CheckBox
-        android:id="@+id/iperf3_reverse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/iperf_reverse"
-        app:layout_constraintBottom_toTopOf="@+id/guideline4"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/guideline10" />
-
-    <Spinner
-        android:id="@+id/iperf3_protocol_spinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline15"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toStartOf="@+id/guideline210"
-        app:layout_constraintTop_toTopOf="@+id/guideline9" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="268dp" />
+        android:padding="16dp"
+        tools:context=".Iperf3.Iperf3Fragment">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="141dp" />
+        <!-- Title TextView -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/iperf3_title"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:layout_marginBottom="1dp"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="254dp" />
+        <!-- Progress Indicator -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/iperf3_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_marginBottom="12dp"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="306dp" />
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="366dp" />
+    </LinearLayout>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="196dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline11"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <!-- Second LinearLayout for Toggles and Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="58dp" />
+        android:padding="16dp">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline15"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="439dp" />
+        <!-- Mode Toggle Group -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/iperf3_mode_toggle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            android:layout_marginBottom="12dp">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline16"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="513dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_client_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Client" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_server_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Server" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- Protocol Toggle Group -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/iperf3_protocol_toggle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_tcp_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TCP" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_udp_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="UDP" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- Direction Toggle Group -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/iperf3_direction_toggle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_download_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Download" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_upload_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Upload" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_bidir_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="BiDir" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- Buttons Section -->
+        <LinearLayout
+            android:id="@+id/iperf3_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_send"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/execute_iperf_command" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_instances_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/iperf3_instances" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/page_number_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Page 1"
+        android:textSize="18sp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/input_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="2dp"
+        app:cornerRadius="4dp"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <!-- IP Address Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_ip_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_ip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textUri"
+                    android:hint="IP Address"
+                    android:textSize="12sp"
+                    android:padding="8dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Port Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_port_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_port"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="Port"
+                    android:textSize="12sp"
+                    android:padding="8dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Bandwidth Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_bandwidth_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_bandwidth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Bandwidth"
+                    android:textSize="12sp"
+                    android:padding="8dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Duration Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_duration_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_duration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="Duration"
+                    android:textSize="12sp"
+                    android:padding="8dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Interval Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_interval_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_interval"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:hint="Interval"
+                    android:textSize="12sp"
+                    android:padding="8dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Bytes Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_bytes_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_bytes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="Bytes"
+                    android:textSize="12sp"
+                    android:padding="8dp"
+                    android:enabled="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Streams Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_streams_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_streams"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="Streams"
+                    android:textSize="12sp"
+                    android:padding="8dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Client Port Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_cport_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                app:hintEnabled="true"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/forestgreen">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_cport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="Client Port"
+                    android:textSize="12sp"
+                    android:padding="8dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>
