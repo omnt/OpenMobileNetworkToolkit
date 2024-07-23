@@ -38,12 +38,12 @@
         android:layout_weight="0.5"
         android:orientation="vertical"
         android:padding="2dp"
-        tools:context=".Iperf3.Iperf3Fragment">
+        tools:context=".Iperf3.Fragments.Iperf3Fragment">
         <ScrollView
              android:layout_height="match_parent"
             android:layout_width="match_parent">
             <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/viewPager2"
+                android:id="@+id/iperf3_viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 

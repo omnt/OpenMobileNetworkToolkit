@@ -6,34 +6,28 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
-import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
-import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
 import android.util.Log;
 
-import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
-import androidx.room.util.StringUtil;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import java.util.Locale;
 
-public class Iperf3Worker extends Worker {
+public class Iperf3ExecutorWorker extends Worker {
     private static final String TAG = "iperf3Worker";
 
     static {
@@ -51,7 +45,7 @@ public class Iperf3Worker extends Worker {
     private final String ip;
     private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
 
-    public Iperf3Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public Iperf3ExecutorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         cmd = getInputData().getStringArray("commands");
         measurementName = getInputData().getString("measurementName");

@@ -8,7 +8,7 @@
 
 //from https://codeburst.io/android-swipe-menu-with-recyclerview-8f28a235ff28
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Output;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
@@ -32,6 +32,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAdapter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResultDao;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Utils;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SwipeController;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SwipeControllerActions;
@@ -45,6 +51,14 @@ public class Iperf3ListFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private FloatingActionButton uploadBtn;
     private Iperf3ResultsDataBase db;
+
+    public static Iperf3ListFragment newInstance() {
+        Iperf3ListFragment fragment = new Iperf3ListFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
