@@ -210,17 +210,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }, SPType.logging_sp);
         getAppSignature();
-
-        if (getIntent() != null && getIntent().getExtras() != null) {
-            String openFragment = getIntent().getExtras().getString("openFragment");
-            if ("PingFragment".equals(openFragment)) {
-                // Navigate to the PingFragment
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_ping, new PingFragment())
-                        .commit();
-            }
-        }
-
     }
 
     /**
