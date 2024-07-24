@@ -11,6 +11,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +26,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -125,6 +127,24 @@ public class PingFragment extends Fragment {
         }else{
             v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
         }
+        spg.setListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
+                if(key.equals("ping_running")){
+                    Boolean isRunning = sharedPreferences.getBoolean("ping_running", false);
+                    handleInput(isRunning);
+                    if(isRunning){
+                        v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                        v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
+                    } else {
+                        v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
+                        v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    }
+
+                }
+            }
+        }, SPType.ping_sp);
+
         input.setEnabled(!pingRunning);
         toggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
             @Override

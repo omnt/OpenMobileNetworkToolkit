@@ -30,6 +30,8 @@ import androidx.work.WorkerParameters;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -44,7 +46,6 @@ import java.util.regex.Pattern;
 public class PingWorker extends Worker {
 
     private static final String TAG = "PingWorker";
-    String host;
     Runtime runtime;
     private ArrayList<String> lines;
     private Process pingProcess;
@@ -57,10 +58,9 @@ public class PingWorker extends Worker {
     private NotificationCompat.Builder notificationBuilder;
     private Notification notification;
     private final String timeRegex = "\\btime=([0-9]+\\.[0-9]+)\\s+ms\\b";
-    private final Pattern pattern = Pattern.compile(timeRegex);
-    private final String line = null;
     private double rtt;
     private NotificationManager notificationManager;
+    private SharedPreferencesGrouper spg;
 
 
     public void parsePingCommand() {
@@ -90,13 +90,16 @@ public class PingWorker extends Worker {
         super(context, workerParams);
         runtime = Runtime.getRuntime();
         ct = context;
+        spg = SharedPreferencesGrouper.getInstance(ct);
     }
+
 
     @Override
     public void onStopped() {
         super.onStopped();
         Log.d(TAG, "onStopped: worker stopped!");
         if(pingProcess.isAlive()) pingProcess.destroy();
+        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
 
     }
 
@@ -186,6 +189,7 @@ public class PingWorker extends Worker {
 
             if(isStopped()){
                 Log.d(TAG, "doWork: got cancelled because Worker got stopped!");
+
                 return Result.success();
             }
 
