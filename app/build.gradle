@@ -147,6 +147,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:21.3.0'
     implementation 'com.github.anastr:speedviewlib:1.6.1'
     implementation "androidx.viewpager2:viewpager2:1.1.0"
+    implementation "androidx.compose.material3:material3:1.2.1"
 }
 
 configurations.implementation {

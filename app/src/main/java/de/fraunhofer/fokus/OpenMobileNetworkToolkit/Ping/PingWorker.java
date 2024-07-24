@@ -14,7 +14,9 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,6 +27,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -98,22 +101,34 @@ public class PingWorker extends Worker {
     }
 
     private ForegroundInfo createForegroundInfo(@NonNull String progress) {
+        // Create an Intent to launch the main activity
+        Intent launchIntent = new Intent(ct, MainActivity.class);
+        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-        PendingIntent intent = WorkManager.getInstance(ct)
-            .createCancelPendingIntent(getId());
+        // Add a Bundle to the Intent to indicate that the PingFragment should be opened
+        Bundle bundle = new Bundle();
+        bundle.putString("openFragment", "PingFragment");
+        launchIntent.putExtras(bundle);
+
+        // Create a PendingIntent with the Intent
+        PendingIntent pendingIntent = PendingIntent.getActivity(ct, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        PendingIntent cancelIntent = WorkManager.getInstance(ct)
+                .createCancelPendingIntent(getId());
+
         notification = notificationBuilder
-            .setContentTitle("Ping "+ parsedCommand.get("target"))
-            .setContentText(progress)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .setColor(Color.WHITE)
-            .setSmallIcon(R.mipmap.ic_launcher_foreground)
-            .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_DEFAULT)
-            .addAction(R.drawable.ic_close, "Cancel", intent)
-            .build();
+                .setContentTitle("Ping " + parsedCommand.get("target"))
+                .setContentText(progress)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setColor(Color.WHITE)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_DEFAULT)
+                .addAction(R.drawable.ic_close, "Cancel", cancelIntent)
+                .setContentIntent(pendingIntent) // Set the content intent
+                .build();
         return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE);
     }
-
 
     Runnable updateNotification = new Runnable() {
         @Override
