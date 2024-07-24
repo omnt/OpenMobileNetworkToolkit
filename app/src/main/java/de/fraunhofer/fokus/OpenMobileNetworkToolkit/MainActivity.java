@@ -294,6 +294,17 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }
 
+        // we can only request background after fine location. If that has failed on the first try we need to check again
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
+            } else {
+                Log.d(TAG, "Got ACCESS_BACKGROUND_LOCATION Permission");
+            }
+        }
+
+
         if (!permissions.isEmpty()) {
             String[] perms = permissions.toArray(new String[0]);
             ActivityCompat.requestPermissions(this, perms, 1337);
