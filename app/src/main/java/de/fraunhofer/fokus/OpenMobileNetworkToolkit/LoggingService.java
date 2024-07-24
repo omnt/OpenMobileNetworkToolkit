@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -205,6 +206,7 @@ public class LoggingService extends Service {
         gv = GlobalVars.getInstance();
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Start logging service");

@@ -487,6 +487,7 @@ public class HomeFragment extends Fragment {
             tl.addView(rowBuilder("RX Link Speed", String.valueOf(wi.getRxLinkSpeedMbps())));
             tl.addView(rowBuilder("Max Supported TX Speed", String.valueOf(wi.getMaxSupportedTxLinkSpeedMbps())));
             tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTxLinkSpeedMbps())));
+            tl.addView(rowBuilder("Standard", dp.getWifiStandardString(wi.getWifiStandard())));
         } else {
             tl.addView(rowBuilder("No WiFi information available", ""));
         }

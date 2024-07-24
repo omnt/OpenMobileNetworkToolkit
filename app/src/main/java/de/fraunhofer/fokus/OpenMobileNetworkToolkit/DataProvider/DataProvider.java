@@ -8,6 +8,14 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import static android.net.wifi.ScanResult.WIFI_STANDARD_11AC;
+import static android.net.wifi.ScanResult.WIFI_STANDARD_11AD;
+import static android.net.wifi.ScanResult.WIFI_STANDARD_11AX;
+import static android.net.wifi.ScanResult.WIFI_STANDARD_11BE;
+import static android.net.wifi.ScanResult.WIFI_STANDARD_11N;
+import static android.net.wifi.ScanResult.WIFI_STANDARD_LEGACY;
+import static android.net.wifi.ScanResult.WIFI_STANDARD_UNKNOWN;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -948,6 +956,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         point.addField("RX Link Speed", wi_.getRxLinkSpeedMbps());
         point.addField("Max Supported TX Speed", wi_.getMaxSupportedTxLinkSpeedMbps());
         point.addField("TX Link Speed", wi_.getTxLinkSpeedMbps());
+        point.addField("Standard", getWifiStandardString(wi_.getWifiStandard()));
         return point;
     }
 
@@ -1018,6 +1027,27 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             }
         } catch (Exception e) {
             Log.d("Network Callback: Exception in registerNetworkCallback", "Catch exception");
+        }
+    }
+
+    public String getWifiStandardString(int standard) {
+        switch (standard) {
+            case WIFI_STANDARD_UNKNOWN:
+                return "Unknown";
+            case WIFI_STANDARD_LEGACY:
+                return "Legacy";
+            case WIFI_STANDARD_11N:
+                return "11n";
+            case WIFI_STANDARD_11AC:
+                return "11AC";
+            case WIFI_STANDARD_11AX:
+                return "11AX";
+            case WIFI_STANDARD_11AD:
+                return "11AD";
+            case WIFI_STANDARD_11BE:
+                return "11BD";
+            default:
+                return "Unknown";
         }
     }
 
