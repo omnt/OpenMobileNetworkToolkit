@@ -130,21 +130,21 @@ public class PingFragment extends Fragment {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
                 Log.d(TAG, "onButtonChecked: "+checkedId);
-                if(isChecked){
-                    switch (checkedId){
-                        case R.id.ping_start:
-                            startPingService();
-                            v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
-                            v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
-                            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
-                            break;
-                        case R.id.ping_stop:
-                            v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                            v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
-                            stopPingService();
-                            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
-                            break;
-                    }
+                if(!isChecked) return;
+                switch (checkedId){
+                    case R.id.ping_start:
+                        startPingService();
+                        v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                        v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
+                        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
+
+                        break;
+                    case R.id.ping_stop:
+                        v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
+                        v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                        stopPingService();
+                        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                        break;
                 }
 
             }
@@ -185,4 +185,5 @@ public class PingFragment extends Fragment {
         //packetLossMetric.setVisibility(View.INVISIBLE);
         return v;
     }
+
 }
