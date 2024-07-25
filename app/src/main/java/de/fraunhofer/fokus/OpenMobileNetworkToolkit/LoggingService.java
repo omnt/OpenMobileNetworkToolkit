@@ -1,7 +1,7 @@
 /*
- *  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *  SPDX-FileCopyrightText: 2024 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2024 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2024 Fraunhofer FOKUS
  *
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
@@ -13,7 +13,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -75,7 +74,6 @@ public class LoggingService extends Service {
     private List<Point> logFilePoints;
     private FileOutputStream stream;
     private int interval;
-    private Context context;
     GlobalVars gv;
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
@@ -87,14 +85,14 @@ public class LoggingService extends Service {
                     try {
                         stream.write((point.toLineProtocol() + "\n").getBytes());
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.d(TAG,e.toString());
                     }
                 }
                 logFilePoints.clear();
                 try {
                     stream.flush();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.d(TAG,e.toString());
                 }
             }
             localFileHandler.postDelayed(this, interval);
@@ -102,6 +100,7 @@ public class LoggingService extends Service {
     };
     // Handle notification bar update
     private final Runnable notification_updater = new Runnable() {
+        @SuppressLint("ObsoleteSdkInt")
         @Override
         public void run() {
             if(dp == null) {
@@ -215,8 +214,7 @@ public class LoggingService extends Service {
         dp = gv.get_dp();
         pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
-        context = this;
-        spg = SharedPreferencesGrouper.getInstance(context);
+        spg = SharedPreferencesGrouper.getInstance(this);
         interval = Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000"));
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
         if (feature_telephony) {
@@ -301,6 +299,7 @@ public class LoggingService extends Service {
         return START_STICKY;
     }
 
+    @Override
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: Stop logging service");
@@ -324,6 +323,7 @@ public class LoggingService extends Service {
         long time = System.currentTimeMillis();
         Map<String, String> tags_map = dp.getTagsMap();
         ArrayList<Point> logPoints = new ArrayList<Point>();
+
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
             Point p = dp.getNetworkInformationPoint();
             if (p.hasFields()) {
@@ -357,8 +357,7 @@ public class LoggingService extends Service {
             }
         }
 
-        if
-        (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
+        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
             Point p = dp.getWifiInformationPoint();
             if (p.hasFields()) {
                 p.time(time, WritePrecision.MS);
@@ -381,6 +380,7 @@ public class LoggingService extends Service {
             }
             logPoints.addAll(ps);
         }
+
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_ip_address_data", false)) {
             List<Point> ps = dp.getNetworkInterfaceInformationPoints();
             for (Point p : ps) {
@@ -437,7 +437,8 @@ public class LoggingService extends Service {
             stream = new FileOutputStream(logfile);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
+;
         }
 
         localFileHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
@@ -453,7 +454,8 @@ public class LoggingService extends Service {
             } catch (java.lang.NullPointerException e) {
                 Log.d(TAG, "trying to stop local file service while it was not running");
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.d(TAG,e.toString());
+;
             }
         }
     }

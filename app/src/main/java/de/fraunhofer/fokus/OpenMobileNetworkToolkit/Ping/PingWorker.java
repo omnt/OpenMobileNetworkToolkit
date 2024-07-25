@@ -199,7 +199,8 @@ public class PingWorker extends Worker {
                 return Result.failure();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
+;
             System.out.printf(e.toString());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

@@ -65,7 +65,8 @@ public class Iperf3UploadWorker extends Worker {
         try {
             br = new BufferedReader(new FileReader(iperf3LineProtocolFile));
         } catch (FileNotFoundException | NullPointerException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
+;
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());

@@ -150,14 +150,16 @@ public class PingService extends Service {
                 try {
                     ping_stream.write((point.toLineProtocol() + "\n").getBytes());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.d(TAG,e.toString());
+;
                 }
 
                 if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
                     try {
                         influx.writePoints(List.of(point));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.d(TAG,e.toString());
+;
                     }
                 }
 
@@ -217,7 +219,8 @@ public class PingService extends Service {
                             try {
                                 ping_stream.close();
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                Log.d(TAG,e.toString());
+;
                             }
                             pingLogging.removeCallbacks(pingUpdate);
                             return;

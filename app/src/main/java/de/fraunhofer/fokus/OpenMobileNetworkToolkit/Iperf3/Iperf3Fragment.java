@@ -374,7 +374,8 @@ public class Iperf3Fragment extends Fragment {
         try {
             Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
         } catch (ErrnoException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
+;
         }
         return v;
     }
@@ -448,7 +449,8 @@ public class Iperf3Fragment extends Fragment {
                 }
             }
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
+;
         }*/
 
         uids.add(0, iperf3WorkerID);

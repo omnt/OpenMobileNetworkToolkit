@@ -238,7 +238,8 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             iperf3Stream = new FileOutputStream(iperf3LineProtocolFile, true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
+;
         }
 
         if(iperf3Stream == null){
