@@ -355,7 +355,7 @@ public class LoggingService extends Service {
         }
 
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
-            Point p = dp.getWifiInformationPoint();
+            Point p = dp.getWifiInformation().getWifiInformationPoint();
             if (p.hasFields()) {
                 p.time(time, WritePrecision.MS);
                 p.addTags(tags_map);
