@@ -14,7 +14,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
@@ -240,41 +239,39 @@ public class LoggingService extends Service {
         }
 
         // create preferences listener
-        spg.setListener( new SharedPreferences.OnSharedPreferenceChangeListener() {
-            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                if (Objects.equals(key, "enable_influx")) {
-                    if (prefs.getBoolean(key, false)) {
-                        if (prefs.getString("influx_URL", "").isEmpty() || prefs.getString("influx_org", "").isEmpty() || prefs.getString("influx_token", "").isEmpty() || prefs.getString("influx_bucket", "").isEmpty()) {
-                            Log.i(TAG, "Not all influx settings are present in preferences");
-                            Toast.makeText(getApplicationContext(), "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
-                            prefs.edit().putBoolean("enable_influx", false).apply();
-                        } else {
-                            setupRemoteInfluxDB();
-                        }
+        spg.setListener((prefs, key) -> {
+            if (Objects.equals(key, "enable_influx")) {
+                if (prefs.getBoolean(key, false)) {
+                    if (prefs.getString("influx_URL", "").isEmpty() || prefs.getString("influx_org", "").isEmpty() || prefs.getString("influx_token", "").isEmpty() || prefs.getString("influx_bucket", "").isEmpty()) {
+                        Log.i(TAG, "Not all influx settings are present in preferences");
+                        Toast.makeText(getApplicationContext(), "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
+                        prefs.edit().putBoolean("enable_influx", false).apply();
                     } else {
-                        stopRemoteInfluxDB();
+                        setupRemoteInfluxDB();
                     }
-                } else if (Objects.equals(key, "enable_notification_update")) {
-                    if (prefs.getBoolean(key, false)) {
-                        setupNotificationUpdate();
-                    } else {
-                        stopNotificationUpdate();
-                    }
-                } else if (Objects.equals(key, "enable_local_file_log")) {
-                    if (prefs.getBoolean(key, false)) {
-                        setupLocalFile();
-                    } else {
-                        stopLocalFile();
-                    }
-                } else if (Objects.equals(key, "enable_local_influx_log")) {
-                    if (prefs.getBoolean(key, false)) {
-                        setupLocalInfluxDB();
-                    } else {
-                        stopLocalInfluxDB();
-                    }
-                } else if (Objects.equals(key, "logging_interval")) {
-                    interval = Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000"));
+                } else {
+                    stopRemoteInfluxDB();
                 }
+            } else if (Objects.equals(key, "enable_notification_update")) {
+                if (prefs.getBoolean(key, false)) {
+                    setupNotificationUpdate();
+                } else {
+                    stopNotificationUpdate();
+                }
+            } else if (Objects.equals(key, "enable_local_file_log")) {
+                if (prefs.getBoolean(key, false)) {
+                    setupLocalFile();
+                } else {
+                    stopLocalFile();
+                }
+            } else if (Objects.equals(key, "enable_local_influx_log")) {
+                if (prefs.getBoolean(key, false)) {
+                    setupLocalInfluxDB();
+                } else {
+                    stopLocalInfluxDB();
+                }
+            } else if (Objects.equals(key, "logging_interval")) {
+                interval = Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000"));
             }
         }, SPType.logging_sp);
 
@@ -322,7 +319,7 @@ public class LoggingService extends Service {
     private ArrayList<Point> getPoints() {
         long time = System.currentTimeMillis();
         Map<String, String> tags_map = dp.getTagsMap();
-        ArrayList<Point> logPoints = new ArrayList<Point>();
+        ArrayList<Point> logPoints = new ArrayList<>();
 
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
             Point p = dp.getNetworkInformationPoint();
@@ -410,7 +407,7 @@ public class LoggingService extends Service {
 
     private void setupLocalFile() {
         Log.d(TAG, "setupLocalFile");
-        logFilePoints = new ArrayList<Point>();
+        logFilePoints = new ArrayList<>();
 
         // build log file path
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/log/";
@@ -427,7 +424,14 @@ public class LoggingService extends Service {
         Log.d(TAG, "logfile: " + filename);
         File logfile = new File(filename);
         try {
-            logfile.createNewFile();
+            boolean file_not_exists = logfile.createNewFile();
+            if (!file_not_exists) {
+                logfile = new File(filename + "_1");
+                file_not_exists = logfile.createNewFile();
+            }
+            if (!file_not_exists) {
+                Log.d(TAG, "can't create logfile " + logfile + " event after file rename");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
