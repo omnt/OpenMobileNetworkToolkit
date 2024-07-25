@@ -479,15 +479,15 @@ public class HomeFragment extends Fragment {
         if (wi != null) {
             tl.addView(rowBuilder("SSID", wi.getSsid()));
             tl.addView(rowBuilder("BSSID", wi.getBssid()));
-            tl.addView(rowBuilder("RSSI", String.valueOf(wi.getRssi())));
-            tl.addView(rowBuilder("Frequency", String.valueOf(wi.getFrequency())));
+            tl.addView(rowBuilder("RSSI", String.valueOf(wi.getRssi()) + " dBm"));
+            tl.addView(rowBuilder("Frequency", String.valueOf(wi.getFrequency()) + " MHz"));
             tl.addView(rowBuilder("Channel Width", wi.getChannelBandwithString()));
-            tl.addView(rowBuilder("Link Speed", String.valueOf(wi.getLink_speed())));
-            tl.addView(rowBuilder("TXLink Speed", String.valueOf(wi.getTx_link_speed())));
-            tl.addView(rowBuilder("Max Supported RX Speed", String.valueOf(wi.getMax_rx_link_speed())));
-            tl.addView(rowBuilder("RX Link Speed", String.valueOf(wi.getRx_link_speed())));
-            tl.addView(rowBuilder("Max Supported TX Speed", String.valueOf(wi.getMax_tx_link_speed())));
-            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTx_link_speed())));
+            tl.addView(rowBuilder("Link Speed", String.valueOf(wi.getLink_speed()) + " Mb"));
+            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("Max Supported RX Speed", String.valueOf(wi.getMax_rx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("RX Link Speed", String.valueOf(wi.getRx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("Max Supported TX Speed", String.valueOf(wi.getMax_tx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTx_link_speed()) + " Mb"));
             tl.addView(rowBuilder("Standard", wi.getStandardString()));
         } else {
             tl.addView(rowBuilder("No WiFi information available", ""));
