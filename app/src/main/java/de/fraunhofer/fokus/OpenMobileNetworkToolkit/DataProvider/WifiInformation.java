@@ -106,17 +106,17 @@ public class WifiInformation  {
     public String getChannelBandwidthStringFromInt(int channel_bandwidth) {
         switch (channel_bandwidth) {
             case CHANNEL_WIDTH_20MHZ:
-                return "20MHz";
+                return "20 MHz";
             case CHANNEL_WIDTH_40MHZ:
-                return "40MHz";
+                return "40 MHz";
             case CHANNEL_WIDTH_80MHZ:
-                return "80MHz";
+                return "80 MHz";
             case CHANNEL_WIDTH_160MHZ:
-                return "160Mhz";
+                return "160 MHz";
             case CHANNEL_WIDTH_80MHZ_PLUS_MHZ:
-                return "80MHz + 80MHz";
+                return "80 MHz + 80 MHz";
             case CHANNEL_WIDTH_320MHZ:
-                return "320MHz";
+                return "320 MHz";
             default:
                 return "N/A";
         }
