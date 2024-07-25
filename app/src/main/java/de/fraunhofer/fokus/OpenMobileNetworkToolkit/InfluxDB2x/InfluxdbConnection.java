@@ -85,7 +85,6 @@ public class InfluxdbConnection {
         } catch (com.influxdb.exceptions.InfluxException e) {
             Log.d(TAG, "connect: Can't connect to InfluxDB");
             Log.d(TAG,e.toString());
-;
         }
     }
 
@@ -104,7 +103,6 @@ public class InfluxdbConnection {
             } catch (com.influxdb.exceptions.InfluxException e) {
                 Log.d(TAG, "disconnect: Error while closing write API");
                 Log.d(TAG,e.toString());
-;
             }
             try {
                 Log.d(TAG, "disconnect: Closing influx connection");
@@ -113,7 +111,6 @@ public class InfluxdbConnection {
             } catch (com.influxdb.exceptions.InfluxException e) {
                 Log.d(TAG, "disconnect: Error while closing influx connection");
                 Log.d(TAG,e.toString());
-;
             }
         } else {
             Log.d(TAG, "disconnect() was called on not existing instance of the influx client");
@@ -130,7 +127,6 @@ public class InfluxdbConnection {
             } catch (com.influxdb.exceptions.InfluxException e) {
                 Log.d(TAG, "writePoint: Error while writing points to influx DB");
                 Log.d(TAG,e.toString());
-;
                 return false;
             }
             return true;
@@ -155,14 +151,13 @@ public class InfluxdbConnection {
                     } catch (com.influxdb.exceptions.InfluxException e) {
                         Log.d(TAG, "writeRecords: Error while writing points to influx DB");
                         Log.d(TAG,e.toString());
-;
                     }
                 } else {
                     Log.d(TAG, "writeRecords: InfluxDB not reachable: " + url);
                 }
             }
-            catch (Exception ex) {
-                ex.printStackTrace();
+            catch (Exception e) {
+                Log.d(TAG,e.toString());
             }
         }).start();
         return true;
@@ -183,14 +178,13 @@ public class InfluxdbConnection {
                     } catch (com.influxdb.exceptions.InfluxException e) {
                         Log.d(TAG, "writePoint: Error while writing points to influx DB");
                         Log.d(TAG,e.toString());
-;
                     }
                 } else {
                     Log.d(TAG, "writePoints: InfluxDB not reachable: " + url);
                 }
             }
-            catch (Exception ex) {
-                ex.printStackTrace();
+            catch (Exception e) {
+                Log.d(TAG,e.toString());
             }
         }).start();
         return true;
@@ -231,8 +225,8 @@ public class InfluxdbConnection {
                 if (influxDBClient.ping()) {
                     writeApi.flush();
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception e) {
+                Log.d(TAG,e.toString());
             }
         }).start();
         return true;

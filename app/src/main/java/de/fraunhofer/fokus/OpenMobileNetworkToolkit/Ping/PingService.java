@@ -20,13 +20,6 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.influxdb.client.write.Point;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -48,6 +41,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class PingService extends Service {
     private static final String TAG = "PingService";
@@ -151,7 +146,6 @@ public class PingService extends Service {
                     ping_stream.write((point.toLineProtocol() + "\n").getBytes());
                 } catch (IOException e) {
                     Log.d(TAG,e.toString());
-;
                 }
 
                 if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
@@ -159,7 +153,6 @@ public class PingService extends Service {
                         influx.writePoints(List.of(point));
                     } catch (IOException e) {
                         Log.d(TAG,e.toString());
-;
                     }
                 }
 
@@ -220,7 +213,6 @@ public class PingService extends Service {
                                 ping_stream.close();
                             } catch (IOException e) {
                                 Log.d(TAG,e.toString());
-;
                             }
                             pingLogging.removeCallbacks(pingUpdate);
                             return;

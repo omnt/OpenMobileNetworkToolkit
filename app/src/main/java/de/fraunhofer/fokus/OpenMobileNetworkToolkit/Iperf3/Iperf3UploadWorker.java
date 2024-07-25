@@ -9,11 +9,9 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -61,12 +59,11 @@ public class Iperf3UploadWorker extends Worker {
         if(!influx.ping()){
             return Result.failure(output);
         }
-        BufferedReader br = null;
+        BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(iperf3LineProtocolFile));
         } catch (FileNotFoundException | NullPointerException e) {
             Log.d(TAG,e.toString());
-;
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());

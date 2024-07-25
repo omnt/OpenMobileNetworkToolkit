@@ -375,7 +375,6 @@ public class Iperf3Fragment extends Fragment {
             Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
         } catch (ErrnoException e) {
             Log.d(TAG,e.toString());
-;
         }
         return v;
     }

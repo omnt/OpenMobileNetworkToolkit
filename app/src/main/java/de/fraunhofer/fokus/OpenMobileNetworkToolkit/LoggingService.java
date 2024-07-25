@@ -438,7 +438,6 @@ public class LoggingService extends Service {
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
             Log.d(TAG,e.toString());
-;
         }
 
         localFileHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
@@ -455,7 +454,6 @@ public class LoggingService extends Service {
                 Log.d(TAG, "trying to stop local file service while it was not running");
             } catch (IOException e) {
                 Log.d(TAG,e.toString());
-;
             }
         }
     }

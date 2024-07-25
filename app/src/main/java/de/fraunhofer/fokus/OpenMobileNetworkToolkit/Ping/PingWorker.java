@@ -27,12 +27,6 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -40,8 +34,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
 
 public class PingWorker extends Worker {
 
@@ -200,7 +200,6 @@ public class PingWorker extends Worker {
             }
         } catch (IOException e) {
             Log.d(TAG,e.toString());
-;
             System.out.printf(e.toString());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
