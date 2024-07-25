@@ -405,7 +405,7 @@ public class HomeFragment extends Fragment {
         List<CellInformation> cil = dp.getCellInformation();
         int cell = 1;
         for (CellInformation ci : cil) {
-            if (!spg.getSharedPreference(SPType.logging_sp).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
+            if (!spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
                 continue;
             }
 
