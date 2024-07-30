@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.Network;
-import android.net.wifi.WifiInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.CellInfo;
@@ -48,6 +47,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInterfaceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.SignalStrengthInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
@@ -405,7 +405,7 @@ public class HomeFragment extends Fragment {
         List<CellInformation> cil = dp.getCellInformation();
         int cell = 1;
         for (CellInformation ci : cil) {
-            if (!spg.getSharedPreference(SPType.logging_sp).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
+            if (!spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false) && ! ci.isRegistered()) {
                 continue;
             }
 
@@ -475,18 +475,20 @@ public class HomeFragment extends Fragment {
 
     private CardView get_wifi_card_view() {
         TableLayout tl = new TableLayout(context);
-        WifiInfo wi = dp.getWifiInfo();
+        WifiInformation wi = dp.getWifiInformation();
         if (wi != null) {
-            tl.addView(rowBuilder("SSID", wi.getSSID()));
-            tl.addView(rowBuilder("BSSID", wi.getBSSID()));
-            tl.addView(rowBuilder("RSSI", String.valueOf(wi.getRssi())));
-            tl.addView(rowBuilder("Frequency", String.valueOf(wi.getFrequency())));
-            tl.addView(rowBuilder("Link Speed", String.valueOf(wi.getLinkSpeed())));
-            tl.addView(rowBuilder("TXLink Speed", String.valueOf(wi.getTxLinkSpeedMbps())));
-            tl.addView(rowBuilder("Max Supported RX Speed", String.valueOf(wi.getMaxSupportedRxLinkSpeedMbps())));
-            tl.addView(rowBuilder("RX Link Speed", String.valueOf(wi.getRxLinkSpeedMbps())));
-            tl.addView(rowBuilder("Max Supported TX Speed", String.valueOf(wi.getMaxSupportedTxLinkSpeedMbps())));
-            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTxLinkSpeedMbps())));
+            tl.addView(rowBuilder("SSID", wi.getSsid()));
+            tl.addView(rowBuilder("BSSID", wi.getBssid()));
+            tl.addView(rowBuilder("RSSI", String.valueOf(wi.getRssi()) + " dBm"));
+            tl.addView(rowBuilder("Frequency", String.valueOf(wi.getFrequency()) + " MHz"));
+            tl.addView(rowBuilder("Channel Width", wi.getChannelBandwithString()));
+            tl.addView(rowBuilder("Link Speed", String.valueOf(wi.getLink_speed()) + " Mb"));
+            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("Max Supported RX Speed", String.valueOf(wi.getMax_rx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("RX Link Speed", String.valueOf(wi.getRx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("Max Supported TX Speed", String.valueOf(wi.getMax_tx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTx_link_speed()) + " Mb"));
+            tl.addView(rowBuilder("Standard", wi.getStandardString()));
         } else {
             tl.addView(rowBuilder("No WiFi information available", ""));
         }

@@ -1,10 +1,12 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.util.Log;
 import org.json.JSONObject;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.BuildConfig;
 
 public class BuildInformation {
+    private final String TAG = "BuildInformation";
 
     public String getBuildType() {
         return BuildConfig.BUILD_TYPE;
@@ -36,9 +38,8 @@ public class BuildInformation {
             json.put("ApplicationId", getApplicationId());
             json.put("Debug", isDebug());
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
         }
-
         return json;
     }
 }

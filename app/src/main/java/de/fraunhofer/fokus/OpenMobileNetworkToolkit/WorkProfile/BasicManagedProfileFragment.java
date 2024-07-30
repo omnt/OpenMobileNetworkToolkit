@@ -138,7 +138,7 @@ public class BasicManagedProfileFragment extends Fragment implements
             manager.addCrossProfileIntentFilter(BasicDeviceAdminReceiver.getComponentName(activity),
                 filter, FLAG_MANAGED_CAN_ACCESS_PARENT | FLAG_PARENT_CAN_ACCESS_MANAGED);
         } catch (IntentFilter.MalformedMimeTypeException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
         }
     }
 

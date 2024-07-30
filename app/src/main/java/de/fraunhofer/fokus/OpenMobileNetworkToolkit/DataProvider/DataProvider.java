@@ -23,7 +23,9 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.TrafficStats;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Looper;
@@ -97,9 +99,9 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     private NetworkInformation ni;// = new NetworkInformation();
     private List<NetworkInterfaceInformation> nii = new ArrayList<>();
     private ArrayList<SignalStrengthInformation> ssi = new ArrayList<>();
-    private WifiInfo wi = null;
+    private WifiInformation wi = null;
     private LocationManager lm;
-    private BuildInformation buildInformation = new BuildInformation();
+    private final BuildInformation buildInformation = new BuildInformation();
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
 
@@ -272,8 +274,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                     niil.add(nii);
                 }
             }
-        } catch (SocketException ex) {
-            ex.printStackTrace();
+        } catch (SocketException e) {
+            Log.d(TAG,e.toString());
         }
         nii = niil;
     }
@@ -307,8 +309,9 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                     }
                 }
             }
-        } catch (SocketException ex) {
-            ex.printStackTrace();
+        } catch (SocketException e) {
+            Log.d(TAG,e.toString());
+
         }
         return points;
     }
@@ -930,34 +933,19 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     }
 
     /**
-     * Return a influx point representation of the wifi information
-     *
-     * @return Influx Point
-     */
-    public Point getWifiInformationPoint() {
-        Point point = new Point("WifiInformation");
-        point.time(System.currentTimeMillis(), WritePrecision.MS);
-        WifiInfo wi_ = wi;
-        point.addField("SSID", wi_.getSSID());
-        point.addField("BSSID", wi_.getBSSID());
-        point.addField("RSSI", wi_.getRssi());
-        point.addField("Frequency", wi_.getFrequency());
-        point.addField("Link Speed", wi_.getLinkSpeed());
-        point.addField("TXLink Speed", wi_.getTxLinkSpeedMbps());
-        point.addField("Max Supported RX Speed", wi_.getMaxSupportedRxLinkSpeedMbps());
-        point.addField("RX Link Speed", wi_.getRxLinkSpeedMbps());
-        point.addField("Max Supported TX Speed", wi_.getMaxSupportedTxLinkSpeedMbps());
-        point.addField("TX Link Speed", wi_.getTxLinkSpeedMbps());
-        return point;
-    }
-
-    /**
      * Return wifi info if available
      *
      * @return Wifi info or null
      */
-    public WifiInfo getWifiInfo() {
+    @SuppressLint("MissingPermission")
+    public WifiInformation getWifiInformation() {
         if (wi != null) {
+            WifiManager wifiManager = (WifiManager) ct.getSystemService(Context.WIFI_SERVICE);
+            for (ScanResult r : wifiManager.getScanResults()) {
+                if (Objects.equals(r.BSSID, wi.getBssid())) {
+                    wi.setChannel_width(r.channelWidth);
+                }
+            }
             return wi;
         } else {
             return null;
@@ -993,7 +981,12 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                     public void onCapabilitiesChanged(@NonNull Network network, @NonNull
                     NetworkCapabilities networkCapabilities) {
                         super.onCapabilitiesChanged(network, networkCapabilities);
-                        wi = (WifiInfo) networkCapabilities.getTransportInfo();
+                        WifiInfo wifiInfo = (WifiInfo) networkCapabilities.getTransportInfo();
+                        if (wifiInfo != null) {
+                            wi = new WifiInformation(wifiInfo);
+                        } else {
+                            wi = null;
+                        }
                     }
 
                     @Override
@@ -1020,6 +1013,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             Log.d("Network Callback: Exception in registerNetworkCallback", "Catch exception");
         }
     }
+
 
     /**
      * Filter values before adding them as we don't need to log not available information

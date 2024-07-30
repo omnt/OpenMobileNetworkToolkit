@@ -59,11 +59,11 @@ public class Iperf3UploadWorker extends Worker {
         if(!influx.ping()){
             return Result.failure(output);
         }
-        BufferedReader br = null;
+        BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(iperf3LineProtocolFile));
         } catch (FileNotFoundException | NullPointerException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());
