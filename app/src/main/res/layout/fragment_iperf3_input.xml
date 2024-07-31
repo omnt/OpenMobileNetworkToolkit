@@ -7,78 +7,104 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 
-<LinearLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/iperf3_bottom_sheet_linearlayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/iperf3_title"
-        android:textAlignment="center"
-        android:textSize="16sp"/>
-
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:dividerInsetStart="16dp"
-        app:dividerInsetEnd="16dp"/>
-
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.5"
-        android:orientation="vertical"
-        android:padding="2dp"
-        tools:context=".Iperf3.Fragments.Iperf3Fragment">
-        <ScrollView
-             android:layout_height="match_parent"
-            android:layout_width="match_parent">
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/iperf3_viewpager"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/iperf3_title"
+            android:textAlignment="center"
+            android:textSize="16sp"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:orientation="vertical"
+            android:padding="2dp"
+            tools:context=".Iperf3.Fragments.Iperf3Fragment">
+
+            <ScrollView
+                android:layout_height="match_parent"
+                android:layout_width="match_parent">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/iperf3_viewpager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </ScrollView>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/standard_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="50dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        style="@style/BottomSheetStyle">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+                android:id="@+id/drag_handle"
+                android:layout_marginTop="48dp"
+                android:tint="@color/purple_200"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="48dp"/>
+            <LinearLayout
+                android:id="@+id/iperf3_plan"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_weight="0.95"
+                android:orientation="vertical">
 
-        </ScrollView>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_weight="0.05"
+                android:id="@+id/iperf3_buttons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/iperf3_send"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/execute_iperf_command"
+                    android:layout_margin="5dp"/>
 
-
-    <com.google.android.material.divider.MaterialDivider
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:dividerInsetStart="16dp"
-        app:dividerInsetEnd="16dp"/>
-    <LinearLayout
-        android:id="@+id/iperf3_buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iperf3_send"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/execute_iperf_command"
-            android:layout_margin="5dp"/>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/iperf3_instances_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/iperf3_instances"
-            android:layout_margin="5dp"/>
-    </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/iperf3_instances_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/iperf3_instances"
+                    android:layout_margin="5dp"/>
+            </LinearLayout>
+        </LinearLayout>
 
 
-</LinearLayout>
+
+
+    </FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

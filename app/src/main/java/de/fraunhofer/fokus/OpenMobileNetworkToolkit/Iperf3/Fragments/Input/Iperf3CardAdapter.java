@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input;
 
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -7,7 +8,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import com.google.android.material.textview.MaterialTextView;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Iperf3CardAdapter extends FragmentStateAdapter {
 
