@@ -1,55 +1,75 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.content.Context;
+import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.DragEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.GridLayout;
 
+import androidx.cardview.widget.CardView;
+
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+
+
+
 
 public class DraggableGridLayout extends GridLayout {
-
+    public interface OnViewSwapListener {
+        boolean onViewSwapped(View view1, View view2);
+    }
     private View draggedView;
-
+    private OnViewSwapListener onViewSwapListener;
+    private Context context;
     public DraggableGridLayout(Context context) {
         super(context);
-        init();
+        init(context);
+        this.context = context;
+        this.setUseDefaultMargins(true);
+        this.setBackgroundColor(0x00000000);
     }
 
     public DraggableGridLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+        init(context);
     }
 
     public DraggableGridLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+        init(context);
     }
-
-    private void init() {
-        setColumnCount(4); // Set default column count, can be adjusted
-        setRowCount(4); // Set default row count, can be adjusted
+    public void setOnViewSwapListener(OnViewSwapListener listener) {
+        this.onViewSwapListener = listener;
+    }
+    private void init(Context context) {
+        setColumnCount(10); // Set default column count, can be adjusted
+        setRowCount(10); // Set default row count, can be adjusted
         setOnDragListener(new DragListener());
     }
 
-    public void setViews(HashMap<Integer, List<View>> viewsMap) {
+    public void setViews(HashMap<Integer, ArrayList<View>> viewsMap) {
         removeAllViews();
-        for (HashMap.Entry<Integer, List<View>> entry : viewsMap.entrySet()) {
+        for (HashMap.Entry<Integer, ArrayList<View>> entry : viewsMap.entrySet()) {
             Integer column = entry.getKey();
-            List<View> views = entry.getValue();
+            ArrayList<View> views = entry.getValue();
             if (views == null) continue;
-
+            int i  = 0;
             for (View view : views) {
-                if (view == null) continue;
-
-                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.columnSpec = GridLayout.spec(column);
-                params.rowSpec = GridLayout.spec(0); // Default to row 0
+                if (view == null){
+                    i++;
+                    continue;
+                }
+                LayoutParams params = new LayoutParams();
+                params.setMargins(2, 2, 2, 2);
+                params.columnSpec = GridLayout.spec(column, 1f); // Set column spec to fill space
+                params.rowSpec = GridLayout.spec(i, 1f); // Set row spec to fill space
                 view.setLayoutParams(params);
                 view.setOnLongClickListener(new LongClickListener());
+
                 addView(view);
+                i++;
             }
         }
     }
@@ -58,7 +78,6 @@ public class DraggableGridLayout extends GridLayout {
         @Override
         public boolean onLongClick(View v) {
             draggedView = v;
-            GridLayout.LayoutParams params = (GridLayout.LayoutParams) v.getLayoutParams();
             DragShadowBuilder shadowBuilder = new DragShadowBuilder(v);
             v.startDragAndDrop(null, shadowBuilder, v, 0);
             return true;
@@ -104,11 +123,22 @@ public class DraggableGridLayout extends GridLayout {
         }
 
         private void swapViews(View view1, View view2) {
-            GridLayout.LayoutParams params1 = (GridLayout.LayoutParams) view1.getLayoutParams();
-            GridLayout.LayoutParams params2 = (GridLayout.LayoutParams) view2.getLayoutParams();
+            if (onViewSwapListener == null) return;
 
-            view1.setLayoutParams(params2);
-            view2.setLayoutParams(params1);
+            boolean isValid = onViewSwapListener.onViewSwapped(view1, view2);
+            if (!isValid) return;
+
+            //if(view1 == null || view2 == null) return;
+            //if(view1.getTag().equals("placeholder") && view2.getTag().equals("placeholder")) return;
+            //if(view1.getTag().equals("placeholder")) return;
+
+            //LayoutParams params1 = (LayoutParams) view1.getLayoutParams();
+            //LayoutParams params2 = (LayoutParams) view2.getLayoutParams();
+
+            //view1.setLayoutParams(params2);
+            //view2.setLayoutParams(params1);
+
+
         }
     }
 }

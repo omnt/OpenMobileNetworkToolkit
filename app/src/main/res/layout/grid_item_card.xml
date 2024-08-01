@@ -4,6 +4,7 @@
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:layout_margin="5dp"
+    android:tag="@string/valueCard"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
@@ -15,6 +16,7 @@
         android:textColor="@color/purple_200"
         android:fontFamily="sans-serif-medium"
         android:padding="8dp"
+        android:tag="@string/valueCard"
         android:gravity="center"/>
 
     <!-- Add content to the card view if needed -->

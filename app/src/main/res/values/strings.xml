@@ -158,6 +158,7 @@
     <string name="clear_preferences_message">Do you want to clear all Configuartions?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="valueCard">valueCardView</string>
 
     <!-- -->
 
