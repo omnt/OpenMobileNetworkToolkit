@@ -49,27 +49,18 @@ public class DraggableGridLayout extends GridLayout {
         setOnDragListener(new DragListener());
     }
 
-    public void setViews(HashMap<Integer, ArrayList<View>> viewsMap) {
+    public void setViews(View[][] views) {
         removeAllViews();
-        for (HashMap.Entry<Integer, ArrayList<View>> entry : viewsMap.entrySet()) {
-            Integer column = entry.getKey();
-            ArrayList<View> views = entry.getValue();
-            if (views == null) continue;
-            int i  = 0;
-            for (View view : views) {
-                if (view == null){
-                    i++;
-                    continue;
-                }
+        for(int i = 0; i < views.length; i++) {
+            for(int j = 0; j < views[i].length; j++) {
+                if(views[i][j] == null) continue;
                 LayoutParams params = new LayoutParams();
                 params.setMargins(2, 2, 2, 2);
-                params.columnSpec = GridLayout.spec(column, 1f); // Set column spec to fill space
-                params.rowSpec = GridLayout.spec(i, 1f); // Set row spec to fill space
-                view.setLayoutParams(params);
-                view.setOnLongClickListener(new LongClickListener());
-
-                addView(view);
-                i++;
+                params.columnSpec = GridLayout.spec(i, 1f); // Set column spec to fill space
+                params.rowSpec = GridLayout.spec(j, 1f); // Set row spec to fill space
+                views[i][j].setLayoutParams(params);
+                views[i][j].setOnLongClickListener(new LongClickListener());
+                addView(views[i][j]);
             }
         }
     }
