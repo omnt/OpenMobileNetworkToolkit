@@ -31,7 +31,7 @@ public class ViewsMapManager implements DraggableGridLayout.OnViewSwapListener {
     public void update() {
         viewsManager.filterAndRemovePlaceholderColumns();
         viewsManager.addPlaceholderBorder();
-        this.draggableGridLayout.setViews(viewsManager.getViewsMap());
+        this.draggableGridLayout.setViews(viewsManager);
     }
 
     private Pair<Integer, Integer> findViewPos(View view) {

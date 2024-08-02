@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3CardFragment extends Fragment {
@@ -23,6 +24,7 @@ public class Iperf3CardFragment extends Fragment {
     private ProgressBar progressBar;
     private LinearLayout header;
     private Button removeButton;
+    private Iperf3Input iperf3Input = new Iperf3Input();
 
     public static Iperf3CardFragment newInstance(int position) {
         Iperf3CardFragment fragment = new Iperf3CardFragment();
@@ -32,11 +34,14 @@ public class Iperf3CardFragment extends Fragment {
         return fragment;
     }
 
+    public Iperf3Input getIperf3Input() {
+        return iperf3Input;
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_iperf3_card, container, false);
-
         // Initialize the TextView
         pageNumberTextView = view.findViewById(R.id.page_number_text_view);
         progressBar = view.findViewById(R.id.iperf3_progress);

@@ -49,10 +49,13 @@ public class DraggableGridLayout extends GridLayout {
         setOnDragListener(new DragListener());
     }
 
-    public void setViews(View[][] views) {
+    public void setViews(ViewsManager viewsManager) {
+        View[][] views = viewsManager.getViewsMap();
         removeAllViews();
-        for(int i = 0; i < views.length; i++) {
-            for(int j = 0; j < views[i].length; j++) {
+        setColumnCount(viewsManager.lastFilledNonNullColumn()+1);
+        setRowCount(viewsManager.lastFilledMaxNonNullRow()+1);
+        for(int i = 0; i < getColumnCount(); i++) {
+            for(int j = 0; j < getRowCount(); j++) {
                 if(views[i][j] == null) continue;
                 LayoutParams params = new LayoutParams();
                 params.setMargins(2, 2, 2, 2);

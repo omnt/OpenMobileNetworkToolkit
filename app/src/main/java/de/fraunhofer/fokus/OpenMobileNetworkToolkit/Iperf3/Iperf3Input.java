@@ -5,6 +5,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
+
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -88,10 +90,26 @@ public class Iperf3Input {
         mainLL.addView(parameterValue);
         return mainLL;
     }
+
+    public CardView getInputAsCardView(Context ct){
+        CardView cardView = new CardView(ct);
+        cardView.setRadius(10);
+        cardView.setCardElevation(10);
+        cardView.setContentPadding(10, 10, 10, 10);
+        cardView.setLayoutParams(new CardView.LayoutParams(
+                CardView.LayoutParams.MATCH_PARENT,
+                CardView.LayoutParams.MATCH_PARENT
+        ));
+        cardView.setTag("valueholder");
+        LinearLayout mainLL = new LinearLayout(ct);
+        cardView.addView(getInputAsLinearLayoutKeyValue(mainLL, ct));
+        return cardView;
+    }
+
     public LinearLayout getInputAsLinearLayoutKeyValue(LinearLayout mainLL, Context ct){
         mainLL.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutParams.weight = 8F;
         mainLL.setLayoutParams(layoutParams);

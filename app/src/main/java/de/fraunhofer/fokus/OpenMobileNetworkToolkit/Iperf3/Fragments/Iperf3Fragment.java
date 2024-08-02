@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +22,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input.Iperf3CardAdapter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input.Iperf3CardFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.ViewsMapManager;
 
@@ -37,22 +40,23 @@ public class Iperf3Fragment extends Fragment implements Iperf3CardAdapter.Callba
     private LinearLayout linearLayout;
     private Iperf3CardAdapter adapter;
     private ViewsMapManager viewsMapManager;
+    private HorizontalScrollView scrollView;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup parent, @Nullable Bundle savedInstanceState) {
         ct = requireContext();
         v = inflater.inflate(R.layout.fragment_iperf3_input, parent, false);
         viewPager = v.findViewById(R.id.iperf3_viewpager);
-        linearLayout = v.findViewById(R.id.iperf3_plan);
+        //linearLayout = v.findViewById(R.id.iperf3_plan);
         viewsMapManager = new ViewsMapManager(ct);
         adapter = new Iperf3CardAdapter(getActivity(), this);
-        linearLayout.addView(viewsMapManager.getDraggableGridLayout());
+        scrollView = v.findViewById(R.id.iperf3_scrollview);
+        scrollView.addView(viewsMapManager.getDraggableGridLayout());
         viewPager.setAdapter(adapter);
         sendBtn = v.findViewById(R.id.iperf3_send);
         bottomSheet = v.findViewById(R.id.iperf3_bottom_sheet_linearlayout);
         frameLayout = v.findViewById(R.id.standard_bottom_sheet);
         buttonLinearLayout = v.findViewById(R.id.iperf3_buttons);
-
         buttonLinearLayout.setVisibility(View.GONE);
         bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
 
@@ -84,15 +88,9 @@ public class Iperf3Fragment extends Fragment implements Iperf3CardAdapter.Callba
     }
 
     @Override
-    public void onAddFragment() {
-        View v = getLayoutInflater().inflate(R.layout.grid_item_card, null);
-        CardView cardView = v.findViewById(R.id.card_view);
-        TextView textView = v.findViewById(R.id.iperf3_desc);
-        if(adapter == null) {
-            textView.setText("Card "+1);
-        } else {
-            textView.setText("Card "+(adapter.getItemCount()-1));
-        }
+    public void onAddFragment(Iperf3CardFragment fragment) {
+
+        CardView cardView = fragment.getIperf3Input().getInputAsCardView(ct);
         viewsMapManager.addNewView(cardView);
     }
 

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Iperf3CardAdapter extends FragmentStateAdapter {
     public interface Callback {
-        void onAddFragment();
+        void onAddFragment(Iperf3CardFragment fragment);
     }
 
     private Callback callback;
@@ -24,11 +24,11 @@ public class Iperf3CardAdapter extends FragmentStateAdapter {
 
     }
 
-    public void addFragment(Fragment fragment) {
+    public void addFragment(Iperf3CardFragment fragment) {
         fragmentList.add(fragmentList.size() - 1, fragment);
         notifyItemInserted(fragmentList.size() - 2);
         if (callback != null) {
-            callback.onAddFragment();
+            callback.onAddFragment(fragment);
         }
     }
 
