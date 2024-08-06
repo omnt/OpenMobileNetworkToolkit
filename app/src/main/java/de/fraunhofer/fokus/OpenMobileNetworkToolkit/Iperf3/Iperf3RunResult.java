@@ -33,9 +33,9 @@ public class Iperf3RunResult {
 
     @ColumnInfo(name = "input")
     @TypeConverters({Iperf3InputConverter.class})
-    public Iperf3Fragment.Iperf3Input input;
+    public Iperf3Input input;
 
-    public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Fragment.Iperf3Input input,
+    public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Input input,
                            Timestamp timestamp) {
         this.uid = uid;
         this.result = result;

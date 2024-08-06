@@ -22,7 +22,7 @@ public class Iperf3Parser {
     private PropertyChangeSupport support;
     private Start start;
     private final Intervals intervals = new Intervals();
-    Iperf3Parser(String pathToFile) {
+    public Iperf3Parser(String pathToFile) {
         this.pathToFile = pathToFile;
         this.file = new File(this.pathToFile);
         try {

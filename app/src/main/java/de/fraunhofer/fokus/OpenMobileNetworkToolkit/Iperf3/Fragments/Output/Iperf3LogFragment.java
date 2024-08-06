@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Output;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -29,6 +29,10 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Utils;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
@@ -97,13 +101,13 @@ public class Iperf3LogFragment extends Fragment {
             try {
                 br = new BufferedReader(new FileReader(file));
             } catch (FileNotFoundException e) {
-                iperf3OutputViewer.setText(String.format("no iPerf3 file found, with following path: \n %s", iperf3RunResult.input.iperf3rawIperf3file));
+                iperf3OutputViewer.setText(String.format("no iPerf3 file found, with following path: \n %s", iperf3RunResult.input.getRawFile()));
                 logHandler.removeCallbacks(logUpdate);
                 return;
             }
             String line;
 
-            Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3RunResult.input.iperf3rawIperf3file);
+            Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3RunResult.input.getRawFile());
             iperf3Parser.addPropertyChangeListener(new PropertyChangeListener() {
 
                 private void parseSum(Sum sum, Metric throughput){
@@ -215,11 +219,11 @@ public class Iperf3LogFragment extends Fragment {
         uploadIconView.setLayoutParams(uploadIconViewLayout);
 
 
-        parameterLL = iperf3RunResult.input.getInputAsLinearLayoutKeyValue(new LinearLayout(ct), ct);
+        iperf3RunResult.input.getInputAsLinearLayoutKeyValue();
 
 
 
-        firstRow.addView(parameterLL);
+        firstRow.addView(iperf3RunResult.input.getMain());
 
 
 
@@ -313,28 +317,28 @@ public class Iperf3LogFragment extends Fragment {
 
         metricLL.addView(defaultThroughput.createMainLL("Throughput"));
 
-        if(iperf3RunResult.input.iperf3BiDir) {
+        if(iperf3RunResult.input.isBidir()) {
             metricLL.addView(defaultReverseThroughput.createMainLL("Throughput"));
-            if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
+            if(iperf3RunResult.input.getIdxProtocol() == 0) {
                 //defaultRTT = new Metric(METRIC_TYPE.RTT);
                 //metricLL.addView(defaultRTT.createOneDirection("RTT"));
             }
-            if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
+            if(iperf3RunResult.input.getIdxProtocol() == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
                 metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
             }
         }
-        if(iperf3RunResult.input.iperf3Reverse) {
-            if(iperf3RunResult.input.iperf3IdxProtocol == 1) {
+        if(iperf3RunResult.input.isReverse()) {
+            if(iperf3RunResult.input.getIdxProtocol() == 1) {
                 defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
                 PACKET_LOSS = new Metric(METRIC_TYPE.JITTER, ct);
                 metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
             }
-        } else if(!iperf3RunResult.input.iperf3BiDir) {
-            if(iperf3RunResult.input.iperf3IdxProtocol == 0) {
+        } else if(!iperf3RunResult.input.isBidir()) {
+            if(iperf3RunResult.input.getIdxProtocol() == 0) {
                 //defaultRTT = new Metric(METRIC_TYPE.RTT);
                 //metricLL.addView(defaultRTT.createOneDirection("RTT ms"));
             }
@@ -346,11 +350,11 @@ public class Iperf3LogFragment extends Fragment {
 
 
         mainLL.addView(secondRow);
-        if(iperf3RunResult.input.iperf3rawIperf3file == null){
+        if(iperf3RunResult.input.getRawFile() == null){
             iperf3OutputViewer.setText("iPerf3 file path empty!");
             return v;
         }
-        file = new File(iperf3RunResult.input.iperf3rawIperf3file);
+        file = new File(iperf3RunResult.input.getRawFile());
 
 
         logHandler = new Handler(Looper.myLooper());

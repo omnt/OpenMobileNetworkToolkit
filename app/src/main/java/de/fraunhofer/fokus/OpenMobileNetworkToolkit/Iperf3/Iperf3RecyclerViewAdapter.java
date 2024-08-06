@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -38,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Output.Iperf3LogFragment;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -83,7 +84,7 @@ public class Iperf3RecyclerViewAdapter
                     Iperf3RunResult runResult = iperf3RunResultDao.getRunResult(uid);
 
                     Data.Builder data = new Data.Builder();
-                    data.putString("iperf3LineProtocolFile", runResult.input.iperf3LineProtocolFile);
+                    data.putString("iperf3LineProtocolFile", runResult.input.getLineProtocolFile());
                     OneTimeWorkRequest iperf3UP =
                         new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class)
                             .setInputData(data.build())
@@ -149,7 +150,7 @@ public class Iperf3RecyclerViewAdapter
 
         }
         holder.measurement.setText("iPerf3");
-        holder.timestamp.setText(test.input.timestamp.toString());
+        holder.timestamp.setText(test.input.getTimestamp().toString());
 
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
