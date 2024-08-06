@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
+
     <LinearLayout
         android:id="@+id/iperf3_header"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
             android:id="@+id/page_number_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="20"
+            android:layout_weight="1"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="2dp"
             android:layout_margin="1dp"
@@ -33,9 +33,6 @@
             android:layout_marginStart="2dp"/>
     </LinearLayout>
 
-
-    <!-- Progress Indicator -->
-
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/iperf3_progress"
         android:layout_width="match_parent"
@@ -46,7 +43,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/input_card"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="2"
         app:cardElevation="2dp"
         app:cardCornerRadius="4dp"
@@ -58,12 +55,11 @@
             android:orientation="vertical"
             android:padding="8dp">
 
-            <!-- IP Address Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_ip_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 app:hintEnabled="true"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/forestgreen">
@@ -74,11 +70,10 @@
                     android:layout_height="wrap_content"
                     android:inputType="textUri"
                     android:hint="IP Address"
-                    android:textSize="12sp"
-                    android:padding="8dp"/>
+                    android:textSize="18sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Port Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_port_layout"
                 android:layout_width="match_parent"
@@ -94,16 +89,15 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:hint="Port"
-                    android:textSize="12sp"
-                    android:padding="8dp"/>
+                    android:textSize="18sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Bandwidth Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_bandwidth_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 app:hintEnabled="true"
                 app:boxBackgroundMode="outline"
                 app:suffixText="MB"
@@ -113,18 +107,17 @@
                     android:id="@+id/iperf3_bandwidth"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Bandwidth"
                     android:inputType="number"
-                    android:textSize="12sp"
-                    android:padding="8dp"/>
+                    android:hint="Bandwidth"
+                    android:textSize="18sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Duration Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_duration_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 app:hintEnabled="true"
                 app:boxBackgroundMode="outline"
                 app:suffixText="s"
@@ -136,16 +129,16 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:hint="Duration"
-                    android:textSize="12sp"
-                    android:padding="8dp"/>
+                    android:textSize="18sp"
+                    android:autoSizeMinTextSize="3sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Interval Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_interval_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 app:hintEnabled="true"
                 app:suffixText="s"
                 app:boxBackgroundMode="outline"
@@ -157,16 +150,16 @@
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
                     android:hint="Interval"
-                    android:textSize="12sp"
-                    android:padding="8dp"/>
+                    android:textSize="18sp"
+                    android:autoSizeMinTextSize="3sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Bytes Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_bytes_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 app:hintEnabled="true"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/forestgreen">
@@ -177,16 +170,16 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:hint="Bytes"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    android:textSize="18sp"
+                    android:autoSizeMinTextSize="3sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Streams Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_streams_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 app:hintEnabled="true"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/forestgreen">
@@ -197,16 +190,16 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:hint="Streams"
-                    android:textSize="12sp"
-                    android:padding="8dp"/>
+                    android:textSize="18sp"
+                    android:autoSizeMinTextSize="3sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Client Port Field -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/iperf3_cport_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
+                android:layout_marginBottom="2dp"
                 app:hintEnabled="true"
                 app:boxBackgroundMode="outline"
                 app:boxStrokeColor="@color/forestgreen">
@@ -217,8 +210,9 @@
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:hint="Client Port"
-                    android:textSize="12sp"
-                    android:padding="8dp"/>
+                    android:textSize="18sp"
+                    android:autoSizeMinTextSize="3sp"
+                    android:padding="2dp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
@@ -226,17 +220,18 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
         android:padding="4dp">
 
-        <!-- Mode Toggle Group -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/iperf3_mode_toggle_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:singleSelection="true"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
             android:layout_marginBottom="12dp">
 
             <com.google.android.material.button.MaterialButton
@@ -257,12 +252,13 @@
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <!-- Protocol Toggle Group -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/iperf3_protocol_toggle_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:singleSelection="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
             android:layout_marginBottom="12dp">
 
             <com.google.android.material.button.MaterialButton
@@ -283,12 +279,13 @@
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
-        <!-- Direction Toggle Group -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/iperf3_direction_toggle_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:singleSelection="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
             android:layout_marginBottom="12dp">
 
             <com.google.android.material.button.MaterialButton

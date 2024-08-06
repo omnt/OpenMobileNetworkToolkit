@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +22,12 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
+import java.util.HashMap;
+import java.util.zip.Inflater;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input.Iperf3CardAdapter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input.Iperf3CardFragment;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.ViewsMapManager;
 
@@ -68,6 +73,13 @@ public class Iperf3Fragment extends Fragment implements Iperf3CardAdapter.Callba
                 switch (newState) {
                     case BottomSheetBehavior.STATE_EXPANDED:
                         buttonLinearLayout.setVisibility(View.VISIBLE);
+                        for(Iperf3CardFragment fragment : adapter.getFragments()) {
+                            View cardView = fragment.getOverView();
+                            if(cardView == null) continue;
+                            Pair<Integer, Integer> pos = viewsMapManager.getViewsManager().findViewPos(cardView);
+                            if(pos == null) viewsMapManager.addNewView(fragment.getIperf3Input(), cardView);
+                            fragment.getIperf3Input().update();
+                        }
                         viewsMapManager.update();
                         break;
                     case BottomSheetBehavior.STATE_COLLAPSED:
@@ -89,9 +101,7 @@ public class Iperf3Fragment extends Fragment implements Iperf3CardAdapter.Callba
 
     @Override
     public void onAddFragment(Iperf3CardFragment fragment) {
-
-        CardView cardView = fragment.getIperf3Input().getInputAsCardView(ct);
-        viewsMapManager.addNewView(cardView);
+        viewsMapManager.addNewView(fragment.getIperf3Input(), fragment.getOverView());
     }
 
     @Override

@@ -4,9 +4,14 @@ import android.content.Context;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.view.DragEvent;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.LinearLayout;
 
 import androidx.cardview.widget.CardView;
 
@@ -28,6 +33,7 @@ public class DraggableGridLayout extends GridLayout {
         init(context);
         this.context = context;
         this.setUseDefaultMargins(true);
+        this.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         this.setBackgroundColor(0x00000000);
     }
 
@@ -49,6 +55,13 @@ public class DraggableGridLayout extends GridLayout {
         setOnDragListener(new DragListener());
     }
 
+    private void resize(View view, float scaleX, float scaleY) {
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        layoutParams.width = (int) (view.getWidth() * scaleX);
+        layoutParams.height = (int) (view.getHeight() * scaleY);
+        view.setLayoutParams(layoutParams);
+    }
+
     public void setViews(ViewsManager viewsManager) {
         View[][] views = viewsManager.getViewsMap();
         removeAllViews();
@@ -58,10 +71,13 @@ public class DraggableGridLayout extends GridLayout {
             for(int j = 0; j < getRowCount(); j++) {
                 if(views[i][j] == null) continue;
                 LayoutParams params = new LayoutParams();
-                params.setMargins(2, 2, 2, 2);
-                params.columnSpec = GridLayout.spec(i, 1f); // Set column spec to fill space
-                params.rowSpec = GridLayout.spec(j, 1f); // Set row spec to fill space
+                params.width = 800;
+                params.height = 800;
+                params.columnSpec = GridLayout.spec(i, 1f);
+                params.rowSpec = GridLayout.spec(j, 1f);
+                params.setGravity(Gravity.FILL);
                 views[i][j].setLayoutParams(params);
+                views[i][j].setPadding(10, 10, 10, 10);
                 views[i][j].setOnLongClickListener(new LongClickListener());
                 addView(views[i][j]);
             }

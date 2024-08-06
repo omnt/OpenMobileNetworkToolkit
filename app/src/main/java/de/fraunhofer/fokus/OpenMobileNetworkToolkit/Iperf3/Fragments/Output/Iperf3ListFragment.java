@@ -98,21 +98,21 @@ public class Iperf3ListFragment extends Fragment {
 
                 Data.Builder iperf3Data = new Data.Builder();
 
-                iperf3Data.putString("rawIperf3file", runResult.input.iperf3rawIperf3file);
-                iperf3Data.putString("iperf3LineProtocolFile", runResult.input.iperf3LineProtocolFile);
-                iperf3Data.putString("measurementName", runResult.input.measurementName);
-                iperf3Data.putString("ip", runResult.input.iperf3IP);
-                iperf3Data.putString("port", runResult.input.iperf3Port);
-                iperf3Data.putString("bandwidth", runResult.input.iperf3Bandwidth);
-                iperf3Data.putString("duration", runResult.input.iperf3Duration);
-                iperf3Data.putString("interval", runResult.input.iperf3Interval);
-                iperf3Data.putString("bytes", runResult.input.iperf3Bytes);
-                iperf3Data.putString("protocol", Iperf3Utils.getProtocolString(runResult.input.iperf3IdxProtocol));
-                iperf3Data.putBoolean("rev", runResult.input.iperf3Reverse);
-                iperf3Data.putBoolean("biDir", runResult.input.iperf3BiDir);
-                iperf3Data.putBoolean("oneOff", runResult.input.iperf3OneOff);
-                iperf3Data.putString("client", Iperf3Utils.getModeString(runResult.input.iperf3IdxMode));
-                iperf3Data.putString("timestamp", runResult.input.timestamp.toString());
+                iperf3Data.putString("rawIperf3file", runResult.input.getRawFile());
+                iperf3Data.putString("iperf3LineProtocolFile", runResult.input.getLineProtocolFile());
+                iperf3Data.putString("measurementName", runResult.input.getMeasurementName());
+                iperf3Data.putString("ip", runResult.input.getIp());
+                iperf3Data.putString("port", runResult.input.getPort());
+                iperf3Data.putString("bandwidth", runResult.input.getBandwidth());
+                iperf3Data.putString("duration", runResult.input.getDuration());
+                iperf3Data.putString("interval", runResult.input.getInterval());
+                iperf3Data.putString("bytes", runResult.input.getBytes());
+                iperf3Data.putString("protocol", Iperf3Utils.getProtocolString(runResult.input.getIdxProtocol()));
+                iperf3Data.putBoolean("rev", runResult.input.isReverse());
+                iperf3Data.putBoolean("biDir", runResult.input.isBidir());
+                iperf3Data.putBoolean("oneOff", runResult.input.isOneOff());
+                iperf3Data.putString("client", Iperf3Utils.getModeString(runResult.input.getIdxMode()));
+                iperf3Data.putString("timestamp", runResult.input.getTimestamp().toString());
 
                 OneTimeWorkRequest iperf3LP =
                         new OneTimeWorkRequest

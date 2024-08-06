@@ -7,6 +7,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import java.util.ArrayList;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Iperf3Fragment;
+
 public class Iperf3CardAdapter extends FragmentStateAdapter {
     public interface Callback {
         void onAddFragment(Iperf3CardFragment fragment);
@@ -40,7 +42,13 @@ public class Iperf3CardAdapter extends FragmentStateAdapter {
             // Handle exception
         }
     }
-
+    public ArrayList<Iperf3CardFragment> getFragments() {
+        ArrayList<Iperf3CardFragment> fragments = new ArrayList<>();
+        for (Fragment fragment : fragmentList) {
+            if(fragment instanceof Iperf3CardFragment) fragments.add((Iperf3CardFragment) fragment);
+        }
+        return fragments;
+    }
     @NonNull
     @Override
     public Fragment createFragment(int position) {

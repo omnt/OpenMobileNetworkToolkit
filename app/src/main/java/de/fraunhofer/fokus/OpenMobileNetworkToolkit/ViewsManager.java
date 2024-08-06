@@ -1,9 +1,13 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import static android.widget.GridLayout.UNDEFINED;
+
 import android.content.Context;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
+import android.widget.GridLayout.Spec;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -27,6 +31,13 @@ public class ViewsManager {
         int position = findLastFilledColumn() + 1;
         if (position < views.length) {
             views[position][0] = view;
+        }
+    }
+
+    public void removeView(View view) {
+        Pair<Integer, Integer> pos = findViewPos(view);
+        if (pos != null) {
+            views[pos.first][pos.second] = null;
         }
     }
 
@@ -194,20 +205,10 @@ public class ViewsManager {
         cardView.setRadius(10);
         cardView.setCardElevation(10);
         cardView.setContentPadding(10, 10, 10, 10);
-        cardView.setLayoutParams(new CardView.LayoutParams(
-                CardView.LayoutParams.MATCH_PARENT,
-                CardView.LayoutParams.MATCH_PARENT
-        ));
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(GridLayout.UNDEFINED, 1f),      GridLayout.spec(GridLayout.UNDEFINED, 1f));
+        cardView.setLayoutParams(params);
         cardView.setBackgroundResource(R.drawable.dashed_outline);
         cardView.setTag("placeholder");
-
-        TextView textView = new TextView(context);
-        textView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        ));
-        cardView.addView(textView);
-
         return cardView;
     }
 

@@ -84,7 +84,7 @@ public class Iperf3RecyclerViewAdapter
                     Iperf3RunResult runResult = iperf3RunResultDao.getRunResult(uid);
 
                     Data.Builder data = new Data.Builder();
-                    data.putString("iperf3LineProtocolFile", runResult.input.iperf3LineProtocolFile);
+                    data.putString("iperf3LineProtocolFile", runResult.input.getLineProtocolFile());
                     OneTimeWorkRequest iperf3UP =
                         new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class)
                             .setInputData(data.build())
@@ -150,7 +150,7 @@ public class Iperf3RecyclerViewAdapter
 
         }
         holder.measurement.setText("iPerf3");
-        holder.timestamp.setText(test.input.timestamp.toString());
+        holder.timestamp.setText(test.input.getTimestamp().toString());
 
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
