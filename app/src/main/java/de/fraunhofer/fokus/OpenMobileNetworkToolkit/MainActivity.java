@@ -56,7 +56,6 @@ import java.util.concurrent.Executors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
@@ -148,17 +147,18 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 // make sure the subscription in the app settings exists in the current subscription list.
                 // if it is not in the subscription list change it to the first one of the current list
                 boolean valid_subscription = false;
-                String pref_subscription_str = spg.getSharedPreference(SPType.mobile_network_sp).getString("select_subscription","99999");
+                String pref_subscription_str = spg.getSharedPreference(SPType.default_sp).getString("select_subscription","99999");
                 for (SubscriptionInfo info : dp.getSubscriptions()) {
                     if (Integer.parseInt(pref_subscription_str) == info.getSubscriptionId()) {
                         valid_subscription = true;
+                        break;
                     }
                 }
                 if (!valid_subscription) {
-                    spg.getSharedPreference(SPType.mobile_network_sp).edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
+                    spg.getSharedPreference(SPType.default_sp).edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
                 }
                 // switch the telephony manager to a new one according to the app settings
-                tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.mobile_network_sp).getString("select_subscription", "0")));
+                tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.default_sp).getString("select_subscription", "0")));
             }
 
             gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));

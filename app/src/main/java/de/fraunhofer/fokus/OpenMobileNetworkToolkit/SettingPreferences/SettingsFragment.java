@@ -13,17 +13,19 @@ import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -31,8 +33,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preference, rootKey);
         SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
-        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
-        ListPreference sub_select = findPreference("select_subscription");
+        PreferenceManager pfm = getPreferenceManager();
+        pfm.setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
+        ListPreference sub_select = pfm.findPreference("select_subscription");
+
         ArrayList<String> entries = new ArrayList<>();
         ArrayList<String> entryValues = new ArrayList<>();
         List<SubscriptionInfo> subscriptions = GlobalVars.getInstance().get_dp().getSubscriptions();
@@ -46,7 +50,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         sub_select.setEntryValues(entryValues_char);
         sub_select.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
+            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
                 Toast.makeText(requireContext().getApplicationContext(), "Subscription Changed, please restart OMNT", Toast.LENGTH_SHORT).show();
                 return true;
             }
