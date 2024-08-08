@@ -9,7 +9,19 @@ public enum SPType {
     default_sp;
 
 
-
+    public String toString() {
+        switch(this){
+            case default_sp:
+                return "preferences";
+            case logging_sp:
+            case ping_sp:
+            case carrier_sp:
+            case mobile_network_sp:
+                return super.toString();
+            default:
+                return null;
+        }
+    }
     public static SPType fromString(String text) {
         for (SPType b : SPType.values()) {
             if (b.toString().equalsIgnoreCase(text)) {

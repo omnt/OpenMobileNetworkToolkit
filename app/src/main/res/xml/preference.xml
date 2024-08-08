@@ -10,6 +10,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment">
+
     <PreferenceCategory
         android:title="@string/home_screen_settings"
         app:iconSpaceReserved="false">

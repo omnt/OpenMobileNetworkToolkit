@@ -22,7 +22,7 @@ public class SharedPreferencesGrouper {
     private final Context ct;
     private HashMap <SPType, SharedPreferences.OnSharedPreferenceChangeListener> spMap = new HashMap<>();
     public String getSharedPreferenceIdentifier(SPType key)  {
-        return this.ct.getPackageName()+"."+key.toString();
+        return this.ct.getPackageName()+"_"+key.toString();
     }
 
     public void clearConfig(){

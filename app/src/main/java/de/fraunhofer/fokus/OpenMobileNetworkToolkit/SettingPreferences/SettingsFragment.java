@@ -8,6 +8,8 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
@@ -31,10 +33,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.preference, rootKey);
+
         SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
         PreferenceManager pfm = getPreferenceManager();
+        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
         pfm.setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
+        pfm.setSharedPreferencesMode(Context.MODE_PRIVATE);
+        setPreferencesFromResource(R.xml.preference, rootKey);
         ListPreference sub_select = pfm.findPreference("select_subscription");
 
         ArrayList<String> entries = new ArrayList<>();
@@ -52,11 +57,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
                 Toast.makeText(requireContext().getApplicationContext(), "Subscription Changed, please restart OMNT", Toast.LENGTH_SHORT).show();
+                //spg.getSharedPreference(SPType.default_sp).edit().putString("select_subscription", newValue.toString()).apply();
                 return true;
             }
         });
 
-        Preference button = getPreferenceManager().findPreference("reset_modem");
+        Preference button = pfm.findPreference("reset_modem");
 
         if (button != null) {
             if (GlobalVars.getInstance().isCarrier_permissions()) {
