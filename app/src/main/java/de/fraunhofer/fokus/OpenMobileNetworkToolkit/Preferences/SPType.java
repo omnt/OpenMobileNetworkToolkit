@@ -19,7 +19,7 @@ public enum SPType {
             case mobile_network_sp:
                 return super.toString();
             default:
-                return null;
+                return "";
         }
     }
     public static SPType fromString(String text) {
