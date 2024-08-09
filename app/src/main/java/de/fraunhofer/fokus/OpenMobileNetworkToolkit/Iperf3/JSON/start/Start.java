@@ -6,7 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Start{
-    private ArrayList<Connected> connected = new ArrayList<Connected>();
+    private final ArrayList<Connected> connected = new ArrayList<Connected>();
     private String version;
     private String system_info;
     private Timestamp timestamp;

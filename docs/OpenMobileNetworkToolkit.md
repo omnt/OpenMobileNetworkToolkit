@@ -6,6 +6,7 @@
 * [Android Tweaks](android_tweaks.md)
 * OMNT Usage
     * [Home](./home.md)
+    * [Config](./config.md)
     * [iPerf3](./iperf3.md)
     * [Ping](./ping.md)
     * [Special Codes](./special_codes.md)

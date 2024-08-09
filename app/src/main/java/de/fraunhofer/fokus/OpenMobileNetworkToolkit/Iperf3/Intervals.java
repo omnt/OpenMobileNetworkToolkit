@@ -4,7 +4,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interva
 import java.util.ArrayList;
 
 public class Intervals {
-    private ArrayList<Interval> intervals;;
+    private final ArrayList<Interval> intervals;
 
     public Intervals(){
         this.intervals = new ArrayList<>();

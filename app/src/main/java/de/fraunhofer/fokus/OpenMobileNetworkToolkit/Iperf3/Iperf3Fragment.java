@@ -39,7 +39,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -56,13 +55,13 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class Iperf3Fragment extends Fragment {
     private static final String TAG = "iperf3InputFragment";
@@ -107,11 +106,12 @@ public class Iperf3Fragment extends Fragment {
     private String logFileDir;
     private String logFileName;
     private View v;
-    private SharedPreferences preferences;
+    private SharedPreferencesGrouper spg;
     private Iperf3Input input;
     private WorkManager iperf3WM;
     private Iperf3ResultsDataBase db;
     private ArrayList<String> uids;
+    private Context ct;
     private final Runnable progressbarUpdate = new Runnable() {
         @Override
         public void run() {
@@ -140,6 +140,8 @@ public class Iperf3Fragment extends Fragment {
         if (!iperf3Path.exists()) {
             iperf3Path.mkdir();
         }
+        this.ct = requireContext();
+        this.spg = SharedPreferencesGrouper.getInstance(this.ct);
     }
 
     @Override
@@ -188,7 +190,7 @@ public class Iperf3Fragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                preferences.edit().putString(name, field.getText().toString()).apply();
+                spg.getSharedPreference(SPType.iperf3_sp).edit().putString(name, field.getText().toString()).apply();
             }
 
             @Override
@@ -205,7 +207,7 @@ public class Iperf3Fragment extends Fragment {
         box.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                preferences.edit().putBoolean(name, box.isChecked()).apply();
+                spg.getSharedPreference(SPType.iperf3_sp).edit().putBoolean(name, box.isChecked()).apply();
             }
         });
     }
@@ -213,7 +215,6 @@ public class Iperf3Fragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_iperf3_input, parent, false);
-        preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         iperf3EtIp = v.findViewById(R.id.iperf3_ip);
         iperf3EtPort = v.findViewById(R.id.iperf3_port);
         iperf3EtBandwidth = v.findViewById(R.id.iperf3_bandwidth);
@@ -236,8 +237,7 @@ public class Iperf3Fragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length() >0) iperf3EtBytes.setEnabled(false);
-                else iperf3EtBytes.setEnabled(true);
+                iperf3EtBytes.setEnabled(s.length() <= 0);
             }
 
             @Override
@@ -255,8 +255,7 @@ public class Iperf3Fragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length() >0) iperf3EtDuration.setEnabled(false);
-                else iperf3EtDuration.setEnabled(true);
+                iperf3EtDuration.setEnabled(s.length() <= 0);
             }
 
             @Override
@@ -356,45 +355,26 @@ public class Iperf3Fragment extends Fragment {
                         writeToSP();
                     }
                 });
+        iperf3EtIp.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3IP, null));
+        iperf3EtPort.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3PORT, null));
+        iperf3EtBandwidth.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3BANDWIDTH, null));
+        iperf3EtDuration.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3DURATION, null));
+        iperf3EtInterval.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3INTERVAL, null));
+        iperf3EtBytes.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3BYTES, null));
+        iperf3EtStreams.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3STREAMS, null));
+        iperf3Cport.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(IPERF3CPORT, null));
+
+        iperf3BiDir.setChecked(spg.getSharedPreference(SPType.iperf3_sp).getBoolean(IPERF3BIDIR, false));
+        iperf3Reverse.setChecked(spg.getSharedPreference(SPType.iperf3_sp).getBoolean(IPERF3REVERSE, false));
+        iperf3OneOff.setChecked(spg.getSharedPreference(SPType.iperf3_sp).getBoolean(IPERF3ONEOFF, false));
+        protocolSpinner.setSelection(spg.getSharedPreference(SPType.iperf3_sp).getInt(IPERF3IDXPROTOCOL, 0));
+        iperf3ModeSpinner.setSelection(spg.getSharedPreference(SPType.iperf3_sp).getInt(IPERF3IDXMODE, 0));
 
 
-        if (savedInstanceState != null) {
-            iperf3EtIp.setText(savedInstanceState.getString(IPERF3IP));
-            iperf3EtPort.setText(savedInstanceState.getString(IPERF3PORT));
-            iperf3EtBandwidth.setText(savedInstanceState.getString(IPERF3BANDWIDTH));
-            iperf3EtDuration.setText(savedInstanceState.getString(IPERF3DURATION));
-            iperf3EtInterval.setText(savedInstanceState.getString(IPERF3INTERVAL));
-            iperf3EtBytes.setText(savedInstanceState.getString(IPERF3BYTES));
-            iperf3EtStreams.setText(savedInstanceState.getString(IPERF3STREAMS));
-            iperf3Cport.setText(savedInstanceState.getString(IPERF3CPORT));
-
-            iperf3BiDir.setChecked(savedInstanceState.getBoolean(IPERF3BIDIR));
-
-            iperf3Reverse.setChecked(savedInstanceState.getBoolean(IPERF3REVERSE));
-            iperf3OneOff.setChecked(savedInstanceState.getBoolean(IPERF3ONEOFF));
-            protocolSpinner.setSelection(savedInstanceState.getInt(IPERF3IDXPROTOCOL));
-            iperf3ModeSpinner.setSelection(savedInstanceState.getInt(IPERF3IDXMODE));
-        } else {
-            iperf3EtIp.setText(preferences.getString(IPERF3IP, null));
-            iperf3EtPort.setText(preferences.getString(IPERF3PORT, null));
-            iperf3EtBandwidth.setText(preferences.getString(IPERF3BANDWIDTH, null));
-            iperf3EtDuration.setText(preferences.getString(IPERF3DURATION, null));
-            iperf3EtInterval.setText(preferences.getString(IPERF3INTERVAL, null));
-            iperf3EtBytes.setText(preferences.getString(IPERF3BYTES, null));
-            iperf3EtStreams.setText(preferences.getString(IPERF3STREAMS, null));
-            iperf3Cport.setText(preferences.getString(IPERF3CPORT, null));
-
-            iperf3BiDir.setChecked(preferences.getBoolean(IPERF3BIDIR, false));
-            iperf3Reverse.setChecked(preferences.getBoolean(IPERF3REVERSE, false));
-            iperf3OneOff.setChecked(preferences.getBoolean(IPERF3ONEOFF, false));
-            protocolSpinner.setSelection(preferences.getInt(IPERF3IDXPROTOCOL, 0));
-            iperf3ModeSpinner.setSelection(preferences.getInt(IPERF3IDXMODE, 0));
-
-        }
         try {
             Os.setenv("TMPDIR", String.valueOf(getActivity().getCacheDir()), true);
         } catch (ErrnoException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
         }
         return v;
     }
@@ -468,7 +448,8 @@ public class Iperf3Fragment extends Fragment {
                 }
             }
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
+;
         }*/
 
         uids.add(0, iperf3WorkerID);
@@ -499,7 +480,7 @@ public class Iperf3Fragment extends Fragment {
 
 
 
-        if (preferences.getBoolean("enable_influx", false) && input.iperf3Json) {
+        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && input.iperf3Json) {
             iperf3WM.beginWith(iperf3WR).then(iperf3LP).then(iperf3UP).enqueue();
         } else if(input.iperf3Json) {
             iperf3WM.beginWith(iperf3WR).then(iperf3LP).enqueue();
@@ -527,10 +508,12 @@ public class Iperf3Fragment extends Fragment {
             } else if (iperf3_result != 0) {
                 progressIndicator.setIndicatorColor(failedColors);
                 progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
+
             } else {
                 progressIndicator.setIndicatorColor(succesColors);
                 progressbarHandler.postDelayed(progressbarUpdate, SHOW_PROGRESSBAR);
             }
+
         });
         iperf3WM.getWorkInfoByIdLiveData(iperf3UP.getId()).observeForever(workInfo -> {
             boolean iperf3_upload;
@@ -663,7 +646,7 @@ public class Iperf3Fragment extends Fragment {
     }
 
     private void writeToSP() {
-        SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences.Editor editor = spg.getSharedPreference(SPType.iperf3_sp).edit();
         editor.putInt(IPERF3IDXPROTOCOL, protocolSpinner.getSelectedItemPosition());
         editor.putInt(IPERF3IDXMODE, iperf3ModeSpinner.getSelectedItemPosition());
         editor.putString(IPERF3IP, iperf3EtIp.getText().toString());
@@ -728,7 +711,7 @@ public class Iperf3Fragment extends Fragment {
                 0,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
             parameterLayoutName.weight = 1F;
-            TextView parameterName = new TextView(ct);;
+            TextView parameterName = new TextView(ct);
             parameterName.setTextIsSelectable(true);
             parameterName.setText(String.format("%s", name));
             parameterName.setLayoutParams(parameterLayoutName);

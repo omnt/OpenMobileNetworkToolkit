@@ -56,4 +56,36 @@ public class Iperf3Utils {
         return drawable;
     }
 
+    public static String getProtocolString(int protocol) {
+        String protocolString;
+        switch (protocol) {
+            case 0:
+                protocolString = "TCP";
+                break;
+            case 1:
+                protocolString = "UDP";
+                break;
+            default:
+                protocolString = "Unknown";
+                break;
+        }
+        return protocolString;
+    }
+
+    public static String getModeString(int mode) {
+        String modeString;
+        switch (mode) {
+            case 0:
+                modeString = "Client";
+                break;
+            case 1:
+                modeString = "Server";
+                break;
+            default:
+                modeString = "Unknown";
+                break;
+        }
+        return modeString;
+    }
+
 }

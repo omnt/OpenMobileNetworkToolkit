@@ -8,6 +8,8 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import java.util.List;
+
 public class LocationInformation {
     private double longitude;
     private double latitude;
@@ -15,6 +17,7 @@ public class LocationInformation {
     private String provider;
     private float accuracy;
     private float speed;
+    private List<String> pl;
 
     public LocationInformation(double longitude, double latitude, double altitude, String provider, float accuracy, float speed) {
         this.longitude = longitude;
@@ -26,6 +29,14 @@ public class LocationInformation {
     }
 
     public LocationInformation() {
+    }
+
+    public List<String> getProviderList() {
+        return pl;
+    }
+
+    public void setProviderList(List<String> pl) {
+        this.pl = pl;
     }
 
     public double getAltitude() {

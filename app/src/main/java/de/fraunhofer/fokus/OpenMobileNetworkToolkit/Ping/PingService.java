@@ -1,43 +1,28 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Observer;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import com.influxdb.client.domain.WritePrecision;
+
 import com.influxdb.client.write.Point;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -45,13 +30,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class PingService extends Service {
     private static final String TAG = "PingService";
@@ -60,8 +51,7 @@ public class PingService extends Service {
     private WorkManager wm;
     private Context context;
     private ArrayList<OneTimeWorkRequest> pingWRs;
-    private SharedPreferences pingSP;
-    private SharedPreferences defaultSP;
+    private SharedPreferencesGrouper spg;
     NotificationCompat.Builder builder;
     DataProvider dp;
     InfluxdbConnection influx;
@@ -87,9 +77,8 @@ public class PingService extends Service {
         // setup class variables
         dp = gv.get_dp();
         context = getApplicationContext();
-        pingSP = context.getSharedPreferences("Ping", Context.MODE_PRIVATE);
-        defaultSP = PreferenceManager.getDefaultSharedPreferences(context);
-        if(defaultSP.getBoolean("enable_influx", false)) influx = InfluxdbConnections.getRicInstance(context);
+        spg = SharedPreferencesGrouper.getInstance(context);
+        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) influx = InfluxdbConnections.getRicInstance(context);
         wm = WorkManager.getInstance(context);
         wm.cancelAllWorkByTag("Ping");
         if(intent == null) return START_NOT_STICKY;
@@ -109,7 +98,7 @@ public class PingService extends Service {
             Files.createDirectories(Paths.get(path));
         } catch (IOException e) {
             Toast.makeText(context, "could not create /omnt/ping Dir!", Toast.LENGTH_SHORT).show();
-            pingSP.edit().putBoolean("ping", false).apply();
+            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
             Log.d(TAG, "setupPing: could not create /omnt/ping Dir!");
             return;
         }
@@ -125,7 +114,7 @@ public class PingService extends Service {
         } catch (IOException e) {
             Toast.makeText(context, "could not create logfile "+filename, Toast.LENGTH_SHORT).show();
             Log.d(TAG, "setupPing: could not create logfile");
-            pingSP.edit().putBoolean("ping", false).apply();
+            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
             return;
         }
 
@@ -135,10 +124,10 @@ public class PingService extends Service {
         } catch (FileNotFoundException e) {
             Toast.makeText(context, "could not create output stream", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "setupPing: could not create output stream");
-            pingSP.edit().putBoolean("ping", false).apply();
+            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
             return;
         }
-        pingSP.edit().putBoolean("ping", true).apply();
+        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", true).apply();
         pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
         PingParser pingParser = PingParser.getInstance(null);
         propertyChangeListener = pingParser.getListener();
@@ -156,14 +145,14 @@ public class PingService extends Service {
                 try {
                     ping_stream.write((point.toLineProtocol() + "\n").getBytes());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.d(TAG,e.toString());
                 }
 
-                if (defaultSP.getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
+                if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
                     try {
-                        influx.writePoints(Arrays.asList(point));
+                        influx.writePoints(List.of(point));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.d(TAG,e.toString());
                     }
                 }
 
@@ -201,7 +190,7 @@ public class PingService extends Service {
         @Override
         public void run() {
             Data data = new Data.Builder()
-                .putString("input", pingSP.getString("ping_input", "8.8.8.8"))
+                .putString("input", spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "8.8.8.8"))
                 .build();
             OneTimeWorkRequest pingWR =
                 new OneTimeWorkRequest.Builder(PingWorker.class)
@@ -223,7 +212,7 @@ public class PingService extends Service {
                             try {
                                 ping_stream.close();
                             } catch (IOException e) {
-                                e.printStackTrace();
+                                Log.d(TAG,e.toString());
                             }
                             pingLogging.removeCallbacks(pingUpdate);
                             return;
@@ -252,7 +241,7 @@ public class PingService extends Service {
 
         }
 
-        pingSP.edit().putBoolean("ping", false).apply();
+        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
         pingWRs = new ArrayList<>();
     }
     public static boolean isRunning() {

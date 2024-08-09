@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Use this template for creating feature request.
-title: "[FEATURE] - FEATURE_DESCRIPTION"
+title: "FEATURE_DESCRIPTION"
 labels: feature
 assignees: ""
 ---
