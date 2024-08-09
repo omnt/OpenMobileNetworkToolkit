@@ -21,6 +21,7 @@ import com.influxdb.client.domain.OnboardingRequest;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.client.write.events.BackpressureEvent;
+import com.influxdb.client.write.events.WriteErrorEvent;
 import com.influxdb.client.write.events.WriteRetriableErrorEvent;
 import com.influxdb.client.write.events.WriteSuccessEvent;
 
@@ -76,6 +77,13 @@ public class InfluxdbConnection {
                     gv.getLog_status().setColorFilter(Color.argb(255, 0, 255, 0));
                 }
             });
+            writeApi.listenEvents(WriteErrorEvent.class, value -> {
+                value.logEvent();
+                if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+                    gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
+                }
+            });
+
             writeApi.listenEvents(WriteRetriableErrorEvent.class, value -> {
                 value.logEvent();
                 if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {

@@ -48,6 +48,7 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
@@ -355,13 +356,16 @@ public class LoggingService extends Service {
         }
 
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
-            Point p = dp.getWifiInformation().getWifiInformationPoint();
-            if (p.hasFields()) {
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-                logPoints.add(p);
-            } else {
-                Log.w(TAG, "Point without fields from getWifiInformationPoint");
+            WifiInformation wifiInformation = dp.getWifiInformation();
+            if(wifiInformation != null) {
+                Point p = wifiInformation.getWifiInformationPoint();
+                if (p.hasFields()) {
+                    p.time(time, WritePrecision.MS);
+                    p.addTags(tags_map);
+                    logPoints.add(p);
+                } else {
+                    Log.w(TAG, "Point without fields from getWifiInformationPoint");
+                }
             }
         }
 
