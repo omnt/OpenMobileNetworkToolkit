@@ -11,6 +11,18 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 // https://developer.android.com/reference/android/telephony/CellIdentityLte
 
+import android.content.Context;
+import android.text.Html;
+import android.view.Gravity;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
+
+import java.util.Objects;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+
 public class CellInformation {
     private long timeStamp;
     private String cellType;
@@ -295,5 +307,120 @@ public class CellInformation {
     public int getTimingAdvance() {
         return this.timingAdvance;
     }
+
+    private LinearLayout createRow(Context context){
+        LinearLayout ll = new LinearLayout(context);
+        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+        ll.setOrientation(LinearLayout.HORIZONTAL);
+        return ll;
+    }
+
+    private CardView createCard(String title, String value, Context context) {
+        CardView card = new CardView(context);
+        LinearLayout.LayoutParams cardViewLayout = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
+        cardViewLayout.weight = 1;
+        card.setLayoutParams(cardViewLayout);
+        card.setRadius(9);
+        card.setCardElevation(9);
+        card.setMaxCardElevation(9);
+        card.setUseCompatPadding(true);
+        card.setPreventCornerOverlap(true);
+        LinearLayout ll = new LinearLayout(context);
+        ll.setOrientation(LinearLayout.VERTICAL);
+
+        TextView titleTV = new TextView(context);
+        titleTV.setText(title);
+        titleTV.setTextSize(20);
+        titleTV.setPadding(10, 10, 10, 10);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        titleParams.gravity = Gravity.CENTER;
+        titleParams.weight = 1;
+        titleTV.setLayoutParams(titleParams);
+        ll.addView(titleTV);
+
+        TextView valueTV = new TextView(context);
+        LinearLayout.LayoutParams valueParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        valueParams.gravity = Gravity.CENTER;
+        valueParams.weight = 1;
+        valueTV.setLayoutParams(valueParams);
+        valueTV.setTextSize(20);
+
+        if (value.isEmpty() || value.equals("") || value.equals(String.valueOf(Integer.MAX_VALUE))) {
+            value = "N/A";
+        }
+        if (value.length() > 7) { // Adjust the length threshold as needed
+            valueTV.setTextSize(19);
+        }
+
+        valueTV.setText(value);
+        valueTV.setPadding(10, 10, 10, 10);
+        ll.addView(valueTV);
+
+        card.addView(ll);
+        return card;
+    }
+
+    public LinearLayout createQuickView(Context context) {
+        LinearLayout ll = new LinearLayout(context);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.setLayoutParams(params);
+
+        LinearLayout statusBar = createRow(context);
+        statusBar.addView(createCard("PLMN", getMcc()+"/"+getMnc(), context));
+        statusBar.addView(createCard("CI", String.valueOf(getCi()), context));
+        if(!cellType.equals("GSM")){
+            statusBar.addView(createCard("PCI", String.valueOf(getPci()), context));
+            statusBar.addView(createCard("TAC", String.valueOf(getTac()), context));
+        }
+
+        LinearLayout statusBarHeader = new LinearLayout(context);
+        statusBarHeader.setOrientation(LinearLayout.VERTICAL);
+        TextView statusBarTV = new TextView(context);
+        statusBarTV.setText("General");
+        statusBarTV.setTextSize(23);
+        statusBarTV.setPadding(10, 10, 10, 10);
+        statusBarHeader.addView(statusBarTV);
+        statusBarHeader.addView(statusBar);
+
+        ll.addView(statusBarHeader);
+
+
+        LinearLayout evolutionSepcific = createRow(context);
+        switch (getCellType()){
+            case "GSM":
+                evolutionSepcific.addView(createCard("LAC", String.valueOf(getLac()), context));
+                break;
+            case "LTE":
+                evolutionSepcific.addView(createCard(GlobalVars.CQI, String.valueOf(getCqi()), context));
+                evolutionSepcific.addView(createCard(GlobalVars.RSRQ, String.valueOf(getRsrq()), context));
+                evolutionSepcific.addView(createCard(GlobalVars.RSRP, String.valueOf(getRsrp()), context));
+                evolutionSepcific.addView(createCard(GlobalVars.RSSNR, String.valueOf(getRssnr()), context));
+                break;
+            case "NR":
+                evolutionSepcific.addView(createCard(GlobalVars.SSRSRP, String.valueOf(getSsrsrp()), context));
+                evolutionSepcific.addView(createCard(GlobalVars.SSRSRQ, String.valueOf(getSsrsrq()), context));
+                evolutionSepcific.addView(createCard(GlobalVars.SSSINR, String.valueOf(getSssinr()), context));
+                break;
+            default:
+                break;
+        }
+
+        LinearLayout evolutionSepcificHeader = new LinearLayout(context);
+        evolutionSepcificHeader.setOrientation(LinearLayout.VERTICAL);
+        TextView evolutionSepcificHeaderTV = new TextView(context);
+        evolutionSepcificHeaderTV.setText(getCellType());
+        evolutionSepcificHeaderTV.setTextSize(23);
+        evolutionSepcificHeaderTV.setPadding(10, 10, 10, 10);
+        evolutionSepcificHeader.addView(evolutionSepcificHeaderTV);
+        evolutionSepcificHeader.addView(evolutionSepcific);
+
+        ll.addView(evolutionSepcificHeader);
+        return ll;
+    }
+
 
 }
