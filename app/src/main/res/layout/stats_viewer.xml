@@ -1,0 +1,33 @@
+<GridLayout
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/stats_viewer_card">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/stats_viewer_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Stats Viewer"
+                android:textSize="20sp"
+                android:padding="10dp"
+                android:gravity="center"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/stats_viewer_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="This is the stats viewer"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:gravity="center"/>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+
+</GridLayout>
