@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root source="https://developer.android.com/reference/android/telephony/CellSignalStrengthNr">
+    <type>cellinformation</type>
+    <evolution>NR</evolution>
+    <table>
+        <row>
+            <column>
+                <id>1</id>
+                <key>SSRSRP</key>
+                <unit>dBm</unit>
+                <range>
+                    <min>-156</min>
+                    <max>-31</max>
+                </range>
+            </column>
+            <column>
+                <id>2</id>
+                <key>SSRSRQ</key>
+                <unit>dB</unit>
+                <range>
+                    <min>-43</min>
+                    <max>20</max>
+                </range>
+            </column>
+            <column>
+                <id>3</id>
+                <key>SSSINR</key>
+                <unit>dB</unit>
+                <range>
+                    <min>-23</min>
+                    <max>40</max>
+                </range>
+            </column>
+        </row>
+    </table>
+</root>
