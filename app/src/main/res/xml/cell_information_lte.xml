@@ -8,6 +8,7 @@
                 <id>1</id>
                 <key>CQI</key>
                 <unit></unit>
+                <parameter>cqi</parameter>
                 <range>
                     <min>0</min>
                     <max>15</max>
@@ -16,6 +17,7 @@
             <column>
                 <id>2</id>
                 <key>RSRQ</key>
+                <parameter>rsrq</parameter>
                 <unit>dB</unit>
                 <range>
                     <min>-34</min>
@@ -25,6 +27,7 @@
             <column>
                 <id>3</id>
                 <key>RSRP</key>
+                <parameter>rsrp</parameter>
                 <unit>dBm</unit>
                 <range>
                     <min>-140</min>
@@ -34,6 +37,7 @@
             <column>
                 <id>4</id>
                 <key>RSSNR</key>
+                <parameter>rssnr</parameter>
                 <unit>dB</unit>
                 <range>
                     <min>-20</min>
@@ -43,6 +47,7 @@
             <column>
                 <id>5</id>
                 <key>RSSI</key>
+                <parameter>rssi</parameter>
                 <unit>dBm</unit>
                 <range>
                     <min>-113</min>

@@ -13,7 +13,7 @@ import android.os.Build;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
 
-public class NetworkInformation {
+public class NetworkInformation extends Information {
     private final String networkOperatorName;
     private final String simOperatorName;
     private final String networkSpecifier;
@@ -21,9 +21,9 @@ public class NetworkInformation {
     private final int dataNetworkType;
     private final int phoneType;
     private final int preferredOpportunisticDataSubscriptionId;
-    private long timeStamp;
 
     public NetworkInformation(String networkOperatorName, String simOperatorName, String networkSpecifier, int dataState, int dataNetworkType, int phoneType, int preferredOpportunisitcDataSubscitptionId) {
+        super(System.currentTimeMillis());
         this.networkOperatorName = networkOperatorName;
         this.simOperatorName = simOperatorName;
         this.networkSpecifier = networkSpecifier;
@@ -31,23 +31,6 @@ public class NetworkInformation {
         this.dataNetworkType = dataNetworkType;
         this.phoneType = phoneType;
         this.preferredOpportunisticDataSubscriptionId = preferredOpportunisitcDataSubscitptionId;
-        this.timeStamp = System.currentTimeMillis();
-    }
-
-    /**
-     * Get the current timestamp
-     * @return last updated timestamp
-     */
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    /**
-     * Update the timestamp
-     * @param timeStamp new timestamp
-     */
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
     }
 
     /**

@@ -46,7 +46,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
@@ -110,41 +114,15 @@ public class LoggingService extends Service {
             List<CellInformation> cil = dp.getRegisteredCells();
             StringBuilder s = new StringBuilder();
             for (CellInformation ci : cil) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !ci.getAlphaLong().isEmpty()) {
-                    s.append(ci.getAlphaLong());
-                } else {
-                    s.append(" PLMN: ");
-                    s.append(ci.getMcc());
-                    s.append(ci.getMnc());
-                }
-                s.append(" Type: ");
-                s.append(ci.getCellType());
                 switch (ci.getCellType()) {
-                    case "LTE":
-                        s.append(" PCI: ");
-                        s.append(ci.getPci());
-                        s.append(" RSRQ: ");
-                        s.append(ci.getRsrp());
-                        s.append(" RSRP: ");
-                        s.append(ci.getRsrq());
+                    case LTE:
+                        s = ((LTE) ci).getStringBuilder();
                         break;
-                    case "NR":
-                        s.append(" PCI: ");
-                        s.append(ci.getPci());
-                        s.append(" SSRSRQ: ");
-                        s.append(ci.getSsrsrq());
-                        s.append(" SSRSRP: ");
-                        s.append(ci.getSsrsrp());
-                        s.append(" SSSINR: ");
-                        s.append(ci.getSssinr());
+                    case NR:
+                        s = ((NR) ci).getStringBuilder();
                         break;
-                    case "GSM":
-                        s.append(" CI: ");
-                        s.append(ci.getCi());
-                        s.append(" Level: ");
-                        s.append(ci.getLevel());
-                        s.append(" DBM: ");
-                        s.append(ci.getDbm());
+                    case GSM:
+                        s = ((GSM) ci).getStringBuilder();
                 }
             }
             builder.setContentText(s);

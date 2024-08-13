@@ -8,14 +8,16 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-public class NetworkInterfaceInformation {
+public class NetworkInterfaceInformation extends Information{
     private String interfaceName;
     private String address;
+
 
     public NetworkInterfaceInformation() {
     }
 
-    public NetworkInterfaceInformation(String interfaceName, String address) {
+    public NetworkInterfaceInformation(String interfaceName, String address, long timestamp) {
+        super(timestamp);
         this.interfaceName = interfaceName;
         this.address = address;
     }

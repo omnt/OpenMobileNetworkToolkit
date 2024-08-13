@@ -28,7 +28,9 @@ import android.net.wifi.WifiInfo;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
-public class WifiInformation  {
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Timestamp;
+
+public class WifiInformation extends Information {
     private String ssid;
     private String bssid;
     private int rssi;
@@ -41,7 +43,8 @@ public class WifiInformation  {
     private int standard;
     private int channel_bandwidth;
 
-    public WifiInformation(String ssid, String bssid, int rssi, int frequency, int link_speed, int tx_link_speed, int max_tx_link_speed, int rx_link_speed, int max_rx_link_speed, int standard, int channel_bandwidth) {
+    public WifiInformation(String ssid, String bssid, int rssi, int frequency, int link_speed, int tx_link_speed, int max_tx_link_speed, int rx_link_speed, int max_rx_link_speed, int standard, int channel_bandwidth, long timestamp) {
+        super(timestamp);
         this.ssid = ssid;
         this.bssid = bssid;
         this.rssi = rssi;
@@ -55,7 +58,8 @@ public class WifiInformation  {
         this.channel_bandwidth = channel_bandwidth;
     }
 
-    public WifiInformation(ScanResult scanResult) {
+    public WifiInformation(ScanResult scanResult, long timestamp) {
+        super(timestamp);
         ssid = scanResult.SSID;
         bssid = scanResult.BSSID;
         rssi = Integer.parseInt(scanResult.SSID);
@@ -63,7 +67,8 @@ public class WifiInformation  {
         channel_bandwidth = scanResult.channelWidth;
     }
 
-    public WifiInformation(WifiInfo wifiInfo) {
+    public WifiInformation(WifiInfo wifiInfo, long timestamp) {
+        super(timestamp);
         ssid = wifiInfo.getSSID().replace("\"", "");
         bssid = wifiInfo.getBSSID();
         rssi = wifiInfo.getRssi();
@@ -93,7 +98,7 @@ public class WifiInformation  {
             case WIFI_STANDARD_11AD:
                 return "11ad";
             case WIFI_STANDARD_11BE:
-                return "11bd";
+                return "11be";
             default:
                 return "Unknown";
         }

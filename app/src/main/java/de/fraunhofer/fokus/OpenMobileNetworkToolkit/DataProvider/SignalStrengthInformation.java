@@ -8,8 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-public class SignalStrengthInformation {
-    private long timestamp;
+public class SignalStrengthInformation extends Information {
     private int Level;
     private int CsiRSRP;
     private int CsiRSRQ;
@@ -29,7 +28,7 @@ public class SignalStrengthInformation {
     private connectionTypes connectionType;
 
     public SignalStrengthInformation(long timestamp) {
-        this.timestamp = timestamp;
+        super(timestamp);
     }
 
     public SignalStrengthInformation() {
@@ -41,14 +40,6 @@ public class SignalStrengthInformation {
 
     public void setConnectionType(connectionTypes connectionType) {
         this.connectionType = connectionType;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
     }
 
     public int getLevel() {

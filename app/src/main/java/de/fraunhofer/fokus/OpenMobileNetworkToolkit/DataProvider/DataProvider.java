@@ -75,6 +75,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMA;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -329,84 +335,18 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         List<CellInformation> ciml = new ArrayList<>();
         for (CellInfo ci : list) {
             CellInformation cim = new CellInformation();
-            cim.setTimeStamp(ts_);
-            cim.setCellConnectionStatus(ci.getCellConnectionStatus());
-            cim.setRegistered(ci.isRegistered());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                cim.setAlphaLong((String) ci.getCellIdentity().getOperatorAlphaLong());
-            }
 
             if (ci instanceof CellInfoNr) {
-                cim.setCellType("NR");
-                CellInfoNr ciNR = (CellInfoNr) ci;
-                CellIdentityNr ciNRId = (CellIdentityNr) ciNR.getCellIdentity();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    cim.setBands(Arrays.toString(ciNRId.getBands()));
-                }
-                cim.setCi(ciNRId.getNci());
-                cim.setARFCN(ciNRId.getNrarfcn());
-                cim.setMnc(ciNRId.getMncString());
-                cim.setMcc(ciNRId.getMccString());
-                cim.setPci(ciNRId.getPci());
-                cim.setTac(ciNRId.getTac());
-                CellSignalStrengthNr ssNR = (CellSignalStrengthNr) ciNR.getCellSignalStrength();
-                cim.setLevel(ssNR.getLevel());
-                cim.setCsirsrp(ssNR.getCsiRsrp());
-                cim.setCsirsrq(ssNR.getCsiRsrq());
-                cim.setCsisinr(ssNR.getCsiSinr());
-                cim.setSsrsrp(ssNR.getSsRsrp());
-                cim.setSsrsrq(ssNR.getSsRsrq());
-                cim.setSssinr(ssNR.getSsSinr());
-                cim.setAsuLevel(ssNR.getAsuLevel());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    cim.setTimingAdvance(ssNR.getTimingAdvanceMicros());
-                }
+                cim = new NR((CellInfoNr) ci, ts_);
             }
             if (ci instanceof CellInfoLte) {
-                CellInfoLte ciLTE = (CellInfoLte) ci;
-                CellIdentityLte ciLTEId = ciLTE.getCellIdentity();
-                cim.setCellType("LTE");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    cim.setBands(Arrays.toString(ciLTEId.getBands()));
-                }
-                cim.setBandwidth(ciLTEId.getBandwidth());
-                cim.setCi(ciLTEId.getCi());
-                cim.setARFCN(ciLTEId.getEarfcn());
-                cim.setMnc(ciLTEId.getMncString());
-                cim.setMcc(ciLTEId.getMccString());
-                cim.setPci(ciLTEId.getPci());
-                cim.setTac(ciLTEId.getTac());
-                cim.setAlphaLong(String.valueOf(ciLTEId.getOperatorAlphaLong()));
-                CellSignalStrengthLte ssLTE = ciLTE.getCellSignalStrength();
-                cim.setLevel(ssLTE.getLevel());
-                cim.setCqi(ssLTE.getCqi());
-                cim.setRsrp(ssLTE.getRsrp());
-                cim.setRsrq(ssLTE.getRsrq());
-                cim.setRssi(ssLTE.getRssi());
-                cim.setRssnr(ssLTE.getRssnr());
-                cim.setAsuLevel(ssLTE.getAsuLevel());
-                cim.setTimingAdvance(ssLTE.getTimingAdvance());
+                cim = new LTE((CellInfoLte) ci, ts_);
             }
             if (ci instanceof CellInfoCdma) {
-                cim.setCellType("CDMA");
+                cim = new CDMA((CellInfoCdma) ci, ts_);
             }
             if (ci instanceof CellInfoGsm) {
-                CellInfoGsm ciGSM = (CellInfoGsm) ci;
-                CellIdentityGsm ciGSMId = ciGSM.getCellIdentity();
-                cim.setCellType("GSM");
-                cim.setMnc(ciGSMId.getMncString());
-                cim.setCi(ciGSMId.getCid());
-                cim.setMcc(ciGSMId.getMccString());
-                cim.setARFCN(ciGSMId.getArfcn());
-                cim.setLac(ciGSM.getCellIdentity().getLac());
-                CellSignalStrengthGsm ssGSM = ciGSM.getCellSignalStrength();
-                cim.setLevel(ssGSM.getLevel());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    cim.setRssi(ssGSM.getRssi());
-                }
-                cim.setDbm(ssGSM.getDbm());
-                cim.setAsuLevel(ssGSM.getAsuLevel());
-                cim.setTimingAdvance(ssGSM.getTimingAdvance());
+                cim = new GSM((CellInfoGsm) ci, ts_);
             }
             ciml.add(cim);
         }
@@ -449,75 +389,21 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             }
             Point point = new Point("CellInformation");
             point.time(ts, WritePrecision.MS);
-            point.addField("OperatorAlphaLong", ci_.getAlphaLong());
-            point.addField("CellConnectionStatus", ci_.getCellConnectionStatus());
-            point.addField("IsRegistered", ci_.isRegistered());
-            if (Objects.equals(ci_.getCellType(), "NR")) {
-                point.addField("CellType", "NR");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    point.addField("Bands", ci_.getBands());
-                }
-                long ci = ci_.getCi();
-                if (ci != CellInfo.UNAVAILABLE) {
-                    point.addTag("CI", String.valueOf(ci));
-                }
-                point.addField("NRARFCN", ci_.getARFCN());
-                point.addField("MNC", ci_.getMnc());
-                point.addField("MCC", ci_.getMcc());
-                point.addField("PCI", ci_.getPci());
-                point.addField("TAC", ci_.getTac());
-                point.addField("Level", ci_.getLevel());
-                point.addField(GlobalVars.CSIRSRP, ci_.getRsrp());
-                point.addField(GlobalVars.CSIRSRQ, ci_.getRsrq());
-                point.addField(GlobalVars.CSISINR, ci_.getCsisinr());
-                point.addField(GlobalVars.SSRSRP, ci_.getSsrsrp());
-                point.addField(GlobalVars.SSRSRQ, ci_.getSsrsrq());
-                point.addField(GlobalVars.SSSINR, ci_.getSssinr());
-                point.addField("TimingAdvance", ci_.getTimingAdvance());
+            if (ci_.getCellType().equals(CellType.NR)) {
+                NR nr = (NR) ci_;
+                point = nr.getPoint(point);
             }
-            if (Objects.equals(ci_.getCellType(), "LTE")) {
-                point.addField("CellType", "LTE");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    point.addField("Bands", ci_.getBands());
-                }
-                point.addField("Bandwidth", ci_.getBandwidth());
-                long ci = ci_.getCi();
-                if (ci != CellInfo.UNAVAILABLE) {
-                    point.addTag("CI", String.valueOf(ci_.getCi()));
-                }
-                point.addField("ARFCN", ci_.getARFCN());
-                point.addField("MNC", ci_.getMnc());
-                point.addField("MCC", ci_.getMcc());
-                point.addField("PCI", ci_.getPci());
-                point.addField("TAC", ci_.getTac());
-                point.addField("TAC", ci_.getTac());
-                point.addField("Level", ci_.getLevel());
-                point.addField("AsuLevel", ci_.getAsuLevel());
-                point.addField("Level", ci_.getLevel());
-                point.addField(GlobalVars.CQI, ci_.getCqi());
-                point.addField("RSRP", ci_.getRsrp());
-                point.addField("RSRQ", ci_.getRsrq());
-                point.addField("RSSI", ci_.getRssi());
-                point.addField("TimingAdvance", ci_.getTimingAdvance());
+            if (ci_.getCellType().equals(CellType.LTE)) {
+                LTE lte = (LTE) ci_;
+                point = lte.getPoint(point);
             }
             if (Objects.equals(ci_.getCellType(), "CDMA")) {
-                point.addField("CellType", "CDMA");
+                CDMA cdma = (CDMA) ci_;
+                cdma.getPoint(point);
             }
             if (Objects.equals(ci_.getCellType(), "GSM")) {
-                point.addField("CellType", "GSM");
-                long ci = ci_.getCi();
-                if (ci != CellInfo.UNAVAILABLE) {
-                    point.addTag("CI", String.valueOf(ci_.getCi()));
-                }
-                point.addField("ARFCN", ci_.getARFCN());
-                point.addField("MNC", ci_.getMnc());
-                point.addField("MCC", ci_.getMcc());
-                point.addField("Level", ci_.getLevel());
-                point.addField("AsuLevel", ci_.getAsuLevel());
-                point.addField("Dbm", ci_.getDbm());
-                point.addField("RSSI", ci_.getRssi());
-                point.addField("LAC", ci_.getLac());
-                point.addField("TimingAdvance", ci_.getTimingAdvance());
+                GSM gsm = (GSM) ci_;
+                gsm.getPoint(point);
             }
             points.add(point);
         }
@@ -983,7 +869,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                         super.onCapabilitiesChanged(network, networkCapabilities);
                         WifiInfo wifiInfo = (WifiInfo) networkCapabilities.getTransportInfo();
                         if (wifiInfo != null) {
-                            wi = new WifiInformation(wifiInfo);
+                            wi = new WifiInformation(wifiInfo, System.currentTimeMillis());
                         } else {
                             wi = null;
                         }

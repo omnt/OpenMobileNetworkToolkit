@@ -8,6 +8,7 @@
                 <id>1</id>
                 <key>SSRSRP</key>
                 <unit>dBm</unit>
+                <parameter>ssrsrp</parameter>
                 <range>
                     <min>-156</min>
                     <max>-31</max>
@@ -16,6 +17,7 @@
             <column>
                 <id>2</id>
                 <key>SSRSRQ</key>
+                <parameter>ssrsrq</parameter>
                 <unit>dB</unit>
                 <range>
                     <min>-43</min>
@@ -25,6 +27,7 @@
             <column>
                 <id>3</id>
                 <key>SSSINR</key>
+                <parameter>sssinr</parameter>
                 <unit>dB</unit>
                 <range>
                     <min>-23</min>

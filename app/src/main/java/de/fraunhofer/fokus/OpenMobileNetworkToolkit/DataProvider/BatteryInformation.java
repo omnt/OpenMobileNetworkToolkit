@@ -8,11 +8,19 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-public class BatteryInformation {
+public class BatteryInformation extends Information {
     private int scale;
     private int level;
     private int charge_type;
-
+    public BatteryInformation() {
+        super();
+    }
+    public BatteryInformation(long timeStamp, int scale, int level, int charge_type) {
+        super(timeStamp);
+        this.scale = scale;
+        this.level = level;
+        this.charge_type = charge_type;
+    }
     public int getScale() {
         return scale;
     }

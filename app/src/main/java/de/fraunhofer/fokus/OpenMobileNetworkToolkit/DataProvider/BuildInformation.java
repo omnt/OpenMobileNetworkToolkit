@@ -5,8 +5,16 @@ import org.json.JSONObject;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.BuildConfig;
 
-public class BuildInformation {
+public class BuildInformation extends Information {
     private final String TAG = "BuildInformation";
+
+    public BuildInformation() {
+        super();
+    }
+
+    public BuildInformation(long timeStamp) {
+        super(timeStamp);
+    }
 
     public String getBuildType() {
         return BuildConfig.BUILD_TYPE;

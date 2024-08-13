@@ -8,7 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-public class DeviceInformation {
+public class DeviceInformation extends Information {
     private String Model;
     private String Manufacturer;
     private String SOCManufacturer;
@@ -26,9 +26,9 @@ public class DeviceInformation {
     private String SubscriberId;
     private String NetworkAccessIdentifier;
     private String SubscriptionId;
-    private long TimeStamp;
 
-    public DeviceInformation(String model, String manufacturer, String SOCManufacturer, String SOCModel, String radioVersion, String supportedModemCount, String androidSDK, String androidRelease, String deviceSoftwareVersion, String IMEI, String MEID, String IMSI, String simSerial, String subscriberId, String networkAccessIdentifier, String subscriptionId) {
+    public DeviceInformation(String model, String manufacturer, String SOCManufacturer, String SOCModel, String radioVersion, String supportedModemCount, String androidSDK, String androidRelease, String deviceSoftwareVersion, String IMEI, String MEID, String IMSI, String simSerial, String subscriberId, String networkAccessIdentifier, String subscriptionId, long timestamp) {
+        super(timestamp);
         Model = model;
         Manufacturer = manufacturer;
         this.SOCManufacturer = SOCManufacturer;
@@ -48,14 +48,6 @@ public class DeviceInformation {
     }
 
     public DeviceInformation() {
-    }
-
-    public long getTimeStamp() {
-        return TimeStamp;
-    }
-
-    public void setTimeStamp(long timeStamp) {
-        TimeStamp = timeStamp;
     }
 
     public String getIMSI() {
