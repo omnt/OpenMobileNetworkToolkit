@@ -21,15 +21,14 @@ import android.widget.LinearLayout;
 
 import com.influxdb.client.write.Point;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.XMLtoUI;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class LTE extends CellInformation {
 
-    // LTE
     private int earfcn;
     private int bandwidth;
     private int cqi;
@@ -38,6 +37,7 @@ public class LTE extends CellInformation {
     private int rssi;
     private int rssnr;
     private int timingAdvance;
+    private String mcc;
 
 
     public LTE() {
@@ -74,6 +74,8 @@ public class LTE extends CellInformation {
 
         this.bandwidth = cellIdentityLte.getBandwidth();
         this.earfcn = cellIdentityLte.getEarfcn();
+        this.mcc = cellIdentityLte.getMccString();
+
         this.cqi = cellSignalStrengthLte.getCqi();
         this.rsrp = cellSignalStrengthLte.getRsrp();
         this.rsrq = cellSignalStrengthLte.getRsrq();
@@ -90,6 +92,14 @@ public class LTE extends CellInformation {
                 cellInfoLte.getCellIdentity(),
                 cellInfoLte.getCellSignalStrength(),
                 timestamp);
+    }
+
+    public String getMcc() {
+        return mcc;
+    }
+
+    public void setMcc(String mcc) {
+        this.mcc = mcc;
     }
 
     public int getBandwidth() {
@@ -132,9 +142,34 @@ public class LTE extends CellInformation {
         this.rssnr = rssnr;
     }
 
+    public int getTimingAdvance() {
+        return timingAdvance;
+    }
+
+    public void setTimingAdvance(int timingAdvance) {
+        this.timingAdvance = timingAdvance;
+    }
+
+    public int getCqi() {
+        return cqi;
+    }
+
+    public void setCqi(int cqi) {
+        this.cqi = cqi;
+    }
+
+    public int getEarfcn() {
+        return earfcn;
+    }
+
+    public void setEarfcn(int earfcn) {
+        this.earfcn = earfcn;
+    }
+
+
     @Override
     public Point getPoint(Point point){
-
+        return point;
     }
 
     @Override
@@ -144,6 +179,11 @@ public class LTE extends CellInformation {
         stringBuilder.append(" RSRP: ").append(this.getRsrp());
         stringBuilder.append(" RSSI: ").append(this.getRssi());
         stringBuilder.append(" RSSNR: ").append(this.getRssnr());
+        stringBuilder.append(" CQI: ").append(this.getCqi());
+        stringBuilder.append(" Bandwidth: ").append(this.getBandwidth());
+        stringBuilder.append(" EARFCN: ").append(this.getEarfcn());
+        stringBuilder.append(" TimingAdvance: ").append(this.getTimingAdvance());
+
 
         return stringBuilder;
 
@@ -154,9 +194,17 @@ public class LTE extends CellInformation {
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setGravity(Gravity.CENTER);
         ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        XMLtoUI xmlToUI = new XMLtoUI();
-        ll.addView(xmlToUI.createUIFromXML(context, xmlToUI.loadXmlFromFile(context, R.xml.cell_information_general), this));
-        ll.addView(xmlToUI.createUIFromXML(context, xmlToUI.loadXmlFromFile(context, R.xml.cell_information_lte), this));
+        JSONtoUI JsonToUI = new JSONtoUI();
+
+        JSONObject generalJson = JsonToUI.loadJsonFromAsset(context, "cell_information_general.json");
+        if(generalJson == null) return ll;
+
+        JSONObject ltelJson = JsonToUI.loadJsonFromAsset(context, "cell_information_lte.json");
+        if(ltelJson == null) return ll;
+
+
+        ll.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
+        ll.addView(JsonToUI.createUIFromJSON(context, ltelJson, this));
         return ll;
     }
 

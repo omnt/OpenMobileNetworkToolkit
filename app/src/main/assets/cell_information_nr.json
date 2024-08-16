@@ -1,0 +1,41 @@
+{
+    "type": "cellinformation",
+    "evolution": "NR",
+    "table": {
+        "row": {
+            "column": [
+                {
+                    "id": "1",
+                    "key": "SSRSRP",
+                    "unit": "dBm",
+                    "parameter": "ssrsrp",
+                    "range": {
+                        "min": "-156",
+                        "max": "-31"
+                    }
+                },
+                {
+                    "id": "2",
+                    "key": "SSRSRQ",
+                    "parameter": "ssrsrq",
+                    "unit": "dB",
+                    "range": {
+                        "min": "-43",
+                        "max": "20"
+                    }
+                },
+                {
+                    "id": "3",
+                    "key": "SSSINR",
+                    "parameter": "sssinr",
+                    "unit": "dB",
+                    "range": {
+                        "min": "-23",
+                        "max": "40"
+                    }
+                }
+            ]
+        }
+    },
+    "_source": "https://developer.android.com/reference/android/telephony/CellSignalStrengthNr"
+}

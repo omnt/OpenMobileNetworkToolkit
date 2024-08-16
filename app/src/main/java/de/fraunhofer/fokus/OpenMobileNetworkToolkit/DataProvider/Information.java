@@ -1,11 +1,11 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.widget.LinearLayout;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.XMLtoUI;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Objects;
 
 public class Information {
     private long timeStamp;
@@ -33,5 +33,30 @@ public class Information {
     }
     public LinearLayout createQuickView(Context context) {
         return null;
+    }
+
+    public HashMap<String, String> getInformation() {
+        HashMap<String, String> hashMapInformation = new HashMap<>();
+        for (Field field : this.getClass().getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                hashMapInformation.put(field.getName(), field.get(this).toString());
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (Field field : Objects.requireNonNull(this.getClass().getSuperclass()).getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                hashMapInformation.put(field.getName(), field.get(this).toString());
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+        return hashMapInformation;
     }
 }

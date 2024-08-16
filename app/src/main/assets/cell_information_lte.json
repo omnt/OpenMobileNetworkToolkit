@@ -1,0 +1,61 @@
+{
+    "type": "cellinformation",
+    "evolution": "LTE",
+    "table": {
+        "row": {
+            "column": [
+                {
+                    "id": "1",
+                    "key": "CQI",
+                    "unit": "",
+                    "parameter": "cqi",
+                    "range": {
+                        "min": "0",
+                        "max": "15"
+                    }
+                },
+                {
+                    "id": "2",
+                    "key": "RSRQ",
+                    "parameter": "rsrq",
+                    "unit": "dB",
+                    "range": {
+                        "min": "-34",
+                        "max": "3"
+                    }
+                },
+                {
+                    "id": "3",
+                    "key": "RSRP",
+                    "parameter": "rsrp",
+                    "unit": "dBm",
+                    "range": {
+                        "min": "-140",
+                        "max": "-43"
+                    }
+                },
+                {
+                    "id": "4",
+                    "key": "RSSNR",
+                    "parameter": "rssnr",
+                    "unit": "dB",
+                    "range": {
+                        "min": "-20",
+                        "max": "30"
+                    }
+                },
+                {
+                    "id": "5",
+                    "key": "RSSI",
+                    "parameter": "rssi",
+                    "unit": "dBm",
+                    "range": {
+                        "min": "-113",
+                        "max": "-51"
+                    }
+                }
+            ]
+        }
+    },
+    "_source": "https://developer.android.com/reference/android/telephony/CellSignalStrengthLte"
+}

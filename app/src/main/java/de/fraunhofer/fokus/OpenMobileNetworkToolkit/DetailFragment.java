@@ -418,54 +418,13 @@ public class DetailFragment extends Fragment {
             tv.setTypeface(Typeface.DEFAULT_BOLD);
             tl.addView(title);
 
-            tl.addView(rowBuilder("Alpha Long", ci.getAlphaLong()));
-            tl.addView(rowBuilder("Cell Type", ci.getCellType()));
-            tl.addView(rowBuilder("Registered", String.valueOf(ci.isRegistered())));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 String bands = ci.getBands();
                 if (bands != null) {
                     tl.addView(rowBuilder("bands", ci.getBands().replace("[", "").replace("]", "").replace(", ", "\n")));
                 }
             }
-            tl.addView(rowBuilder("CI", String.valueOf(ci.getCi())));
-            tl.addView(rowBuilder("MNC", ci.getMnc()));
-            tl.addView(rowBuilder("MCC", ci.getMcc()));
-            tl.addView(rowBuilder("ARFCN", String.valueOf(ci.getARFCN())));
-            tl.addView(rowBuilder(GlobalVars.Level, String.valueOf(ci.getLevel())));
-            tl.addView(rowBuilder(GlobalVars.RSSI, String.valueOf(ci.getRssi())));
-            tl.addView(rowBuilder(GlobalVars.Dbm, String.valueOf(ci.getDbm())));
-            tl.addView(rowBuilder(GlobalVars.AsuLevel, String.valueOf(ci.getAsuLevel())));
-            tl.addView(rowBuilder("Cell Connection Status", String.valueOf(ci.getCellConnectionStatus())));
-            tl.addView(rowBuilder("Timing Advance", String.valueOf(ci.getTimingAdvance())));
-
-            // Stuff only available in GSM
-            if (Objects.equals(ci.getCellType(), "GSM")) {
-                tl.addView(rowBuilder("LAC", String.valueOf(ci.getLac())));
-            }
-
-            // Stuff not available in GSM
-            if (!Objects.equals(ci.getCellType(), "GSM")) {
-                tl.addView(rowBuilder("PCI", String.valueOf(ci.getPci())));
-                tl.addView(rowBuilder("TAC", String.valueOf(ci.getTac())));
-            }
-
-            // Stuff only available in LTE
-            if (Objects.equals(ci.getCellType(), "LTE")) {
-                tl.addView(rowBuilder(GlobalVars.CQI, String.valueOf(ci.getCqi())));
-                tl.addView(rowBuilder(GlobalVars.RSRQ, String.valueOf(ci.getRsrq())));
-                tl.addView(rowBuilder(GlobalVars.RSRP, String.valueOf(ci.getRsrp())));
-                tl.addView(rowBuilder(GlobalVars.RSSNR, String.valueOf(ci.getRssnr())));
-            }
-            // Stuff only available in NR
-            if (Objects.equals(ci.getCellType(), "NR")) {
-                tl.addView(rowBuilder(GlobalVars.CSIRSRP, String.valueOf(ci.getCsirsrp())));
-                tl.addView(rowBuilder(GlobalVars.CSIRSRQ, String.valueOf(ci.getCsirsrq())));
-                tl.addView(rowBuilder(GlobalVars.CSISINR, String.valueOf(ci.getCsisinr())));
-                tl.addView(rowBuilder(GlobalVars.SSRSRP, String.valueOf(ci.getSsrsrp())));
-                tl.addView(rowBuilder(GlobalVars.SSRSRQ, String.valueOf(ci.getSsrsrq())));
-                tl.addView(rowBuilder(GlobalVars.SSSINR, String.valueOf(ci.getSssinr())));
-            }
-
+            tl = ci.getTable(tl, context);
         }
         if (tl.getChildCount() == 0) {
             tl.addView(rowBuilder("No cells available", ""));

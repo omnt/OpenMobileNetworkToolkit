@@ -14,20 +14,20 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformatio
 import android.content.Context;
 import android.os.Build;
 import android.telephony.CellIdentityNr;
-import android.telephony.CellInfo;
 import android.telephony.CellSignalStrengthNr;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.telephony.CellInfoNr;
 
 import com.influxdb.client.write.Point;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.XMLtoUI;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class NR extends CellInformation {
     private static final String TAG = "NR";
@@ -214,6 +214,7 @@ public class NR extends CellInformation {
         sb.append(" SSRSQ: ").append(this.getSsrsrq());
         sb.append(" SSRSRP: ").append(this.getSsrsrp());
         sb.append(" SSSINR: ").append(this.getSssinr());
+        return sb;
     }
 
     public LinearLayout createQuickView(Context context) {
@@ -221,9 +222,17 @@ public class NR extends CellInformation {
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.setGravity(Gravity.CENTER);
         ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        XMLtoUI xmlToUI = new XMLtoUI();
-        ll.addView(xmlToUI.createUIFromXML(context, xmlToUI.loadXmlFromFile(context, R.xml.cell_information_general), this));
-        ll.addView(xmlToUI.createUIFromXML(context, xmlToUI.loadXmlFromFile(context, R.xml.cell_information_nr), this));
+        JSONtoUI JsonToUI = new JSONtoUI();
+
+        JSONObject generalJson = JsonToUI.loadJsonFromAsset(context, "cell_information_general.json");
+        if(generalJson == null) return ll;
+
+        JSONObject ltelJson = JsonToUI.loadJsonFromAsset(context, "cell_information_nr.json");
+        if(ltelJson == null) return ll;
+
+
+        ll.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
+        ll.addView(JsonToUI.createUIFromJSON(context, ltelJson, this));
         return ll;
     }
 

@@ -14,15 +14,19 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformatio
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.telephony.CellInfo;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.influxdb.client.write.Point;
 
+import java.lang.reflect.Field;
+import java.util.Objects;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.XMLtoUI;
 
 public class CellInformation extends Information {
     private static final String TAG = "CellInformation";
@@ -190,8 +194,44 @@ public class CellInformation extends Information {
         }
         stringBuilder.append(" Type: " + this.getCellType());
         if(this.getPci() != -1) stringBuilder.append(" PCI: ").append(this.getPci());
+        if(!this.getAlphaLong().equals("N/A")) stringBuilder.append(" Alpha Long: ").append(this.getAlphaLong());
+
 
         return stringBuilder;
+    }
+
+    private TableRow rowBuilder(String column1, String column2, Context context) {
+        if (Objects.equals(column2, String.valueOf(CellInfo.UNAVAILABLE))) {
+            column2 = "N/A";
+        }
+        TableRow tr = new TableRow(context);
+        tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
+                .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        tr.setPadding(2, 2, 2, 2);
+        TextView tv1 = new TextView(context);
+        tv1.setPadding(20, 0, 20, 0);
+        TextView tv2 = new TextView(context);
+        tv2.setPadding(0, 0, 0, 0);
+        tv2.setTextIsSelectable(true);
+        tv1.append(column1);
+        tv2.append(Objects.requireNonNullElse(column2, "N/A"));
+        tv2.setTextIsSelectable(true);
+        tr.addView(tv1);
+        tr.addView(tv2);
+        return tr;
+    }
+
+    public TableLayout getTable(TableLayout tl, Context context){
+        for (Field field : this.getClass().getDeclaredFields()) {
+            String name = field.getName();
+            String value = null;
+            try {
+                value = field.get(this).toString();
+            } catch (Exception e){}
+            if (value == null) continue;
+            tl.addView(rowBuilder(name, value, context));
+        }
+        return tl;
     }
 
 
