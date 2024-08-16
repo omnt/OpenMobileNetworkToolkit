@@ -14,6 +14,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformatio
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.telephony.CellInfo;
@@ -23,10 +24,13 @@ import android.widget.TextView;
 
 import com.influxdb.client.write.Point;
 
+import org.json.JSONObject;
+
 import java.lang.reflect.Field;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class CellInformation extends Information {
     private static final String TAG = "CellInformation";
@@ -42,6 +46,23 @@ public class CellInformation extends Information {
     private int cellConnectionStatus;
     private int asuLevel;
 
+
+    private String getPath(){
+        switch (cellType){
+            case GSM:
+                return "cell_information_gsm.json";
+            case LTE:
+                return "cell_information_lte.json";
+            case NR:
+                return "cell_information_nr.json";
+            case CDMA:
+                return "cell_information_cdma.json";
+            case UNKNOWN:
+                return "cell_information_unknown.json";
+            default:
+                return "cell_information_unknown.json";
+        }
+    }
 
     public CellInformation() {
         super();
@@ -234,17 +255,23 @@ public class CellInformation extends Information {
         return tl;
     }
 
-
-
     public LinearLayout createQuickView(Context context) {
-        switch (cellType) {
-            case LTE:
-                return ((LTE) this).createQuickView(context);
-            case NR:
-                return ((NR) this).createQuickView(context);
-        }
-        return null;
-    }
+        LinearLayout ll = new LinearLayout(context);
+        ll.setOrientation(LinearLayout.VERTICAL);
+        ll.setGravity(Gravity.CENTER);
+        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        JSONtoUI JsonToUI = new JSONtoUI();
 
+        JSONObject generalJson = JsonToUI.loadJsonFromAsset(context, "cell_information_general.json");
+        if(generalJson == null) return ll;
+
+        JSONObject evolution = JsonToUI.loadJsonFromAsset(context, getPath());
+        if(evolution == null) return ll;
+
+
+        ll.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
+        ll.addView(JsonToUI.createUIFromJSON(context, evolution, this));
+        return ll;
+    }
 
 }

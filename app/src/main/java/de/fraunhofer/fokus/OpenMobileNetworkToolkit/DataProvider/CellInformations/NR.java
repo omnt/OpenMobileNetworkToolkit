@@ -217,24 +217,4 @@ public class NR extends CellInformation {
         return sb;
     }
 
-    public LinearLayout createQuickView(Context context) {
-        LinearLayout ll = new LinearLayout(context);
-        ll.setOrientation(LinearLayout.VERTICAL);
-        ll.setGravity(Gravity.CENTER);
-        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        JSONtoUI JsonToUI = new JSONtoUI();
-
-        JSONObject generalJson = JsonToUI.loadJsonFromAsset(context, "cell_information_general.json");
-        if(generalJson == null) return ll;
-
-        JSONObject ltelJson = JsonToUI.loadJsonFromAsset(context, "cell_information_nr.json");
-        if(ltelJson == null) return ll;
-
-
-        ll.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
-        ll.addView(JsonToUI.createUIFromJSON(context, ltelJson, this));
-        return ll;
-    }
-
-
 }
