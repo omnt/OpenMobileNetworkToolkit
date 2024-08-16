@@ -40,7 +40,10 @@ public class Information {
         for (Field field : this.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             try {
-                hashMapInformation.put(field.getName(), field.get(this).toString());
+                Object value = field.get(this);
+                if(value == null) value = "N/A";
+
+                hashMapInformation.put(field.getName(), value.toString());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -49,7 +52,10 @@ public class Information {
         for (Field field : Objects.requireNonNull(this.getClass().getSuperclass()).getDeclaredFields()) {
             field.setAccessible(true);
             try {
-                hashMapInformation.put(field.getName(), field.get(this).toString());
+                Object value = field.get(this);
+                if(value == null) value = "N/A";
+
+                hashMapInformation.put(field.getName(), value.toString());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }

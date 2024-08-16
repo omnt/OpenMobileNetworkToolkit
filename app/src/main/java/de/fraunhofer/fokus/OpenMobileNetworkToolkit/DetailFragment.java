@@ -418,11 +418,8 @@ public class DetailFragment extends Fragment {
             tv.setTypeface(Typeface.DEFAULT_BOLD);
             tl.addView(title);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                String bands = ci.getBands();
-                if (bands != null) {
-                    tl.addView(rowBuilder("bands", ci.getBands().replace("[", "").replace("]", "").replace(", ", "\n")));
-                }
+            for(TableRow tr : ci.getTableRows(context)) {
+                tl.addView(tr);
             }
             tl = ci.getTable(tl, context);
         }

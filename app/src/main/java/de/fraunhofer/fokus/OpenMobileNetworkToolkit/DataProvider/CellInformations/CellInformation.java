@@ -27,6 +27,8 @@ import com.influxdb.client.write.Point;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
@@ -240,6 +242,15 @@ public class CellInformation extends Information {
         tr.addView(tv1);
         tr.addView(tv2);
         return tr;
+    }
+
+    public ArrayList<TableRow> getTableRows(Context context){
+        ArrayList<TableRow> tableRows = new ArrayList<>();
+        HashMap <String, String> cellInformation = this.getInformation();
+        for (String key : cellInformation.keySet()) {
+            tableRows.add(rowBuilder(key, cellInformation.get(key), context));
+        }
+        return tableRows;
     }
 
     public TableLayout getTable(TableLayout tl, Context context){
