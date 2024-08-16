@@ -48,11 +48,6 @@
                             "color": "#a9ff68"
                         }
                     }
-                },
-                {
-                    "key": "NRAFCN",
-                    "unit": "",
-                    "parameter": "nrarfcn"
                 }
             ]
         }
