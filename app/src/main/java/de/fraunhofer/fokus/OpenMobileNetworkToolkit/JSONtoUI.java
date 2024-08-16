@@ -18,14 +18,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
+import android.graphics.Color;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
 public class JSONtoUI {
     private static final String TAG = "JSONtoUI";
     private static final int CARD_RADIUS = 9;
     private static final int CARD_ELEVATION = 9;
     private static final int TEXT_SIZE_LARGE = 20;
-    private static final int TEXT_SIZE_SMALL = 19;
+    private static final int TEXT_SIZE_MEDIUM = 16;
+    private static final int TEXT_SIZE_SMALL = 14;
     private static final String DEFAULT_VALUE = "N/A";
 
     private LinearLayout createRow(Context context) {
@@ -38,7 +40,29 @@ public class JSONtoUI {
         return rowLayout;
     }
 
-    private CardView createCard(Context context, String title, String value) {
+    public int getColor(JSONObject min, JSONObject max, float value) {
+        // Ensure value is within min and max
+        int minValue = min.optInt("value");
+        int maxValue = max.optInt("value");
+        if (value < minValue) value = minValue;
+        if (value > maxValue) value = maxValue;
+
+        // Normalize the value to be within [0, 1]
+        float normalizedValue = (value - minValue) / (maxValue - minValue);
+
+        // Get colors from JSON
+        int minColor = Color.parseColor(min.optString("color"));
+        int maxColor = Color.parseColor(max.optString("color"));
+
+        // Calculate the red, green, and blue components based on the normalized value
+        int red = (int) ((1 - normalizedValue) * Color.red(minColor) + normalizedValue * Color.red(maxColor));
+        int green = (int) ((1 - normalizedValue) * Color.green(minColor) + normalizedValue * Color.green(maxColor));
+        int blue = (int) ((1 - normalizedValue) * Color.blue(minColor) + normalizedValue * Color.blue(maxColor));
+
+        return Color.rgb(red, green, blue);
+    }
+
+    private CardView createCard(Context context, String title, String value, JSONObject min, JSONObject max) {
         CardView card = new CardView(context);
         card.setLayoutParams(createCardLayoutParams());
         card.setRadius(CARD_RADIUS);
@@ -53,6 +77,12 @@ public class JSONtoUI {
         cardContent.addView(createTextView(context, title, TEXT_SIZE_LARGE, Gravity.CENTER));
         cardContent.addView(createTextView(context, formatValue(value), determineTextSize(value), Gravity.CENTER));
 
+        if(formatValue(value).equals(DEFAULT_VALUE) || min == null|| max == null) {
+            card.setCardBackgroundColor(Color.DKGRAY);
+        } else {
+            card.setCardBackgroundColor(getColor(min, max, Float.parseFloat(value)));
+        }
+
         card.addView(cardContent);
         return card;
     }
@@ -60,7 +90,7 @@ public class JSONtoUI {
     private LinearLayout.LayoutParams createCardLayoutParams() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 0,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.MATCH_PARENT
         );
         params.weight = 1;
         return params;
@@ -88,7 +118,9 @@ public class JSONtoUI {
     }
 
     private int determineTextSize(String value) {
-        return (value.length() > 7) ? TEXT_SIZE_SMALL : TEXT_SIZE_LARGE;
+        if(value.length() < 5) return TEXT_SIZE_LARGE;
+        if(value.length() < 8) return TEXT_SIZE_MEDIUM;
+        return TEXT_SIZE_SMALL;
     }
 
     public LinearLayout createUIFromJSON(Context context, JSONObject jsonObj, Information data) {
@@ -128,7 +160,15 @@ public class JSONtoUI {
 
                 String valKey = valueObject.optString("key");
                 String valValue = extractValues(valueObject.optString("parameter"), informationMap);
-                rowLayout.addView(createCard(context, valKey, valValue));
+                JSONObject range = valueObject.optJSONObject("range");
+                JSONObject min = null;
+                JSONObject max = null;
+                if (range != null) {
+                    min = range.optJSONObject("min");
+                    max = range.optJSONObject("max");
+                }
+                rowLayout.addView(createCard(context, valKey, valValue, min, max));
+
             }
         }
     }

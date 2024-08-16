@@ -5,34 +5,54 @@
         "row": {
             "column": [
                 {
-                    "id": "1",
                     "key": "SSRSRP",
                     "unit": "dBm",
                     "parameter": "ssrsrp",
                     "range": {
-                        "min": "-156",
-                        "max": "-31"
+                        "min": {
+                            "value": -156,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": -31,
+                            "color": "#a9ff68"
+                        }
                     }
                 },
                 {
-                    "id": "2",
                     "key": "SSRSRQ",
                     "parameter": "ssrsrq",
                     "unit": "dB",
                     "range": {
-                        "min": "-43",
-                        "max": "20"
+                        "min": {
+                            "value": -43,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": 20,
+                            "color": "#a9ff68"
+                        }
                     }
                 },
                 {
-                    "id": "3",
                     "key": "SSSINR",
                     "parameter": "sssinr",
                     "unit": "dB",
                     "range": {
-                        "min": "-23",
-                        "max": "40"
+                        "min": {
+                            "value": -23,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": 40,
+                            "color": "#a9ff68"
+                        }
                     }
+                },
+                {
+                    "key": "NRAFCN",
+                    "unit": "",
+                    "parameter": "nrarfcn"
                 }
             ]
         }
