@@ -54,6 +54,20 @@ public class NR extends CellInformation {
         super();
     }
 
+    public NR(long timestamp, CellSignalStrengthNr cellSignalStrengthNr){
+        super(timestamp);
+        this.asuLevel = cellSignalStrengthNr.getAsuLevel();
+        this.dbm = cellSignalStrengthNr.getDbm();
+        this.csirsrp = cellSignalStrengthNr.getCsiRsrp();
+        this.csirsrq = cellSignalStrengthNr.getCsiRsrq();
+        this.csisinr = cellSignalStrengthNr.getCsiSinr();
+        this.ssrsrp = cellSignalStrengthNr.getSsRsrp();
+        this.ssrsrq = cellSignalStrengthNr.getSsRsrq();
+        this.sssinr = cellSignalStrengthNr.getSsSinr();
+        this.cqis = cellSignalStrengthNr.getCsiCqiReport();
+        this.setCellType(CellType.NR);
+    }
+
     private NR(CellInfoNr cellInfoNr,
               CellIdentityNr cellIdentityNr,
               CellSignalStrengthNr cellSignalStrengthNr, long timestamp){
@@ -207,7 +221,7 @@ public class NR extends CellInformation {
 
 
     @Override
-    public TableLayout getTable(TableLayout tl, Context context) {
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
                 {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
                 {PrettyPrintMap.Keys.mcc.toString(), String.valueOf(this.getMcc())},
@@ -218,7 +232,7 @@ public class NR extends CellInformation {
                 {PrettyPrintMap.Keys.ci.toString(), String.valueOf(this.getCi())},
                 {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
                 {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -227,7 +241,7 @@ public class NR extends CellInformation {
                 {PrettyPrintMap.Keys.nrarfcn.toString(), String.valueOf(this.getNrarfcn())},
                 {PrettyPrintMap.Keys.lac.toString(), String.valueOf(this.getLac())},
                 {PrettyPrintMap.Keys.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -239,7 +253,7 @@ public class NR extends CellInformation {
                 {PrettyPrintMap.Keys.csirsrq.toString(), String.valueOf(this.getCsirsrq())},
                 {PrettyPrintMap.Keys.csisinr.toString(), String.valueOf(this.getCsisinr())},
                 {PrettyPrintMap.Keys.cqi.toString(), String.valueOf(this.getCqis())}
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -247,7 +261,7 @@ public class NR extends CellInformation {
                 {PrettyPrintMap.Keys.ssrsrp.toString(), String.valueOf(this.getSsrsrp())},
                 {PrettyPrintMap.Keys.ssrsrq.toString(), String.valueOf(this.getSsrsrq())},
                 {PrettyPrintMap.Keys.sssinr.toString(), String.valueOf(this.getSssinr())},
-        });
+        }, displayNull);
 
         return tl;
     }

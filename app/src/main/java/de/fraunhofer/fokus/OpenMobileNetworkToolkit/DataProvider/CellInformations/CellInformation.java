@@ -77,6 +77,10 @@ public class CellInformation extends Information {
         super();
     }
 
+    public CellInformation(long timestamp){
+        super(timestamp);
+    }
+
     public CellInformation(long timeStamp,
                            CellType cellType,
                            String bands,

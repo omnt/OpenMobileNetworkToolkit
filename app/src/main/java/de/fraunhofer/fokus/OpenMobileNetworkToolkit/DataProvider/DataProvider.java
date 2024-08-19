@@ -104,7 +104,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     private LocationInformation li = new LocationInformation();
     private NetworkInformation ni;// = new NetworkInformation();
     private List<NetworkInterfaceInformation> nii = new ArrayList<>();
-    private ArrayList<SignalStrengthInformation> ssi = new ArrayList<>();
+    private ArrayList<CellInformation> ssi = new ArrayList<>();
     private WifiInformation wi = null;
     private LocationManager lm;
     private final BuildInformation buildInformation = new BuildInformation();
@@ -476,54 +476,32 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         updateTimestamp();
         long ts_ = ts;
         List<CellSignalStrength> css = signalStrength.getCellSignalStrengths();
-        ArrayList<SignalStrengthInformation> signalStrengthInformationList = new ArrayList<>();
+        ArrayList<CellInformation> signalStrengthInformationList = new ArrayList<>();
         for (CellSignalStrength ss : css) {
-            SignalStrengthInformation signalStrengthInformation = new SignalStrengthInformation(ts_);
+            CellInformation signalStrengthInformation = null;
             if (ss instanceof CellSignalStrengthNr) {
                 CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
-                signalStrengthInformation.setLevel(ssnr.getLevel());
-                signalStrengthInformation.setCsiRSRP(ssnr.getCsiRsrp());
-                signalStrengthInformation.setCsiRSRQ(ssnr.getCsiRsrq());
-                signalStrengthInformation.setCsiSINR(ssnr.getCsiSinr());
-                signalStrengthInformation.setSSRSRP(ssnr.getSsRsrp());
-                signalStrengthInformation.setSSRSRQ(ssnr.getSsRsrq());
-                signalStrengthInformation.setSSSINR(ssnr.getSsSinr());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.NR);
+                signalStrengthInformation = new NR(ts_, ssnr);
             }
             if (ss instanceof CellSignalStrengthLte) {
                 CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
-                signalStrengthInformation.setLevel(ssLTE.getLevel());
-                signalStrengthInformation.setCQI(ssLTE.getCqi());
-
-                signalStrengthInformation.setRSRQ(ssLTE.getRsrq());
-                signalStrengthInformation.setRSRQ(ssLTE.getRsrp());
-                signalStrengthInformation.setRSSI(ssLTE.getRssi());
-                signalStrengthInformation.setRSSNR(ssLTE.getRssnr());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.LTE);
+                signalStrengthInformation = new LTE(ts_, ssLTE);
             }
             if (ss instanceof CellSignalStrengthCdma) {
                 CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
-                signalStrengthInformation.setLevel(ssCdma.getLevel());
-                signalStrengthInformation.setEvoDbm(ssCdma.getEvdoDbm());
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.CDMA);
+                signalStrengthInformation = new CDMA(ts_, ssCdma);
             }
             if (ss instanceof CellSignalStrengthGsm) {
                 CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
-                signalStrengthInformation.setLevel(ssGSM.getLevel());
-                signalStrengthInformation.setAsuLevel(ssGSM.getAsuLevel());
-                signalStrengthInformation.setDbm(ssGSM.getDbm());
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    signalStrengthInformation.setRSSI(ssGSM.getRssi());
-                }
-                signalStrengthInformation.setConnectionType(SignalStrengthInformation.connectionTypes.GSM);
+                signalStrengthInformation = new GSM(ts_, ssGSM);
             }
-            signalStrengthInformationList.add(signalStrengthInformation);
+            if(signalStrengthInformation != null) signalStrengthInformationList.add(signalStrengthInformation);
 
         }
         ssi = signalStrengthInformationList;
     }
 
-    public ArrayList<SignalStrengthInformation> getSignalStrengthInformation() {
+    public ArrayList<CellInformation> getSignalStrengthInformation() {
         return ssi;
     }
 

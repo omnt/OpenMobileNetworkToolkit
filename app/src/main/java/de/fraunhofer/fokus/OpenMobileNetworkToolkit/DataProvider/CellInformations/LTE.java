@@ -39,11 +39,26 @@ public class LTE extends CellInformation {
     private int rssi;
     private int rssnr;
     private int timingAdvance;
+    private int dbm;
     private String mcc;
 
 
     public LTE() {
         super();
+    }
+
+    public LTE(long timestamp, CellSignalStrengthLte cellSignalStrengthLte){
+        super(timestamp);
+
+        this.cqi = cellSignalStrengthLte.getCqi();
+        this.rsrp = cellSignalStrengthLte.getRsrp();
+        this.rsrq = cellSignalStrengthLte.getRsrq();
+        this.rssi = cellSignalStrengthLte.getRssi();
+        this.rssnr = cellSignalStrengthLte.getRssnr();
+        this.timingAdvance = cellSignalStrengthLte.getTimingAdvance();
+        this.dbm = cellSignalStrengthLte.getDbm();
+        this.setCellType(CellType.LTE);
+
     }
 
     private LTE(CellInfoLte cellInfoLte,
@@ -84,7 +99,7 @@ public class LTE extends CellInformation {
         this.rssi = cellSignalStrengthLte.getRssi();
         this.rssnr = cellSignalStrengthLte.getRssnr();
         this.timingAdvance = cellSignalStrengthLte.getTimingAdvance();
-
+        this.dbm = cellSignalStrengthLte.getDbm();
 
     }
 
@@ -94,6 +109,14 @@ public class LTE extends CellInformation {
                 cellInfoLte.getCellIdentity(),
                 cellInfoLte.getCellSignalStrength(),
                 timestamp);
+    }
+
+    public int getDbm() {
+        return dbm;
+    }
+
+    public void setDbm(int dbm) {
+        this.dbm = dbm;
     }
 
     public String getMcc() {
@@ -192,7 +215,7 @@ public class LTE extends CellInformation {
     }
 
     @Override
-    public TableLayout getTable(TableLayout tl, Context context) {
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
                 {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
                 {PrettyPrintMap.Keys.mcc.toString(), String.valueOf(this.getMcc())},
@@ -203,7 +226,7 @@ public class LTE extends CellInformation {
                 {PrettyPrintMap.Keys.ci.toString(), String.valueOf(this.getCi())},
                 {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
                 {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -212,7 +235,7 @@ public class LTE extends CellInformation {
                 {PrettyPrintMap.Keys.earfcn.toString(), String.valueOf(this.getEarfcn())},
                 {PrettyPrintMap.Keys.bandwidth.toString(), String.valueOf(this.getBandwidth())},
                 {PrettyPrintMap.Keys.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -222,14 +245,14 @@ public class LTE extends CellInformation {
                 {PrettyPrintMap.Keys.rsrp.toString(), String.valueOf(this.getRsrp())},
                 {PrettyPrintMap.Keys.rsrq.toString(), String.valueOf(this.getRsrq())},
                 {PrettyPrintMap.Keys.cqi.toString(), String.valueOf(this.getCqi())}
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
         addRows(tl, context, new String[][]{
                 {PrettyPrintMap.Keys.rssi.toString(), String.valueOf(this.getRssi())},
                 {PrettyPrintMap.Keys.rssnr.toString(), String.valueOf(this.getRssnr())},
-        });
+        }, displayNull);
 
         return tl;
     }

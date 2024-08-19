@@ -18,7 +18,16 @@ public class CDMA extends CellInformation {
 
 
     public CDMA() {super();}
+    public CDMA(long timestamp, CellSignalStrengthCdma cellSignalStrengthCdma){
+        super(timestamp);
+        cmdaDbm = cellSignalStrengthCdma.getCdmaDbm();
+        cmdaEcio = cellSignalStrengthCdma.getCdmaEcio();
+        evdoDbm = cellSignalStrengthCdma.getEvdoDbm();
+        evdoEcio = cellSignalStrengthCdma.getEvdoEcio();
+        evdoSnr = cellSignalStrengthCdma.getEvdoSnr();
+        this.setCellType(CellType.CDMA);
 
+    }
     private CDMA(CellInfoCdma cellInfoCdma,
                  CellIdentityCdma cellIdentityCdma,
                  CellSignalStrengthCdma cellSignalStrengthCdma,
@@ -85,13 +94,13 @@ public class CDMA extends CellInformation {
     }
 
     @Override
-    public TableLayout getTable(TableLayout tl, Context context) {
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
                 {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
                 {PrettyPrintMap.Keys.cellType.toString(), String.valueOf(this.getCellType())},
                 {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
                 {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -101,7 +110,7 @@ public class CDMA extends CellInformation {
                 {PrettyPrintMap.Keys.evdoDbm.toString(), String.valueOf(this.getEvdoDbm())},
                 {PrettyPrintMap.Keys.evdoEcio.toString(), String.valueOf(this.getEvdoEcio())},
                 {PrettyPrintMap.Keys.evdoSnr.toString(), String.valueOf(this.getEvdoSnr())},
-        });
+        }, displayNull);
 
         return tl;
     }

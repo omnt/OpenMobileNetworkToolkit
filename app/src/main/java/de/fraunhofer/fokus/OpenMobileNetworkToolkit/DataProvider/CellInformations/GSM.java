@@ -17,6 +17,14 @@ public class GSM extends CellInformation {
     private int rssi;
 
     public GSM() {super();}
+    public GSM(long timestamp, CellSignalStrengthGsm cellSignalStrengthGsm){
+        super(timestamp);
+        this.timingAdvance = cellSignalStrengthGsm.getTimingAdvance();
+        this.bitErrorRate = cellSignalStrengthGsm.getBitErrorRate();
+        this.dbm = cellSignalStrengthGsm.getDbm();
+        this.rssi = cellSignalStrengthGsm.getRssi();
+        this.setCellType(CellType.GSM);
+    }
 
     private GSM(CellInfoGsm cellInfoGsm,
                 CellIdentityGsm cellIdentityGsm,
@@ -94,7 +102,7 @@ public class GSM extends CellInformation {
     }
 
     @Override
-    public TableLayout getTable(TableLayout tl, Context context) {
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
                 {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
                 {PrettyPrintMap.Keys.mnc.toString(), String.valueOf(this.getMnc())},
@@ -102,7 +110,7 @@ public class GSM extends CellInformation {
                 {PrettyPrintMap.Keys.ci.toString(), String.valueOf(this.getCi())},
                 {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
                 {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -110,7 +118,7 @@ public class GSM extends CellInformation {
                 {PrettyPrintMap.Keys.bands.toString(), String.valueOf(this.getBands())},
                 {PrettyPrintMap.Keys.lac.toString(), String.valueOf(this.getLac())},
                 {PrettyPrintMap.Keys.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
-        });
+        }, displayNull);
 
         addDivider(tl, context);
 
@@ -120,7 +128,7 @@ public class GSM extends CellInformation {
                 {PrettyPrintMap.Keys.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
                 {PrettyPrintMap.Keys.bitErrorRate.toString(), String.valueOf(this.getBitErrorRate())},
                 {PrettyPrintMap.Keys.rssi.toString(), String.valueOf(this.getRssi())},
-        });
+        }, displayNull);
 
         return tl;
     }

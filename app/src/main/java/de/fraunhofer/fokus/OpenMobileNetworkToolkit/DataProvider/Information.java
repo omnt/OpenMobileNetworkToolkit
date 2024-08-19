@@ -72,8 +72,13 @@ public class Information {
         return tr;
     }
 
-    public void addRows(TableLayout tl, Context context, String[][] rows) {
+    public void addRows(TableLayout tl, Context context, String[][] rows, boolean displayNull) {
         for (String[] row : rows) {
+            if(!displayNull && (row[1].equals("N/A")
+                    || row[1].equals("null")
+                    || row[1].equals("0")
+                    || row[1].equals("false"))
+            ) continue;
             tl.addView(rowBuilder(row[0], row[1], context));
         }
     }
@@ -93,8 +98,7 @@ public class Information {
         return tableRows;
     }
 
-    public TableLayout getTable(TableLayout tl, Context context){
-
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull){
         for (Field field : this.getClass().getDeclaredFields()) {
             String name = field.getName();
             String value = null;
