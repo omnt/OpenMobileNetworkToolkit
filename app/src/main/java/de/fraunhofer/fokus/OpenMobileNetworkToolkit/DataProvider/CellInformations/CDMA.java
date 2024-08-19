@@ -1,10 +1,13 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations;
 
+import android.content.Context;
 import android.telephony.CellIdentityCdma;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellSignalStrengthCdma;
+import android.widget.TableLayout;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
 
 public class CDMA extends CellInformation {
     private int cmdaDbm;
@@ -79,5 +82,27 @@ public class CDMA extends CellInformation {
 
     public int getEvdoSnr() {
         return evdoSnr;
+    }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context) {
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
+                {PrettyPrintMap.Keys.cellType.toString(), String.valueOf(this.getCellType())},
+                {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
+                {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
+        });
+
+        addDivider(tl, context);
+
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.cmdaDbm.toString(), String.valueOf(this.getCmdaDbm())},
+                {PrettyPrintMap.Keys.cmdaEcio.toString(), String.valueOf(this.getCmdaEcio())},
+                {PrettyPrintMap.Keys.evdoDbm.toString(), String.valueOf(this.getEvdoDbm())},
+                {PrettyPrintMap.Keys.evdoEcio.toString(), String.valueOf(this.getEvdoEcio())},
+                {PrettyPrintMap.Keys.evdoSnr.toString(), String.valueOf(this.getEvdoSnr())},
+        });
+
+        return tl;
     }
 }

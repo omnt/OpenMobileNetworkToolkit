@@ -1,0 +1,146 @@
+{
+  "cmdaDbm": {
+    "to_show": 1,
+    "name": "CMDA dBm"
+  },
+  "cmdaEcio": {
+    "to_show": 1,
+    "name": "CMDA Ec/Io"
+  },
+  "evdoDbm": {
+    "to_show": 1,
+    "name": "EVDO dBm"
+  },
+  "evdoEcio": {
+    "to_show": 1,
+    "name": "EVDO Ec/Io"
+  },
+  "evdoSnr": {
+    "to_show": 1,
+    "name": "EVDO SNR"
+  },
+  "cellType": {
+    "to_show": 1,
+    "name": "Cell Type"
+  },
+  "alphaLong": {
+    "to_show": 1,
+    "name": "Alpha Long"
+  },
+  "bands": {
+    "to_show": 1,
+    "name": "Bands"
+  },
+  "ci": {
+    "to_show": 1,
+    "name": "CI"
+  },
+  "TAG": {
+    "to_show": 0,
+    "name": "TAG"
+  },
+  "mnc": {
+    "to_show": 1,
+    "name": "MNC"
+  },
+  "pci": {
+    "to_show": 1,
+    "name": "PCI"
+  },
+  "tac": {
+    "to_show": 1,
+    "name": "TAC"
+  },
+  "level": {
+    "to_show": 1,
+    "name": "Level"
+  },
+  "isRegistered": {
+    "to_show": 1,
+    "name": "Is Registered"
+  },
+  "cellConnectionStatus": {
+    "to_show": 1,
+    "name": "Cell Connection Status"
+  },
+  "asuLevel": {
+    "to_show": 1,
+    "name": "ASU Level"
+  },
+  "lac": {
+    "to_show": 1,
+    "name": "LAC"
+  },
+  "timingAdvance": {
+    "to_show": 1,
+    "name": "Timing Advance"
+  },
+  "bitErrorRate": {
+    "to_show": 1,
+    "name": "Bit Error Rate"
+  },
+  "dbm": {
+    "to_show": 1,
+    "name": "dBm"
+  },
+  "rssi": {
+    "to_show": 1,
+    "name": "RSSI"
+  },
+  "earfcn": {
+    "to_show": 1,
+    "name": "EARFCN"
+  },
+  "bandwidth": {
+    "to_show": 1,
+    "name": "Bandwidth"
+  },
+  "cqi": {
+    "to_show": 1,
+    "name": "CQI"
+  },
+  "rsrp": {
+    "to_show": 1,
+    "name": "RSRP"
+  },
+  "rsrq": {
+    "to_show": 1,
+    "name": "RSRQ"
+  },
+  "rssnr": {
+    "to_show": 1,
+    "name": "RSSNR"
+  },
+  "mcc": {
+    "to_show": 1,
+    "name": "MCC"
+  },
+  "nrarfcn": {
+    "to_show": 1,
+    "name": "NRARFCN"
+  },
+  "csirsrp": {
+    "to_show": 1,
+    "name": "CSI RSRP"
+  },
+  "csirsrq": {
+    "to_show": 1,
+    "name": "CSI RSRQ"
+  },
+  "csisinr": {
+    "to_show": 1,
+    "name": "CSI SINR"
+  },
+  "ssrsrp": {
+    "to_show": 1,
+    "name": "SS RSRP"
+  },
+  "ssrsrq": {
+    "to_show": 1,
+    "name": "SS RSRQ"
+  },
+  "sssinr": {
+    "to_show": 1,
+    "name": "SS SINR"
+  }
+}

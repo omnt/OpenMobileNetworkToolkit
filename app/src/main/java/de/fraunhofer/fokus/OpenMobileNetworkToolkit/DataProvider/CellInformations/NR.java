@@ -18,20 +18,24 @@ import android.telephony.CellSignalStrengthNr;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.telephony.CellInfoNr;
+import android.widget.TableLayout;
 
+import com.google.android.material.divider.MaterialDivider;
 import com.influxdb.client.write.Point;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class NR extends CellInformation {
     private static final String TAG = "NR";
-    // 5G
     private int nrarfcn;
     private int csirsrp;
     private int csirsrq;
@@ -44,6 +48,7 @@ public class NR extends CellInformation {
     private String mcc;
     private int lac;
     private int timingAdvance;
+    private List<Integer> cqis;
 
     public NR() {
         super();
@@ -85,6 +90,7 @@ public class NR extends CellInformation {
         this.ssrsrp = cellSignalStrengthNr.getSsRsrp();
         this.ssrsrq = cellSignalStrengthNr.getSsRsrq();
         this.sssinr = cellSignalStrengthNr.getSsSinr();
+        this.cqis = cellSignalStrengthNr.getCsiCqiReport();
         this.lac = cellIdentityNr.getTac();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             this.timingAdvance = cellSignalStrengthNr.getTimingAdvanceMicros();
@@ -121,6 +127,14 @@ public class NR extends CellInformation {
 
     public int getDbm() {
         return dbm;
+    }
+
+    public List<Integer> getCqis() {
+        return cqis;
+    }
+
+    public void setCqis(List<Integer> cqis) {
+        this.cqis = cqis;
     }
 
     public void setDbm(int dbm) {
@@ -189,6 +203,53 @@ public class NR extends CellInformation {
 
     public int getTimingAdvance() {
         return this.timingAdvance;
+    }
+
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context) {
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
+                {PrettyPrintMap.Keys.mcc.toString(), String.valueOf(this.getMcc())},
+                {PrettyPrintMap.Keys.mnc.toString(), String.valueOf(this.getMnc())},
+                {PrettyPrintMap.Keys.cellType.toString(), String.valueOf(this.getCellType())},
+                {PrettyPrintMap.Keys.pci.toString(), String.valueOf(this.getPci())},
+                {PrettyPrintMap.Keys.tac.toString(), String.valueOf(this.getTac())},
+                {PrettyPrintMap.Keys.ci.toString(), String.valueOf(this.getCi())},
+                {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
+                {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
+        });
+
+        addDivider(tl, context);
+
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.bands.toString(), String.valueOf(this.getBands())},
+                {PrettyPrintMap.Keys.nrarfcn.toString(), String.valueOf(this.getNrarfcn())},
+                {PrettyPrintMap.Keys.lac.toString(), String.valueOf(this.getLac())},
+                {PrettyPrintMap.Keys.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
+        });
+
+        addDivider(tl, context);
+
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.dbm.toString(), String.valueOf(this.getDbm())},
+                {PrettyPrintMap.Keys.level.toString(), String.valueOf(this.getLevel())},
+                {PrettyPrintMap.Keys.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
+                {PrettyPrintMap.Keys.csirsrp.toString(), String.valueOf(this.getCsirsrp())},
+                {PrettyPrintMap.Keys.csirsrq.toString(), String.valueOf(this.getCsirsrq())},
+                {PrettyPrintMap.Keys.csisinr.toString(), String.valueOf(this.getCsisinr())},
+                {PrettyPrintMap.Keys.cqi.toString(), String.valueOf(this.getCqis())}
+        });
+
+        addDivider(tl, context);
+
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.ssrsrp.toString(), String.valueOf(this.getSsrsrp())},
+                {PrettyPrintMap.Keys.ssrsrq.toString(), String.valueOf(this.getSsrsrq())},
+                {PrettyPrintMap.Keys.sssinr.toString(), String.valueOf(this.getSssinr())},
+        });
+
+        return tl;
     }
 
     @Override

@@ -1,9 +1,13 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations;
 
 
+import android.content.Context;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrengthGsm;
+import android.widget.TableLayout;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
 
 public class GSM extends CellInformation {
     private int lac;
@@ -87,5 +91,37 @@ public class GSM extends CellInformation {
 
     public void setRssi(int rssi) {
         this.rssi = rssi;
+    }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context) {
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
+                {PrettyPrintMap.Keys.mnc.toString(), String.valueOf(this.getMnc())},
+                {PrettyPrintMap.Keys.cellType.toString(), String.valueOf(this.getCellType())},
+                {PrettyPrintMap.Keys.ci.toString(), String.valueOf(this.getCi())},
+                {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
+                {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
+        });
+
+        addDivider(tl, context);
+
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.bands.toString(), String.valueOf(this.getBands())},
+                {PrettyPrintMap.Keys.lac.toString(), String.valueOf(this.getLac())},
+                {PrettyPrintMap.Keys.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
+        });
+
+        addDivider(tl, context);
+
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.Keys.dbm.toString(), String.valueOf(this.getDbm())},
+                {PrettyPrintMap.Keys.level.toString(), String.valueOf(this.getLevel())},
+                {PrettyPrintMap.Keys.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
+                {PrettyPrintMap.Keys.bitErrorRate.toString(), String.valueOf(this.getBitErrorRate())},
+                {PrettyPrintMap.Keys.rssi.toString(), String.valueOf(this.getRssi())},
+        });
+
+        return tl;
     }
 }

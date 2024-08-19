@@ -418,9 +418,9 @@ public class DetailFragment extends Fragment {
             tv.setTypeface(Typeface.DEFAULT_BOLD);
             tl.addView(title);
 
-            for(TableRow tr : ci.getTableRows(context)) {
-                tl.addView(tr);
-            }
+            //for(TableRow tr : ci.getTableRows(context)) {
+            //    tl.addView(tr);
+            //}
             tl = ci.getTable(tl, context);
         }
         if (tl.getChildCount() == 0) {

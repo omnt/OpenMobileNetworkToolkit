@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintValue;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class CellInformation extends Information {
@@ -39,14 +42,18 @@ public class CellInformation extends Information {
     private CellType cellType;
     private String alphaLong;
     private String bands;
+
     private long ci;
     private String mnc;
     private int pci;
     private int tac;
+
     private int level;
+    private int asuLevel;
+
+
     private boolean isRegistered;
     private int cellConnectionStatus;
-    private int asuLevel;
 
 
     private String getPath(){
@@ -221,49 +228,6 @@ public class CellInformation extends Information {
 
 
         return stringBuilder;
-    }
-
-    private TableRow rowBuilder(String column1, String column2, Context context) {
-        if (Objects.equals(column2, String.valueOf(CellInfo.UNAVAILABLE))) {
-            column2 = "N/A";
-        }
-        TableRow tr = new TableRow(context);
-        tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
-                .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        tr.setPadding(2, 2, 2, 2);
-        TextView tv1 = new TextView(context);
-        tv1.setPadding(20, 0, 20, 0);
-        TextView tv2 = new TextView(context);
-        tv2.setPadding(0, 0, 0, 0);
-        tv2.setTextIsSelectable(true);
-        tv1.append(column1);
-        tv2.append(Objects.requireNonNullElse(column2, "N/A"));
-        tv2.setTextIsSelectable(true);
-        tr.addView(tv1);
-        tr.addView(tv2);
-        return tr;
-    }
-
-    public ArrayList<TableRow> getTableRows(Context context){
-        ArrayList<TableRow> tableRows = new ArrayList<>();
-        HashMap <String, String> cellInformation = this.getInformation();
-        for (String key : cellInformation.keySet()) {
-            tableRows.add(rowBuilder(key, cellInformation.get(key), context));
-        }
-        return tableRows;
-    }
-
-    public TableLayout getTable(TableLayout tl, Context context){
-        for (Field field : this.getClass().getDeclaredFields()) {
-            String name = field.getName();
-            String value = null;
-            try {
-                value = field.get(this).toString();
-            } catch (Exception e){}
-            if (value == null) continue;
-            tl.addView(rowBuilder(name, value, context));
-        }
-        return tl;
     }
 
     public LinearLayout createQuickView(Context context) {
