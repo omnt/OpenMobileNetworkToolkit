@@ -8,6 +8,9 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.content.Context;
+import android.widget.TableLayout;
+
 public class DeviceInformation extends Information {
     private String Model;
     private String Manufacturer;
@@ -185,4 +188,29 @@ public class DeviceInformation extends Information {
     public void setSubscriptionId(String subscriptionId) {
         SubscriptionId = subscriptionId;
     }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.deviceInformation.MODEL.toString(), String.valueOf(this.getModel())},
+                {PrettyPrintMap.deviceInformation.Manufacturer.toString(), String.valueOf(this.getManufacturer())},
+                {PrettyPrintMap.deviceInformation.SOCManufacturer.toString(), String.valueOf(this.getSOCManufacturer())},
+                {PrettyPrintMap.deviceInformation.SOCModel.toString(), String.valueOf(this.getSOCModel())},
+                {PrettyPrintMap.deviceInformation.RadioVersion.toString(), String.valueOf(this.getRadioVersion())},
+                {PrettyPrintMap.deviceInformation.SupportedModemCount.toString(), String.valueOf(this.getSupportedModemCount())},
+                {PrettyPrintMap.deviceInformation.AndroidSDK.toString(), String.valueOf(this.getAndroidSDK())},
+                {PrettyPrintMap.deviceInformation.AndroidRelease.toString(), String.valueOf(this.getAndroidRelease())},
+                {PrettyPrintMap.deviceInformation.DeviceSoftwareVersion.toString(), String.valueOf(this.getDeviceSoftwareVersion())},
+                {PrettyPrintMap.deviceInformation.SecurityPatchLevel.toString(), String.valueOf(this.getSecurityPatchLevel())},
+                {PrettyPrintMap.deviceInformation.IMEI.toString(), String.valueOf(this.getIMEI())},
+                {PrettyPrintMap.deviceInformation.MEID.toString(), String.valueOf(this.getMEID())},
+                {PrettyPrintMap.deviceInformation.IMSI.toString(), String.valueOf(this.getIMSI())},
+                {PrettyPrintMap.deviceInformation.SimSerial.toString(), String.valueOf(this.getSimSerial())},
+                {PrettyPrintMap.deviceInformation.SubscriberId.toString(), String.valueOf(this.getSubscriberId())},
+                {PrettyPrintMap.deviceInformation.NetworkAccessIdentifier.toString(), String.valueOf(this.getNetworkAccessIdentifier())},
+                {PrettyPrintMap.deviceInformation.SubscriptionId.toString(), String.valueOf(this.getSubscriptionId())},
+        }, displayNull);
+        return tl;
+    }
+
 }

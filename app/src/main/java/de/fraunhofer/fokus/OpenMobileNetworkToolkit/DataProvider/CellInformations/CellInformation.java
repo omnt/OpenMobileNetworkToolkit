@@ -22,6 +22,8 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
+
 import com.influxdb.client.write.Point;
 
 import org.json.JSONObject;
@@ -234,6 +236,7 @@ public class CellInformation extends Information {
         return stringBuilder;
     }
 
+    @Override
     public LinearLayout createQuickView(Context context) {
         LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
@@ -246,10 +249,23 @@ public class CellInformation extends Information {
 
         JSONObject evolution = JsonToUI.loadJsonFromAsset(context, getPath());
         if(evolution == null) return ll;
+        CardView card = new CardView(context);
+        card.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        card.setRadius(10);
+        card.setCardElevation(10);
+        card.setMaxCardElevation(10);
+        card.setUseCompatPadding(true);
+        card.setPreventCornerOverlap(true);
 
-
-        ll.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
-        ll.addView(JsonToUI.createUIFromJSON(context, evolution, this));
+        LinearLayout cardContent = new LinearLayout(context);
+        cardContent.setOrientation(LinearLayout.VERTICAL);
+        cardContent.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
+        cardContent.addView(JsonToUI.createUIFromJSON(context, evolution, this));
+        card.addView(cardContent);
+        ll.addView(card);
         return ll;
     }
 

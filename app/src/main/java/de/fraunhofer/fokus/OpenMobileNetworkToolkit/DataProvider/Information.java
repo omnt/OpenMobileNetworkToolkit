@@ -41,6 +41,7 @@ public class Information {
     public Information(long timeStamp) {
         this.timeStamp = timeStamp;
     }
+
     public LinearLayout createQuickView(Context context) {
         return null;
     }

@@ -22,8 +22,10 @@ import static android.net.wifi.ScanResult.WIFI_STANDARD_11N;
 import static android.net.wifi.ScanResult.WIFI_STANDARD_LEGACY;
 import static android.net.wifi.ScanResult.WIFI_STANDARD_UNKNOWN;
 
+import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
+import android.widget.TableLayout;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -239,5 +241,11 @@ public class WifiInformation extends Information {
         point.addField("Channel Width", getChannelBandwithString());
         return point;
     }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
+        return tl;
+    }
+
 }
 

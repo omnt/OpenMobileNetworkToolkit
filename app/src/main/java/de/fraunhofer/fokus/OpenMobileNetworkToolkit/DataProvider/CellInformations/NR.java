@@ -15,24 +15,16 @@ import android.content.Context;
 import android.os.Build;
 import android.telephony.CellIdentityNr;
 import android.telephony.CellSignalStrengthNr;
-import android.view.Gravity;
-import android.widget.LinearLayout;
 import android.telephony.CellInfoNr;
 import android.widget.TableLayout;
 
-import com.google.android.material.divider.MaterialDivider;
 import com.influxdb.client.write.Point;
 
-import org.json.JSONObject;
-
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class NR extends CellInformation {
     private static final String TAG = "NR";
@@ -223,44 +215,44 @@ public class NR extends CellInformation {
     @Override
     public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
-                {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
-                {PrettyPrintMap.Keys.mcc.toString(), String.valueOf(this.getMcc())},
-                {PrettyPrintMap.Keys.mnc.toString(), String.valueOf(this.getMnc())},
-                {PrettyPrintMap.Keys.cellType.toString(), String.valueOf(this.getCellType())},
-                {PrettyPrintMap.Keys.pci.toString(), String.valueOf(this.getPci())},
-                {PrettyPrintMap.Keys.tac.toString(), String.valueOf(this.getTac())},
-                {PrettyPrintMap.Keys.ci.toString(), String.valueOf(this.getCi())},
-                {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
-                {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
+                {PrettyPrintMap.cellInformation.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
+                {PrettyPrintMap.cellInformation.mcc.toString(), String.valueOf(this.getMcc())},
+                {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMnc())},
+                {PrettyPrintMap.cellInformation.cellType.toString(), String.valueOf(this.getCellType())},
+                {PrettyPrintMap.cellInformation.pci.toString(), String.valueOf(this.getPci())},
+                {PrettyPrintMap.cellInformation.tac.toString(), String.valueOf(this.getTac())},
+                {PrettyPrintMap.cellInformation.ci.toString(), String.valueOf(this.getCi())},
+                {PrettyPrintMap.cellInformation.isRegistered.toString(), String.valueOf(this.isRegistered())},
+                {PrettyPrintMap.cellInformation.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
         }, displayNull);
 
         addDivider(tl, context);
 
         addRows(tl, context, new String[][]{
-                {PrettyPrintMap.Keys.bands.toString(), String.valueOf(this.getBands())},
-                {PrettyPrintMap.Keys.nrarfcn.toString(), String.valueOf(this.getNrarfcn())},
-                {PrettyPrintMap.Keys.lac.toString(), String.valueOf(this.getLac())},
-                {PrettyPrintMap.Keys.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
+                {PrettyPrintMap.cellInformation.bands.toString(), String.valueOf(this.getBands())},
+                {PrettyPrintMap.cellInformation.nrarfcn.toString(), String.valueOf(this.getNrarfcn())},
+                {PrettyPrintMap.cellInformation.lac.toString(), String.valueOf(this.getLac())},
+                {PrettyPrintMap.cellInformation.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
         }, displayNull);
 
         addDivider(tl, context);
 
         addRows(tl, context, new String[][]{
-                {PrettyPrintMap.Keys.dbm.toString(), String.valueOf(this.getDbm())},
-                {PrettyPrintMap.Keys.level.toString(), String.valueOf(this.getLevel())},
-                {PrettyPrintMap.Keys.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
-                {PrettyPrintMap.Keys.csirsrp.toString(), String.valueOf(this.getCsirsrp())},
-                {PrettyPrintMap.Keys.csirsrq.toString(), String.valueOf(this.getCsirsrq())},
-                {PrettyPrintMap.Keys.csisinr.toString(), String.valueOf(this.getCsisinr())},
-                {PrettyPrintMap.Keys.cqi.toString(), String.valueOf(this.getCqis())}
+                {PrettyPrintMap.cellInformation.dbm.toString(), String.valueOf(this.getDbm())},
+                {PrettyPrintMap.cellInformation.level.toString(), String.valueOf(this.getLevel())},
+                {PrettyPrintMap.cellInformation.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
+                {PrettyPrintMap.cellInformation.csirsrp.toString(), String.valueOf(this.getCsirsrp())},
+                {PrettyPrintMap.cellInformation.csirsrq.toString(), String.valueOf(this.getCsirsrq())},
+                {PrettyPrintMap.cellInformation.csisinr.toString(), String.valueOf(this.getCsisinr())},
+                {PrettyPrintMap.cellInformation.cqi.toString(), String.valueOf(this.getCqis())}
         }, displayNull);
 
         addDivider(tl, context);
 
         addRows(tl, context, new String[][]{
-                {PrettyPrintMap.Keys.ssrsrp.toString(), String.valueOf(this.getSsrsrp())},
-                {PrettyPrintMap.Keys.ssrsrq.toString(), String.valueOf(this.getSsrsrq())},
-                {PrettyPrintMap.Keys.sssinr.toString(), String.valueOf(this.getSssinr())},
+                {PrettyPrintMap.cellInformation.ssrsrp.toString(), String.valueOf(this.getSsrsrp())},
+                {PrettyPrintMap.cellInformation.ssrsrq.toString(), String.valueOf(this.getSsrsrq())},
+                {PrettyPrintMap.cellInformation.sssinr.toString(), String.valueOf(this.getSssinr())},
         }, displayNull);
 
         return tl;

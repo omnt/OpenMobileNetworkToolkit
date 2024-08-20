@@ -8,6 +8,9 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.content.Context;
+import android.widget.TableLayout;
+
 public class NetworkInterfaceInformation extends Information{
     private String interfaceName;
     private String address;
@@ -36,5 +39,10 @@ public class NetworkInterfaceInformation extends Information{
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
+        return tl;
     }
 }

@@ -9,9 +9,11 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Build;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
+import android.widget.TableLayout;
 
 public class NetworkInformation extends Information {
     private final String networkOperatorName;
@@ -270,5 +272,19 @@ public class NetworkInformation extends Information {
      */
     public int getPreferredOpportunisticDataSubscriptionId() {
         return preferredOpportunisticDataSubscriptionId;
+    }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
+        addRows(tl, context, new String[][]{
+                {PrettyPrintMap.networkInformation.networkOperatorName.toString(), networkOperatorName},
+                {PrettyPrintMap.networkInformation.simOperatorName.toString(), simOperatorName},
+                {PrettyPrintMap.networkInformation.networkSpecifier.toString(), networkSpecifier},
+                {PrettyPrintMap.networkInformation.dataState.toString(), getDataStateString()},
+                {PrettyPrintMap.networkInformation.dataNetworkType.toString(), getDataNetworkTypeString()},
+                {PrettyPrintMap.networkInformation.phoneType.toString(), getPhoneTypeString()},
+                {PrettyPrintMap.networkInformation.preferredOpportunisticDataSubscriptionId.toString(), String.valueOf(preferredOpportunisticDataSubscriptionId)},
+        }, displayNull);
+        return tl;
     }
 }

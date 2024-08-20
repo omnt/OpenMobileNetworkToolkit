@@ -5,6 +5,12 @@
         "row": {
             "column": [
                 {
+                    "id": "0",
+                    "key": "Type",
+                    "value": "-1",
+                    "parameter": "cellType"
+                },
+                {
                     "id": "1",
                     "key": "PLMN",
                     "value": "-1",

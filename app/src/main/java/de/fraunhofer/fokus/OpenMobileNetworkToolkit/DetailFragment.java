@@ -46,7 +46,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInforma
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInterfaceInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.SignalStrengthInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -221,23 +220,7 @@ public class DetailFragment extends Fragment {
     private CardView get_device_card_view() {
         DeviceInformation di = dp.getDeviceInformation();
         TableLayout tl = new TableLayout(context);
-        tl.addView(rowBuilder("Model", di.getModel()));
-        tl.addView(rowBuilder("Manufacturer", di.getManufacturer()));
-        tl.addView(rowBuilder("SOC Manufacturer", di.getSOCManufacturer()));
-        tl.addView(rowBuilder("SOC Model", di.getSOCModel()));
-        tl.addView(rowBuilder("Radio Version", di.getRadioVersion()));
-        tl.addView(rowBuilder("Supported Modem Count", di.getSupportedModemCount()));
-        tl.addView(rowBuilder("Android SDK", di.getAndroidSDK()));
-        tl.addView(rowBuilder("Android Release", di.getAndroidRelease()));
-        tl.addView(rowBuilder("Device Software Version", di.getDeviceSoftwareVersion()));
-        tl.addView(rowBuilder("Security Patch Level", di.getSecurityPatchLevel()));
-        tl.addView(rowBuilder("IMEI", di.getIMEI()));
-        tl.addView(rowBuilder("MEID", di.getMEID()));
-        tl.addView(rowBuilder("IMSI", di.getIMSI()));
-        tl.addView(rowBuilder("SIM Serial Number", di.getSimSerial()));
-        tl.addView(rowBuilder("Subscriber ID", di.getSubscriberId()));
-        tl.addView(rowBuilder("Network Access Identifier", di.getNetworkAccessIdentifier()));
-        tl.addView(rowBuilder("Subscription ID", di.getSubscriptionId()));
+        tl = di.getTable(tl, context, true);
         return cardView_from_table_builder("Device Information", tl);
     }
 
@@ -293,13 +276,7 @@ public class DetailFragment extends Fragment {
         TableLayout tl = new TableLayout(context);
         LocationInformation loc = dp.getLocation();
         if (loc != null) {
-            tl.addView(rowBuilder("Longitude", String.valueOf(loc.getLongitude())));
-            tl.addView(rowBuilder("Latitude", String.valueOf(loc.getLatitude())));
-            tl.addView(rowBuilder("Altitude", String.valueOf(loc.getAltitude())));
-            tl.addView(rowBuilder("Speed", String.valueOf(loc.getSpeed())));
-            tl.addView(rowBuilder("Accuracy", String.valueOf(loc.getAccuracy())));
-            tl.addView(rowBuilder("Provider List", String.valueOf(loc.getProviderList())));
-            tl.addView(rowBuilder("Provider", loc.getProvider()));
+            tl.addView(loc.getTable(tl, context, true));
         } else {
             tl.addView(rowBuilder("Location not available", ""));
         }

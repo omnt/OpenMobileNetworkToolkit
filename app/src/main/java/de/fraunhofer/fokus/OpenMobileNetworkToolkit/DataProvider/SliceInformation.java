@@ -8,6 +8,13 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-public class SliceInformation {
+import android.content.Context;
+import android.widget.TableLayout;
 
+public class SliceInformation extends Information {
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
+        return tl;
+    }
 }

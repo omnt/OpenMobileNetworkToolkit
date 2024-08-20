@@ -1,6 +1,9 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.TableLayout;
+
 import org.json.JSONObject;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.BuildConfig;
@@ -50,4 +53,10 @@ public class BuildInformation extends Information {
         }
         return json;
     }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
+        return tl;
+    }
+
 }

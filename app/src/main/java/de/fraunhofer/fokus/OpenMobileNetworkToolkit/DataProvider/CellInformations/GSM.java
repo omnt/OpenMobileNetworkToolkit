@@ -104,30 +104,30 @@ public class GSM extends CellInformation {
     @Override
     public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
-                {PrettyPrintMap.Keys.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
-                {PrettyPrintMap.Keys.mnc.toString(), String.valueOf(this.getMnc())},
-                {PrettyPrintMap.Keys.cellType.toString(), String.valueOf(this.getCellType())},
-                {PrettyPrintMap.Keys.ci.toString(), String.valueOf(this.getCi())},
-                {PrettyPrintMap.Keys.isRegistered.toString(), String.valueOf(this.isRegistered())},
-                {PrettyPrintMap.Keys.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
+                {PrettyPrintMap.cellInformation.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
+                {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMnc())},
+                {PrettyPrintMap.cellInformation.cellType.toString(), String.valueOf(this.getCellType())},
+                {PrettyPrintMap.cellInformation.ci.toString(), String.valueOf(this.getCi())},
+                {PrettyPrintMap.cellInformation.isRegistered.toString(), String.valueOf(this.isRegistered())},
+                {PrettyPrintMap.cellInformation.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
         }, displayNull);
 
         addDivider(tl, context);
 
         addRows(tl, context, new String[][]{
-                {PrettyPrintMap.Keys.bands.toString(), String.valueOf(this.getBands())},
-                {PrettyPrintMap.Keys.lac.toString(), String.valueOf(this.getLac())},
-                {PrettyPrintMap.Keys.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
+                {PrettyPrintMap.cellInformation.bands.toString(), String.valueOf(this.getBands())},
+                {PrettyPrintMap.cellInformation.lac.toString(), String.valueOf(this.getLac())},
+                {PrettyPrintMap.cellInformation.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
         }, displayNull);
 
         addDivider(tl, context);
 
         addRows(tl, context, new String[][]{
-                {PrettyPrintMap.Keys.dbm.toString(), String.valueOf(this.getDbm())},
-                {PrettyPrintMap.Keys.level.toString(), String.valueOf(this.getLevel())},
-                {PrettyPrintMap.Keys.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
-                {PrettyPrintMap.Keys.bitErrorRate.toString(), String.valueOf(this.getBitErrorRate())},
-                {PrettyPrintMap.Keys.rssi.toString(), String.valueOf(this.getRssi())},
+                {PrettyPrintMap.cellInformation.dbm.toString(), String.valueOf(this.getDbm())},
+                {PrettyPrintMap.cellInformation.level.toString(), String.valueOf(this.getLevel())},
+                {PrettyPrintMap.cellInformation.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
+                {PrettyPrintMap.cellInformation.bitErrorRate.toString(), String.valueOf(this.getBitErrorRate())},
+                {PrettyPrintMap.cellInformation.rssi.toString(), String.valueOf(this.getRssi())},
         }, displayNull);
 
         return tl;

@@ -8,6 +8,9 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.content.Context;
+import android.widget.TableLayout;
+
 public class BatteryInformation extends Information {
     private int scale;
     private int level;
@@ -48,4 +51,10 @@ public class BatteryInformation extends Information {
     public double getPercent() {
         return level * 100 / (double) scale;
     }
+
+    @Override
+    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
+        return tl;
+    }
+
 }
