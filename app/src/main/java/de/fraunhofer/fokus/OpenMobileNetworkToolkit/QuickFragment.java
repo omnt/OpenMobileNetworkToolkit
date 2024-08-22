@@ -20,6 +20,7 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class QuickFragment extends Fragment {
@@ -77,10 +78,12 @@ public class QuickFragment extends Fragment {
                 });
             }
 
-            if(!neighborCells.isEmpty()){
-                neighborCells.forEach(cellInformation -> {
-                    mainLL.addView(cellInformation.createQuickView(context));
-                });
+            if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
+                if(!neighborCells.isEmpty()){
+                    neighborCells.forEach(cellInformation -> {
+                        mainLL.addView(cellInformation.createQuickView(context));
+                    });
+                }
             }
             updateUIHandler.postDelayed(updateUI, 500);
         }
@@ -91,10 +94,6 @@ public class QuickFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_quick, container, false);
         mainLL = view.findViewById(R.id.quick_fragment);
-        dp.getRegisteredCells().forEach(cellInformation -> {
-            mainLL.addView(cellInformation.createQuickView(context));
-        });
-
         updateUIHandler.postDelayed(updateUI, 500);
         return view;
     }

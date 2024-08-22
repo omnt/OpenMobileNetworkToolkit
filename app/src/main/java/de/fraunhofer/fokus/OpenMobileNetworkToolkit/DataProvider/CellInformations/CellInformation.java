@@ -26,11 +26,14 @@ import androidx.cardview.widget.CardView;
 
 import com.influxdb.client.write.Point;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
@@ -245,10 +248,13 @@ public class CellInformation extends Information {
         JSONtoUI JsonToUI = new JSONtoUI();
 
         JSONObject generalJson = JsonToUI.loadJsonFromAsset(context, "cell_information_general.json");
-        if(generalJson == null) return ll;
+        if (generalJson == null) return ll;
 
         JSONObject evolution = JsonToUI.loadJsonFromAsset(context, getPath());
-        if(evolution == null) return ll;
+        if (evolution == null) return ll;
+
+        mergeJsonObjects(generalJson, evolution);
+
         CardView card = new CardView(context);
         card.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -262,11 +268,56 @@ public class CellInformation extends Information {
 
         LinearLayout cardContent = new LinearLayout(context);
         cardContent.setOrientation(LinearLayout.VERTICAL);
+
         cardContent.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
         cardContent.addView(JsonToUI.createUIFromJSON(context, evolution, this));
         card.addView(cardContent);
         ll.addView(card);
         return ll;
+    }
+
+    private void mergeJsonObjects(JSONObject generalJson, JSONObject evolution) {
+        JSONObject table = evolution.optJSONObject("table");
+        JSONObject generalTable = generalJson.optJSONObject("table");
+        if (table == null) return;
+        JSONArray rows = table.optJSONArray("row");
+        JSONArray generalRows = generalTable.optJSONArray("row");
+        if (rows == null) return;
+        if (generalRows == null) return;
+
+        ArrayList <Integer> rowsToRemove = new ArrayList<>();
+
+        for (int i = 0; i < rows.length(); i++) {
+            JSONArray row = rows.optJSONArray(i);
+            JSONArray generalRow = generalRows.optJSONArray(i);
+            if (row == null) continue;
+            if(generalRow == null) break;
+            for(int j = 0; j < row.length(); j++){
+                JSONObject column = row.optJSONObject(j);
+                if(column == null) continue;
+                String override = column.optString("override");
+                if(override == null || override.isEmpty()) continue;
+                for(int k = 0; k < generalRow.length(); k++){
+                    JSONObject generalColumn = generalRow.optJSONObject(k);
+                    if(generalColumn == null) continue;
+                    String key = generalColumn.optString("parameter");
+                    if(key == null || key.isEmpty()) continue;
+                    if(key.equals(override)){
+                        try {
+                            generalRow.put(k, column);
+                            rowsToRemove.add(j);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < rowsToRemove.size(); i++){
+            rows.remove(rowsToRemove.get(i));
+        }
+
     }
 
 }

@@ -85,6 +85,20 @@ public class PrettyPrintMap {
         preferredOpportunisticDataSubscriptionId
     }
 
+    public enum wifiInformation {
+        ssid,
+        bssid,
+        rssi,
+        frequency,
+        link_speed,
+        tx_link_speed,
+        max_tx_link_speed,
+        rx_link_speed,
+        max_rx_link_speed,
+        standard,
+        channel_bandwidth
+    }
+
     static {
         dataMap = new HashMap<>();
 
@@ -162,6 +176,19 @@ public class PrettyPrintMap {
         dataMap.put(networkInformation.dataNetworkType.toString(), new PrettyPrintValue(true, "Data Network Type"));
         dataMap.put(networkInformation.phoneType.toString(), new PrettyPrintValue(true, "Phone Type"));
         dataMap.put(networkInformation.preferredOpportunisticDataSubscriptionId.toString(), new PrettyPrintValue(true, "Preferred Opportunistic Data Subscription ID"));
+
+        //wifiInformation
+        dataMap.put(wifiInformation.ssid.toString(), new PrettyPrintValue(true, "SSID"));
+        dataMap.put(wifiInformation.bssid.toString(), new PrettyPrintValue(true, "BSSID"));
+        dataMap.put(wifiInformation.rssi.toString(), new PrettyPrintValue(true, "RSSI"));
+        dataMap.put(wifiInformation.frequency.toString(), new PrettyPrintValue(true, "Frequency"));
+        dataMap.put(wifiInformation.link_speed.toString(), new PrettyPrintValue(true, "Link Speed"));
+        dataMap.put(wifiInformation.tx_link_speed.toString(), new PrettyPrintValue(true, "TX Link Speed"));
+        dataMap.put(wifiInformation.max_tx_link_speed.toString(), new PrettyPrintValue(true, "Max Supported TX Speed"));
+        dataMap.put(wifiInformation.rx_link_speed.toString(), new PrettyPrintValue(true, "RX Link Speed"));
+        dataMap.put(wifiInformation.max_rx_link_speed.toString(), new PrettyPrintValue(true, "Max Supported RX Speed"));
+        dataMap.put(wifiInformation.standard.toString(), new PrettyPrintValue(true, "Standard"));
+        dataMap.put(wifiInformation.channel_bandwidth.toString(), new PrettyPrintValue(true, "Channel Bandwidth"));
 
 
 

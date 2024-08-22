@@ -297,19 +297,7 @@ public class DetailFragment extends Fragment {
         NetworkInformation ni = dp.getNetworkInformation();
         NetworkCallback nc = new NetworkCallback(context);
         TableLayout tl = new TableLayout(context);
-        tl.addView(rowBuilder("Network Operator", ni.getNetworkOperatorName()));
-        tl.addView(rowBuilder("Sim Operator Name", ni.getSimOperatorName()));
-        tl.addView(rowBuilder("Network Specifier", ni.getNetworkSpecifier()));
-        tl.addView(rowBuilder("DataState", ni.getDataStateString()));
-        tl.addView(rowBuilder("Data Network Type", ni.getDataNetworkTypeString()));
-        tl.addView(rowBuilder("Phone Type", ni.getPhoneTypeString()));
-        tl.addView(rowBuilder("PODS ID", String.valueOf(ni.getPreferredOpportunisticDataSubscriptionId())));
-        if (gv.isPermission_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                tl.addView(rowBuilder("Equivalent Home PLMNs", tm.getEquivalentHomePlmns().toString().replace("[", "").replace("]", "").replace(", ", "\n")));
-                tl.addView(rowBuilder("Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[", "").replace("]", "").replace(", ", "\n")));
-            }
-        }
+        tl = ni.getTable(tl, context, true);
         Network network = nc.getCurrentNetwork();
         if (network != null) {
             tl.addView(rowBuilder("Default Network", network.toString()));
@@ -379,18 +367,7 @@ public class DetailFragment extends Fragment {
         TableLayout tl = new TableLayout(context);
         WifiInformation wi = dp.getWifiInformation();
         if (wi != null) {
-            tl.addView(rowBuilder("SSID", wi.getSsid()));
-            tl.addView(rowBuilder("BSSID", wi.getBssid()));
-            tl.addView(rowBuilder("RSSI", String.valueOf(wi.getRssi()) + " dBm"));
-            tl.addView(rowBuilder("Frequency", String.valueOf(wi.getFrequency()) + " MHz"));
-            tl.addView(rowBuilder("Channel Width", wi.getChannelBandwithString()));
-            tl.addView(rowBuilder("Link Speed", String.valueOf(wi.getLink_speed()) + " Mb"));
-            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTx_link_speed()) + " Mb"));
-            tl.addView(rowBuilder("Max Supported RX Speed", String.valueOf(wi.getMax_rx_link_speed()) + " Mb"));
-            tl.addView(rowBuilder("RX Link Speed", String.valueOf(wi.getRx_link_speed()) + " Mb"));
-            tl.addView(rowBuilder("Max Supported TX Speed", String.valueOf(wi.getMax_tx_link_speed()) + " Mb"));
-            tl.addView(rowBuilder("TX Link Speed", String.valueOf(wi.getTx_link_speed()) + " Mb"));
-            tl.addView(rowBuilder("Standard", wi.getStandardString()));
+            tl = wi.getTable(tl, context, true);
         } else {
             tl.addView(rowBuilder("No WiFi information available", ""));
         }

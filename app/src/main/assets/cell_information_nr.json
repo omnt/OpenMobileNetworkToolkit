@@ -2,8 +2,9 @@
     "type": "cellinformation",
     "evolution": "NR",
     "table": {
-        "row": {
-            "column": [
+        "row": [
+            [],
+            [
                 {
                     "key": "SSRSRP",
                     "unit": "dBm",
@@ -50,7 +51,7 @@
                     }
                 }
             ]
-        }
+        ]
     },
     "_source": "https://developer.android.com/reference/android/telephony/CellSignalStrengthNr"
 }

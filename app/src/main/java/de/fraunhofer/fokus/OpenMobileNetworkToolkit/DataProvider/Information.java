@@ -51,12 +51,17 @@ public class Information {
             column2 = "N/A";
         }
         TableRow tr = new TableRow(context);
-        tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
-                .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        tr.setLayoutParams(params);
+        tr.setWeightSum(1);
         tr.setPadding(50, 2, 2, 2);
         TextView tv1 = new TextView(context);
+        TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f);
+        tv1.setLayoutParams(params1);
         tv1.setPadding(20, 0, 20, 0);
         TextView tv2 = new TextView(context);
+        TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f);
+        tv2.setLayoutParams(params2);
         tv2.setPadding(0, 0, 0, 0);
         tv2.setTextIsSelectable(true);
         PrettyPrintValue prettyPrint = PrettyPrintMap.getPrettyPrint(column1);

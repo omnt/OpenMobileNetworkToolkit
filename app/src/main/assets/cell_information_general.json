@@ -2,8 +2,8 @@
     "type": "cellinformation",
     "evolution": "General",
     "table": {
-        "row": {
-            "column": [
+        "row": [
+            [
                 {
                     "id": "0",
                     "key": "Type",
@@ -34,7 +34,8 @@
                     "value": "-1",
                     "parameter": "tac"
                 }
-            ]
-        }
+            ],
+            []
+        ]
     }
 }

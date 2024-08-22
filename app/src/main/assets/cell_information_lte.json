@@ -2,8 +2,9 @@
     "type": "cellinformation",
     "evolution": "LTE",
     "table": {
-        "row": {
-            "column": [
+        "row": [
+            [],
+            [
                 {
                     "key": "CQI",
                     "unit": "",
@@ -84,7 +85,7 @@
                     }
                 }
             ]
-        }
+        ]
     },
     "_source": "https://developer.android.com/reference/android/telephony/CellSignalStrengthLte"
 }

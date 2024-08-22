@@ -2,8 +2,20 @@
   "type": "cellinformation",
   "evolution": "GSM",
   "table": {
-    "row": {
-      "column": [
+    "row": [
+      [
+        {
+        "key": "BSIC",
+        "value": "-1",
+        "parameter": "bsic",
+        "override": "pci"
+      },{
+        "key": "LAC",
+        "value": "-1",
+        "parameter": "lac",
+        "override": "tac"
+      }],
+      [
         {
           "key": "RSSI",
           "unit": "dBm",
@@ -35,7 +47,7 @@
           }
         }
       ]
-    }
+    ]
   },
   "_source": "https://developer.android.com/reference/android/telephony/CellSignalStrengthGsm"
 }

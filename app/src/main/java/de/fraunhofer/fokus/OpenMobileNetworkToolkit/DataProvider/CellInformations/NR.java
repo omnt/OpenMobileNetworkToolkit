@@ -212,6 +212,8 @@ public class NR extends CellInformation {
     }
 
 
+
+
     @Override
     public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{

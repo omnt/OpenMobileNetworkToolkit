@@ -15,6 +15,10 @@ import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
 import android.widget.TableLayout;
 
+import java.util.Arrays;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+
 public class NetworkInformation extends Information {
     private final String networkOperatorName;
     private final String simOperatorName;
@@ -81,7 +85,7 @@ public class NetworkInformation extends Information {
      */
     public String getPhoneTypeString() {
         String phoneTypeString;
-        switch (phoneType){
+        switch (phoneType) {
             case 0:
                 phoneTypeString = "None";
                 break;
@@ -107,7 +111,7 @@ public class NetworkInformation extends Information {
      */
     public String getDataStateString() {
         String dataStateString;
-        switch (dataState){
+        switch (dataState) {
             case TelephonyManager.DATA_DISCONNECTED:
                 dataStateString = "Disconnected";
                 break;
@@ -139,9 +143,9 @@ public class NetworkInformation extends Information {
      */
     public String getDataNetworkTypeString() {
         String dataNetworkTypeString;
-        switch (dataNetworkType){
+        switch (dataNetworkType) {
             case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-                dataNetworkTypeString =  "Unknown";
+                dataNetworkTypeString = "Unknown";
                 break;
             case TelephonyManager.NETWORK_TYPE_GPRS:
                 dataNetworkTypeString = "GPRS";
@@ -211,9 +215,9 @@ public class NetworkInformation extends Information {
      */
     public static String getAccessNetworkType(int accessNetworkID) {
         String accessNetworkType;
-        switch (accessNetworkID){
+        switch (accessNetworkID) {
             case AccessNetworkConstants.AccessNetworkType.CDMA2000:
-                accessNetworkType =  "CDMA2000";
+                accessNetworkType = "CDMA2000";
                 break;
             case AccessNetworkConstants.AccessNetworkType.GERAN:
                 accessNetworkType = "GERAN";
@@ -274,6 +278,7 @@ public class NetworkInformation extends Information {
         return preferredOpportunisticDataSubscriptionId;
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
@@ -285,6 +290,18 @@ public class NetworkInformation extends Information {
                 {PrettyPrintMap.networkInformation.phoneType.toString(), getPhoneTypeString()},
                 {PrettyPrintMap.networkInformation.preferredOpportunisticDataSubscriptionId.toString(), String.valueOf(preferredOpportunisticDataSubscriptionId)},
         }, displayNull);
+        TelephonyManager tm = GlobalVars.getInstance().getTm();
+
+        if (GlobalVars.getInstance().isPermission_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                addRows(tl, context, new String[][]{
+                        {"Equivalent Home PLMNs", tm.getEquivalentHomePlmns().toString().replace("[", "").replace("]", "").replace(", ", "\n")},
+                        {"Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[", "").replace("]", "").replace(", ", "\n")}
+                }, displayNull);
+            }
+        }
+
+
         return tl;
     }
 }

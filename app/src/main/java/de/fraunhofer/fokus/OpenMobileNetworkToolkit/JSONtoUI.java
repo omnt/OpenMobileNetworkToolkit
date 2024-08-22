@@ -141,9 +141,11 @@ public class JSONtoUI {
         if (table == null) return mainLayout;
 
         HashMap<String, String> informationMap = data.getInformation();
-        for (Iterator<String> it = table.keys(); it.hasNext(); ) {
-            String key = it.next();
-            JSONObject row = table.optJSONObject(key);
+        JSONArray rows = table.optJSONArray("row");
+        if (rows == null) return mainLayout;
+
+        for (int i = 0; i < rows.length(); i++) {
+            JSONArray row = rows.optJSONArray(i);
             if (row == null) continue;
 
             LinearLayout rowLayout = createRow(context);
@@ -154,28 +156,21 @@ public class JSONtoUI {
         return mainLayout;
     }
 
-    private void processRow(Context context, JSONObject row, HashMap<String, String> informationMap, LinearLayout rowLayout) {
-        for (Iterator<String> iter = row.keys(); iter.hasNext(); ) {
-            String columnKey = iter.next();
-            JSONArray valueArray = row.optJSONArray(columnKey);
-            if (valueArray == null) continue;
+    private void processRow(Context context, JSONArray row, HashMap<String, String> informationMap, LinearLayout rowLayout) {
+        for (int i = 0; i < row.length(); i++) {
+            JSONObject valueObject = row.optJSONObject(i);
+            if (valueObject == null) continue;
 
-            for (int i = 0; i < valueArray.length(); i++) {
-                JSONObject valueObject = valueArray.optJSONObject(i);
-                if (valueObject == null) continue;
-
-                String valKey = valueObject.optString("key");
-                String valValue = extractValues(valueObject.optString("parameter"), informationMap);
-                JSONObject range = valueObject.optJSONObject("range");
-                JSONObject min = null;
-                JSONObject max = null;
-                if (range != null) {
-                    min = range.optJSONObject("min");
-                    max = range.optJSONObject("max");
-                }
-                rowLayout.addView(createCard(context, valKey, valValue, min, max));
-
+            String valKey = valueObject.optString("key");
+            String valValue = extractValues(valueObject.optString("parameter"), informationMap);
+            JSONObject range = valueObject.optJSONObject("range");
+            JSONObject min = null;
+            JSONObject max = null;
+            if (range != null) {
+                min = range.optJSONObject("min");
+                max = range.optJSONObject("max");
             }
+            rowLayout.addView(createCard(context, valKey, valValue, min, max));
         }
     }
 

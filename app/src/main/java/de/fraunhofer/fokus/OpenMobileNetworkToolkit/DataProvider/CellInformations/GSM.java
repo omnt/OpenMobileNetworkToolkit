@@ -15,6 +15,8 @@ public class GSM extends CellInformation {
     private int bitErrorRate;
     private int dbm;
     private int rssi;
+    private int bsic;
+    private String mcc;
 
     public GSM() {super();}
     public GSM(long timestamp, CellSignalStrengthGsm cellSignalStrengthGsm){
@@ -51,6 +53,9 @@ public class GSM extends CellInformation {
 
 
         lac = cellIdentityGsm.getLac();
+        bsic = cellIdentityGsm.getBsic();
+
+        mcc = cellIdentityGsm.getMncString();
         timingAdvance = cellSignalStrengthGsm.getTimingAdvance();
         bitErrorRate =  cellSignalStrengthGsm.getBitErrorRate();
         dbm = cellSignalStrengthGsm.getDbm();
@@ -59,6 +64,22 @@ public class GSM extends CellInformation {
     }
     public GSM(CellInfoGsm cellInfoGSM, long timestamp) {
         this(cellInfoGSM, cellInfoGSM.getCellIdentity(), cellInfoGSM.getCellSignalStrength(), timestamp);
+    }
+
+    public int getBsic() {
+        return bsic;
+    }
+
+    public void setBsic(int bsic) {
+        this.bsic = bsic;
+    }
+
+    public String getMcc() {
+        return mcc;
+    }
+
+    public void setMcc(String mcc) {
+        this.mcc = mcc;
     }
 
     public int getLac() {
@@ -105,6 +126,7 @@ public class GSM extends CellInformation {
     public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
         addRows(tl, context, new String[][]{
                 {PrettyPrintMap.cellInformation.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
+                {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMcc())},
                 {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMnc())},
                 {PrettyPrintMap.cellInformation.cellType.toString(), String.valueOf(this.getCellType())},
                 {PrettyPrintMap.cellInformation.ci.toString(), String.valueOf(this.getCi())},
