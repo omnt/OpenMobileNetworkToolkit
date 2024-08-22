@@ -29,14 +29,6 @@ public class GlobalVars {
     public static String SSRSRP = "SSRSRP";
     public static String SSRSRQ = "SSRSRQ";
     public static String SSSINR = "SSSINR";
-    public static String AsuLevel = "Asu Level";
-    public static String Dbm = "Dbm";
-    public static String RSSI = "RSSI";
-    public static String RSRP = "RSRP";
-    public static String RSRQ = "RSRQ";
-    public static String RSSNR = "RSSNR";
-    public static String CQI = "CQI";
-    public static String EvoDbm = "EvoDbm";
     private static GlobalVars instance;
     ImageView log_status;
     private DataProvider dp;

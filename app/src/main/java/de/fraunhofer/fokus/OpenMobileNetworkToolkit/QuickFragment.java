@@ -10,11 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
@@ -49,9 +53,35 @@ public class QuickFragment extends Fragment {
         @Override
         public void run() {
             mainLL.removeAllViews();
-            dp.getRegisteredCells().forEach(cellInformation -> {
-                mainLL.addView(cellInformation.createQuickView(context));
-            });
+            dp.refreshAll();
+            List<CellInformation> cellInformations = dp.getRegisteredCells();
+            List<CellInformation> neighborCells = dp.getNeighbourCellInformation();
+            if(cellInformations.isEmpty()){
+                LinearLayout error = new LinearLayout(context);
+                error.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                ));
+                error.setOrientation(LinearLayout.VERTICAL);
+                TextView errorText = new TextView(context);
+                errorText.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                ));
+                errorText.setText("No Cell Information Available");
+                error.addView(errorText);
+                mainLL.addView(error);
+            } else {
+                cellInformations.forEach(cellInformation -> {
+                    mainLL.addView(cellInformation.createQuickView(context));
+                });
+            }
+
+            if(!neighborCells.isEmpty()){
+                neighborCells.forEach(cellInformation -> {
+                    mainLL.addView(cellInformation.createQuickView(context));
+                });
+            }
             updateUIHandler.postDelayed(updateUI, 500);
         }
     };

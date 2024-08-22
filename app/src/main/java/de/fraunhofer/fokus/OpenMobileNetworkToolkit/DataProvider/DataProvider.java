@@ -335,7 +335,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         List<CellInformation> ciml = new ArrayList<>();
         for (CellInfo ci : list) {
             CellInformation cim = new CellInformation();
-
             if (ci instanceof CellInfoNr) {
                 cim = new NR((CellInfoNr) ci, ts_);
             }
@@ -369,6 +368,21 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
      */
     public List<CellInformation> getCellInformation() {
         return ci;
+    }
+
+    /**
+     * Get CellInformation object
+     *
+     * @return CellInformation
+     */
+    public List<CellInformation> getNeighbourCellInformation() {
+        List<CellInformation> rcil = new ArrayList<>();
+        for (CellInformation ci_ : ci) {
+            if (!ci_.isRegistered()) { //we only care for the serving cell
+                rcil.add(ci_);
+            }
+        }
+        return rcil;
     }
 
     /**

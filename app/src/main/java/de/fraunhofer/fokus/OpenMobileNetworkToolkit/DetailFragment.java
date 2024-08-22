@@ -244,7 +244,7 @@ public class DetailFragment extends Fragment {
                 TextView tv = (TextView) title.getChildAt(0);
                 tv.setTypeface(Typeface.DEFAULT_BOLD);
                 tl.addView(title);
-                signalStrengthInformation.getTable(tl, context, false);
+                tl = signalStrengthInformation.getTable(tl, context, false);
             }
         }
         return cardView_from_table_builder("Signal Strength Information", tl);
@@ -276,7 +276,7 @@ public class DetailFragment extends Fragment {
         TableLayout tl = new TableLayout(context);
         LocationInformation loc = dp.getLocation();
         if (loc != null) {
-            tl.addView(loc.getTable(tl, context, true));
+            tl = loc.getTable(tl, context, true);
         } else {
             tl.addView(rowBuilder("Location not available", ""));
         }

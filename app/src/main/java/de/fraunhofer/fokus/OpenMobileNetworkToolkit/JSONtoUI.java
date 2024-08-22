@@ -28,6 +28,7 @@ public class JSONtoUI {
     private static final int TEXT_SIZE_LARGE = 20;
     private static final int TEXT_SIZE_MEDIUM = 16;
     private static final int TEXT_SIZE_SMALL = 14;
+    private static final int TEXT_SIZE_XSMALL = 10;
     private static final String DEFAULT_VALUE = "N/A";
 
     private LinearLayout createRow(Context context) {
@@ -74,8 +75,8 @@ public class JSONtoUI {
         LinearLayout cardContent = new LinearLayout(context);
         cardContent.setOrientation(LinearLayout.VERTICAL);
 
-        cardContent.addView(createTextView(context, title, TEXT_SIZE_LARGE, Gravity.CENTER));
-        cardContent.addView(createTextView(context, formatValue(value), determineTextSize(value), Gravity.CENTER));
+        cardContent.addView(createTextView(context, title, determineTextSize(formatValue(title)), Gravity.CENTER));
+        cardContent.addView(createTextView(context, formatValue(value), determineTextSize(formatValue(value)), Gravity.CENTER));
 
         if(formatValue(value).equals(DEFAULT_VALUE) || min == null|| max == null) {
             card.setCardBackgroundColor(Color.DKGRAY);
@@ -98,6 +99,9 @@ public class JSONtoUI {
 
     private TextView createTextView(Context context, String text, int textSize, int gravity) {
         TextView textView = new TextView(context);
+        if(text.contains(DEFAULT_VALUE)) {
+            text = DEFAULT_VALUE;
+        }
         textView.setText(text);
         textView.setTextSize(textSize);
         textView.setPadding(10, 10, 10, 10);
@@ -118,9 +122,11 @@ public class JSONtoUI {
     }
 
     private int determineTextSize(String value) {
-        if(value.length() < 5) return TEXT_SIZE_LARGE;
-        if(value.length() < 8) return TEXT_SIZE_MEDIUM;
-        return TEXT_SIZE_SMALL;
+        if(value.length() < 3) return TEXT_SIZE_LARGE;
+        if(value.length() < 7) return TEXT_SIZE_MEDIUM;
+        if(value.length() < 9) return TEXT_SIZE_SMALL;
+
+        return TEXT_SIZE_XSMALL;
     }
 
     public LinearLayout createUIFromJSON(Context context, JSONObject jsonObj, Information data) {
