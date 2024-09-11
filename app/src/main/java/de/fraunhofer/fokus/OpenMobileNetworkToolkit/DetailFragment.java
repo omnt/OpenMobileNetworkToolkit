@@ -285,7 +285,7 @@ public class DetailFragment extends Fragment {
                 addRows(tl, new String[][]{
                         {getString(R.string.bands), String.valueOf(nr.getBands())},
                         {getString(R.string.nrarfcn), String.valueOf(nr.getNrarfcn())},
-                        {getString(R.string.lac), String.valueOf(nr.getLac())},
+                        {getString(R.string.lac), String.valueOf(nr.getTac())},
                         {getString(R.string.timingAdvance), String.valueOf(nr.getTimingAdvance())},
                 }, true);
                 addDivider(tl);

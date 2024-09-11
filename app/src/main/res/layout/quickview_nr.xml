@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/quickViewMainLL"
-    android:id="@+id/quickview_gsm">
+    android:id="@+id/quickview_nr">
 
     <androidx.cardview.widget.CardView
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_gsm_cellType"
+                            android:id="@+id/quickview_nr_cellType"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
@@ -43,7 +43,7 @@
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_gsm_plmn"
+                            android:id="@+id/quickview_nr_plmn"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
@@ -59,39 +59,39 @@
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_gsm_ci"
+                            android:id="@+id/quickview_nr_ci"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!-- BSIC -->
+                <!-- PCI -->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/bsic">
+                            android:text="@string/pci">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_gsm_bsic"
+                            android:id="@+id/quickview_nr_pci"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!-- LAC -->
+                <!-- TAC -->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/lac">
+                            android:text="@string/tac">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_gsm_lac"
+                            android:id="@+id/quickview_nr_tac"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
@@ -102,34 +102,50 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:tag="row_2">
-                <!-- RSSI -->
+                <!-- SSRSRP -->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/rssi">
+                            android:text="@string/ssrsrp">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_gsm_rssi"
+                            android:id="@+id/quickview_nr_ssrsrp"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!--BER-->
+                <!--SSRSRQ-->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/bitErrorRate_short">
+                            android:text="@string/ssrsrq">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_gsm_ber"
+                            android:id="@+id/quickview_nr_ssrsrq"
+                            android:text="@string/na">
+                        </com.google.android.material.textview.MaterialTextView>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+                <!--SSSINR-->
+                <androidx.cardview.widget.CardView
+                    style="@style/quickViewChildCardViewStyle">
+                    <LinearLayout
+                        style="@style/quickViewChildCardViewLL">
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/quickViewTextViewTitle"
+                            android:text="@string/sssinr">
+                        </com.google.android.material.textview.MaterialTextView>
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/quickViewTextViewValue"
+                            android:id="@+id/quickview_nr_sssinr"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>

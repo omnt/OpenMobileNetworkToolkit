@@ -35,7 +35,7 @@ public class NR extends CellInformation {
     private int dbm;
     private int asuLevel;
     private String mcc;
-    private int lac;
+    private int tac;
     private int timingAdvance;
     private List<Integer> cqis;
 
@@ -94,7 +94,7 @@ public class NR extends CellInformation {
         this.ssrsrq = cellSignalStrengthNr.getSsRsrq();
         this.sssinr = cellSignalStrengthNr.getSsSinr();
         this.cqis = cellSignalStrengthNr.getCsiCqiReport();
-        this.lac = cellIdentityNr.getTac();
+        this.tac = cellIdentityNr.getTac();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             this.timingAdvance = cellSignalStrengthNr.getTimingAdvanceMicros();
         }
@@ -192,12 +192,12 @@ public class NR extends CellInformation {
         this.sssinr = sssinr;
     }
 
-    public void setLac(int lac) {
-        this.lac = lac;
+    public void setTac(int tac) {
+        this.tac = tac;
     }
 
-    public int getLac() {
-        return lac;
+    public int getTac() {
+        return tac;
     }
 
     public void setTimingAdvance(int timingAdvance) {
@@ -208,12 +208,64 @@ public class NR extends CellInformation {
         return this.timingAdvance;
     }
 
+    public String getTimingAdvanceString() {
+        return Integer.toString(this.timingAdvance);
+    }
+
+    public String getDbmString() {
+        return Integer.toString(this.dbm);
+    }
+
+    public String getAsuLevelString() {
+        return Integer.toString(this.asuLevel);
+    }
+
+    public String getCsirsrpString() {
+        return Integer.toString(this.csirsrp);
+    }
+
+    public String getCsirsrqString() {
+        return Integer.toString(this.csirsrq);
+    }
+
+    public String getCsisinrString() {
+        return Integer.toString(this.csisinr);
+    }
+
+    public String getSsrsrpString() {
+        return Integer.toString(this.ssrsrp);
+    }
+
+    public String getSsrsrqString() {
+        return Integer.toString(this.ssrsrq);
+    }
+
+    public String getSssinrString() {
+        return Integer.toString(this.sssinr);
+    }
+
+    public String getNrarfcnString() {
+        return Integer.toString(this.nrarfcn);
+    }
+
+    public String getTacString() {
+        return Integer.toString(this.tac);
+    }
+
+    public String getPlmn() {
+        return this.getMcc() + this.getMnc();
+    }
+
+    public String getMccString() {
+        return this.mcc;
+    }
+
     @Override
     public Point getPoint(Point point){
         super.getPoint(point);
         point.addField("NRARFCN", this.getNrarfcn());
         point.addField("MCC", this.getMcc());
-        point.addField("Lac", this.getLac());
+        point.addField("Lac", this.getTac());
         point.addField("DBM", this.getDbm());
         point.addField(GlobalVars.CSIRSRP, this.getCsirsrp());
         point.addField(GlobalVars.CSIRSRQ, this.getCsirsrq());

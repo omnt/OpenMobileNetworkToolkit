@@ -17,24 +17,9 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
-interface Parameter {
-    String toString();
-}
 
 public class Information {
     private long timeStamp;
-
-    public static enum Parameter implements de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Parameter {
-        timestamp("Timestamp");
-        private final String text;
-        Parameter (String text) {
-            this.text = text;
-        }
-        @Override
-        public String toString() {
-            return text;
-        }
-    }
 
     public Information() {
     }
@@ -57,62 +42,6 @@ public class Information {
 
     public Information(long timeStamp) {
         this.timeStamp = timeStamp;
-    }
-
-    public LinearLayout createQuickView(Context context) {
-        return null;
-    }
-
-    public TableRow rowBuilder(String column1, String column2, Context context) {
-        if (Objects.equals(column2, String.valueOf(CellInfo.UNAVAILABLE))) {
-            column2 = "N/A";
-        }
-        TableRow tr = new TableRow(context);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        tr.setLayoutParams(params);
-        tr.setWeightSum(1);
-        tr.setPadding(50, 2, 2, 2);
-        TextView tv1 = new TextView(context);
-        TableRow.LayoutParams params1 = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f);
-        tv1.setLayoutParams(params1);
-        tv1.setPadding(20, 0, 20, 0);
-        TextView tv2 = new TextView(context);
-        TableRow.LayoutParams params2 = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f);
-        tv2.setLayoutParams(params2);
-        tv2.setPadding(0, 0, 0, 0);
-        tv2.setTextIsSelectable(true);
-        tv1.setText(column1);
-        tv2.append(Objects.requireNonNullElse(column2, "N/A"));
-        tv2.setTextIsSelectable(true);
-        tr.addView(tv1);
-        tr.addView(tv2);
-        return tr;
-    }
-
-    public void addRows(TableLayout tl, Context context, String[][] rows, boolean displayNull) {
-        for (String[] row : rows) {
-            if(!displayNull && (row[1].equals("N/A")
-                    || row[1].equals("null")
-                    || row[1].equals("0")
-                    || row[1].equals("false"))
-            ) continue;
-            tl.addView(rowBuilder(row[0], row[1], context));
-        }
-    }
-
-    public void addDivider(TableLayout tl, Context context) {
-        MaterialDivider divider = new MaterialDivider(context);
-        tl.addView(divider);
-    }
-
-
-    public ArrayList<TableRow> getTableRows(Context context){
-        ArrayList<TableRow> tableRows = new ArrayList<>();
-        HashMap <String, String> cellInformation = this.getInformation();
-        for (String key : cellInformation.keySet()) {
-            tableRows.add(rowBuilder(key, cellInformation.get(key), context));
-        }
-        return tableRows;
     }
 
     public HashMap<String, String> getInformation() {

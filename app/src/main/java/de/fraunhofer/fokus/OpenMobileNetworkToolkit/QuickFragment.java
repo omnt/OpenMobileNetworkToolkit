@@ -27,6 +27,7 @@ import java.util.zip.Inflater;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -58,6 +59,47 @@ public class QuickFragment extends Fragment {
         updateUIHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
     }
 
+    private void addCellInformationToView(CellInformation cellInformation){
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        switch (cellInformation.getCellType()) {
+            case LTE:
+                //mainLL.addView(cellInformation.createQuickView(context));
+                break;
+            case UMTS:
+                //mainLL.addView(cellInformation.createQuickView(context));
+                break;
+            case GSM:
+                GSM gsm = (GSM) cellInformation;
+                View gsmView = inflater.inflate(R.layout.quickview_gsm, null, false);
+                LinearLayout gsmLL = gsmView.findViewById(R.id.quickview_gsm);
+                ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_cellType)).setText(gsm.getCellType().toString());
+                ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_plmn)).setText(gsm.getMcc()+gsm.getMnc());
+                ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_ci)).setText(gsm.getCiString());
+                ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_lac)).setText(gsm.getLacString());
+                ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_bsic)).setText(gsm.getBsicString());
+                ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_rssi)).setText(gsm.getRssiString());
+                ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_ber)).setText(gsm.getBitErrorRateString());
+                mainLL.addView(gsmView);
+                break;
+            case NR:
+                NR nr = (NR) cellInformation;
+                View nrView = inflater.inflate(R.layout.quickview_nr, null, false);
+                LinearLayout nrLL = nrView.findViewById(R.id.quickview_nr);
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_cellType)).setText(nr.getCellType().toString());
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_plmn)).setText(nr.getPlmn());
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_ci)).setText(nr.getCiString());
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_pci)).setText(nr.getPciString());
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_tac)).setText(nr.getTacString());
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_ssrsrp)).setText(nr.getSsrsrpString());
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_ssrsrq)).setText(nr.getSsrsrqString());
+                ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_sssinr)).setText(nr.getSssinrString());
+                mainLL.addView(nrView);
+                break;
+            default:
+                break;
+        }
+    }
+
 
     Runnable updateUI = new Runnable() {
         @Override
@@ -82,42 +124,15 @@ public class QuickFragment extends Fragment {
                 error.addView(errorText);
                 mainLL.addView(error);
             } else {
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 cellInformations.forEach(cellInformation -> {
-                    switch (cellInformation.getCellType()) {
-                        case LTE:
-                            mainLL.addView(cellInformation.createQuickView(context));
-                            break;
-                        case UMTS:
-                            mainLL.addView(cellInformation.createQuickView(context));
-                            break;
-                        case GSM:
-                            GSM gsm = (GSM) cellInformation;
-                            View gsmView = inflater.inflate(R.layout.quickview_gsm, null, false);
-                            LinearLayout gsm_ll = gsmView.findViewById(R.id.quickview_gsm);
-
-                            ((MaterialTextView) gsm_ll.findViewById(R.id.quickview_gsm_cellType)).setText(gsm.getCellType().toString());
-                            ((MaterialTextView) gsm_ll.findViewById(R.id.quickview_gsm_plmn)).setText(gsm.getMcc()+gsm.getMnc());
-                            ((MaterialTextView) gsm_ll.findViewById(R.id.quickview_gsm_ci)).setText(gsm.getCiString());
-                            ((MaterialTextView) gsm_ll.findViewById(R.id.quickview_gsm_lac)).setText(gsm.getLacString());
-                            ((MaterialTextView) gsm_ll.findViewById(R.id.quickview_gsm_bsic)).setText(gsm.getBsicString());
-                            ((MaterialTextView) gsm_ll.findViewById(R.id.quickview_gsm_rssi)).setText(gsm.getRssiString());
-                            ((MaterialTextView) gsm_ll.findViewById(R.id.quickview_gsm_ber)).setText(gsm.getBitErrorRateString());
-                            mainLL.addView(gsmView);
-                            break;
-                        case NR:
-                            mainLL.addView(cellInformation.createQuickView(context));
-                            break;
-                        default:
-                            break;
-                    }
+                    addCellInformationToView(cellInformation);
                 });
             }
 
             if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
                 if(!neighborCells.isEmpty()){
                     neighborCells.forEach(cellInformation -> {
-                        mainLL.addView(cellInformation.createQuickView(context));
+                        addCellInformationToView(cellInformation);
                     });
                 }
             }

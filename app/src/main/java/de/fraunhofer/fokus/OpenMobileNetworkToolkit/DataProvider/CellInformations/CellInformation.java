@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class CellInformation extends Information {
     private static final String TAG = "CellInformation";
@@ -162,6 +161,10 @@ public class CellInformation extends Information {
         return String.valueOf(ci);
     }
 
+    public String getPciString() {
+        return String.valueOf(pci);
+    }
+
     public void setCi(long ci) {
         this.ci = ci;
     }
@@ -233,87 +236,6 @@ public class CellInformation extends Information {
 
 
         return stringBuilder;
-    }
-
-    @Override
-    public LinearLayout createQuickView(Context context) {
-        LinearLayout ll = new LinearLayout(context);
-        ll.setOrientation(LinearLayout.VERTICAL);
-        ll.setGravity(Gravity.CENTER);
-        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        JSONtoUI JsonToUI = new JSONtoUI();
-
-        JSONObject generalJson = JsonToUI.loadJsonFromAsset(context, "cell_information_general.json");
-        if (generalJson == null) return ll;
-
-        JSONObject evolution = JsonToUI.loadJsonFromAsset(context, getPath());
-        if (evolution == null) return ll;
-
-        mergeJsonObjects(generalJson, evolution);
-
-        CardView card = new CardView(context);
-        card.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
-        card.setRadius(10);
-        card.setCardElevation(10);
-        card.setMaxCardElevation(10);
-        card.setUseCompatPadding(true);
-        card.setPreventCornerOverlap(true);
-
-        LinearLayout cardContent = new LinearLayout(context);
-        cardContent.setOrientation(LinearLayout.VERTICAL);
-
-        cardContent.addView(JsonToUI.createUIFromJSON(context, generalJson, this));
-        cardContent.addView(JsonToUI.createUIFromJSON(context, evolution, this));
-        card.addView(cardContent);
-        ll.addView(card);
-        return ll;
-    }
-
-    private void mergeJsonObjects(JSONObject generalJson, JSONObject evolution) {
-        JSONObject table = evolution.optJSONObject("table");
-        JSONObject generalTable = generalJson.optJSONObject("table");
-        if (table == null) return;
-        JSONArray rows = table.optJSONArray("row");
-        JSONArray generalRows = generalTable.optJSONArray("row");
-        if (rows == null) return;
-        if (generalRows == null) return;
-
-        ArrayList <Integer> rowsToRemove = new ArrayList<>();
-
-        for (int i = 0; i < rows.length(); i++) {
-            JSONArray row = rows.optJSONArray(i);
-            JSONArray generalRow = generalRows.optJSONArray(i);
-            if (row == null) continue;
-            if(generalRow == null) break;
-            for(int j = 0; j < row.length(); j++){
-                JSONObject column = row.optJSONObject(j);
-                if(column == null) continue;
-                String override = column.optString("override");
-                if(override == null || override.isEmpty()) continue;
-                for(int k = 0; k < generalRow.length(); k++){
-                    JSONObject generalColumn = generalRow.optJSONObject(k);
-                    if(generalColumn == null) continue;
-                    String key = generalColumn.optString("parameter");
-                    if(key == null || key.isEmpty()) continue;
-                    if(key.equals(override)){
-                        try {
-                            generalRow.put(k, column);
-                            rowsToRemove.add(j);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }
-            }
-        }
-        for(int i = 0; i < rowsToRemove.size(); i++){
-            rows.remove(rowsToRemove.get(i));
-        }
-
     }
 
 }
