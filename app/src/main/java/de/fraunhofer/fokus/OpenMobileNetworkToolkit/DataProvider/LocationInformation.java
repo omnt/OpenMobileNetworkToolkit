@@ -91,19 +91,4 @@ public class LocationInformation extends Information {
         this.accuracy = accuracy;
     }
 
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.locationInformation.longitude.toString(), String.valueOf(longitude)},
-                {PrettyPrintMap.locationInformation.latitude.toString(), String.valueOf(latitude)},
-                {PrettyPrintMap.locationInformation.altitude.toString(), String.valueOf(altitude)},
-                {PrettyPrintMap.locationInformation.provider.toString(), provider},
-                {PrettyPrintMap.locationInformation.accuracy.toString(), String.valueOf(accuracy)},
-                {PrettyPrintMap.locationInformation.speed.toString(), String.valueOf(speed)},
-        }, displayNull);
-
-        return tl;
-    }
-
 }

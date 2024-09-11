@@ -41,8 +41,4 @@ public class NetworkInterfaceInformation extends Information{
         this.address = address;
     }
 
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-        return tl;
-    }
 }

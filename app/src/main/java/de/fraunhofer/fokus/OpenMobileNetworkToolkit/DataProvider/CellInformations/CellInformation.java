@@ -18,9 +18,6 @@ import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.telephony.CellInfo;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 
@@ -30,16 +27,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintValue;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.JSONtoUI;
 
 public class CellInformation extends Information {
@@ -59,6 +49,8 @@ public class CellInformation extends Information {
 
     private boolean isRegistered;
     private int cellConnectionStatus;
+
+
 
 
     private String getPath(){

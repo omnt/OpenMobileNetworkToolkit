@@ -17,8 +17,25 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
+interface Parameter {
+    String toString();
+}
+
 public class Information {
     private long timeStamp;
+
+    public static enum Parameter implements de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Parameter {
+        timestamp("Timestamp");
+        private final String text;
+        Parameter (String text) {
+            this.text = text;
+        }
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
     public Information() {
     }
 
@@ -64,13 +81,7 @@ public class Information {
         tv2.setLayoutParams(params2);
         tv2.setPadding(0, 0, 0, 0);
         tv2.setTextIsSelectable(true);
-        PrettyPrintValue prettyPrint = PrettyPrintMap.getPrettyPrint(column1);
-        if(prettyPrint != null){
-            if(!prettyPrint.getToShow()) return tr;
-            tv1.setText(prettyPrint.getName());
-        } else {
-            tv1.setText(column1);
-        }
+        tv1.setText(column1);
         tv2.append(Objects.requireNonNullElse(column2, "N/A"));
         tv2.setTextIsSelectable(true);
         tr.addView(tv1);
@@ -102,19 +113,6 @@ public class Information {
             tableRows.add(rowBuilder(key, cellInformation.get(key), context));
         }
         return tableRows;
-    }
-
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull){
-        for (Field field : this.getClass().getDeclaredFields()) {
-            String name = field.getName();
-            String value = null;
-            try {
-                value = field.get(this).toString();
-            } catch (Exception e){}
-            if (value == null) continue;
-            tl.addView(rowBuilder(name, value, context));
-        }
-        return tl;
     }
 
     public HashMap<String, String> getInformation() {

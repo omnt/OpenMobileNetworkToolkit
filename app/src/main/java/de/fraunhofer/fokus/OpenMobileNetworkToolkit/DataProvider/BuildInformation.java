@@ -54,9 +54,4 @@ public class BuildInformation extends Information {
         return json;
     }
 
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-        return tl;
-    }
-
 }

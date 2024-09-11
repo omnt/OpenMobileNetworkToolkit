@@ -242,24 +242,5 @@ public class WifiInformation extends Information {
         return point;
     }
 
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-       addRows(tl, context, new String[][]{
-                {PrettyPrintMap.wifiInformation.ssid.toString(), getSsid()},
-                {PrettyPrintMap.wifiInformation.bssid.toString(), getBssid()},
-                {PrettyPrintMap.wifiInformation.rssi.toString(), Integer.toString(getRssi())},
-                {PrettyPrintMap.wifiInformation.frequency.toString(), Integer.toString(getFrequency())},
-                {PrettyPrintMap.wifiInformation.link_speed.toString(), Integer.toString(getLink_speed())},
-                {PrettyPrintMap.wifiInformation.tx_link_speed.toString(), Integer.toString(getTx_link_speed())},
-                {PrettyPrintMap.wifiInformation.max_tx_link_speed.toString(), Integer.toString(getMax_tx_link_speed())},
-                {PrettyPrintMap.wifiInformation.rx_link_speed.toString(), Integer.toString(getRx_link_speed())},
-                {PrettyPrintMap.wifiInformation.max_rx_link_speed.toString(), Integer.toString(getMax_rx_link_speed())},
-                {PrettyPrintMap.wifiInformation.standard.toString(), getStandardString()},
-                {PrettyPrintMap.wifiInformation.channel_bandwidth.toString(), getChannelBandwithString()}
-       }, displayNull);
-
-        return tl;
-    }
-
 }
 

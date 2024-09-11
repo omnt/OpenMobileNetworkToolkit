@@ -1,13 +1,9 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations;
 
 
-import android.content.Context;
 import android.telephony.CellIdentityGsm;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrengthGsm;
-import android.widget.TableLayout;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
 
 public class GSM extends CellInformation {
     private int lac;
@@ -122,36 +118,4 @@ public class GSM extends CellInformation {
         this.rssi = rssi;
     }
 
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
-                {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMcc())},
-                {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMnc())},
-                {PrettyPrintMap.cellInformation.cellType.toString(), String.valueOf(this.getCellType())},
-                {PrettyPrintMap.cellInformation.ci.toString(), String.valueOf(this.getCi())},
-                {PrettyPrintMap.cellInformation.isRegistered.toString(), String.valueOf(this.isRegistered())},
-                {PrettyPrintMap.cellInformation.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.bands.toString(), String.valueOf(this.getBands())},
-                {PrettyPrintMap.cellInformation.lac.toString(), String.valueOf(this.getLac())},
-                {PrettyPrintMap.cellInformation.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.dbm.toString(), String.valueOf(this.getDbm())},
-                {PrettyPrintMap.cellInformation.level.toString(), String.valueOf(this.getLevel())},
-                {PrettyPrintMap.cellInformation.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
-                {PrettyPrintMap.cellInformation.bitErrorRate.toString(), String.valueOf(this.getBitErrorRate())},
-                {PrettyPrintMap.cellInformation.rssi.toString(), String.valueOf(this.getRssi())},
-        }, displayNull);
-
-        return tl;
-    }
 }

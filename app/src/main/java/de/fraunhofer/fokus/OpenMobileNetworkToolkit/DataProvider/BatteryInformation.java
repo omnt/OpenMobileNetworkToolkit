@@ -52,9 +52,5 @@ public class BatteryInformation extends Information {
         return level * 100 / (double) scale;
     }
 
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-        return tl;
-    }
 
 }

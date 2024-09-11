@@ -22,8 +22,6 @@ import com.influxdb.client.write.Point;
 
 import java.util.Arrays;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
-
 public class LTE extends CellInformation {
 
     private int earfcn;
@@ -207,49 +205,6 @@ public class LTE extends CellInformation {
 
         return stringBuilder;
 
-    }
-
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
-                {PrettyPrintMap.cellInformation.mcc.toString(), String.valueOf(this.getMcc())},
-                {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMnc())},
-                {PrettyPrintMap.cellInformation.cellType.toString(), String.valueOf(this.getCellType())},
-                {PrettyPrintMap.cellInformation.pci.toString(), String.valueOf(this.getPci())},
-                {PrettyPrintMap.cellInformation.tac.toString(), String.valueOf(this.getTac())},
-                {PrettyPrintMap.cellInformation.ci.toString(), String.valueOf(this.getCi())},
-                {PrettyPrintMap.cellInformation.isRegistered.toString(), String.valueOf(this.isRegistered())},
-                {PrettyPrintMap.cellInformation.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.bands.toString(), String.valueOf(this.getBands())},
-                {PrettyPrintMap.cellInformation.earfcn.toString(), String.valueOf(this.getEarfcn())},
-                {PrettyPrintMap.cellInformation.bandwidth.toString(), String.valueOf(this.getBandwidth())},
-                {PrettyPrintMap.cellInformation.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.level.toString(), String.valueOf(this.getLevel())},
-                {PrettyPrintMap.cellInformation.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
-                {PrettyPrintMap.cellInformation.rsrp.toString(), String.valueOf(this.getRsrp())},
-                {PrettyPrintMap.cellInformation.rsrq.toString(), String.valueOf(this.getRsrq())},
-                {PrettyPrintMap.cellInformation.cqi.toString(), String.valueOf(this.getCqi())}
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.rssi.toString(), String.valueOf(this.getRssi())},
-                {PrettyPrintMap.cellInformation.rssnr.toString(), String.valueOf(this.getRssnr())},
-        }, displayNull);
-
-        return tl;
     }
 
 }

@@ -158,7 +158,96 @@
     <string name="clear_preferences_message">Do you want to clear all Configuartions?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-
     <!-- -->
+
+
+    <!-- CellInformation -->
+    <string name="cmdaDbm">CMDA dBm</string>
+    <string name="cmdaEcio">CMDA Ec/Io</string>
+    <string name="evdoDbm">EVDO dBm</string>
+    <string name="evdoEcio">EVDO Ec/Io</string>
+    <string name="evdoSnr">EVDO SNR</string>
+    <string name="cellType">Cell Type</string>
+    <string name="alphaLong">Alpha Long</string>
+    <string name="bands">Bands</string>
+    <string name="ci">CI</string>
+    <string name="TAG">TAG</string>
+    <string name="mnc">MNC</string>
+    <string name="pci">PCI</string>
+    <string name="tac">TAC</string>
+    <string name="level">Level</string>
+    <string name="isRegistered">Is Registered</string>
+    <string name="cellConnectionStatus">Cell Connection Status</string>
+    <string name="asuLevel">ASU Level</string>
+    <string name="lac">LAC</string>
+    <string name="timingAdvance">Timing Advance</string>
+    <string name="bitErrorRate">Bit Error Rate</string>
+    <string name="dbm">dBm</string>
+    <string name="rssi">RSSI</string>
+    <string name="earfcn">EARFCN</string>
+    <string name="bandwidth">Bandwidth</string>
+    <string name="cqi">CQI</string>
+    <string name="rsrp">RSRP</string>
+    <string name="rsrq">RSRQ</string>
+    <string name="rssnr">RSSNR</string>
+    <string name="mcc">MCC</string>
+    <string name="nrarfcn">NRARFCN</string>
+    <string name="csirsrp">CSI RSRP</string>
+    <string name="csirsrq">CSI RSRQ</string>
+    <string name="csisinr">CSI SINR</string>
+    <string name="ssrsrp">SS RSRP</string>
+    <string name="ssrsrq">SS RSRQ</string>
+    <string name="sssinr">SS SINR</string>
+
+
+    <!-- Device Information -->
+    <string name="model">Model</string>
+    <string name="manufacturer">Manufacturer</string>
+    <string name="socManufacturer">SoC Manufacturer</string>
+    <string name="socModel">SoC Model</string>
+    <string name="radioVersion">Radio Version</string>
+    <string name="supportedModemCount">Supported Modem Count</string>
+    <string name="androidSDK">Android SDK</string>
+    <string name="androidRelease">Android Release</string>
+    <string name="deviceSoftwareVersion">Device Software Version</string>
+    <string name="securityPatchLevel">Security Patch Level</string>
+    <string name="IMEI">IMEI</string>
+    <string name="IMSI">IMSI</string>
+    <string name="MEID">MEID</string>
+    <string name="simSerial">SIM Serial</string>
+    <string name="subscriberId">Subscriber ID</string>
+    <string name="networkAccessIdentifier">Network Access Identifier</string>
+    <string name="subscriptionId">Subscription ID</string>
+
+    <!-- Location Information -->
+    <string name="longitude">Longitude</string>
+    <string name="latitude">Latitude</string>
+    <string name="altitude">Altitude</string>
+    <string name="provider">Provider</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="speed">Speed</string>
+    <string name="pl">Provider List</string>
+
+    <!-- Network Information -->
+    <string name="networkOperatorName">Network Operator Name</string>
+    <string name="simOperatorName">SIM Operator Name</string>
+    <string name="networkSpecifier">Network Specifier</string>
+    <string name="dataState">Data State</string>
+    <string name="dataNetworkType">Data Network Type</string>
+    <string name="phoneType">Phone Type</string>
+    <string name="preferredOpportunisticDataSubscriptionId">Preferred Opportunistic Data Subscription ID</string>
+
+    <!-- Wifi Information -->
+    <string name="ssid">SSID</string>
+    <string name="bssid">BSSID</string>
+    <!-- RSSI is @ Cell Information -->
+    <string name="frequency">Frequency</string>
+    <string name="link_speed">Link Speed</string>
+    <string name="tx_link_speed">TX Link Speed</string>
+    <string name="max_tx_link_speed">Max Supported TX Speed</string>
+    <string name="rx_link_speed">RX Link Speed</string>
+    <string name="max_rx_link_speed">Max Supported RX Speed</string>
+    <string name="standard">Standard</string>
+    <string name="channel_bandwidth">Channel Bandwidth</string>
 
 </resources>

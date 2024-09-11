@@ -11,19 +11,16 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformatio
 
 // https://developer.android.com/reference/android/telephony/CellIdentityLte
 
-import android.content.Context;
 import android.os.Build;
 import android.telephony.CellIdentityNr;
 import android.telephony.CellSignalStrengthNr;
 import android.telephony.CellInfoNr;
-import android.widget.TableLayout;
 
 import com.influxdb.client.write.Point;
 
 import java.util.Arrays;
 import java.util.List;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 
 public class NR extends CellInformation {
@@ -209,55 +206,6 @@ public class NR extends CellInformation {
 
     public int getTimingAdvance() {
         return this.timingAdvance;
-    }
-
-
-
-
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.alphaLong.toString(), String.valueOf(this.getAlphaLong())},
-                {PrettyPrintMap.cellInformation.mcc.toString(), String.valueOf(this.getMcc())},
-                {PrettyPrintMap.cellInformation.mnc.toString(), String.valueOf(this.getMnc())},
-                {PrettyPrintMap.cellInformation.cellType.toString(), String.valueOf(this.getCellType())},
-                {PrettyPrintMap.cellInformation.pci.toString(), String.valueOf(this.getPci())},
-                {PrettyPrintMap.cellInformation.tac.toString(), String.valueOf(this.getTac())},
-                {PrettyPrintMap.cellInformation.ci.toString(), String.valueOf(this.getCi())},
-                {PrettyPrintMap.cellInformation.isRegistered.toString(), String.valueOf(this.isRegistered())},
-                {PrettyPrintMap.cellInformation.cellConnectionStatus.toString(), String.valueOf(this.getCellConnectionStatus())},
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.bands.toString(), String.valueOf(this.getBands())},
-                {PrettyPrintMap.cellInformation.nrarfcn.toString(), String.valueOf(this.getNrarfcn())},
-                {PrettyPrintMap.cellInformation.lac.toString(), String.valueOf(this.getLac())},
-                {PrettyPrintMap.cellInformation.timingAdvance.toString(), String.valueOf(this.getTimingAdvance())},
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.dbm.toString(), String.valueOf(this.getDbm())},
-                {PrettyPrintMap.cellInformation.level.toString(), String.valueOf(this.getLevel())},
-                {PrettyPrintMap.cellInformation.asuLevel.toString(), String.valueOf(this.getAsuLevel())},
-                {PrettyPrintMap.cellInformation.csirsrp.toString(), String.valueOf(this.getCsirsrp())},
-                {PrettyPrintMap.cellInformation.csirsrq.toString(), String.valueOf(this.getCsirsrq())},
-                {PrettyPrintMap.cellInformation.csisinr.toString(), String.valueOf(this.getCsisinr())},
-                {PrettyPrintMap.cellInformation.cqi.toString(), String.valueOf(this.getCqis())}
-        }, displayNull);
-
-        addDivider(tl, context);
-
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.cellInformation.ssrsrp.toString(), String.valueOf(this.getSsrsrp())},
-                {PrettyPrintMap.cellInformation.ssrsrq.toString(), String.valueOf(this.getSsrsrq())},
-                {PrettyPrintMap.cellInformation.sssinr.toString(), String.valueOf(this.getSssinr())},
-        }, displayNull);
-
-        return tl;
     }
 
     @Override

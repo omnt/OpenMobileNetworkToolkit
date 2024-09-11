@@ -14,10 +14,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.widget.ImageView;
 
-import org.json.JSONObject;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.PrettyPrintMap;
 
 public class GlobalVars {
     public static int counter = 0;
@@ -43,7 +40,6 @@ public class GlobalVars {
     private boolean permission_phone_state;
     private String signing_hash;
     private boolean permission_fine_location;
-    private PrettyPrintMap pretty_print;
 
     private GlobalVars() {
     }
@@ -65,10 +61,6 @@ public class GlobalVars {
 
     public ImageView getLog_status() {
         return log_status;
-    }
-
-    public PrettyPrintMap getPretty_print() {
-        return pretty_print;
     }
 
     public void setLog_status(ImageView log_status) {

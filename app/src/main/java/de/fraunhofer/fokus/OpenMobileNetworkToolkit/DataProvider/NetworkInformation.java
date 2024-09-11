@@ -278,30 +278,4 @@ public class NetworkInformation extends Information {
         return preferredOpportunisticDataSubscriptionId;
     }
 
-    @SuppressLint("MissingPermission")
-    @Override
-    public TableLayout getTable(TableLayout tl, Context context, boolean displayNull) {
-        addRows(tl, context, new String[][]{
-                {PrettyPrintMap.networkInformation.networkOperatorName.toString(), networkOperatorName},
-                {PrettyPrintMap.networkInformation.simOperatorName.toString(), simOperatorName},
-                {PrettyPrintMap.networkInformation.networkSpecifier.toString(), networkSpecifier},
-                {PrettyPrintMap.networkInformation.dataState.toString(), getDataStateString()},
-                {PrettyPrintMap.networkInformation.dataNetworkType.toString(), getDataNetworkTypeString()},
-                {PrettyPrintMap.networkInformation.phoneType.toString(), getPhoneTypeString()},
-                {PrettyPrintMap.networkInformation.preferredOpportunisticDataSubscriptionId.toString(), String.valueOf(preferredOpportunisticDataSubscriptionId)},
-        }, displayNull);
-        TelephonyManager tm = GlobalVars.getInstance().getTm();
-
-        if (GlobalVars.getInstance().isPermission_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                addRows(tl, context, new String[][]{
-                        {"Equivalent Home PLMNs", tm.getEquivalentHomePlmns().toString().replace("[", "").replace("]", "").replace(", ", "\n")},
-                        {"Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[", "").replace("]", "").replace(", ", "\n")}
-                }, displayNull);
-            }
-        }
-
-
-        return tl;
-    }
 }

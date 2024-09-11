@@ -34,12 +34,18 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.divider.MaterialDivider;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMA;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInformation;
@@ -220,9 +226,187 @@ public class DetailFragment extends Fragment {
     private CardView get_device_card_view() {
         DeviceInformation di = dp.getDeviceInformation();
         TableLayout tl = new TableLayout(context);
-        tl = di.getTable(tl, context, true);
+        addRows(tl, new String[][]{
+                {getString(R.string.model), String.valueOf(di.getModel())},
+                {getString(R.string.manufacturer), String.valueOf(di.getManufacturer())},
+                {getString(R.string.socManufacturer), String.valueOf(di.getSOCManufacturer())},
+                {getString(R.string.socModel), String.valueOf(di.getSOCModel())},
+                {getString(R.string.radioVersion), String.valueOf(di.getRadioVersion())},
+                {getString(R.string.supportedModemCount), String.valueOf(di.getSupportedModemCount())},
+                {getString(R.string.androidSDK), String.valueOf(di.getAndroidSDK())},
+                {getString(R.string.androidRelease), String.valueOf(di.getAndroidRelease())},
+                {getString(R.string.deviceSoftwareVersion), String.valueOf(di.getDeviceSoftwareVersion())},
+                {getString(R.string.securityPatchLevel), String.valueOf(di.getSecurityPatchLevel())},
+                {getString(R.string.IMEI), String.valueOf(di.getIMEI())},
+                {getString(R.string.MEID), String.valueOf(di.getMEID())},
+                {getString(R.string.IMSI), String.valueOf(di.getIMSI())},
+                {getString(R.string.simSerial), String.valueOf(di.getSimSerial())},
+                {getString(R.string.subscriptionId), String.valueOf(di.getSubscriberId())},
+                {getString(R.string.networkAccessIdentifier), String.valueOf(di.getNetworkAccessIdentifier())},
+                {getString(R.string.subscriptionId), String.valueOf(di.getSubscriptionId())},
+        }, true);
+
+
+
         return cardView_from_table_builder("Device Information", tl);
     }
+    private void addRows(TableLayout tl, String[][] rows, boolean displayNull) {
+        for (String[] row : rows) {
+            if(!displayNull && (row[1].equals("N/A")
+                    || row[1].equals("null")
+                    || row[1].equals("0")
+                    || row[1].equals("false"))
+            ) continue;
+            tl.addView(rowBuilder(row[0], row[1]));
+        }
+    }
+
+    public void addDivider(TableLayout tl) {
+        MaterialDivider divider = new MaterialDivider(context);
+        tl.addView(divider);
+    }
+
+    private void addSignalSignalStrength(CellInformation signalStrength, TableLayout tl){
+        switch (signalStrength.getCellType()){
+            case NR:
+                NR nr = (NR) signalStrength;
+                addRows(tl, new String[][]{
+                        {getString(R.string.alphaLong), String.valueOf(nr.getAlphaLong())},
+                        {getString(R.string.mcc), String.valueOf(nr.getMcc())},
+                        {getString(R.string.mnc), String.valueOf(nr.getMnc())},
+                        {getString(R.string.cellType), String.valueOf(nr.getCellType())},
+                        {getString(R.string.pci), String.valueOf(nr.getPci())},
+                        {getString(R.string.tac), String.valueOf(nr.getTac())},
+                        {getString(R.string.ci), String.valueOf(nr.getCi())},
+                        {getString(R.string.isRegistered), String.valueOf(nr.isRegistered())},
+                        {getString(R.string.cellConnectionStatus), String.valueOf(nr.getCellConnectionStatus())},
+                }, true);
+                addDivider(tl);
+                addRows(tl, new String[][]{
+                        {getString(R.string.bands), String.valueOf(nr.getBands())},
+                        {getString(R.string.nrarfcn), String.valueOf(nr.getNrarfcn())},
+                        {getString(R.string.lac), String.valueOf(nr.getLac())},
+                        {getString(R.string.timingAdvance), String.valueOf(nr.getTimingAdvance())},
+                }, true);
+                addDivider(tl);
+                addRows(tl, new String[][]{
+                        {getString(R.string.dbm), String.valueOf(nr.getDbm())},
+                        {getString(R.string.level), String.valueOf(nr.getLevel())},
+                        {getString(R.string.asuLevel), String.valueOf(nr.getAsuLevel())},
+                        {getString(R.string.csirsrp), String.valueOf(nr.getCsirsrp())},
+                        {getString(R.string.csirsrq), String.valueOf(nr.getCsirsrq())},
+                        {getString(R.string.csisinr), String.valueOf(nr.getCsisinr())},
+                        {getString(R.string.cqi), String.valueOf(nr.getCqis())}
+                }, true);
+                addDivider(tl);
+                addRows(tl, new String[][]{
+                        {getString(R.string.ssrsrp), String.valueOf(nr.getSsrsrp())},
+                        {getString(R.string.ssrsrq), String.valueOf(nr.getSsrsrq())},
+                        {getString(R.string.sssinr), String.valueOf(nr.getSssinr())},
+                }, true);
+                break;
+            case GSM:
+                GSM gsm = (GSM) signalStrength;
+                addRows(tl, new String[][]{
+                        {getString(R.string.alphaLong), String.valueOf(gsm.getAlphaLong())},
+                        {getString(R.string.mcc), String.valueOf(gsm.getMcc())},
+                        {getString(R.string.mnc), String.valueOf(gsm.getMnc())},
+                        {getString(R.string.cellType), String.valueOf(gsm.getCellType())},
+                        {getString(R.string.ci), String.valueOf(gsm.getCi())},
+                        {getString(R.string.isRegistered), String.valueOf(gsm.isRegistered())},
+                        {getString(R.string.cellConnectionStatus), String.valueOf(gsm.getCellConnectionStatus())},
+                }, true);
+                addDivider(tl);
+                addRows(tl, new String[][]{
+                        {getString(R.string.bands), String.valueOf(gsm.getBands())},
+                        {getString(R.string.lac), String.valueOf(gsm.getLac())},
+                        {getString(R.string.timingAdvance), String.valueOf(gsm.getTimingAdvance())},
+                }, true);
+
+                addDivider(tl);
+                addRows(tl, new String[][]{
+                        {getString(R.string.dbm), String.valueOf(gsm.getDbm())},
+                        {getString(R.string.level), String.valueOf(gsm.getLevel())},
+                        {getString(R.string.asuLevel), String.valueOf(gsm.getAsuLevel())},
+                        {getString(R.string.bitErrorRate), String.valueOf(gsm.getBitErrorRate())},
+                        {getString(R.string.rssi), String.valueOf(gsm.getRssi())},
+                }, true);
+                break;
+            case LTE:
+                LTE lte = (LTE) signalStrength;
+                addRows(tl, new String[][]{
+                        {getString(R.string.alphaLong), String.valueOf(lte.getAlphaLong())},
+                        {getString(R.string.mcc), String.valueOf(lte.getMcc())},
+                        {getString(R.string.mnc), String.valueOf(lte.getMnc())},
+                        {getString(R.string.cellType), String.valueOf(lte.getCellType())},
+                        {getString(R.string.pci), String.valueOf(lte.getPci())},
+                        {getString(R.string.tac), String.valueOf(lte.getTac())},
+                        {getString(R.string.ci), String.valueOf(lte.getCi())},
+                        {getString(R.string.isRegistered), String.valueOf(lte.isRegistered())},
+                        {getString(R.string.cellConnectionStatus), String.valueOf(lte.getCellConnectionStatus())},
+                }, true);
+
+                addDivider(tl);
+
+                addRows(tl, new String[][]{
+                        {getString(R.string.bands), String.valueOf(lte.getBands())},
+                        {getString(R.string.earfcn), String.valueOf(lte.getEarfcn())},
+                        {getString(R.string.bandwidth), String.valueOf(lte.getBandwidth())},
+                        {getString(R.string.timingAdvance), String.valueOf(lte.getTimingAdvance())},
+                }, true);
+
+                addDivider(tl);
+
+                addRows(tl, new String[][]{
+                        {getString(R.string.level), String.valueOf(lte.getLevel())},
+                        {getString(R.string.asuLevel), String.valueOf(lte.getAsuLevel())},
+                        {getString(R.string.rsrp), String.valueOf(lte.getRsrp())},
+                        {getString(R.string.rsrq), String.valueOf(lte.getRsrq())},
+                        {getString(R.string.cqi), String.valueOf(lte.getCqi())}
+                }, true);
+
+                addDivider(tl);
+
+                addRows(tl, new String[][]{
+                        {getString(R.string.rssi), String.valueOf(lte.getRssi())},
+                        {getString(R.string.rssnr), String.valueOf(lte.getRssnr())},
+                }, true);
+
+                break;
+            case CDMA:
+                CDMA cdma = (CDMA) signalStrength;
+                addRows(tl, new String[][]{
+                        {getString(R.string.alphaLong), String.valueOf(cdma.getAlphaLong())},
+                        {getString(R.string.cellType), String.valueOf(cdma.getCellType())},
+                        {getString(R.string.isRegistered), String.valueOf(cdma.isRegistered())},
+                        {getString(R.string.cellConnectionStatus), String.valueOf(cdma.getCellConnectionStatus())},
+                }, true);
+
+                addDivider(tl);
+
+                addRows(tl, new String[][]{
+                        {getString(R.string.cmdaDbm), String.valueOf(cdma.getCmdaDbm())},
+                        {getString(R.string.cmdaEcio), String.valueOf(cdma.getCmdaEcio())},
+                        {getString(R.string.evdoDbm), String.valueOf(cdma.getEvdoDbm())},
+                        {getString(R.string.evdoEcio), String.valueOf(cdma.getEvdoEcio())},
+                        {getString(R.string.evdoSnr), String.valueOf(cdma.getEvdoSnr())},
+                }, true);
+
+                break;
+            case UNKNOWN:
+            default:
+                addRows(tl, new String[][]{
+                        {getString(R.string.alphaLong), String.valueOf(signalStrength.getAlphaLong())},
+                        {getString(R.string.cellType), String.valueOf(signalStrength.getCellType())},
+                        {getString(R.string.isRegistered), String.valueOf(signalStrength.isRegistered())},
+                        {getString(R.string.cellConnectionStatus), String.valueOf(signalStrength.getCellConnectionStatus())},
+                }, true);
+                break;
+        }
+
+
+    }
+
 
     @SuppressLint({"MissingPermission", "HardwareIds", "ObsoleteSdkInt"})
     private CardView get_signal_strength_card_view() {
@@ -244,7 +428,8 @@ public class DetailFragment extends Fragment {
                 TextView tv = (TextView) title.getChildAt(0);
                 tv.setTypeface(Typeface.DEFAULT_BOLD);
                 tl.addView(title);
-                tl = signalStrengthInformation.getTable(tl, context, false);
+                addSignalSignalStrength(signalStrengthInformation, tl);
+
             }
         }
         return cardView_from_table_builder("Signal Strength Information", tl);
@@ -276,7 +461,14 @@ public class DetailFragment extends Fragment {
         TableLayout tl = new TableLayout(context);
         LocationInformation loc = dp.getLocation();
         if (loc != null) {
-            tl = loc.getTable(tl, context, true);
+            addRows(tl, new String[][]{
+                    {getString(R.string.longitude), String.valueOf(loc.getLongitude())},
+                    {getString(R.string.latitude), String.valueOf(loc.getLatitude())},
+                    {getString(R.string.altitude), String.valueOf(loc.getAltitude())},
+                    {getString(R.string.accuracy), String.valueOf(loc.getAccuracy())},
+                    {getString(R.string.speed), String.valueOf(loc.getSpeed())},
+                    {getString(R.string.provider), loc.getProvider()},
+            }, true);
         } else {
             tl.addView(rowBuilder("Location not available", ""));
         }
@@ -297,7 +489,27 @@ public class DetailFragment extends Fragment {
         NetworkInformation ni = dp.getNetworkInformation();
         NetworkCallback nc = new NetworkCallback(context);
         TableLayout tl = new TableLayout(context);
-        tl = ni.getTable(tl, context, true);
+
+        addRows(tl, new String[][]{
+                {getString(R.string.networkOperatorName), ni.getNetworkOperatorName()},
+                {getString(R.string.simOperatorName), ni.getSimOperatorName()},
+                {getString(R.string.networkSpecifier), ni.getNetworkSpecifier()},
+                {getString(R.string.dataState), ni.getDataStateString()},
+                {getString(R.string.dataNetworkType), ni.getDataNetworkTypeString()},
+                {getString(R.string.phoneType), ni.getPhoneTypeString()},
+                {getString(R.string.preferredOpportunisticDataSubscriptionId), String.valueOf(ni.getPreferredOpportunisticDataSubscriptionId())},
+        }, true);
+
+
+        if (GlobalVars.getInstance().isPermission_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                addRows(tl, new String[][]{
+                        {"Equivalent Home PLMNs", tm.getEquivalentHomePlmns().toString().replace("[", "").replace("]", "").replace(", ", "\n")},
+                        {"Forbidden PLMNs", Arrays.toString(tm.getForbiddenPlmns()).replace("[", "").replace("]", "").replace(", ", "\n")}
+                }, true);
+            }
+        }
+
         Network network = nc.getCurrentNetwork();
         if (network != null) {
             tl.addView(rowBuilder("Default Network", network.toString()));
@@ -355,7 +567,7 @@ public class DetailFragment extends Fragment {
             //for(TableRow tr : ci.getTableRows(context)) {
             //    tl.addView(tr);
             //}
-            tl = ci.getTable(tl, context, true);
+            addSignalSignalStrength(ci, tl);
         }
         if (tl.getChildCount() == 0) {
             tl.addView(rowBuilder("No cells available", ""));
@@ -367,7 +579,21 @@ public class DetailFragment extends Fragment {
         TableLayout tl = new TableLayout(context);
         WifiInformation wi = dp.getWifiInformation();
         if (wi != null) {
-            tl = wi.getTable(tl, context, true);
+            addRows(tl, new String[][]{
+                    {getString(R.string.ssid), wi.getSsid()},
+                    {getString(R.string.bssid), wi.getBssid()},
+                    {getString(R.string.rssi), Integer.toString(wi.getRssi())},
+                    {getString(R.string.frequency), Integer.toString(wi.getFrequency())},
+                    {getString(R.string.link_speed), Integer.toString(wi.getLink_speed())},
+                    {getString(R.string.tx_link_speed), Integer.toString(wi.getTx_link_speed())},
+                    {getString(R.string.max_tx_link_speed), Integer.toString(wi.getMax_tx_link_speed())},
+                    {getString(R.string.rx_link_speed), Integer.toString(wi.getRx_link_speed())},
+                    {getString(R.string.max_rx_link_speed), Integer.toString(wi.getMax_rx_link_speed())},
+                    {getString(R.string.standard), wi.getStandardString()},
+                    {getString(R.string.channel_bandwidth), wi.getChannelBandwithString()}
+            }, true);
+
+
         } else {
             tl.addView(rowBuilder("No WiFi information available", ""));
         }
