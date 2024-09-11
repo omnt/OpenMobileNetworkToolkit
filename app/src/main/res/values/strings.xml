@@ -159,9 +159,11 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <!-- -->
+    <string name="na">N/A</string>
 
 
     <!-- CellInformation -->
+    <string name="bsic">BSIC</string>
     <string name="cmdaDbm">CMDA dBm</string>
     <string name="cmdaEcio">CMDA Ec/Io</string>
     <string name="evdoDbm">EVDO dBm</string>
@@ -182,6 +184,7 @@
     <string name="lac">LAC</string>
     <string name="timingAdvance">Timing Advance</string>
     <string name="bitErrorRate">Bit Error Rate</string>
+    <string name="bitErrorRate_short">BER</string>
     <string name="dbm">dBm</string>
     <string name="rssi">RSSI</string>
     <string name="earfcn">EARFCN</string>
@@ -198,6 +201,7 @@
     <string name="ssrsrp">SS RSRP</string>
     <string name="ssrsrq">SS RSRQ</string>
     <string name="sssinr">SS SINR</string>
+    <string name="plmn">PLMN</string>
 
 
     <!-- Device Information -->

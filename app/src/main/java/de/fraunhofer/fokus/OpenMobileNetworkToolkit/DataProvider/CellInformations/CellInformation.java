@@ -158,6 +158,10 @@ public class CellInformation extends Information {
         return ci;
     }
 
+    public String getCiString() {
+        return String.valueOf(ci);
+    }
+
     public void setCi(long ci) {
         this.ci = ci;
     }

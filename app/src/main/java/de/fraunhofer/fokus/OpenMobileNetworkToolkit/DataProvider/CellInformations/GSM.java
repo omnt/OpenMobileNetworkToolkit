@@ -114,6 +114,26 @@ public class GSM extends CellInformation {
         return rssi;
     }
 
+    public String getRssiString() {
+        return Integer.toString(rssi);
+    }
+
+    public String getBitErrorRateString() {
+        return Integer.toString(bitErrorRate);
+    }
+
+    public String getBsicString() {
+        return Integer.toString(bsic);
+    }
+
+    public String getLacString() {
+        return Integer.toString(lac);
+    }
+
+    public String getTimingAdvanceString() {
+        return Integer.toString(timingAdvance);
+    }
+
     public void setRssi(int rssi) {
         this.rssi = rssi;
     }
