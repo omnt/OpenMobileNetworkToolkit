@@ -99,6 +99,10 @@ public class QuickFragment extends Fragment {
                                 int min, int minColor,
                                 int max, int maxColor) {
         textView.setText(value);
+        if(value.equals(String.valueOf(Integer.MAX_VALUE))) {
+            textView.setText("N/A");
+            return;
+        };
         textView.setTextSize(determineTextSize(value));
         if(min == Integer.MAX_VALUE || max == Integer.MAX_VALUE) return;
         CardView parent = (CardView) textView.getParent().getParent();
@@ -157,7 +161,7 @@ public class QuickFragment extends Fragment {
                         lte.getCqiString(),
                         0, R.color.radio_red,
                         15, R.color.radio_green);
-
+                mainLL.addView(lteView);
                 break;
             case CDMA:
                 CDMAInformation cdma = (CDMAInformation) cellInformation;
@@ -201,6 +205,7 @@ public class QuickFragment extends Fragment {
                         cdma.getEvdoSnrString(),
                         0, R.color.radio_red,
                         20, R.color.radio_green);
+                mainLL.addView(cdmaView);
                 break;
             case UMTS:
                 //mainLL.addView(cellInformation.createQuickView(context));

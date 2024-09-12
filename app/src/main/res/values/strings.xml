@@ -169,7 +169,7 @@
     <string name="evdoDbm">EVDO dBm</string>
     <string name="evdoEcio">EVDO Ec/Io</string>
     <string name="evdoSnr">EVDO SNR</string>
-    <string name="cellType">Cell Type</string>
+    <string name="cellType">Type</string>
     <string name="alphaLong">Alpha Long</string>
     <string name="bands">Bands</string>
     <string name="ci">CI</string>
