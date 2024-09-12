@@ -8,9 +8,12 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.content.Context;
+import android.widget.TableLayout;
+
 import java.util.List;
 
-public class LocationInformation {
+public class LocationInformation extends Information {
     private double longitude;
     private double latitude;
     private double altitude;
@@ -19,7 +22,8 @@ public class LocationInformation {
     private float speed;
     private List<String> pl;
 
-    public LocationInformation(double longitude, double latitude, double altitude, String provider, float accuracy, float speed) {
+    public LocationInformation(double longitude, double latitude, double altitude, String provider, float accuracy, float speed, long timestamp) {
+        super(timestamp);
         this.longitude = longitude;
         this.latitude = latitude;
         this.altitude = altitude;
@@ -86,4 +90,5 @@ public class LocationInformation {
     public void setAccuracy(float accuracy) {
         this.accuracy = accuracy;
     }
+
 }

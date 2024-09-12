@@ -1,0 +1,42 @@
+{
+    "type": "cellinformation",
+    "evolution": "CDMA",
+    "table": {
+        "row": [
+            [],
+            [
+                {
+                    "key": "RSSI",
+                    "unit": "dBm",
+                    "parameter": "rssi",
+                    "range": {
+                        "min": {
+                            "value": -105,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": -70,
+                            "color": "#a9ff68"
+                        }
+                    }
+                },
+                {
+                    "key": "Ec/Io",
+                    "parameter": "ecio",
+                    "unit": "dB",
+                    "range": {
+                        "min": {
+                            "value": -31,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": 0,
+                            "color": "#a9ff68"
+                        }
+                    }
+                }
+            ]
+        ]
+    },
+    "_source": "https://developer.android.com/reference/android/telephony/CellSignalStrengthCdma"
+}

@@ -7,27 +7,20 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/home_fragment"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:elevation="5dp"
-    tools:context=".HomeFragment">
-
-    <ScrollView
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/home_layout"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/home_tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"/>
-    </ScrollView>
+            android:layout_height="wrap_content" />
 
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/home_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+</LinearLayout>

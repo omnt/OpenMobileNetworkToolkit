@@ -9,11 +9,17 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Build;
 import android.telephony.AccessNetworkConstants;
 import android.telephony.TelephonyManager;
+import android.widget.TableLayout;
 
-public class NetworkInformation {
+import java.util.Arrays;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+
+public class NetworkInformation extends Information {
     private final String networkOperatorName;
     private final String simOperatorName;
     private final String networkSpecifier;
@@ -21,9 +27,9 @@ public class NetworkInformation {
     private final int dataNetworkType;
     private final int phoneType;
     private final int preferredOpportunisticDataSubscriptionId;
-    private long timeStamp;
 
     public NetworkInformation(String networkOperatorName, String simOperatorName, String networkSpecifier, int dataState, int dataNetworkType, int phoneType, int preferredOpportunisitcDataSubscitptionId) {
+        super(System.currentTimeMillis());
         this.networkOperatorName = networkOperatorName;
         this.simOperatorName = simOperatorName;
         this.networkSpecifier = networkSpecifier;
@@ -31,23 +37,6 @@ public class NetworkInformation {
         this.dataNetworkType = dataNetworkType;
         this.phoneType = phoneType;
         this.preferredOpportunisticDataSubscriptionId = preferredOpportunisitcDataSubscitptionId;
-        this.timeStamp = System.currentTimeMillis();
-    }
-
-    /**
-     * Get the current timestamp
-     * @return last updated timestamp
-     */
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    /**
-     * Update the timestamp
-     * @param timeStamp new timestamp
-     */
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
     }
 
     /**
@@ -96,7 +85,7 @@ public class NetworkInformation {
      */
     public String getPhoneTypeString() {
         String phoneTypeString;
-        switch (phoneType){
+        switch (phoneType) {
             case 0:
                 phoneTypeString = "None";
                 break;
@@ -122,7 +111,7 @@ public class NetworkInformation {
      */
     public String getDataStateString() {
         String dataStateString;
-        switch (dataState){
+        switch (dataState) {
             case TelephonyManager.DATA_DISCONNECTED:
                 dataStateString = "Disconnected";
                 break;
@@ -154,9 +143,9 @@ public class NetworkInformation {
      */
     public String getDataNetworkTypeString() {
         String dataNetworkTypeString;
-        switch (dataNetworkType){
+        switch (dataNetworkType) {
             case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-                dataNetworkTypeString =  "Unknown";
+                dataNetworkTypeString = "Unknown";
                 break;
             case TelephonyManager.NETWORK_TYPE_GPRS:
                 dataNetworkTypeString = "GPRS";
@@ -226,9 +215,9 @@ public class NetworkInformation {
      */
     public static String getAccessNetworkType(int accessNetworkID) {
         String accessNetworkType;
-        switch (accessNetworkID){
+        switch (accessNetworkID) {
             case AccessNetworkConstants.AccessNetworkType.CDMA2000:
-                accessNetworkType =  "CDMA2000";
+                accessNetworkType = "CDMA2000";
                 break;
             case AccessNetworkConstants.AccessNetworkType.GERAN:
                 accessNetworkType = "GERAN";
@@ -288,4 +277,5 @@ public class NetworkInformation {
     public int getPreferredOpportunisticDataSubscriptionId() {
         return preferredOpportunisticDataSubscriptionId;
     }
+
 }

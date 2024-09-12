@@ -1,0 +1,91 @@
+{
+    "type": "cellinformation",
+    "evolution": "LTE",
+    "table": {
+        "row": [
+            [],
+            [
+                {
+                    "key": "CQI",
+                    "unit": "",
+                    "parameter": "cqi",
+                    "range": {
+                        "min": {
+                            "value": 0,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": 15,
+                            "color": "#a9ff68"
+                        }
+                    }
+                },
+                {
+                    "key": "RSRQ",
+                    "parameter": "rsrq",
+                    "unit": "dB",
+                    "range": {
+                        "min": {
+                            "value": -34,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": 3,
+                            "color": "#a9ff68"
+                        }
+
+
+                    }
+                },
+                {
+                    "key": "RSRP",
+                    "parameter": "rsrp",
+                    "unit": "dBm",
+                    "range": {
+                        "min": {
+                            "value": -140,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": -43,
+                            "color": "#a9ff68"
+                        }
+                    }
+                },
+                {
+                    "key": "RSSNR",
+                    "parameter": "rssnr",
+                    "unit": "dB",
+                    "range": {
+                        "min": {
+                            "value": -20,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": 30,
+                            "color": "#a9ff68"
+                        }
+
+
+                    }
+                },
+                {
+                    "key": "RSSI",
+                    "parameter": "rssi",
+                    "unit": "dBm",
+                    "range": {
+                        "min": {
+                            "value": -113,
+                            "color": "#ff8989"
+                        },
+                        "max": {
+                            "value": -51,
+                            "color": "#a9ff68"
+                        }
+                    }
+                }
+            ]
+        ]
+    },
+    "_source": "https://developer.android.com/reference/android/telephony/CellSignalStrengthLte"
+}
