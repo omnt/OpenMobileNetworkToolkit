@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.Inflater;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMA;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
@@ -64,6 +65,22 @@ public class QuickFragment extends Fragment {
         switch (cellInformation.getCellType()) {
             case LTE:
                 //mainLL.addView(cellInformation.createQuickView(context));
+                break;
+            case CDMA:
+                CDMA cdma = (CDMA) cellInformation;
+                View cdmaView = inflater.inflate(R.layout.quickview_cdma, null, false);
+                LinearLayout cdmaLL = cdmaView.findViewById(R.id.quickview_cdma);
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_cellType)).setText(cdma.getCellType().toString());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_mnc)).setText(cdma.getMnc());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_ci)).setText(cdma.getCiString());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_pci)).setText(cdma.getPciString());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_tac)).setText(cdma.getTacString());
+
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_dbm)).setText(cdma.getCmdaDbm());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_ecio)).setText(cdma.getCmdaEcioString());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_evdo_dbm)).setText(cdma.getEvdoDbmString());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_evdo_ecio)).setText(cdma.getEvdoEcioString());
+                ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_evdo_snr)).setText(cdma.getEvdoSnr());
                 break;
             case UMTS:
                 //mainLL.addView(cellInformation.createQuickView(context));

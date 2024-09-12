@@ -88,4 +88,26 @@ public class CDMA extends CellInformation {
         return evdoSnr;
     }
 
+    public String getCmdaDbmString() {
+        return Integer.toString(cmdaDbm);
+    }
+
+    public String getCmdaEcioString() {
+        return Integer.toString(cmdaEcio);
+    }
+
+    public String getEvdoDbmString() {
+        return Integer.toString(evdoDbm);
+    }
+
+    public String getEvdoEcioString() {
+        return Integer.toString(evdoEcio);
+    }
+
+    public String getEvdoSnrString() {
+        return Integer.toString(evdoSnr);
+    }
+
+
+
 }
