@@ -23,7 +23,7 @@ import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 
-public class NR extends CellInformation {
+public class NRInformation extends CellInformation {
     private static final String TAG = "NR";
     private int nrarfcn;
     private int csirsrp;
@@ -39,11 +39,11 @@ public class NR extends CellInformation {
     private int timingAdvance;
     private List<Integer> cqis;
 
-    public NR() {
+    public NRInformation() {
         super();
     }
 
-    public NR(long timestamp, CellSignalStrengthNr cellSignalStrengthNr){
+    public NRInformation(long timestamp, CellSignalStrengthNr cellSignalStrengthNr){
         super(timestamp);
         this.asuLevel = cellSignalStrengthNr.getAsuLevel();
         this.dbm = cellSignalStrengthNr.getDbm();
@@ -57,9 +57,9 @@ public class NR extends CellInformation {
         this.setCellType(CellType.NR);
     }
 
-    private NR(CellInfoNr cellInfoNr,
-              CellIdentityNr cellIdentityNr,
-              CellSignalStrengthNr cellSignalStrengthNr, long timestamp){
+    private NRInformation(CellInfoNr cellInfoNr,
+                          CellIdentityNr cellIdentityNr,
+                          CellSignalStrengthNr cellSignalStrengthNr, long timestamp){
         super(timestamp,
                 CellType.NR,
                 "N/A",
@@ -100,7 +100,7 @@ public class NR extends CellInformation {
         }
     }
 
-    public NR(CellInfoNr cellInfoNr, long timestamp){
+    public NRInformation(CellInfoNr cellInfoNr, long timestamp){
         this(cellInfoNr, (CellIdentityNr) cellInfoNr.getCellIdentity(), (CellSignalStrengthNr) cellInfoNr.getCellSignalStrength(), timestamp);
     }
 

@@ -29,9 +29,6 @@ import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Looper;
-import android.telephony.CellIdentityGsm;
-import android.telephony.CellIdentityLte;
-import android.telephony.CellIdentityNr;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
@@ -68,19 +65,18 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMA;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -336,16 +332,16 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         for (CellInfo ci : list) {
             CellInformation cim = new CellInformation();
             if (ci instanceof CellInfoNr) {
-                cim = new NR((CellInfoNr) ci, ts_);
+                cim = new NRInformation((CellInfoNr) ci, ts_);
             }
             if (ci instanceof CellInfoLte) {
-                cim = new LTE((CellInfoLte) ci, ts_);
+                cim = new LTEInformation((CellInfoLte) ci, ts_);
             }
             if (ci instanceof CellInfoCdma) {
-                cim = new CDMA((CellInfoCdma) ci, ts_);
+                cim = new CDMAInformation((CellInfoCdma) ci, ts_);
             }
             if (ci instanceof CellInfoGsm) {
-                cim = new GSM((CellInfoGsm) ci, ts_);
+                cim = new GSMInformation((CellInfoGsm) ci, ts_);
             }
             ciml.add(cim);
         }
@@ -404,19 +400,19 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             Point point = new Point("CellInformation");
             point.time(ts, WritePrecision.MS);
             if (ci_.getCellType().equals(CellType.NR)) {
-                NR nr = (NR) ci_;
+                NRInformation nr = (NRInformation) ci_;
                 point = nr.getPoint(point);
             }
             if (ci_.getCellType().equals(CellType.LTE)) {
-                LTE lte = (LTE) ci_;
+                LTEInformation lte = (LTEInformation) ci_;
                 point = lte.getPoint(point);
             }
             if (Objects.equals(ci_.getCellType(), "CDMA")) {
-                CDMA cdma = (CDMA) ci_;
+                CDMAInformation cdma = (CDMAInformation) ci_;
                 cdma.getPoint(point);
             }
             if (Objects.equals(ci_.getCellType(), "GSM")) {
-                GSM gsm = (GSM) ci_;
+                GSMInformation gsm = (GSMInformation) ci_;
                 gsm.getPoint(point);
             }
             points.add(point);
@@ -495,19 +491,19 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             CellInformation signalStrengthInformation = null;
             if (ss instanceof CellSignalStrengthNr) {
                 CellSignalStrengthNr ssnr = (CellSignalStrengthNr) ss;
-                signalStrengthInformation = new NR(ts_, ssnr);
+                signalStrengthInformation = new NRInformation(ts_, ssnr);
             }
             if (ss instanceof CellSignalStrengthLte) {
                 CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
-                signalStrengthInformation = new LTE(ts_, ssLTE);
+                signalStrengthInformation = new LTEInformation(ts_, ssLTE);
             }
             if (ss instanceof CellSignalStrengthCdma) {
                 CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
-                signalStrengthInformation = new CDMA(ts_, ssCdma);
+                signalStrengthInformation = new CDMAInformation(ts_, ssCdma);
             }
             if (ss instanceof CellSignalStrengthGsm) {
                 CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
-                signalStrengthInformation = new GSM(ts_, ssGSM);
+                signalStrengthInformation = new GSMInformation(ts_, ssGSM);
             }
             if(signalStrengthInformation != null) signalStrengthInformationList.add(signalStrengthInformation);
 

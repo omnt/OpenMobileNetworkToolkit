@@ -6,29 +6,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.telephony.TelephonyManager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textview.MaterialTextView;
 
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.zip.Inflater;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMA;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -67,7 +61,7 @@ public class QuickFragment extends Fragment {
                 //mainLL.addView(cellInformation.createQuickView(context));
                 break;
             case CDMA:
-                CDMA cdma = (CDMA) cellInformation;
+                CDMAInformation cdma = (CDMAInformation) cellInformation;
                 View cdmaView = inflater.inflate(R.layout.quickview_cdma, null, false);
                 LinearLayout cdmaLL = cdmaView.findViewById(R.id.quickview_cdma);
                 ((MaterialTextView) cdmaLL.findViewById(R.id.quickview_cdma_cellType)).setText(cdma.getCellType().toString());
@@ -86,7 +80,7 @@ public class QuickFragment extends Fragment {
                 //mainLL.addView(cellInformation.createQuickView(context));
                 break;
             case GSM:
-                GSM gsm = (GSM) cellInformation;
+                GSMInformation gsm = (GSMInformation) cellInformation;
                 View gsmView = inflater.inflate(R.layout.quickview_gsm, null, false);
                 LinearLayout gsmLL = gsmView.findViewById(R.id.quickview_gsm);
                 ((MaterialTextView) gsmLL.findViewById(R.id.quickview_gsm_cellType)).setText(gsm.getCellType().toString());
@@ -99,7 +93,7 @@ public class QuickFragment extends Fragment {
                 mainLL.addView(gsmView);
                 break;
             case NR:
-                NR nr = (NR) cellInformation;
+                NRInformation nr = (NRInformation) cellInformation;
                 View nrView = inflater.inflate(R.layout.quickview_nr, null, false);
                 LinearLayout nrLL = nrView.findViewById(R.id.quickview_nr);
                 ((MaterialTextView) nrLL.findViewById(R.id.quickview_nr_cellType)).setText(nr.getCellType().toString());

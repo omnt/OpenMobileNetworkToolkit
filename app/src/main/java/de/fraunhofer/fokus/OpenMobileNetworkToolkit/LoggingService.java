@@ -47,10 +47,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
@@ -116,13 +115,13 @@ public class LoggingService extends Service {
             for (CellInformation ci : cil) {
                 switch (ci.getCellType()) {
                     case LTE:
-                        s = ((LTE) ci).getStringBuilder();
+                        s = ((LTEInformation) ci).getStringBuilder();
                         break;
                     case NR:
-                        s = ((NR) ci).getStringBuilder();
+                        s = ((NRInformation) ci).getStringBuilder();
                         break;
                     case GSM:
-                        s = ((GSM) ci).getStringBuilder();
+                        s = ((GSMInformation) ci).getStringBuilder();
                 }
             }
             builder.setContentText(s);

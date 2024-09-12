@@ -41,11 +41,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMA;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInformation;
@@ -269,7 +269,7 @@ public class DetailFragment extends Fragment {
     private void addSignalSignalStrength(CellInformation signalStrength, TableLayout tl){
         switch (signalStrength.getCellType()){
             case NR:
-                NR nr = (NR) signalStrength;
+                NRInformation nr = (NRInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(nr.getAlphaLong())},
                         {getString(R.string.mcc), String.valueOf(nr.getMcc())},
@@ -306,7 +306,7 @@ public class DetailFragment extends Fragment {
                 }, true);
                 break;
             case GSM:
-                GSM gsm = (GSM) signalStrength;
+                GSMInformation gsm = (GSMInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(gsm.getAlphaLong())},
                         {getString(R.string.mcc), String.valueOf(gsm.getMcc())},
@@ -333,7 +333,7 @@ public class DetailFragment extends Fragment {
                 }, true);
                 break;
             case LTE:
-                LTE lte = (LTE) signalStrength;
+                LTEInformation lte = (LTEInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(lte.getAlphaLong())},
                         {getString(R.string.mcc), String.valueOf(lte.getMcc())},
@@ -374,7 +374,7 @@ public class DetailFragment extends Fragment {
 
                 break;
             case CDMA:
-                CDMA cdma = (CDMA) signalStrength;
+                CDMAInformation cdma = (CDMAInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(cdma.getAlphaLong())},
                         {getString(R.string.cellType), String.valueOf(cdma.getCellType())},

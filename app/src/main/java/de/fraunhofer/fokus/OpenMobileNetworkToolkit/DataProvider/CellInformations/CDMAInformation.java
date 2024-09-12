@@ -4,7 +4,7 @@ import android.telephony.CellIdentityCdma;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellSignalStrengthCdma;
 
-public class CDMA extends CellInformation {
+public class CDMAInformation extends CellInformation {
     private int cmdaDbm;
     private int cmdaEcio;
     private int evdoDbm;
@@ -12,8 +12,8 @@ public class CDMA extends CellInformation {
     private int evdoSnr;
 
 
-    public CDMA() {super();}
-    public CDMA(long timestamp, CellSignalStrengthCdma cellSignalStrengthCdma){
+    public CDMAInformation() {super();}
+    public CDMAInformation(long timestamp, CellSignalStrengthCdma cellSignalStrengthCdma){
         super(timestamp);
         cmdaDbm = cellSignalStrengthCdma.getCdmaDbm();
         cmdaEcio = cellSignalStrengthCdma.getCdmaEcio();
@@ -23,10 +23,10 @@ public class CDMA extends CellInformation {
         this.setCellType(CellType.CDMA);
 
     }
-    private CDMA(CellInfoCdma cellInfoCdma,
-                 CellIdentityCdma cellIdentityCdma,
-                 CellSignalStrengthCdma cellSignalStrengthCdma,
-                 long timestamp) {
+    private CDMAInformation(CellInfoCdma cellInfoCdma,
+                            CellIdentityCdma cellIdentityCdma,
+                            CellSignalStrengthCdma cellSignalStrengthCdma,
+                            long timestamp) {
         super(timestamp,
                 CellType.CDMA,
                 "N/A",
@@ -45,7 +45,7 @@ public class CDMA extends CellInformation {
         evdoEcio = cellSignalStrengthCdma.getEvdoEcio();
         evdoSnr = cellSignalStrengthCdma.getEvdoSnr();
     }
-    public CDMA(CellInfoCdma cellInfoCdma, long timestamp) {
+    public CDMAInformation(CellInfoCdma cellInfoCdma, long timestamp) {
         this(cellInfoCdma, cellInfoCdma.getCellIdentity(), cellInfoCdma.getCellSignalStrength(), timestamp);
     }
     public void setCmdaDbm(int cmdaDbm) {
