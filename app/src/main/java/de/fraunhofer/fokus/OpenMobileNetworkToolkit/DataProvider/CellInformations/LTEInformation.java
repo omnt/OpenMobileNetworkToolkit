@@ -182,6 +182,41 @@ public class LTEInformation extends CellInformation {
         this.earfcn = earfcn;
     }
 
+    public String getEarfcnString() {
+        return Integer.toString(earfcn);
+    }
+
+    public String getBandwidthString() {
+        return Integer.toString(bandwidth);
+    }
+
+    public String getCqiString() {
+        return Integer.toString(cqi);
+    }
+
+    public String getRsrpString() {
+        return Integer.toString(rsrp);
+    }
+
+    public String getRsrqString() {
+        return Integer.toString(rsrq);
+    }
+
+    public String getRssiString() {
+        return Integer.toString(rssi);
+    }
+
+    public String getRssnrString() {
+        return Integer.toString(rssnr);
+    }
+
+    public String getTimingAdvanceString() {
+        return Integer.toString(timingAdvance);
+    }
+
+    public String getDbmString() {
+        return Integer.toString(dbm);
+    }
 
     @Override
     public Point getPoint(Point point){
