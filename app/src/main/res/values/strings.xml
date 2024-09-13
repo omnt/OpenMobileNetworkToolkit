@@ -202,7 +202,7 @@
     <string name="ssrsrq">SS RSRQ</string>
     <string name="sssinr">SS SINR</string>
     <string name="plmn">PLMN</string>
-
+    <string name="cell_na">No Cell Information Available</string>
 
     <!-- Device Information -->
     <string name="model">Model</string>
