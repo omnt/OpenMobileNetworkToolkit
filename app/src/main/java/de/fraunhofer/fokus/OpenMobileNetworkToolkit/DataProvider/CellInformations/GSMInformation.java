@@ -5,7 +5,7 @@ import android.telephony.CellIdentityGsm;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrengthGsm;
 
-public class GSM extends CellInformation {
+public class GSMInformation extends CellInformation {
     private int lac;
     private int timingAdvance;
     private int bitErrorRate;
@@ -14,8 +14,8 @@ public class GSM extends CellInformation {
     private int bsic;
     private String mcc;
 
-    public GSM() {super();}
-    public GSM(long timestamp, CellSignalStrengthGsm cellSignalStrengthGsm){
+    public GSMInformation() {super();}
+    public GSMInformation(long timestamp, CellSignalStrengthGsm cellSignalStrengthGsm){
         super(timestamp);
         this.timingAdvance = cellSignalStrengthGsm.getTimingAdvance();
         this.bitErrorRate = cellSignalStrengthGsm.getBitErrorRate();
@@ -24,10 +24,10 @@ public class GSM extends CellInformation {
         this.setCellType(CellType.GSM);
     }
 
-    private GSM(CellInfoGsm cellInfoGsm,
-                CellIdentityGsm cellIdentityGsm,
-                CellSignalStrengthGsm cellSignalStrengthGsm,
-                long timestamp) {
+    private GSMInformation(CellInfoGsm cellInfoGsm,
+                           CellIdentityGsm cellIdentityGsm,
+                           CellSignalStrengthGsm cellSignalStrengthGsm,
+                           long timestamp) {
         super(timestamp,
                 CellType.GSM,
                 "N/A",
@@ -58,7 +58,7 @@ public class GSM extends CellInformation {
         rssi = cellSignalStrengthGsm.getRssi();
 
     }
-    public GSM(CellInfoGsm cellInfoGSM, long timestamp) {
+    public GSMInformation(CellInfoGsm cellInfoGSM, long timestamp) {
         this(cellInfoGSM, cellInfoGSM.getCellIdentity(), cellInfoGSM.getCellSignalStrength(), timestamp);
     }
 

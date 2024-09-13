@@ -11,18 +11,16 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformatio
 
 // https://developer.android.com/reference/android/telephony/CellIdentityLte
 
-import android.content.Context;
 import android.os.Build;
 import android.telephony.CellIdentityLte;
 import android.telephony.CellInfoLte;
 import android.telephony.CellSignalStrengthLte;
-import android.widget.TableLayout;
 
 import com.influxdb.client.write.Point;
 
 import java.util.Arrays;
 
-public class LTE extends CellInformation {
+public class LTEInformation extends CellInformation {
 
     private int earfcn;
     private int bandwidth;
@@ -36,11 +34,11 @@ public class LTE extends CellInformation {
     private String mcc;
 
 
-    public LTE() {
+    public LTEInformation() {
         super();
     }
 
-    public LTE(long timestamp, CellSignalStrengthLte cellSignalStrengthLte){
+    public LTEInformation(long timestamp, CellSignalStrengthLte cellSignalStrengthLte){
         super(timestamp);
 
         this.cqi = cellSignalStrengthLte.getCqi();
@@ -54,10 +52,10 @@ public class LTE extends CellInformation {
 
     }
 
-    private LTE(CellInfoLte cellInfoLte,
-               CellIdentityLte cellIdentityLte,
-                CellSignalStrengthLte cellSignalStrengthLte,
-               long timestamp){
+    private LTEInformation(CellInfoLte cellInfoLte,
+                           CellIdentityLte cellIdentityLte,
+                           CellSignalStrengthLte cellSignalStrengthLte,
+                           long timestamp){
         super(timestamp,
                 CellType.LTE,
                 "N/A",
@@ -96,8 +94,8 @@ public class LTE extends CellInformation {
 
     }
 
-    public LTE(CellInfoLte cellInfoLte,
-               long timestamp){
+    public LTEInformation(CellInfoLte cellInfoLte,
+                          long timestamp){
         this(cellInfoLte,
                 cellInfoLte.getCellIdentity(),
                 cellInfoLte.getCellSignalStrength(),
@@ -184,6 +182,41 @@ public class LTE extends CellInformation {
         this.earfcn = earfcn;
     }
 
+    public String getEarfcnString() {
+        return Integer.toString(earfcn);
+    }
+
+    public String getBandwidthString() {
+        return Integer.toString(bandwidth);
+    }
+
+    public String getCqiString() {
+        return Integer.toString(cqi);
+    }
+
+    public String getRsrpString() {
+        return Integer.toString(rsrp);
+    }
+
+    public String getRsrqString() {
+        return Integer.toString(rsrq);
+    }
+
+    public String getRssiString() {
+        return Integer.toString(rssi);
+    }
+
+    public String getRssnrString() {
+        return Integer.toString(rssnr);
+    }
+
+    public String getTimingAdvanceString() {
+        return Integer.toString(timingAdvance);
+    }
+
+    public String getDbmString() {
+        return Integer.toString(dbm);
+    }
 
     @Override
     public Point getPoint(Point point){

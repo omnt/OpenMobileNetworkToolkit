@@ -189,6 +189,10 @@ public class CellInformation extends Information {
         return tac;
     }
 
+    public String getTacString() {
+        return String.valueOf(tac);
+    }
+
     public void setTac(int tac) {
         this.tac = tac;
     }

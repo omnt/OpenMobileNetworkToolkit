@@ -35,17 +35,18 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.divider.MaterialDivider;
+import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMA;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NR;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInformation;
@@ -114,6 +115,7 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
+    @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         dp.refreshAll();
@@ -129,9 +131,17 @@ public class DetailFragment extends Fragment {
         ll.addView(get_location_card_view(), 8);
     }
 
+
+    /**
+     * Build a card view with a table layout
+     *
+     * @param title title of the card
+     * @param tl    table layout
+     * @return card view
+     */
     private CardView cardView_from_table_builder(String title, TableLayout tl) {
         // setup card view
-        CardView cv = new CardView(requireContext());
+        CardView cv = new CardView(context);
         //CardView cv = findViewById(R.id.base_cardview);
         cv.setRadius(15);
         cv.setContentPadding(20, 20, 20, 20);
@@ -200,24 +210,40 @@ public class DetailFragment extends Fragment {
         return btn;
     }
 
+    /**
+     * Build a row for the table
+     *
+     * @param column1 first column
+     * @param column2 second column
+     * @return TableRow
+     */
     private TableRow rowBuilder(String column1, String column2) {
         if (Objects.equals(column2, String.valueOf(CellInfo.UNAVAILABLE))) {
             column2 = "N/A";
         }
-        Context context = requireContext();
         TableRow tr = new TableRow(context);
-        tr.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams
-                .MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        tr.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,
+                1.0f));
         tr.setPadding(2, 2, 2, 2);
-        TextView tv1 = new TextView(context);
+
+        MaterialTextView tv1 = new MaterialTextView(context);
+        TableRow.LayoutParams tv1_params = new TableRow.LayoutParams(
+                0,
+                TableRow.LayoutParams.WRAP_CONTENT, 0.4f);
+        tv1.setLayoutParams(tv1_params);
         tv1.setPadding(20, 0, 20, 0);
-        TextView tv2 = new TextView(context);
-        tv2.setPadding(0, 0, 0, 0);
-        tv2.setTextIsSelectable(true);
         tv1.append(column1);
+        tv1.setTextIsSelectable(true);
+        tr.addView(tv1);
+
+        MaterialTextView tv2 = new MaterialTextView(context);
+        TableRow.LayoutParams tv2_params = new TableRow.LayoutParams(
+                0,
+                TableRow.LayoutParams.WRAP_CONTENT, 0.6f);
+        tv2.setLayoutParams(tv2_params);
+        tv2.setPadding(0, 0, 0, 0);
         tv2.append(Objects.requireNonNullElse(column2, "N/A"));
         tv2.setTextIsSelectable(true);
-        tr.addView(tv1);
         tr.addView(tv2);
         return tr;
     }
@@ -261,15 +287,31 @@ public class DetailFragment extends Fragment {
         }
     }
 
+    /**
+     * Add a divider to the table
+     *
+     * @param tl table layout
+     */
     public void addDivider(TableLayout tl) {
         MaterialDivider divider = new MaterialDivider(context);
+        divider.setDividerThickness(3);
+        divider.setDividerInsetStart(20);
+        divider.setDividerInsetEnd(20);
         tl.addView(divider);
     }
 
-    private void addSignalSignalStrength(CellInformation signalStrength, TableLayout tl){
+    /**
+     * Populate the table with the cell information
+     * also used for the signal strength information
+     *
+     * @param signalStrength signal strength information
+     * @param tl             table layout
+     * @param displayNull    display null values
+     */
+    private void populateCellTable(CellInformation signalStrength, TableLayout tl, boolean displayNull){
         switch (signalStrength.getCellType()){
             case NR:
-                NR nr = (NR) signalStrength;
+                NRInformation nr = (NRInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(nr.getAlphaLong())},
                         {getString(R.string.mcc), String.valueOf(nr.getMcc())},
@@ -280,14 +322,14 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.ci), String.valueOf(nr.getCi())},
                         {getString(R.string.isRegistered), String.valueOf(nr.isRegistered())},
                         {getString(R.string.cellConnectionStatus), String.valueOf(nr.getCellConnectionStatus())},
-                }, true);
+                }, displayNull);
                 addDivider(tl);
                 addRows(tl, new String[][]{
                         {getString(R.string.bands), String.valueOf(nr.getBands())},
                         {getString(R.string.nrarfcn), String.valueOf(nr.getNrarfcn())},
                         {getString(R.string.lac), String.valueOf(nr.getTac())},
                         {getString(R.string.timingAdvance), String.valueOf(nr.getTimingAdvance())},
-                }, true);
+                }, displayNull);
                 addDivider(tl);
                 addRows(tl, new String[][]{
                         {getString(R.string.dbm), String.valueOf(nr.getDbm())},
@@ -297,16 +339,16 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.csirsrq), String.valueOf(nr.getCsirsrq())},
                         {getString(R.string.csisinr), String.valueOf(nr.getCsisinr())},
                         {getString(R.string.cqi), String.valueOf(nr.getCqis())}
-                }, true);
+                }, displayNull);
                 addDivider(tl);
                 addRows(tl, new String[][]{
                         {getString(R.string.ssrsrp), String.valueOf(nr.getSsrsrp())},
                         {getString(R.string.ssrsrq), String.valueOf(nr.getSsrsrq())},
                         {getString(R.string.sssinr), String.valueOf(nr.getSssinr())},
-                }, true);
+                }, displayNull);
                 break;
             case GSM:
-                GSM gsm = (GSM) signalStrength;
+                GSMInformation gsm = (GSMInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(gsm.getAlphaLong())},
                         {getString(R.string.mcc), String.valueOf(gsm.getMcc())},
@@ -315,13 +357,13 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.ci), String.valueOf(gsm.getCi())},
                         {getString(R.string.isRegistered), String.valueOf(gsm.isRegistered())},
                         {getString(R.string.cellConnectionStatus), String.valueOf(gsm.getCellConnectionStatus())},
-                }, true);
+                }, displayNull);
                 addDivider(tl);
                 addRows(tl, new String[][]{
                         {getString(R.string.bands), String.valueOf(gsm.getBands())},
                         {getString(R.string.lac), String.valueOf(gsm.getLac())},
                         {getString(R.string.timingAdvance), String.valueOf(gsm.getTimingAdvance())},
-                }, true);
+                }, displayNull);
 
                 addDivider(tl);
                 addRows(tl, new String[][]{
@@ -330,10 +372,10 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.asuLevel), String.valueOf(gsm.getAsuLevel())},
                         {getString(R.string.bitErrorRate), String.valueOf(gsm.getBitErrorRate())},
                         {getString(R.string.rssi), String.valueOf(gsm.getRssi())},
-                }, true);
+                }, displayNull);
                 break;
             case LTE:
-                LTE lte = (LTE) signalStrength;
+                LTEInformation lte = (LTEInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(lte.getAlphaLong())},
                         {getString(R.string.mcc), String.valueOf(lte.getMcc())},
@@ -344,7 +386,7 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.ci), String.valueOf(lte.getCi())},
                         {getString(R.string.isRegistered), String.valueOf(lte.isRegistered())},
                         {getString(R.string.cellConnectionStatus), String.valueOf(lte.getCellConnectionStatus())},
-                }, true);
+                }, displayNull);
 
                 addDivider(tl);
 
@@ -353,7 +395,7 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.earfcn), String.valueOf(lte.getEarfcn())},
                         {getString(R.string.bandwidth), String.valueOf(lte.getBandwidth())},
                         {getString(R.string.timingAdvance), String.valueOf(lte.getTimingAdvance())},
-                }, true);
+                }, displayNull);
 
                 addDivider(tl);
 
@@ -363,24 +405,24 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.rsrp), String.valueOf(lte.getRsrp())},
                         {getString(R.string.rsrq), String.valueOf(lte.getRsrq())},
                         {getString(R.string.cqi), String.valueOf(lte.getCqi())}
-                }, true);
+                }, displayNull);
 
                 addDivider(tl);
 
                 addRows(tl, new String[][]{
                         {getString(R.string.rssi), String.valueOf(lte.getRssi())},
                         {getString(R.string.rssnr), String.valueOf(lte.getRssnr())},
-                }, true);
+                }, displayNull);
 
                 break;
             case CDMA:
-                CDMA cdma = (CDMA) signalStrength;
+                CDMAInformation cdma = (CDMAInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(cdma.getAlphaLong())},
                         {getString(R.string.cellType), String.valueOf(cdma.getCellType())},
                         {getString(R.string.isRegistered), String.valueOf(cdma.isRegistered())},
                         {getString(R.string.cellConnectionStatus), String.valueOf(cdma.getCellConnectionStatus())},
-                }, true);
+                }, displayNull);
 
                 addDivider(tl);
 
@@ -390,7 +432,7 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.evdoDbm), String.valueOf(cdma.getEvdoDbm())},
                         {getString(R.string.evdoEcio), String.valueOf(cdma.getEvdoEcio())},
                         {getString(R.string.evdoSnr), String.valueOf(cdma.getEvdoSnr())},
-                }, true);
+                }, displayNull);
 
                 break;
             case UNKNOWN:
@@ -400,7 +442,7 @@ public class DetailFragment extends Fragment {
                         {getString(R.string.cellType), String.valueOf(signalStrength.getCellType())},
                         {getString(R.string.isRegistered), String.valueOf(signalStrength.isRegistered())},
                         {getString(R.string.cellConnectionStatus), String.valueOf(signalStrength.getCellConnectionStatus())},
-                }, true);
+                }, displayNull);
                 break;
         }
 
@@ -428,7 +470,7 @@ public class DetailFragment extends Fragment {
                 TextView tv = (TextView) title.getChildAt(0);
                 tv.setTypeface(Typeface.DEFAULT_BOLD);
                 tl.addView(title);
-                addSignalSignalStrength(signalStrengthInformation, tl);
+                populateCellTable(signalStrengthInformation, tl, false);
 
             }
         }
@@ -563,11 +605,7 @@ public class DetailFragment extends Fragment {
             TextView tv = (TextView) title.getChildAt(0);
             tv.setTypeface(Typeface.DEFAULT_BOLD);
             tl.addView(title);
-
-            //for(TableRow tr : ci.getTableRows(context)) {
-            //    tl.addView(tr);
-            //}
-            addSignalSignalStrength(ci, tl);
+            populateCellTable(ci, tl, true);
         }
         if (tl.getChildCount() == 0) {
             tl.addView(rowBuilder("No cells available", ""));
