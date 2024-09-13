@@ -71,6 +71,13 @@ public class QuickFragment extends Fragment {
         spg = SharedPreferencesGrouper.getInstance(context);
         updateUIHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
     }
+
+
+    /**
+     * Determine the text size of the textview based on the length of the value
+     * @param value The value to be displayed
+     * @return The text size
+     */
     private int determineTextSize(String value) {
         if(value.length() < 3) return TEXT_SIZE_LARGE;
         if(value.length() < 7) return TEXT_SIZE_MEDIUM;
@@ -79,6 +86,15 @@ public class QuickFragment extends Fragment {
         return TEXT_SIZE_XSMALL;
     }
 
+    /**
+     * Get the color based on the value
+     * @param min The minimum value
+     * @param max The maximum value
+     * @param value The value
+     * @param minHex The minimum color
+     * @param maxHex The maximum color
+     * @return Color
+     */
     public int getColor(int min, int max, float value, String minHex, String maxHex) {
         if (value < min) value = min;
         if (value > max) value = max;
@@ -95,6 +111,15 @@ public class QuickFragment extends Fragment {
         return Color.rgb(red, green, blue);
     }
 
+    /**
+     * Modify the textview
+     * @param textView The textview to be modified
+     * @param value The value to be displayed
+     * @param min The minimum value
+     * @param minColor The minimum color
+     * @param max The maximum value
+     * @param maxColor The maximum color
+     */
     private void modifyTextView(MaterialTextView textView, String value,
                                 int min, int minColor,
                                 int max, int maxColor) {
@@ -112,6 +137,10 @@ public class QuickFragment extends Fragment {
     }
 
 
+    /**
+     * Add the cell information to the view
+     * @param cellInformation The cell information
+     */
     private void addCellInformationToView(CellInformation cellInformation){
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         switch (cellInformation.getCellType()) {

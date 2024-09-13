@@ -115,6 +115,7 @@ public class DetailFragment extends Fragment {
         return view;
     }
 
+    @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         dp.refreshAll();
@@ -130,6 +131,14 @@ public class DetailFragment extends Fragment {
         ll.addView(get_location_card_view(), 8);
     }
 
+
+    /**
+     * Build a card view with a table layout
+     *
+     * @param title title of the card
+     * @param tl    table layout
+     * @return card view
+     */
     private CardView cardView_from_table_builder(String title, TableLayout tl) {
         // setup card view
         CardView cv = new CardView(context);
@@ -201,6 +210,13 @@ public class DetailFragment extends Fragment {
         return btn;
     }
 
+    /**
+     * Build a row for the table
+     *
+     * @param column1 first column
+     * @param column2 second column
+     * @return TableRow
+     */
     private TableRow rowBuilder(String column1, String column2) {
         if (Objects.equals(column2, String.valueOf(CellInfo.UNAVAILABLE))) {
             column2 = "N/A";
@@ -271,6 +287,11 @@ public class DetailFragment extends Fragment {
         }
     }
 
+    /**
+     * Add a divider to the table
+     *
+     * @param tl table layout
+     */
     public void addDivider(TableLayout tl) {
         MaterialDivider divider = new MaterialDivider(context);
         divider.setDividerThickness(3);
@@ -279,7 +300,15 @@ public class DetailFragment extends Fragment {
         tl.addView(divider);
     }
 
-    private void addSignalSignalStrength(CellInformation signalStrength, TableLayout tl, boolean displayNull){
+    /**
+     * Populate the table with the cell information
+     * also used for the signal strength information
+     *
+     * @param signalStrength signal strength information
+     * @param tl             table layout
+     * @param displayNull    display null values
+     */
+    private void populateCellTable(CellInformation signalStrength, TableLayout tl, boolean displayNull){
         switch (signalStrength.getCellType()){
             case NR:
                 NRInformation nr = (NRInformation) signalStrength;
@@ -441,7 +470,7 @@ public class DetailFragment extends Fragment {
                 TextView tv = (TextView) title.getChildAt(0);
                 tv.setTypeface(Typeface.DEFAULT_BOLD);
                 tl.addView(title);
-                addSignalSignalStrength(signalStrengthInformation, tl, false);
+                populateCellTable(signalStrengthInformation, tl, false);
 
             }
         }
@@ -576,11 +605,7 @@ public class DetailFragment extends Fragment {
             TextView tv = (TextView) title.getChildAt(0);
             tv.setTypeface(Typeface.DEFAULT_BOLD);
             tl.addView(title);
-
-            //for(TableRow tr : ci.getTableRows(context)) {
-            //    tl.addView(tr);
-            //}
-            addSignalSignalStrength(ci, tl, true);
+            populateCellTable(ci, tl, true);
         }
         if (tl.getChildCount() == 0) {
             tl.addView(rowBuilder("No cells available", ""));
