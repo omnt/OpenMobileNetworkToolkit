@@ -46,8 +46,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
@@ -109,41 +113,15 @@ public class LoggingService extends Service {
             List<CellInformation> cil = dp.getRegisteredCells();
             StringBuilder s = new StringBuilder();
             for (CellInformation ci : cil) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !ci.getAlphaLong().isEmpty()) {
-                    s.append(ci.getAlphaLong());
-                } else {
-                    s.append(" PLMN: ");
-                    s.append(ci.getMcc());
-                    s.append(ci.getMnc());
-                }
-                s.append(" Type: ");
-                s.append(ci.getCellType());
                 switch (ci.getCellType()) {
-                    case "LTE":
-                        s.append(" PCI: ");
-                        s.append(ci.getPci());
-                        s.append(" RSRQ: ");
-                        s.append(ci.getRsrp());
-                        s.append(" RSRP: ");
-                        s.append(ci.getRsrq());
+                    case LTE:
+                        s = ((LTEInformation) ci).getStringBuilder();
                         break;
-                    case "NR":
-                        s.append(" PCI: ");
-                        s.append(ci.getPci());
-                        s.append(" SSRSRQ: ");
-                        s.append(ci.getSsrsrq());
-                        s.append(" SSRSRP: ");
-                        s.append(ci.getSsrsrp());
-                        s.append(" SSSINR: ");
-                        s.append(ci.getSssinr());
+                    case NR:
+                        s = ((NRInformation) ci).getStringBuilder();
                         break;
-                    case "GSM":
-                        s.append(" CI: ");
-                        s.append(ci.getCi());
-                        s.append(" Level: ");
-                        s.append(ci.getLevel());
-                        s.append(" DBM: ");
-                        s.append(ci.getDbm());
+                    case GSM:
+                        s = ((GSMInformation) ci).getStringBuilder();
                 }
             }
             builder.setContentText(s);
@@ -355,13 +333,16 @@ public class LoggingService extends Service {
         }
 
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
-            Point p = dp.getWifiInformation().getWifiInformationPoint();
-            if (p.hasFields()) {
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-                logPoints.add(p);
-            } else {
-                Log.w(TAG, "Point without fields from getWifiInformationPoint");
+            WifiInformation wifiInformation = dp.getWifiInformation();
+            if(wifiInformation != null) {
+                Point p = wifiInformation.getWifiInformationPoint();
+                if (p.hasFields()) {
+                    p.time(time, WritePrecision.MS);
+                    p.addTags(tags_map);
+                    logPoints.add(p);
+                } else {
+                    Log.w(TAG, "Point without fields from getWifiInformationPoint");
+                }
             }
         }
 

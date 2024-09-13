@@ -1,12 +1,23 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.TableLayout;
+
 import org.json.JSONObject;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.BuildConfig;
 
-public class BuildInformation {
+public class BuildInformation extends Information {
     private final String TAG = "BuildInformation";
+
+    public BuildInformation() {
+        super();
+    }
+
+    public BuildInformation(long timeStamp) {
+        super(timeStamp);
+    }
 
     public String getBuildType() {
         return BuildConfig.BUILD_TYPE;
@@ -42,4 +53,5 @@ public class BuildInformation {
         }
         return json;
     }
+
 }
