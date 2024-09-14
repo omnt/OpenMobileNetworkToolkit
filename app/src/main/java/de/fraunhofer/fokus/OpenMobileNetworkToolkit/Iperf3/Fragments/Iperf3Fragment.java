@@ -50,19 +50,7 @@ public class Iperf3Fragment extends Fragment{
         //linearLayout = v.findViewById(R.id.iperf3_plan);
         viewsMapManager = new ViewsMapManager(ct);
         adapter = new Iperf3CardAdapter(getActivity());
-        sendBtn = v.findViewById(R.id.iperf3_send);
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                for (Iperf3CardFragment fragment : adapter.getFragments()) {
-                    Iperf3Input iperf3Input = fragment.getIperf3Input();
 
-
-
-
-                }
-            }
-        });
         viewPager.setAdapter(adapter);
         return v;
     }
