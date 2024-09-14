@@ -4,16 +4,12 @@ import android.content.Context;
 import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.cardview.widget.CardView;
+import androidx.work.Data;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -22,54 +18,69 @@ import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input.Iperf3CardFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Input {
-    private static final String[] EXCLUDED_FIELDS = {
+    public static final String[] EXCLUDED_FIELDS = {
             "measurementName", "rawFile", "logFileName", "command", "lineProtocolFile",
             "context", "timestamp", "uuid", "cardView", "main", "EXCLUDED_FIELDS"
     };
 
-    private boolean isBidir;
-    private boolean isReverse;
+    public enum Iperf3Mode {
+        CLIENT,
+        SERVER;
+        public String toString() {
+            return this.name().substring(0, 1).toUpperCase() + this.name().toLowerCase().substring(1);
+        }
+    }
+
+    public enum Iperf3Protocol {
+        TCP,
+        UDP
+    }
+
+    public enum Iperf3Direction {
+        UP,
+        DOWN,
+        BIDIR;
+        public String toString() {
+            return this.name().toLowerCase();
+        }
+    }
+
     private boolean isJson;
     private boolean isOneOff;
-    private int idxMode;
-    private int idxProtocol;
-    private String uuid;
-    private String command;
+    private Iperf3Mode mode;
+    private Iperf3Protocol protocol;
+    private Iperf3Direction direction;
     private String rawFile;
-    private String logFileName;
-    private String measurementName;
     private String ip;
     private String port;
     private String bandwidth;
-    private String lineProtocolFile;
     private String duration;
     private String interval;
     private String bytes;
     private String streams;
     private String cport;
+
+    private String uuid;
+    private String logFileName;
+    private String measurementName;
+    private String lineProtocolFile;
     private Timestamp timestamp;
     private LinearLayout main;
     private Context context;
-    private CardView cardView;
 
     public Iperf3Input() {
         this(null);
     }
 
     public Iperf3Input(Context context) {
-        this.isBidir = false;
-        this.isReverse = false;
         this.isJson = false;
         this.isOneOff = false;
-        this.idxMode = 0;
-        this.idxProtocol = 0;
         this.uuid = "";
-        this.command = "";
         this.rawFile = "";
         this.logFileName = "";
         this.measurementName = "";
@@ -87,167 +98,8 @@ public class Iperf3Input {
         this.main = context != null ? new LinearLayout(context) : null;
     }
 
-    public MaterialButtonToggleGroup.OnButtonCheckedListener getModeButtonCheckedListener(MaterialButton modeClient, MaterialButton modeServer) {
-        return (group, checkedId, isChecked) -> {
-            if (isChecked) {
-                switch (checkedId) {
-                    case R.id.iperf3_client_button:
-                        updateButtonState(modeClient, modeServer, 0);
-                        break;
-                    case R.id.iperf3_server_button:
-                        updateButtonState(modeServer, modeClient, 1);
-                        break;
-                }
-            }
-        };
-    }
-
-    public MaterialButtonToggleGroup.OnButtonCheckedListener getProtocolButtonCheckedListener(MaterialButton protocolTCP, MaterialButton protocolUDP) {
-        return (group, checkedId, isChecked) -> {
-            if (isChecked) {
-                switch (checkedId) {
-                    case R.id.iperf3_tcp_button:
-                        updateButtonState(protocolTCP, protocolUDP, 0);
-                        break;
-                    case R.id.iperf3_udp_button:
-                        updateButtonState(protocolUDP, protocolTCP, 1);
-                        break;
-                }
-            }
-        };
-    }
-
-    public MaterialButtonToggleGroup.OnButtonCheckedListener getDirectionButtonCheckedListener(MaterialButton directionUp, MaterialButton directionDown, MaterialButton directionBidir) {
-        return (group, checkedId, isChecked) -> {
-            if (isChecked) {
-                switch (checkedId) {
-                    case R.id.iperf3_upload_button:
-                        updateDirectionState(directionUp, directionDown, directionBidir, false, false);
-                        break;
-                    case R.id.iperf3_download_button:
-                        updateDirectionState(directionDown, directionUp, directionBidir, true, false);
-                        break;
-                    case R.id.iperf3_bidir_button:
-                        updateDirectionState(directionBidir, directionUp, directionDown, false, true);
-                        break;
-                }
-            }
-        };
-    }
-
-    private void updateButtonState(MaterialButton activeButton, MaterialButton inactiveButton, int mode) {
-        activeButton.setBackgroundColor(context.getResources().getColor(R.color.purple_500, null));
-        inactiveButton.setBackgroundColor(Color.TRANSPARENT);
-        setIdxMode(mode);
-    }
-
-    private void updateDirectionState(MaterialButton activeButton, MaterialButton inactiveButton1, MaterialButton inactiveButton2, boolean reverse, boolean bidir) {
-        activeButton.setBackgroundColor(context.getResources().getColor(R.color.purple_500, null));
-        inactiveButton1.setBackgroundColor(Color.TRANSPARENT);
-        inactiveButton2.setBackgroundColor(Color.TRANSPARENT);
-        setReverse(reverse);
-        setBidir(bidir);
-    }
-
-    public TextWatcher getTextWatcher(TextWatcherCallback callback) {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                callback.onTextChanged(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        };
-    }
-
-    // In Iperf3Input.java
-
-    public TextWatcher getIpTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setIp(text);
-            }
-        });
-    }
-
-    public TextWatcher getPortTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setPort(text);
-            }
-        });
-    }
-
-    public TextWatcher getBandwidthTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setBandwidth(text);
-            }
-        });
-    }
-
-    public TextWatcher getDurationTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setDuration(text);
-            }
-        });
-    }
-
-    public TextWatcher getIntervalTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setInterval(text);
-            }
-        });
-    }
-
-    public TextWatcher getBytesTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setBytes(text);
-            }
-        });
-    }
-
-    public TextWatcher getStreamsTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setStreams(text);
-            }
-        });
-    }
-
-    public TextWatcher getCportTextWatcher() {
-        return getTextWatcher(new TextWatcherCallback() {
-            @Override
-            public void onTextChanged(String text) {
-                setCport(text);
-            }
-        });
-    }
-
-    public interface TextWatcherCallback {
-        void onTextChanged(String text);
-    }
-
-    public void setBidir(boolean bidir) {
-        this.isBidir = bidir;
-    }
-
-    public void setReverse(boolean reverse) {
-        this.isReverse = reverse;
+    public void setMode(Iperf3Mode mode) {
+        this.mode = mode;
     }
 
     public void setJson(boolean json) {
@@ -258,21 +110,18 @@ public class Iperf3Input {
         this.isOneOff = oneOff;
     }
 
-    public void setIdxMode(int idxMode) {
-        this.idxMode = idxMode;
+    public void setDirection(Iperf3Direction direction) {
+        this.direction = direction;
     }
 
-    public void setIdxProtocol(int idxProtocol) {
-        this.idxProtocol = idxProtocol;
+    public void setProtocol(Iperf3Protocol protocol) {
+        this.protocol = protocol;
     }
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
-    public void setCommand(String command) {
-        this.command = command;
-    }
 
     public void setRawFile(String rawFile) {
         this.rawFile = rawFile;
@@ -334,10 +183,6 @@ public class Iperf3Input {
         this.context = context;
     }
 
-    public boolean isReverse() {
-        return isReverse;
-    }
-
     public boolean isJson() {
         return isJson;
     }
@@ -346,20 +191,8 @@ public class Iperf3Input {
         return isOneOff;
     }
 
-    public int getIdxMode() {
-        return idxMode;
-    }
-
-    public int getIdxProtocol() {
-        return idxProtocol;
-    }
-
     public String getUuid() {
         return uuid;
-    }
-
-    public String getCommand() {
-        return command;
     }
 
     public String getRawFile() {
@@ -414,84 +247,19 @@ public class Iperf3Input {
         return cport;
     }
 
-    public LinearLayout getMain() {
-        return main;
-    }
 
     public Context getContext() {
         return context;
-    }
-
-    public boolean isBidir() {
-        return isBidir;
     }
 
     public void update() {
         //getInputAsLinearLayoutKeyValue();
     }
 
-    private List<Field> getFields() {
+    public List<Field> getFields() {
         List<Field> fields = Arrays.asList(Iperf3Input.class.getDeclaredFields());
         fields.sort((o1, o2) -> o1.toGenericString().compareTo(o2.toGenericString()));
         return fields;
-    }
-
-    private LinearLayout getTextView(String name, String value, Context ct) {
-        LinearLayout mainLL = new LinearLayout(ct);
-        mainLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        mainLL.setOrientation(LinearLayout.HORIZONTAL);
-
-        TextView parameterName = createTextView(ct, name, 1F);
-        TextView parameterValue = createTextView(ct, value, 1F);
-
-        mainLL.addView(parameterName);
-        mainLL.addView(parameterValue);
-        return mainLL;
-    }
-
-    private TextView createTextView(Context ct, String text, float weight) {
-        TextView textView = new TextView(ct);
-        textView.setText(text);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.weight = weight;
-        textView.setLayoutParams(layoutParams);
-        return textView;
-    }
-
-    private LinearLayout getTextViewValue(String key, String value, Context ct) {
-        LinearLayout mainLL = new LinearLayout(ct);
-        mainLL.setOrientation(LinearLayout.HORIZONTAL);
-        mainLL.setFocusable(false);
-        mainLL.setFocusedByDefault(false);
-
-        TextView parameterValue = createTextView(ct, value, 1F);
-        parameterValue.setTextIsSelectable(true);
-        parameterValue.setPadding(5, 5, 5, 5);
-        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) parameterValue.getLayoutParams();
-        layoutParams.setMargins(0, 0, 10, 10);
-
-        mainLL.addView(parameterValue);
-        return mainLL;
-    }
-
-    public CardView getCardView() {
-        if (context == null) return null;
-        //getInputAsLinearLayoutKeyValue();
-        if (cardView != null) return cardView;
-        cardView = new CardView(this.context);
-        cardView.setRadius(10);
-        cardView.setCardElevation(10);
-        cardView.setContentPadding(10, 10, 10, 10);
-        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams(GridLayout.spec(GridLayout.UNDEFINED, 2F), GridLayout.spec(GridLayout.UNDEFINED, 2F));
-        layoutParams.setGravity(Gravity.FILL);
-        layoutParams.setMargins(10, 10, 10, 10);
-        cardView.setLayoutParams(layoutParams);
-        cardView.setTag("valueholder");
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.fragment_iperf3_card, cardView, true);
-        view.setScaleX(0.3f);
-        view.setScaleY(0.3f);
-        return cardView;
     }
 
     public void getInputAsLinearLayoutKeyValue() {
@@ -537,15 +305,8 @@ public class Iperf3Input {
         }
     }
 
-    public LinearLayout getInputAsLinearLayoutValue(LinearLayout mainLL, Context ct) {
-        mainLL.setOrientation(LinearLayout.HORIZONTAL);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.weight = 10F;
-        mainLL.setLayoutParams(layoutParams);
-        String[] protocol = ct.getResources().getStringArray(R.array.iperf_protocol);
-        String[] mode = ct.getResources().getStringArray(R.array.iperf_mode);
+    public Data.Builder getInputAsDataBuilder() {
+        Data.Builder data = new Data.Builder();
         for (Field parameter : getFields()) {
             try {
                 Object parameterValueObj = parameter.get(this);
@@ -557,29 +318,91 @@ public class Iperf3Input {
                 if (Arrays.asList(EXCLUDED_FIELDS).contains(parameterName)) continue;
 
                 String parameterValue = parameter.get(this).toString();
-                if (parameterValue.equals("false")) {
+                if (parameterValue.equals("false") || parameterValue.isEmpty()) {
                     continue;
                 }
-                if (parameterName.equals("idxProtocol")) {
-                    parameterName = "Protocol";
-                    parameterValue = protocol[Integer.parseInt(parameterValue)];
-                }
 
-                if (parameterName.equals("idxMode")) {
-                    parameterName = "Mode";
-                    parameterValue = mode[Integer.parseInt(parameterValue)];
-                }
-
-                if (parameterValue.equals("true")) {
-                    parameterValue = parameterName;
-                }
-
-                mainLL.addView(getTextViewValue(parameterName, parameterValue, ct));
+                data.putString(parameterName, parameterValue);
 
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
-        return mainLL;
+        data.putString("command", getInputAsCommand());
+        data.putString("uuid", uuid);
+        return data;
     }
+
+    public String getInputAsCommand(){
+        StringJoiner command = new StringJoiner(" ");
+        command.add("iperf3");
+        switch (mode) {
+            case CLIENT:
+                command.add("-c");
+                if(!ip.isEmpty()) command.add(ip);
+                break;
+            case SERVER:
+                command.add("-s");
+                break;
+            }
+        if(port != null && !port.isEmpty()){
+            command.add("-p");
+            command.add(port);
+        }
+        if(bandwidth != null && !bandwidth.isEmpty()){
+            command.add("-b");
+            command.add(bandwidth);
+        }
+        if(duration != null && !duration.isEmpty()){
+            command.add("-t");
+            command.add(duration);
+        }
+        if(interval != null && !interval.isEmpty()){
+            command.add("-i");
+            command.add(interval);
+        }
+        if(bytes != null && !bytes.isEmpty()){
+            command.add("-n");
+            command.add(bytes);
+        }
+        if(streams != null && !streams.isEmpty()){
+            command.add("-P");
+            command.add(streams);
+        }
+        if(cport != null && !cport.isEmpty()){
+            command.add("-B");
+            command.add(cport);
+        }
+
+        switch (direction){
+            case DOWN:
+                command.add("--reverse");
+                break;
+            case BIDIR:
+                command.add("--bidir");
+                break;
+            case UP:
+                break;
+        }
+
+        switch (protocol){
+            case UDP:
+                command.add("-u");
+                break;
+            case TCP:
+                break;
+        }
+
+        command.add("--file");
+        command.add(rawFile);
+        command.add("--json-stream");
+        command.add("--connect-timeout 500");
+        return command.toString();
+    }
+
+
+
+
+
+
 }

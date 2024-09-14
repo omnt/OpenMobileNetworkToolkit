@@ -24,6 +24,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -35,27 +36,21 @@ public class Iperf3ExecutorWorker extends Worker {
     }
 
     private final String[] cmd;
-    private final String iperf3WorkerID;
-    private final String measurementName;
-    private final String timestamp;
-    private final int notificationID;
-    private final String client;
-    private final String protocol;
-    private String serverPort;
-    private final String ip;
+    private final String uuid;
     private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
-
+    private final int notificationID = 1;
+    private String ip;
+    private String port;
+    private String protocol;
+    private Iperf3Input.Iperf3Mode mode;
     public Iperf3ExecutorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        cmd = getInputData().getStringArray("commands");
-        measurementName = getInputData().getString("measurementName");
-        iperf3WorkerID = getInputData().getString("iperf3WorkerID");
-        timestamp = getInputData().getString("timestamp");
-        notificationID = 100;
-        client = getInputData().getString("client");
+        cmd = getInputData().getStringArray("command");
+        uuid = getInputData().getString("uuid");
         ip = getInputData().getString("ip");
-        serverPort = getInputData().getString("port");
+        port = getInputData().getString("port");
         protocol = getInputData().getString("protocol");
+        mode = Iperf3Input.Iperf3Mode.valueOf(getInputData().getString("mode"));
 
     }
 
@@ -70,7 +65,7 @@ public class Iperf3ExecutorWorker extends Worker {
         PendingIntent intent = WorkManager.getInstance(context)
             .createCancelPendingIntent(getId());
         Notification notification = new NotificationCompat.Builder(context, id)
-            .setContentTitle("iPerf3 "+ client.substring(0, 1).toUpperCase() + client.substring(1).toLowerCase())
+            //.setContentTitle("iPerf3 "+ client.substring(0, 1).toUpperCase() + client.substring(1).toLowerCase())
             .setContentText(progress)
             .setOngoing(true)
             .setColor(Color.WHITE)
@@ -90,10 +85,10 @@ public class Iperf3ExecutorWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        if (serverPort == null) serverPort = "5201";
-        String progress = String.format("Connected to %s:%s with %s", ip, serverPort, protocol);
-        if (client.equals("server")) {
-            progress = String.format("Running on %s:%s", ip, serverPort);
+        if (port == null) port = "5201";
+        String progress = String.format("Connecting to %s:%s with %s", ip, port, protocol);
+        if (mode.equals(Iperf3Input.Iperf3Mode.SERVER)) {
+            progress = String.format("Running on %s:%s", ip, port);
         }
 
         setForegroundAsync(createForegroundInfo(progress));
@@ -105,7 +100,7 @@ public class Iperf3ExecutorWorker extends Worker {
 
         Data.Builder output = new Data.Builder()
             .putInt("iperf3_result", result)
-            .putString("iperf3WorkerID", iperf3WorkerID);
+            .putString("iperf3WorkerID", uuid);
         if (result == 0) {
             return Result.success(output.build());
         }

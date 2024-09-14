@@ -72,6 +72,8 @@
                 android:value="explanation_for_special_use"/>
         </service>
 
+        <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Service" />
+
 
         <receiver
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingServiceOnBootReceiver"

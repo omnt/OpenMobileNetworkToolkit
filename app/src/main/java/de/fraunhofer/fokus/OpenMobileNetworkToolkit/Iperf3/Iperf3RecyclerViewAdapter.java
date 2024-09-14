@@ -33,7 +33,9 @@ import androidx.work.WorkManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,6 +136,86 @@ public class Iperf3RecyclerViewAdapter
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
 
+
+    private LinearLayout getTextView(String name, String value, Context ct) {
+        LinearLayout mainLL = new LinearLayout(ct);
+        mainLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mainLL.setOrientation(LinearLayout.HORIZONTAL);
+
+        TextView parameterName = createTextView(ct, name, 1F);
+        TextView parameterValue = createTextView(ct, value, 1F);
+
+        mainLL.addView(parameterName);
+        mainLL.addView(parameterValue);
+        return mainLL;
+    }
+
+    private TextView createTextView(Context ct, String text, float weight) {
+        TextView textView = new TextView(ct);
+        textView.setText(text);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.weight = weight;
+        textView.setLayoutParams(layoutParams);
+        return textView;
+    }
+
+
+
+    private LinearLayout getTextViewValue(String key, String value, Context ct) {
+        LinearLayout mainLL = new LinearLayout(ct);
+        mainLL.setOrientation(LinearLayout.HORIZONTAL);
+        mainLL.setFocusable(false);
+        mainLL.setFocusedByDefault(false);
+
+        TextView parameterValue = createTextView(ct, value, 1F);
+        parameterValue.setTextIsSelectable(true);
+        parameterValue.setPadding(5, 5, 5, 5);
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) parameterValue.getLayoutParams();
+        layoutParams.setMargins(0, 0, 10, 10);
+
+        mainLL.addView(parameterValue);
+        return mainLL;
+    }
+
+    public LinearLayout getInputAsLinearLayoutValue(LinearLayout mainLL, Context ct, Iperf3Input input) {
+        mainLL.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.weight = 10F;
+        mainLL.setLayoutParams(layoutParams);
+        String[] protocol = ct.getResources().getStringArray(R.array.iperf_protocol);
+        String[] mode = ct.getResources().getStringArray(R.array.iperf_mode);
+        for (Field parameter : input.getFields()) {
+            try {
+                Object parameterValueObj = parameter.get(this);
+                if (parameterValueObj == null) {
+                    continue;
+                }
+
+                String parameterName = parameter.getName().replace("iperf3", "");
+                if (Arrays.asList(Iperf3Input.EXCLUDED_FIELDS).contains(parameterName)) continue;
+
+                String parameterValue = parameter.get(this).toString();
+                if (parameterValue.equals("false")) {
+                    continue;
+                }
+
+
+                if (parameterValue.equals("true")) {
+                    parameterValue = parameterName;
+                }
+
+                mainLL.addView(getTextViewValue(parameterName, parameterValue, ct));
+
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return mainLL;
+    }
+
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.iPerf3Parameters.removeAllViews();
@@ -156,7 +238,8 @@ public class Iperf3RecyclerViewAdapter
 
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
-        holder.iPerf3Parameters = test.input.getInputAsLinearLayoutValue(holder.iPerf3Parameters, context);
+        holder.iPerf3Parameters = getInputAsLinearLayoutValue(holder.iPerf3Parameters, context, test.input);
+
     }
     private Iperf3RunResult getItemByPosition(int position) {
         return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));

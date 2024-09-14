@@ -223,7 +223,7 @@ public class Iperf3LogFragment extends Fragment {
 
 
 
-        firstRow.addView(iperf3RunResult.input.getMain());
+        //firstRow.addView(iperf3RunResult.input.getMain());
 
 
 

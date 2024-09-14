@@ -1,29 +1,23 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.concurrent.Callable;
-import java.util.zip.Inflater;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -34,6 +28,8 @@ public class Iperf3CardFragment extends Fragment {
     private ProgressBar progressBar;
     private Iperf3Input iperf3Input = new Iperf3Input();
     private Context ct;
+    private MaterialButton sendBtn;
+    //todo start iperf3 as a service
     private TextInputEditText ip;
     private TextInputEditText port;
     private TextInputEditText bandwidth;
@@ -42,6 +38,7 @@ public class Iperf3CardFragment extends Fragment {
     private TextInputEditText bytes;
     private TextInputEditText streams;
     private TextInputEditText cport;
+
 
     private MaterialButtonToggleGroup mode;
     private MaterialButtonToggleGroup protocol;
@@ -75,7 +72,6 @@ public class Iperf3CardFragment extends Fragment {
         return iperf3Input;
     }
 
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,9 +81,13 @@ public class Iperf3CardFragment extends Fragment {
         progressBar.setVisibility(View.INVISIBLE);
         iperf3Input.setContext(ct);
 
-        LayoutInflater inflater2 = LayoutInflater.from(ct);
+        sendBtn = view.findViewById(R.id.iperf3_send);
+        sendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-
+            }
+        });
 
 
         ip = view.findViewById(R.id.iperf3_ip);
@@ -114,24 +114,215 @@ public class Iperf3CardFragment extends Fragment {
         directionUp = view.findViewById(R.id.iperf3_upload_button);
         directonBidir = view.findViewById(R.id.iperf3_bidir_button);
 
-        ip.addTextChangedListener(iperf3Input.getIpTextWatcher());
-        port.addTextChangedListener(iperf3Input.getPortTextWatcher());
-        bandwidth.addTextChangedListener(iperf3Input.getBandwidthTextWatcher());
-        duration.addTextChangedListener(iperf3Input.getDurationTextWatcher());
-        interval.addTextChangedListener(iperf3Input.getIntervalTextWatcher());
-        bytes.addTextChangedListener(iperf3Input.getBytesTextWatcher());
-        streams.addTextChangedListener(iperf3Input.getStreamsTextWatcher());
-        cport.addTextChangedListener(iperf3Input.getCportTextWatcher());
+        ip.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setIp(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        port.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setPort(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        bandwidth.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setBandwidth(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        duration.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setDuration(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        interval.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setInterval(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        bytes.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setBytes(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        streams.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setStreams(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        cport.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                iperf3Input.setCport(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
         mode.addOnButtonCheckedListener(
-                iperf3Input.getModeButtonCheckedListener(modeClient, modeServer));
-        protocol.addOnButtonCheckedListener(
-                iperf3Input.getProtocolButtonCheckedListener(protocolTCP, protocolUDP));
-        direction.addOnButtonCheckedListener(
-                iperf3Input.getDirectionButtonCheckedListener(directionUp, directionDown, directonBidir));
+                new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+                    @Override
+                    public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
+                        if (isChecked) {
+                            switch (checkedId) {
+                                case R.id.iperf3_client_button:
+                                    updateModeState(modeClient, modeServer, Iperf3Input.Iperf3Mode.CLIENT);
+                                    break;
+                                case R.id.iperf3_server_button:
+                                    updateModeState(modeServer, modeClient, Iperf3Input.Iperf3Mode.SERVER);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+        );
+
+
+        protocol.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+                                                @Override
+                                                public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
+                                                    if (isChecked) {
+                                                        switch (checkedId) {
+                                                            case R.id.iperf3_tcp_button:
+                                                                updateProtocolState(protocolTCP, protocolUDP, Iperf3Input.Iperf3Protocol.TCP);
+                                                                break;
+                                                            case R.id.iperf3_udp_button:
+                                                                updateProtocolState(protocolUDP, protocolTCP, Iperf3Input.Iperf3Protocol.UDP);
+                                                                break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+
+        );
+        direction.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+            @Override
+            public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
+                if (isChecked) {
+                    switch (checkedId) {
+                        case R.id.iperf3_upload_button:
+                            updateDirectionState(directionUp, directionDown, directonBidir, Iperf3Input.Iperf3Direction.UP);
+                            break;
+                        case R.id.iperf3_download_button:
+                            updateDirectionState(directionDown, directionUp, directonBidir, Iperf3Input.Iperf3Direction.DOWN);
+                            break;
+                        case R.id.iperf3_bidir_button:
+                            updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Input.Iperf3Direction.BIDIR);
+                            break;
+                    }
+                }
+            }
+        });
 
 
 
         return view;
+    }
+
+
+
+    private void updateModeState(MaterialButton activeButton, MaterialButton inactiveButton, Iperf3Input.Iperf3Mode protocol) {
+        activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+        inactiveButton.setBackgroundColor(Color.TRANSPARENT);
+        iperf3Input.setMode(protocol);
+    }
+
+    private void updateProtocolState(MaterialButton activeButton, MaterialButton inactiveButton, Iperf3Input.Iperf3Protocol protocol) {
+        activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+        inactiveButton.setBackgroundColor(Color.TRANSPARENT);
+        iperf3Input.setProtocol(protocol);
+    }
+
+    private void updateDirectionState(MaterialButton activeButton, MaterialButton inactiveButton1, MaterialButton inactiveButton2, Iperf3Input.Iperf3Direction direction) {
+        activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+        inactiveButton1.setBackgroundColor(Color.TRANSPARENT);
+        inactiveButton2.setBackgroundColor(Color.TRANSPARENT);
+        iperf3Input.setDirection(direction);
     }
 }
