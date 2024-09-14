@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.HashMap;
 import java.util.zip.Inflater;
@@ -31,22 +32,16 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.ViewsMapManager;
 
-public class Iperf3Fragment extends Fragment implements Iperf3CardAdapter.Callback {
+public class Iperf3Fragment extends Fragment{
     private static final String TAG = "iperf3InputFragment";
 
     private View v;
-    private Button sendBtn;
     private Context ct;
+    private MaterialButton sendBtn;
     private ViewPager2 viewPager;
-    private CoordinatorLayout bottomSheet;
-    private BottomSheetBehavior<FrameLayout> bottomSheetBehavior;
-    private FrameLayout frameLayout;
-    private LinearLayout buttonLinearLayout;
-    private LinearLayout linearLayout;
     private Iperf3CardAdapter adapter;
     private ViewsMapManager viewsMapManager;
-    private HorizontalScrollView scrollView;
-
+    private Iperf3CardFragment iperf3CardFragment;
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup parent, @Nullable Bundle savedInstanceState) {
         ct = requireContext();
@@ -54,55 +49,27 @@ public class Iperf3Fragment extends Fragment implements Iperf3CardAdapter.Callba
         viewPager = v.findViewById(R.id.iperf3_viewpager);
         //linearLayout = v.findViewById(R.id.iperf3_plan);
         viewsMapManager = new ViewsMapManager(ct);
-        adapter = new Iperf3CardAdapter(getActivity(), this);
-        scrollView = v.findViewById(R.id.iperf3_scrollview);
-        scrollView.addView(viewsMapManager.getDraggableGridLayout());
-        viewPager.setAdapter(adapter);
+        adapter = new Iperf3CardAdapter(getActivity());
         sendBtn = v.findViewById(R.id.iperf3_send);
-        bottomSheet = v.findViewById(R.id.iperf3_bottom_sheet_linearlayout);
-        frameLayout = v.findViewById(R.id.standard_bottom_sheet);
-        buttonLinearLayout = v.findViewById(R.id.iperf3_buttons);
-        buttonLinearLayout.setVisibility(View.GONE);
-        bottomSheetBehavior = BottomSheetBehavior.from(frameLayout);
-
-        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                if (bottomSheetBehavior == null) return; // Check if behavior is not initialized
+            public void onClick(View v) {
+                for (Iperf3CardFragment fragment : adapter.getFragments()) {
+                    Iperf3Input iperf3Input = fragment.getIperf3Input();
 
-                switch (newState) {
-                    case BottomSheetBehavior.STATE_EXPANDED:
-                        buttonLinearLayout.setVisibility(View.VISIBLE);
-                        for(Iperf3CardFragment fragment : adapter.getFragments()) {
-                            View cardView = fragment.getOverView();
-                            if(cardView == null) continue;
-                            Pair<Integer, Integer> pos = viewsMapManager.getViewsManager().findViewPos(cardView);
-                            if(pos == null) viewsMapManager.addNewView(fragment.getIperf3Input(), cardView);
-                            fragment.getIperf3Input().update();
-                        }
-                        viewsMapManager.update();
-                        break;
-                    case BottomSheetBehavior.STATE_COLLAPSED:
-                        buttonLinearLayout.setVisibility(View.GONE);
-                        break;
-                    default:
-                        break;
+
+
+
                 }
             }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                // Optionally handle slide events
-            }
         });
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        viewPager.setAdapter(adapter);
         return v;
     }
 
-    @Override
-    public void onAddFragment(Iperf3CardFragment fragment) {
-        viewsMapManager.addNewView(fragment.getIperf3Input(), fragment.getOverView());
-    }
+
+
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

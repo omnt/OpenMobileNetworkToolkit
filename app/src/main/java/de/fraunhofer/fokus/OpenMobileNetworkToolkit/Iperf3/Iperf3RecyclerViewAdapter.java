@@ -57,8 +57,10 @@ public class Iperf3RecyclerViewAdapter
     public Iperf3RecyclerViewAdapter(FragmentActivity c, ArrayList<String> uids,
                                      FloatingActionButton uploadBtn) {
         this.c = c;
+        if(uids == null) uids = new ArrayList<>();
         this.uids = uids;
-        this.db = Iperf3ResultsDataBase.getDatabase(context);
+
+        this.db = Iperf3ResultsDataBase.getDatabase(this.c.getApplicationContext());
         this.selectedRuns = new HashMap<>();
         this.selectedCardViews = new HashMap<>();
         this.uploadBtn = uploadBtn;

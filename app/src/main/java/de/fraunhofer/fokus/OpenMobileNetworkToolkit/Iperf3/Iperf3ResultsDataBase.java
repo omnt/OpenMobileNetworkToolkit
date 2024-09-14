@@ -22,6 +22,7 @@ public abstract class Iperf3ResultsDataBase extends RoomDatabase {
     private static volatile Iperf3ResultsDataBase INSTANCE;
 
     public static Iperf3ResultsDataBase getDatabase(final Context context) {
+
         if (INSTANCE == null) {
             synchronized (Iperf3ResultsDataBase.class) {
                 if (INSTANCE == null) {

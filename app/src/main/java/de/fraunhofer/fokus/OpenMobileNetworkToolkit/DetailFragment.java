@@ -532,6 +532,11 @@ public class DetailFragment extends Fragment {
         NetworkCallback nc = new NetworkCallback(context);
         TableLayout tl = new TableLayout(context);
 
+        if(ni == null) {
+            tl.addView(rowBuilder("No Network Information available", ""));
+            return cardView_from_table_builder("Network Information", tl);
+        }
+
         addRows(tl, new String[][]{
                 {getString(R.string.networkOperatorName), ni.getNetworkOperatorName()},
                 {getString(R.string.simOperatorName), ni.getSimOperatorName()},

@@ -31,14 +31,9 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 public class Iperf3CardFragment extends Fragment {
 
     private static final String ARG_POSITION = "position";
-    private int position;
-    private TextView pageNumberTextView;
     private ProgressBar progressBar;
-    private LinearLayout header;
-    private Button removeButton;
     private Iperf3Input iperf3Input = new Iperf3Input();
     private Context ct;
-    private View overView;
     private TextInputEditText ip;
     private TextInputEditText port;
     private TextInputEditText bandwidth;
@@ -80,62 +75,18 @@ public class Iperf3CardFragment extends Fragment {
         return iperf3Input;
     }
 
-    public View getOverView() {
-        if(overView == null) return null;
-        fillView();
-        return overView;
-    }
-
-    private void fillView() {
-        setTextInput(overView, R.id.iperf3_ip, iperf3Input.getIp());
-        setTextInput(overView, R.id.iperf3_port, iperf3Input.getPort());
-        setTextInput(overView, R.id.iperf3_bandwidth, iperf3Input.getBandwidth());
-        setTextInput(overView, R.id.iperf3_duration, iperf3Input.getDuration());
-        setTextInput(overView, R.id.iperf3_interval, iperf3Input.getInterval());
-        setTextInput(overView, R.id.iperf3_bytes, iperf3Input.getBytes());
-        setTextInput(overView, R.id.iperf3_streams, iperf3Input.getStreams());
-        setTextInput(overView, R.id.iperf3_cport, iperf3Input.getCport());
-    }
-
-    private static void setTextInput(View view, int viewId, String text) {
-        TextInputEditText input = view.findViewById(viewId);
-        input.setEnabled(false);
-        input.setText(text);
-    }
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_iperf3_card, container, false);
         // Initialize the TextView
-        pageNumberTextView = view.findViewById(R.id.page_number_text_view);
         progressBar = view.findViewById(R.id.iperf3_progress);
         progressBar.setVisibility(View.INVISIBLE);
-        header = view.findViewById(R.id.iperf3_header);
-        removeButton = view.findViewById(R.id.iperf3_close_button);
         iperf3Input.setContext(ct);
-        removeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Remove the fragment
-                ViewPager2 viewPager = getActivity().findViewById(R.id.iperf3_viewpager);
-                Iperf3CardAdapter adapter = (Iperf3CardAdapter) viewPager.getAdapter();
-                if (adapter == null) {
-                    return;
-                }
-                adapter.removeFragment(position);
-                viewPager.setCurrentItem(position - 1, true);
-            }
-        });
 
         LayoutInflater inflater2 = LayoutInflater.from(ct);
-        ViewGroup layoutInflater = (ViewGroup) inflater2.inflate(R.layout.fragment_iperf3_card, container, false);
 
-        overView = layoutInflater.findViewById(R.id.input_card);
-        if (overView != null && overView.getParent() != null) {
-            ((ViewGroup) overView.getParent()).removeView(overView);
-        }
 
 
 
@@ -179,11 +130,6 @@ public class Iperf3CardFragment extends Fragment {
         direction.addOnButtonCheckedListener(
                 iperf3Input.getDirectionButtonCheckedListener(directionUp, directionDown, directonBidir));
 
-        // Get the position argument and set the text
-        if (getArguments() != null) {
-            position = getArguments().getInt(ARG_POSITION, 1);
-            pageNumberTextView.setText("Page " + (position + 1));
-        }
 
 
         return view;
