@@ -1,37 +1,101 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.os.Environment;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.work.Data;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.button.MaterialButtonToggleGroup;
+
+import org.checkerframework.checker.units.qual.A;
 
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.UUID;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
-public class Iperf3Input {
+public class Iperf3Input implements Parcelable {
     public static final String[] EXCLUDED_FIELDS = {
             "measurementName", "rawFile", "logFileName", "command", "lineProtocolFile",
             "context", "timestamp", "uuid", "cardView", "main", "EXCLUDED_FIELDS"
     };
 
+    protected Iperf3Input(Parcel in) {
+        isJson = in.readBoolean();
+        isOneOff = in.readBoolean();
+        mode = Iperf3Mode.valueOf(in.readString());
+        protocol = Iperf3Protocol.valueOf(in.readString());
+        direction = Iperf3Direction.valueOf(in.readString());
+        rawFile = in.readString();
+        ip = in.readString();
+        port = in.readString();
+        bandwidth = in.readString();
+        duration = in.readString();
+        interval = in.readString();
+        bytes = in.readString();
+        streams = in.readString();
+        cport = in.readString();
+        uuid = in.readString();
+        logFileName = in.readString();
+        measurementName = in.readString();
+        lineProtocolFile = in.readString();
+        timestamp = (Timestamp) in.readSerializable();
+    }
+
+    public static final Creator<Iperf3Input> CREATOR = new Creator<>() {
+        @Override
+        public Iperf3Input createFromParcel(Parcel in) {
+            return new Iperf3Input(in);
+        }
+
+        @Override
+        public Iperf3Input[] newArray(int size) {
+            return new Iperf3Input[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeBoolean(isJson);
+        parcel.writeBoolean(isOneOff);
+        parcel.writeString(mode.toString());
+        parcel.writeString(protocol.toString());
+        parcel.writeString(direction.toString());
+        parcel.writeString(rawFile);
+        parcel.writeString(ip);
+        parcel.writeString(port);
+        parcel.writeString(bandwidth);
+        parcel.writeString(duration);
+        parcel.writeString(interval);
+        parcel.writeString(bytes);
+        parcel.writeString(streams);
+        parcel.writeString(cport);
+        parcel.writeString(uuid);
+        parcel.writeString(logFileName);
+        parcel.writeString(measurementName);
+        parcel.writeString(lineProtocolFile);
+        parcel.writeSerializable(timestamp);
+    }
+
+    public boolean isValid(){
+        return !ip.isEmpty();
+    }
+
     public enum Iperf3Mode {
         CLIENT,
         SERVER;
-        public String toString() {
+        public String toPrettyPrint() {
             return this.name().substring(0, 1).toUpperCase() + this.name().toLowerCase().substring(1);
         }
     }
@@ -45,7 +109,7 @@ public class Iperf3Input {
         UP,
         DOWN,
         BIDIR;
-        public String toString() {
+        public String toPrettyPrint() {
             return this.name().toLowerCase();
         }
     }
@@ -70,32 +134,27 @@ public class Iperf3Input {
     private String measurementName;
     private String lineProtocolFile;
     private Timestamp timestamp;
-    private LinearLayout main;
-    private Context context;
+
 
     public Iperf3Input() {
-        this(null);
-    }
-
-    public Iperf3Input(Context context) {
+        String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         this.isJson = false;
         this.isOneOff = false;
-        this.uuid = "";
-        this.rawFile = "";
+        //if(uuid == null) this.uuid = UUID.randomUUID().toString();
+        this.uuid = UUID.randomUUID().toString();
+        this.rawFile = rootPath+"/omnt/iperf3/json/";;
         this.logFileName = "";
         this.measurementName = "";
         this.ip = "";
         this.port = "";
         this.bandwidth = "";
-        this.lineProtocolFile = "";
+        this.lineProtocolFile = rootPath+"/omnt/iperf3/lineprotocol/";
         this.duration = "";
         this.interval = "";
         this.bytes = "";
         this.timestamp = new Timestamp(System.currentTimeMillis());
         this.streams = "";
         this.cport = "";
-        this.context = context;
-        this.main = context != null ? new LinearLayout(context) : null;
     }
 
     public void setMode(Iperf3Mode mode) {
@@ -117,6 +176,20 @@ public class Iperf3Input {
     public void setProtocol(Iperf3Protocol protocol) {
         this.protocol = protocol;
     }
+
+    public Iperf3Direction getDirection() {
+        return direction;
+    }
+
+
+    public Iperf3Protocol getProtocol() {
+        return protocol;
+    }
+
+    public Iperf3Mode getMode() {
+        return mode;
+    }
+
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
@@ -175,13 +248,6 @@ public class Iperf3Input {
         this.cport = cport;
     }
 
-    public void setMain(LinearLayout main) {
-        this.main = main;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 
     public boolean isJson() {
         return isJson;
@@ -247,63 +313,12 @@ public class Iperf3Input {
         return cport;
     }
 
-
-    public Context getContext() {
-        return context;
-    }
-
-    public void update() {
-        //getInputAsLinearLayoutKeyValue();
-    }
-
     public List<Field> getFields() {
         List<Field> fields = Arrays.asList(Iperf3Input.class.getDeclaredFields());
         fields.sort((o1, o2) -> o1.toGenericString().compareTo(o2.toGenericString()));
         return fields;
     }
 
-    public void getInputAsLinearLayoutKeyValue() {
-        if (context == null) return;
-        if (main == null) main = new LinearLayout(context);
-        main.removeAllViews();
-        main.setOrientation(LinearLayout.VERTICAL);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
-        main.setLayoutParams(layoutParams);
-        String[] protocol = this.context.getResources().getStringArray(R.array.iperf_protocol);
-        String[] mode = this.context.getResources().getStringArray(R.array.iperf_mode);
-        for (Field parameter : getFields()) {
-            try {
-                Object parameterValueObj = parameter.get(this);
-                if (parameterValueObj == null) {
-                    continue;
-                }
-
-                String parameterName = parameter.getName().replace("iperf3", "");
-                if (Arrays.asList(EXCLUDED_FIELDS).contains(parameterName)) continue;
-
-                String parameterValue = parameter.get(this).toString();
-                if (parameterValue.equals("false") || parameterValue.isEmpty()) {
-                    continue;
-                }
-
-                if (parameterName.equals("idxProtocol")) {
-                    parameterName = "Protocol";
-                    parameterValue = protocol[Integer.parseInt(parameterValue)];
-                }
-
-                if (parameterName.equals("idxMode")) {
-                    parameterName = "Mode";
-                    parameterValue = mode[Integer.parseInt(parameterValue)];
-                }
-                main.addView(getTextView(parameterName, parameterValue, this.context));
-
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 
     public Data.Builder getInputAsDataBuilder() {
         Data.Builder data = new Data.Builder();
@@ -328,13 +343,13 @@ public class Iperf3Input {
                 throw new RuntimeException(e);
             }
         }
-        data.putString("command", getInputAsCommand());
+        data.putStringArray("command", getInputAsCommand());
         data.putString("uuid", uuid);
         return data;
     }
 
-    public String getInputAsCommand(){
-        StringJoiner command = new StringJoiner(" ");
+    public String[] getInputAsCommand(){
+        ArrayList<String> command = new ArrayList<>();
         command.add("iperf3");
         switch (mode) {
             case CLIENT:
@@ -397,7 +412,7 @@ public class Iperf3Input {
         command.add(rawFile);
         command.add("--json-stream");
         command.add("--connect-timeout 500");
-        return command.toString();
+        return command.toArray(new String[0]);
     }
 
 

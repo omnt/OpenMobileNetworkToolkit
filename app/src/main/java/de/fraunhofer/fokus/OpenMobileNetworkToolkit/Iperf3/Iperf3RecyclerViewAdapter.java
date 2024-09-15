@@ -137,18 +137,7 @@ public class Iperf3RecyclerViewAdapter
     }
 
 
-    private LinearLayout getTextView(String name, String value, Context ct) {
-        LinearLayout mainLL = new LinearLayout(ct);
-        mainLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        mainLL.setOrientation(LinearLayout.HORIZONTAL);
 
-        TextView parameterName = createTextView(ct, name, 1F);
-        TextView parameterValue = createTextView(ct, value, 1F);
-
-        mainLL.addView(parameterName);
-        mainLL.addView(parameterValue);
-        return mainLL;
-    }
 
     private TextView createTextView(Context ct, String text, float weight) {
         TextView textView = new TextView(ct);

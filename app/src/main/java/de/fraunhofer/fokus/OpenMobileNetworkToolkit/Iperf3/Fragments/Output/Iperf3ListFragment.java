@@ -108,11 +108,10 @@ public class Iperf3ListFragment extends Fragment {
                 iperf3Data.putString("duration", runResult.input.getDuration());
                 iperf3Data.putString("interval", runResult.input.getInterval());
                 iperf3Data.putString("bytes", runResult.input.getBytes());
-                iperf3Data.putString("protocol", Iperf3Utils.getProtocolString(runResult.input.getIdxProtocol()));
-                iperf3Data.putBoolean("rev", runResult.input.isReverse());
-                iperf3Data.putBoolean("biDir", runResult.input.isBidir());
+                iperf3Data.putString("protocol", runResult.input.getProtocol().toString());
+                iperf3Data.putString("direction", runResult.input.getDirection().toString());
                 iperf3Data.putBoolean("oneOff", runResult.input.isOneOff());
-                iperf3Data.putString("client", Iperf3Utils.getModeString(runResult.input.getIdxMode()));
+                iperf3Data.putString("mode", runResult.input.getMode().toString());
                 iperf3Data.putString("timestamp", runResult.input.getTimestamp().toString());
 
                 OneTimeWorkRequest iperf3LP =

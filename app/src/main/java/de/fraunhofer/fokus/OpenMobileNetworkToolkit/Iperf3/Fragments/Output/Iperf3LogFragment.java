@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,6 +47,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -168,7 +171,71 @@ public class Iperf3LogFragment extends Fragment {
         }
     };
 
+    private TextView createTextView(Context ct, String text, float weight) {
+        TextView textView = new TextView(ct);
+        textView.setText(text);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.weight = weight;
+        textView.setLayoutParams(layoutParams);
+        return textView;
+    }
 
+
+    private LinearLayout getTextView(String name, String value, Context ct) {
+        LinearLayout mainLL = new LinearLayout(ct);
+        mainLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mainLL.setOrientation(LinearLayout.HORIZONTAL);
+
+        TextView parameterName = createTextView(ct, name, 1F);
+        TextView parameterValue = createTextView(ct, value, 1F);
+
+        mainLL.addView(parameterName);
+        mainLL.addView(parameterValue);
+        return mainLL;
+    }
+
+/*    public void getInputAsLinearLayoutKeyValue() {
+        if (context == null) return;
+        if (main == null) main = new LinearLayout(context);
+        main.removeAllViews();
+        main.setOrientation(LinearLayout.VERTICAL);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);
+        main.setLayoutParams(layoutParams);
+        String[] protocol = this.context.getResources().getStringArray(R.array.iperf_protocol);
+        String[] mode = this.context.getResources().getStringArray(R.array.iperf_mode);
+        for (Field parameter : getFields()) {
+            try {
+                Object parameterValueObj = parameter.get(this);
+                if (parameterValueObj == null) {
+                    continue;
+                }
+
+                String parameterName = parameter.getName().replace("iperf3", "");
+                if (Arrays.asList(EXCLUDED_FIELDS).contains(parameterName)) continue;
+
+                String parameterValue = parameter.get(this).toString();
+                if (parameterValue.equals("false") || parameterValue.isEmpty()) {
+                    continue;
+                }
+
+                if (parameterName.equals("idxProtocol")) {
+                    parameterName = "Protocol";
+                    parameterValue = protocol[Integer.parseInt(parameterValue)];
+                }
+
+                if (parameterName.equals("idxMode")) {
+                    parameterName = "Mode";
+                    parameterValue = mode[Integer.parseInt(parameterValue)];
+                }
+                main.addView(getTextView(parameterName, parameterValue, this.context));
+
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }*/
 
 
     @Override
@@ -219,7 +286,7 @@ public class Iperf3LogFragment extends Fragment {
         uploadIconView.setLayoutParams(uploadIconViewLayout);
 
 
-        iperf3RunResult.input.getInputAsLinearLayoutKeyValue();
+//        iperf3RunResult.input.getInputAsLinearLayoutKeyValue();
 
 
 
@@ -317,31 +384,44 @@ public class Iperf3LogFragment extends Fragment {
 
         metricLL.addView(defaultThroughput.createMainLL("Throughput"));
 
-        if(iperf3RunResult.input.isBidir()) {
-            metricLL.addView(defaultReverseThroughput.createMainLL("Throughput"));
-            if(iperf3RunResult.input.getIdxProtocol() == 0) {
-                //defaultRTT = new Metric(METRIC_TYPE.RTT);
-                //metricLL.addView(defaultRTT.createOneDirection("RTT"));
-            }
-            if(iperf3RunResult.input.getIdxProtocol() == 1) {
-                defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
-                metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
-                PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
-                metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
-            }
-        }
-        if(iperf3RunResult.input.isReverse()) {
-            if(iperf3RunResult.input.getIdxProtocol() == 1) {
-                defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
-                metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
-                PACKET_LOSS = new Metric(METRIC_TYPE.JITTER, ct);
-                metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
-            }
-        } else if(!iperf3RunResult.input.isBidir()) {
-            if(iperf3RunResult.input.getIdxProtocol() == 0) {
-                //defaultRTT = new Metric(METRIC_TYPE.RTT);
-                //metricLL.addView(defaultRTT.createOneDirection("RTT ms"));
-            }
+
+
+        switch (iperf3RunResult.input.getDirection()){
+            case UP:
+                defaultThroughput.getDirectionName().setText("Uplink Mbit/s");
+                //display RTT when available - https://github.com/esnet/iperf/issues/1724
+                break;
+            case DOWN:
+                defaultThroughput.getDirectionName().setText("Downlink Mbit/s");
+                switch (iperf3RunResult.input.getProtocol()){
+                    case TCP:
+                        break;
+                    case UDP:
+                        defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
+                        metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
+                        PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
+                        metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
+                        break;
+                }
+                break;
+            case BIDIR:
+                metricLL.addView(defaultReverseThroughput.createMainLL("Throughput"));
+                switch (iperf3RunResult.input.getProtocol()){
+                    case TCP:
+                        defaultThroughput.getDirectionName().setText("Downlink Mbit/s");
+                        defaultReverseThroughput.getDirectionName().setText("Uplink Mbit/s");
+                        break;
+                    case UDP:
+                        defaultThroughput.getDirectionName().setText("Downlink Mbit/s");
+                        defaultReverseThroughput.getDirectionName().setText("Uplink Mbit/s");
+                        defaultJITTER = new Metric(METRIC_TYPE.JITTER, ct);
+                        metricLL.addView(defaultJITTER.createMainLL("Jitter ms"));
+                        PACKET_LOSS = new Metric(METRIC_TYPE.PACKET_LOSS, ct);
+                        metricLL.addView(PACKET_LOSS.createMainLL("Packet Loss %"));
+                        break;
+                }
+
+                break;
         }
 
         mainLL.addView(metricLL);

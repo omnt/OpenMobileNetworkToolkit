@@ -1,6 +1,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Input;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,13 +22,14 @@ import com.google.android.material.textfield.TextInputEditText;
 
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Service;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3CardFragment extends Fragment {
 
     private static final String ARG_POSITION = "position";
     private ProgressBar progressBar;
-    private Iperf3Input iperf3Input = new Iperf3Input();
+    private Iperf3Input iperf3Input;
     private Context ct;
     private MaterialButton sendBtn;
     //todo start iperf3 as a service
@@ -68,10 +71,6 @@ public class Iperf3CardFragment extends Fragment {
         this.ct = requireContext();
     }
 
-    public Iperf3Input getIperf3Input() {
-        return iperf3Input;
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -79,13 +78,18 @@ public class Iperf3CardFragment extends Fragment {
         // Initialize the TextView
         progressBar = view.findViewById(R.id.iperf3_progress);
         progressBar.setVisibility(View.INVISIBLE);
-        iperf3Input.setContext(ct);
-
+        iperf3Input = new Iperf3Input();
         sendBtn = view.findViewById(R.id.iperf3_send);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(ct, Iperf3Service.class);
+                if(!iperf3Input.isValid()){
+                    Toast.makeText(ct, "Please give at least an IP!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                intent.putExtra("input", iperf3Input);
+                ct.startService(intent);
             }
         });
 
@@ -243,8 +247,7 @@ public class Iperf3CardFragment extends Fragment {
             }
         });
 
-        mode.addOnButtonCheckedListener(
-                new MaterialButtonToggleGroup.OnButtonCheckedListener() {
+        mode.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
                     @Override
                     public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
                         if (isChecked) {
@@ -258,11 +261,7 @@ public class Iperf3CardFragment extends Fragment {
                             }
                         }
                     }
-                }
-
-        );
-
-
+                });
         protocol.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
                                                 @Override
                                                 public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
@@ -277,10 +276,7 @@ public class Iperf3CardFragment extends Fragment {
                                                         }
                                                     }
                                                 }
-                                            }
-
-
-        );
+                                            });
         direction.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
@@ -299,8 +295,6 @@ public class Iperf3CardFragment extends Fragment {
                 }
             }
         });
-
-
 
         return view;
     }
