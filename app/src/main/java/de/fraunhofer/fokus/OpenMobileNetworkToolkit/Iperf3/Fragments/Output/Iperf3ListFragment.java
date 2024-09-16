@@ -11,6 +11,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Output;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,7 +52,7 @@ public class Iperf3ListFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private FloatingActionButton uploadBtn;
     private Iperf3ResultsDataBase db;
-
+    private Context context;
     public static Iperf3ListFragment newInstance() {
         Iperf3ListFragment fragment = new Iperf3ListFragment();
         Bundle args = new Bundle();
@@ -66,24 +67,23 @@ public class Iperf3ListFragment extends Fragment {
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateIperf3ListAdapter() {
-        if (this.adapter != null) {
-            this.adapter.notifyDataSetChanged();
-        }
+        if (this.adapter != null) this.adapter.notifyDataSetChanged();
     }
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_iperf3_list, parent, false);
-        ArrayList<String> uids = this.getArguments().getStringArrayList("iperf3List");
-
+        this.context = requireContext();
         recyclerView = v.findViewById(R.id.runners_list);
         uploadBtn = v.findViewById(R.id.iperf3_upload_button);
+        db = Iperf3ResultsDataBase.getDatabase(requireContext());
+
         linearLayoutManager =
             new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+        this.
+        adapter = new Iperf3RecyclerViewAdapter(getActivity(), new ArrayList<String>(db.iperf3RunResultDao().getIDs()), uploadBtn);
         recyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new Iperf3RecyclerViewAdapter(getActivity(), uids, uploadBtn);
         recyclerView.setAdapter(adapter);
-        db = Iperf3ResultsDataBase.getDatabase(requireContext());
 
 
         swipeController = new SwipeController(new SwipeControllerActions() {
@@ -91,11 +91,10 @@ public class Iperf3ListFragment extends Fragment {
             @Override
             public void onRightClicked(int position) {
                 WorkManager iperf3WM = WorkManager.getInstance(getContext());
-                String uid = uids.get(position);
+                String uid = new ArrayList<String>(db.iperf3RunResultDao().getIDs()).get(position);
                 iperf3WM.cancelAllWorkByTag(uid);
                 Iperf3RunResultDao iperf3RunResultDao = Iperf3ResultsDataBase.getDatabase(requireContext()).iperf3RunResultDao();
                 Iperf3RunResult runResult = iperf3RunResultDao.getRunResult(uid);
-
 
                 Data.Builder iperf3Data = new Data.Builder();
 
@@ -135,7 +134,7 @@ public class Iperf3ListFragment extends Fragment {
             @Override
             public void onLeftClicked(int position) {
                 Bundle input = new Bundle();
-                input.putString("uid", uids.get(position));
+                input.putString("uid", new ArrayList<String>(db.iperf3RunResultDao().getIDs()).get(position));
                 getActivity().getSupportFragmentManager().setFragmentResult("input", input);
                 getActivity().getSupportFragmentManager().popBackStack();
             }

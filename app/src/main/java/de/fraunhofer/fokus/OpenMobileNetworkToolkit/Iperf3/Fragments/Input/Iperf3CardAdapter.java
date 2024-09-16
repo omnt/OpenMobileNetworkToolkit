@@ -20,6 +20,7 @@ public class Iperf3CardAdapter extends FragmentStateAdapter {
 
         this.addFragment(Iperf3CardFragment.newInstance(0));
         this.fragmentList.add(Iperf3ListFragment.newInstance());
+        this.fragmentList.add(Iperf3ListFragment.newInstance());
     }
 
     public void addFragment(Iperf3CardFragment fragment) {
