@@ -26,6 +26,20 @@ public class Iperf3Input implements Parcelable {
             "context", "timestamp", "uuid", "cardView", "main", "EXCLUDED_FIELDS"
     };
 
+    public static final String IPERF3IP = "iperf3IP";
+    public static final String IPERF3PORT = "iperf3Port";
+    public static final String IPERF3BANDWIDTH = "iperf3Bandwidth";
+    public static final String IPERF3DURATION = "iperf3Duration";
+    public static final String IPERF3INTERVAL = "iperf3Interval";
+    public static final String IPERF3BYTES = "iperf3Bytes";
+    public static final String IPERF3STREAMS = "iperf3Streams";
+    public static final String IPERF3DIRECTION = "iperf3Direction";
+    public static final String IPERF3ONEOFF = "iperf3OneOff";
+    public static final String IPERF3PROTOCOL = "iperf3IdxProtocol";
+    public static final String IPERF3MODE = "iperf3IdxMode";
+    public static final String IPERF3CPORT = "iperf3cport";
+
+
     protected Iperf3Input(Parcel in) {
         isJson = in.readBoolean();
         isOneOff = in.readBoolean();

@@ -33,7 +33,12 @@ public class Iperf3Service extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if(intent == null){
+            Toast.makeText(getApplicationContext(),"No intent!", Toast.LENGTH_SHORT).show();
+            return START_NOT_STICKY;
+        }
         Iperf3Input iperf3Input = intent.getParcelableExtra("input");
+
         if(iperf3Input == null){
             Toast.makeText(getApplicationContext(),"No input data!", Toast.LENGTH_SHORT).show();
             return START_NOT_STICKY;

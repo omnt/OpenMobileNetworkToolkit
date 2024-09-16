@@ -28,7 +28,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
-public class Iperf3ExecutorWorker extends Worker {
+public class Iperf3ExecuterWorker extends Worker {
     private static final String TAG = "iperf3Worker";
 
     static {
@@ -43,7 +43,7 @@ public class Iperf3ExecutorWorker extends Worker {
     private String port;
     private String protocol;
     private Iperf3Input.Iperf3Mode mode;
-    public Iperf3ExecutorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public Iperf3ExecuterWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         cmd = getInputData().getStringArray("command");
         uuid = getInputData().getString("uuid");

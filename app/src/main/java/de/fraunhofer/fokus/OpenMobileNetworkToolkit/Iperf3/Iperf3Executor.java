@@ -9,9 +9,8 @@ import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import androidx.work.WorkerParameters;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecuterWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
@@ -40,7 +39,7 @@ public class Iperf3Executor {
 
 
         iperf3WR = new OneTimeWorkRequest
-                        .Builder(Iperf3ExecutorWorker.class)
+                        .Builder(Iperf3ExecuterWorker.class)
                         .setInputData(this.dataBuilder.build())
                         .addTag("iperf3Run")
                         .addTag(iperf3Input.getUuid())

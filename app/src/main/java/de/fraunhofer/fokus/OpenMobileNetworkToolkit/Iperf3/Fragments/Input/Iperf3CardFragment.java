@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,15 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textview.MaterialTextView;
 
+
+import java.util.function.Consumer;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Service;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3CardFragment extends Fragment {
@@ -55,6 +61,8 @@ public class Iperf3CardFragment extends Fragment {
     private MaterialButton directionDown;
     private MaterialButton directonBidir;
 
+    private SharedPreferencesGrouper spg;
+    private String TAG = "Iperf3CardFragment";
 
 
     public static Iperf3CardFragment newInstance(int position) {
@@ -71,6 +79,69 @@ public class Iperf3CardFragment extends Fragment {
         this.ct = requireContext();
     }
 
+    /**
+     * Create a text watcher
+     * @param consumer
+     * @param name
+     * @return
+     */
+    private TextWatcher createTextWatcher(Consumer<String> consumer, String name) {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                consumer.accept(charSequence.toString());
+                spg.getSharedPreference(SPType.iperf3_sp).edit().putString(name, charSequence.toString()).apply();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        };
+    }
+
+    /**
+     * Set up the text watchers
+     */
+    private void setupTextWatchers() {
+        ip.addTextChangedListener(createTextWatcher(iperf3Input::setIp, Iperf3Input.IPERF3IP));
+        port.addTextChangedListener(createTextWatcher(iperf3Input::setPort, Iperf3Input.IPERF3PORT));
+        bandwidth.addTextChangedListener(createTextWatcher(iperf3Input::setBandwidth, Iperf3Input.IPERF3BANDWIDTH));
+        duration.addTextChangedListener(createTextWatcher(iperf3Input::setDuration, Iperf3Input.IPERF3DURATION));
+        interval.addTextChangedListener(createTextWatcher(iperf3Input::setInterval, Iperf3Input.IPERF3INTERVAL));
+        bytes.addTextChangedListener(createTextWatcher(iperf3Input::setBytes, Iperf3Input.IPERF3BYTES));
+        streams.addTextChangedListener(createTextWatcher(iperf3Input::setStreams, Iperf3Input.IPERF3STREAMS));
+        cport.addTextChangedListener(createTextWatcher(iperf3Input::setCport, Iperf3Input.IPERF3CPORT));
+    }
+
+    /**
+     * Set the text from the shared preferences
+     * @param editText
+     * @param key
+     */
+    private void setTextFromSharedPreferences(TextInputEditText editText, String key) {
+        if (spg.getSharedPreference(SPType.iperf3_sp).contains(key)) {
+            editText.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(key, ""));
+        }
+    }
+
+    /**
+     * Set the texts from the shared preferences
+     */
+    private void setTextsFromSharedPreferences(){
+        setTextFromSharedPreferences(ip, Iperf3Input.IPERF3IP);
+        setTextFromSharedPreferences(port, Iperf3Input.IPERF3PORT);
+        setTextFromSharedPreferences(bandwidth, Iperf3Input.IPERF3BANDWIDTH);
+        setTextFromSharedPreferences(duration, Iperf3Input.IPERF3DURATION);
+        setTextFromSharedPreferences(interval, Iperf3Input.IPERF3INTERVAL);
+        setTextFromSharedPreferences(bytes, Iperf3Input.IPERF3BYTES);
+        setTextFromSharedPreferences(streams, Iperf3Input.IPERF3STREAMS);
+        setTextFromSharedPreferences(cport, Iperf3Input.IPERF3CPORT);
+    }
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -80,6 +151,7 @@ public class Iperf3CardFragment extends Fragment {
         progressBar.setVisibility(View.INVISIBLE);
         iperf3Input = new Iperf3Input();
         sendBtn = view.findViewById(R.id.iperf3_send);
+        spg = SharedPreferencesGrouper.getInstance(ct);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,134 +190,54 @@ public class Iperf3CardFragment extends Fragment {
         directionUp = view.findViewById(R.id.iperf3_upload_button);
         directonBidir = view.findViewById(R.id.iperf3_bidir_button);
 
-        ip.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        setupTextWatchers();
+        setTextsFromSharedPreferences();
 
+        try {
+            switch (Iperf3Input.Iperf3Mode.valueOf(spg.getSharedPreference(SPType.iperf3_sp).getString(Iperf3Input.IPERF3MODE, ""))){
+                case CLIENT:
+                    updateModeState(modeClient, modeServer, Iperf3Input.Iperf3Mode.CLIENT);
+                    break;
+                case SERVER:
+                    updateModeState(modeServer, modeClient, Iperf3Input.Iperf3Mode.SERVER);
+                    break;
+                default:
+                    break;
             }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setIp(charSequence.toString());
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "onCreateView: ", e);
+        }
+        try {
+            switch (Iperf3Input.Iperf3Protocol.valueOf(spg.getSharedPreference(SPType.iperf3_sp).getString(Iperf3Input.IPERF3PROTOCOL, ""))){
+                case TCP:
+                    updateProtocolState(protocolTCP, protocolUDP, Iperf3Input.Iperf3Protocol.TCP);
+                    break;
+                case UDP:
+                    updateProtocolState(protocolUDP, protocolTCP, Iperf3Input.Iperf3Protocol.UDP);
+                    break;
+                default:
+                    break;
             }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "onCreateView: ", e);
+        }
+        try {
+            switch (Iperf3Input.Iperf3Direction.valueOf(spg.getSharedPreference(SPType.iperf3_sp).getString(Iperf3Input.IPERF3DIRECTION, ""))) {
+                case UP:
+                    updateDirectionState(directionUp, directionDown, directonBidir, Iperf3Input.Iperf3Direction.UP);
+                    break;
+                case DOWN:
+                    updateDirectionState(directionDown, directionUp, directonBidir, Iperf3Input.Iperf3Direction.DOWN);
+                    break;
+                case BIDIR:
+                    updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Input.Iperf3Direction.BIDIR);
+                    break;
+                default:
+                    break;
             }
-        });
-        port.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setPort(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        bandwidth.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setBandwidth(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        duration.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setDuration(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        interval.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setInterval(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        bytes.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setBytes(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        streams.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setStreams(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-        cport.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                iperf3Input.setCport(charSequence.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "onCreateView: ", e);
+        }
 
         mode.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
                     @Override
@@ -305,12 +297,14 @@ public class Iperf3CardFragment extends Fragment {
         activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
         inactiveButton.setBackgroundColor(Color.TRANSPARENT);
         iperf3Input.setMode(protocol);
+        spg.getSharedPreference(SPType.iperf3_sp).edit().putString(Iperf3Input.IPERF3MODE, protocol.toString()).apply();
     }
 
     private void updateProtocolState(MaterialButton activeButton, MaterialButton inactiveButton, Iperf3Input.Iperf3Protocol protocol) {
         activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
         inactiveButton.setBackgroundColor(Color.TRANSPARENT);
         iperf3Input.setProtocol(protocol);
+        spg.getSharedPreference(SPType.iperf3_sp).edit().putString(Iperf3Input.IPERF3PROTOCOL, protocol.toString()).apply();
     }
 
     private void updateDirectionState(MaterialButton activeButton, MaterialButton inactiveButton1, MaterialButton inactiveButton2, Iperf3Input.Iperf3Direction direction) {
@@ -318,5 +312,6 @@ public class Iperf3CardFragment extends Fragment {
         inactiveButton1.setBackgroundColor(Color.TRANSPARENT);
         inactiveButton2.setBackgroundColor(Color.TRANSPARENT);
         iperf3Input.setDirection(direction);
+        spg.getSharedPreference(SPType.iperf3_sp).edit().putString(Iperf3Input.IPERF3DIRECTION, direction.toString()).apply();
     }
 }

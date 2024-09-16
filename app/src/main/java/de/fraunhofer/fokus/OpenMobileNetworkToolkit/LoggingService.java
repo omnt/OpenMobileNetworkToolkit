@@ -296,6 +296,10 @@ public class LoggingService extends Service {
 
     private ArrayList<Point> getPoints() {
         long time = System.currentTimeMillis();
+        if(dp == null) {
+            Log.e(TAG, "getPoints: Dataprovider is null!");
+            return new ArrayList<>();
+        }
         Map<String, String> tags_map = dp.getTagsMap();
         ArrayList<Point> logPoints = new ArrayList<>();
 

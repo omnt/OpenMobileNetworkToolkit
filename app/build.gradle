@@ -81,11 +81,13 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    //def jniHeaders = new File (buildDir, "generated/jniHeaders")
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
         tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+            options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked" //<< '-h' << jniHeaders
         }
 
 
@@ -99,6 +101,8 @@ android {
     lint {
         abortOnError false
     }
+
+
 }
 
 spdxSbom {
