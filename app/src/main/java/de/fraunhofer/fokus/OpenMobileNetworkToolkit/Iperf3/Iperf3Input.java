@@ -26,6 +26,11 @@ public class Iperf3Input implements Parcelable {
             "context", "timestamp", "uuid", "cardView", "main", "EXCLUDED_FIELDS"
     };
 
+
+    public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+    public static final String jsonDirPath = rootPath+"/omnt/iperf3/json/";
+    public static final String lineProtocolDirPath = rootPath+"/omnt/iperf3/lineprotocol/";
+
     public static final String IPERF3IP = "iperf3IP";
     public static final String IPERF3PORT = "iperf3Port";
     public static final String IPERF3BANDWIDTH = "iperf3Bandwidth";
@@ -108,7 +113,8 @@ public class Iperf3Input implements Parcelable {
 
     public enum Iperf3Mode {
         CLIENT,
-        SERVER;
+        SERVER,
+        UNDEFINED;
         public String toPrettyPrint() {
             return this.name().substring(0, 1).toUpperCase() + this.name().toLowerCase().substring(1);
         }
@@ -116,13 +122,15 @@ public class Iperf3Input implements Parcelable {
 
     public enum Iperf3Protocol {
         TCP,
-        UDP
+        UDP,
+        UNDEFINED
     }
 
     public enum Iperf3Direction {
         UP,
         DOWN,
-        BIDIR;
+        BIDIR,
+        UNDEFINED;
         public String toPrettyPrint() {
             return this.name().toLowerCase();
         }
@@ -130,9 +138,9 @@ public class Iperf3Input implements Parcelable {
 
     private boolean isJson;
     private boolean isOneOff;
-    private Iperf3Mode mode;
-    private Iperf3Protocol protocol;
-    private Iperf3Direction direction;
+    private Iperf3Mode mode = Iperf3Mode.UNDEFINED;
+    private Iperf3Protocol protocol = Iperf3Protocol.UNDEFINED;
+    private Iperf3Direction direction = Iperf3Direction.UNDEFINED;
     private String rawFile;
     private String ip;
     private String port;
@@ -151,18 +159,17 @@ public class Iperf3Input implements Parcelable {
 
 
     public Iperf3Input() {
-        String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         this.isJson = false;
         this.isOneOff = false;
         //if(uuid == null) this.uuid = UUID.randomUUID().toString();
         this.uuid = UUID.randomUUID().toString();
-        this.rawFile = rootPath+"/omnt/iperf3/json/";;
+        this.rawFile = rootPath+"/omnt/iperf3/json/"+this.uuid+".json";;
         this.logFileName = "";
         this.measurementName = "";
         this.ip = "";
         this.port = "";
         this.bandwidth = "";
-        this.lineProtocolFile = rootPath+"/omnt/iperf3/lineprotocol/";
+        this.lineProtocolFile = rootPath+"/omnt/iperf3/lineprotocol/"+this.uuid+".txt";
         this.duration = "";
         this.interval = "";
         this.bytes = "";
@@ -364,7 +371,7 @@ public class Iperf3Input implements Parcelable {
 
     public String[] getInputAsCommand(){
         ArrayList<String> command = new ArrayList<>();
-        command.add("iperf3");
+        //command.add("iperf3");
         switch (mode) {
             case CLIENT:
                 command.add("-c");
@@ -422,10 +429,11 @@ public class Iperf3Input implements Parcelable {
                 break;
         }
 
-        command.add("--file");
+        command.add("--logfile");
         command.add(rawFile);
         command.add("--json-stream");
-        command.add("--connect-timeout 500");
+        command.add("--connect-timeout");
+        command.add("500");
         return command.toArray(new String[0]);
     }
 

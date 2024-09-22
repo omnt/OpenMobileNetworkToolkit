@@ -57,8 +57,8 @@ public class Iperf3Service extends Service {
         }
         try{
 
-            Files.createDirectories(Paths.get(iperf3Input.getRawFile()));
-            Files.createDirectories(Paths.get(iperf3Input.getLineProtocolFile()));
+            Files.createDirectories(Paths.get(Iperf3Input.jsonDirPath));
+            Files.createDirectories(Paths.get(Iperf3Input.lineProtocolDirPath));
         } catch (IOException e){
             Toast.makeText(getApplicationContext(),"Could not create Dir files!", Toast.LENGTH_SHORT).show();
         }
