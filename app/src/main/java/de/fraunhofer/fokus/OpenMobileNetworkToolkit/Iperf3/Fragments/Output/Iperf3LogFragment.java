@@ -30,6 +30,9 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
+import org.w3c.dom.Text;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ResultsDataBase;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResult;
@@ -74,6 +77,7 @@ public class Iperf3LogFragment extends Fragment {
     private Metric defaultRTT;
     private Metric defaultJITTER;
     private Metric PACKET_LOSS;
+    private Context context;
 
     public Iperf3LogFragment() {
     }
@@ -83,6 +87,7 @@ public class Iperf3LogFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.db = Iperf3ResultsDataBase.getDatabase(getActivity().getApplicationContext());
+        this.context = requireContext();
     }
 
     private void setFields(Iperf3RunResult iperf3RunResult) {
@@ -181,61 +186,48 @@ public class Iperf3LogFragment extends Fragment {
     }
 
 
-    private LinearLayout getTextView(String name, String value, Context ct) {
-        LinearLayout mainLL = new LinearLayout(ct);
-        mainLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    private LinearLayout getTextView(String name, String value) {
+        if(value == null) return null;
+        if(value.equals("")) return null;
+        LinearLayout mainLL = new LinearLayout(context);
+        mainLL.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         mainLL.setOrientation(LinearLayout.HORIZONTAL);
 
-        TextView parameterName = createTextView(ct, name, 1F);
-        TextView parameterValue = createTextView(ct, value, 1F);
+        TextView parameterName = createTextView(context, name, 0.25F);
+        TextView parameterValue = createTextView(context, value, 0.75F);
 
         mainLL.addView(parameterName);
         mainLL.addView(parameterValue);
         return mainLL;
     }
 
-/*    public void getInputAsLinearLayoutKeyValue() {
-        if (context == null) return;
-        if (main == null) main = new LinearLayout(context);
-        main.removeAllViews();
+    private void addTextView(LinearLayout ll, String name, String value) {
+        LinearLayout mainLL = getTextView(name, value);
+        if(mainLL != null) ll.addView(mainLL);
+    }
+
+    public LinearLayout getInputAsLinearLayoutKeyValue(Iperf3Input input) {
+        LinearLayout main = new LinearLayout(context);
         main.setOrientation(LinearLayout.VERTICAL);
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                0,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.weight = 8f;
         main.setLayoutParams(layoutParams);
-        String[] protocol = this.context.getResources().getStringArray(R.array.iperf_protocol);
-        String[] mode = this.context.getResources().getStringArray(R.array.iperf_mode);
-        for (Field parameter : getFields()) {
-            try {
-                Object parameterValueObj = parameter.get(this);
-                if (parameterValueObj == null) {
-                    continue;
-                }
 
-                String parameterName = parameter.getName().replace("iperf3", "");
-                if (Arrays.asList(EXCLUDED_FIELDS).contains(parameterName)) continue;
+        addTextView(main, Iperf3Input.IPERF3IP.replace("iperf3", ""), input.getIp());
+        addTextView(main, Iperf3Input.IPERF3PORT.replace("iperf3", ""), input.getPort());
+        addTextView(main, Iperf3Input.IPERF3PROTOCOL.replace("iperf3Idx", ""), input.getProtocol().toString());
+        addTextView(main, Iperf3Input.IPERF3MODE.replace("iperf3Idx", ""), input.getMode().toPrettyPrint());
+        addTextView(main, Iperf3Input.IPERF3DIRECTION.replace("iperf3", ""), input.getDirection().toPrettyPrint());
+        addTextView(main, Iperf3Input.IPERF3BANDWIDTH.replace("iperf3", ""), input.getBandwidth());
+        addTextView(main, Iperf3Input.IPERF3DURATION.replace("iperf3", ""), input.getDuration());
+        addTextView(main, Iperf3Input.IPERF3UUID.replace("iperf3", ""), input.getUuid());
+        addTextView(main, Iperf3Input.IPERF3STREAMS.replace("iperf3", ""), input.getStreams());
+        addTextView(main, Iperf3Input.IPERF3TIMESTAMP.replace("iperf3", ""), input.getTimestamp().toString());
 
-                String parameterValue = parameter.get(this).toString();
-                if (parameterValue.equals("false") || parameterValue.isEmpty()) {
-                    continue;
-                }
-
-                if (parameterName.equals("idxProtocol")) {
-                    parameterName = "Protocol";
-                    parameterValue = protocol[Integer.parseInt(parameterValue)];
-                }
-
-                if (parameterName.equals("idxMode")) {
-                    parameterName = "Mode";
-                    parameterValue = mode[Integer.parseInt(parameterValue)];
-                }
-                main.addView(getTextView(parameterName, parameterValue, this.context));
-
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }*/
+        return main;
+    }
 
 
     @Override
@@ -257,8 +249,8 @@ public class Iperf3LogFragment extends Fragment {
         mainLL.setLayoutParams(layoutParams);
 
         LinearLayout.LayoutParams foo = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         foo.setMargins(30, 10, 0, 0);
         firstRow.setLayoutParams(foo);
 
@@ -286,26 +278,19 @@ public class Iperf3LogFragment extends Fragment {
         uploadIconView.setLayoutParams(uploadIconViewLayout);
 
 
-//        iperf3RunResult.input.getInputAsLinearLayoutKeyValue();
-
-
-
-        //firstRow.addView(iperf3RunResult.input.getMain());
-
 
 
 
         LinearLayout headerWrapper = new LinearLayout(ct);
         LinearLayout.LayoutParams headerWrapperLayout = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         headerWrapper.setLayoutParams(headerWrapperLayout);
         headerWrapper.setOrientation(LinearLayout.VERTICAL);
         CardView cardView = new CardView(ct);
-        LinearLayout.LayoutParams cardViewLayout = Iperf3Utils.getLayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-        0);
+        CardView.LayoutParams cardViewLayout = new CardView.LayoutParams(
+                CardView.LayoutParams.MATCH_PARENT,
+                CardView.LayoutParams.WRAP_CONTENT);
         headerWrapper.setPadding(30, 30, 30, 30);
         cardView.setLayoutParams(cardViewLayout);
         cardView.setRadius(10);
@@ -324,6 +309,9 @@ public class Iperf3LogFragment extends Fragment {
             ViewGroup.LayoutParams.MATCH_PARENT, 100);
         header.setLayoutParams(headerLayout);
         header.setOrientation(LinearLayout.HORIZONTAL);
+
+         firstRow.addView(getInputAsLinearLayoutKeyValue(iperf3RunResult.input));
+
 
         TextView headerName = new TextView(ct);
         headerName.setText("iPerf3 run");

@@ -14,9 +14,12 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -25,6 +28,7 @@ public class Iperf3Service extends Service {
     public final static int NOTIFICATION_ID = 1002;
     private static final String CHANNEL_ID = "Iperf3ServiceChannel";
 
+    private HashMap<String, Iperf3Parser> iperfParser = new HashMap<>();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -65,6 +69,9 @@ public class Iperf3Service extends Service {
 
         Iperf3Executor iperf3Executor = new Iperf3Executor(this, iperf3Input);
         iperf3Executor.start();
+        iperfParser.put(iperf3Input.getUuid(), new Iperf3Parser(iperf3Input.getRawFile()));
+        iperfParser.get(iperf3Input.getUuid()).parse();
+
         return START_STICKY;
     }
 

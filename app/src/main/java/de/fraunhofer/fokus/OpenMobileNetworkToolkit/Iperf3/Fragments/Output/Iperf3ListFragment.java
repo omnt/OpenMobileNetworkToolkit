@@ -80,8 +80,9 @@ public class Iperf3ListFragment extends Fragment {
 
         linearLayoutManager =
             new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-        this.
-        adapter = new Iperf3RecyclerViewAdapter(getActivity(), new ArrayList<String>(db.iperf3RunResultDao().getIDs()), uploadBtn);
+        this.adapter = new Iperf3RecyclerViewAdapter(getActivity(),
+                new ArrayList<String>(db.iperf3RunResultDao().getIDs()),
+                uploadBtn);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
 

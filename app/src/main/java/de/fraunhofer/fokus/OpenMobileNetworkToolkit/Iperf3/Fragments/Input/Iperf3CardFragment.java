@@ -161,7 +161,9 @@ public class Iperf3CardFragment extends Fragment {
                     return;
                 }
                 intent.putExtra("input", iperf3Input);
+
                 ct.startService(intent);
+
             }
         });
 
@@ -201,7 +203,11 @@ public class Iperf3CardFragment extends Fragment {
                 case SERVER:
                     updateModeState(modeServer, modeClient, Iperf3Input.Iperf3Mode.SERVER);
                     break;
+                case UNDEFINED:
                 default:
+                    modeClient.setBackgroundColor(Color.TRANSPARENT);
+                    modeServer.setBackgroundColor(Color.TRANSPARENT);
+                    spg.getSharedPreference(SPType.iperf3_sp).edit().putString(Iperf3Input.IPERF3MODE, Iperf3Input.Iperf3Mode.UNDEFINED.toString()).apply();
                     break;
             }
         } catch (IllegalArgumentException e) {
@@ -215,7 +221,11 @@ public class Iperf3CardFragment extends Fragment {
                 case UDP:
                     updateProtocolState(protocolUDP, protocolTCP, Iperf3Input.Iperf3Protocol.UDP);
                     break;
+                case UNDEFINED:
                 default:
+                    protocolTCP.setBackgroundColor(Color.TRANSPARENT);
+                    protocolUDP.setBackgroundColor(Color.TRANSPARENT);
+                    spg.getSharedPreference(SPType.iperf3_sp).edit().putString(Iperf3Input.IPERF3PROTOCOL, Iperf3Input.Iperf3Protocol.UNDEFINED.toString()).apply();
                     break;
             }
         } catch (IllegalArgumentException e) {
@@ -232,7 +242,11 @@ public class Iperf3CardFragment extends Fragment {
                 case BIDIR:
                     updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Input.Iperf3Direction.BIDIR);
                     break;
+                case UNDEFINED:
                 default:
+                    directionUp.setBackgroundColor(Color.TRANSPARENT);
+                    directionDown.setBackgroundColor(Color.TRANSPARENT);
+                    directonBidir.setBackgroundColor(Color.TRANSPARENT);
                     break;
             }
         } catch (IllegalArgumentException e) {

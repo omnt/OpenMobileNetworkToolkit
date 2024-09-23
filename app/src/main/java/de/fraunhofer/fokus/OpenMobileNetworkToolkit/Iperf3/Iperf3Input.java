@@ -43,6 +43,8 @@ public class Iperf3Input implements Parcelable {
     public static final String IPERF3PROTOCOL = "iperf3IdxProtocol";
     public static final String IPERF3MODE = "iperf3IdxMode";
     public static final String IPERF3CPORT = "iperf3cport";
+    public static final String IPERF3UUID = "iperf3UUID";
+    public static final String IPERF3TIMESTAMP = "iperf3Timestamp";
 
 
     protected Iperf3Input(Parcel in) {
