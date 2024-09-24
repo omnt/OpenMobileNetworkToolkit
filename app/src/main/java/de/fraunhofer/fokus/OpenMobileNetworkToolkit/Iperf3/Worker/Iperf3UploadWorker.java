@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
 import android.content.Context;
 import android.util.Log;

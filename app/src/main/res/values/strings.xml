@@ -32,15 +32,15 @@
     <string name="device_admin_description">I need your permission</string>
     <string name="apn_settings">APN Settings</string>
     <string name="slicing_setup">Slicing</string>
-    <string name="iperf_logfilename">-F / Logfile Name</string>
-    <string name="iperf_ip">-c / IP</string>
+    <string name="iperf_logfilename">-F</string>
+    <string name="iperf_ip">-c</string>
     <string name="iperf_client">Client</string>
-    <string name="iperf_port">-p / Port</string>
-    <string name="iperf_bandwidth">-b / Bandwidth</string>
+    <string name="iperf_port">-p</string>
+    <string name="iperf_bandwidth">-b</string>
     <string name="iperf_reverse">Reverse</string>
-    <string name="iperf_duration">-t / Duration</string>
-    <string name="iperf_interval">-i / Interval</string>
-    <string name="iperf_bytes">-n / Bytes</string>
+    <string name="iperf_duration">-t</string>
+    <string name="iperf_interval">-i</string>
+    <string name="iperf_bytes">-n</string>
     <string name="iperf_bidir">BiDir</string>
     <string name="iperf_json">JSON</string>
     <string name="iperf_one_off">one-off</string>
@@ -111,7 +111,7 @@
     <string name="cleared">Cleared.</string>
     <string name="set_up_managed_profile">Set up managed profile</string>
     <string name="preferential_network_service">Preferential Network Service</string>
-    <string name="iperf_streams">-P / Parallel streams</string>
+    <string name="iperf_streams">-P</string>
     <string name="settings">Settings</string>
     <string name="influxdb">InfluxDB</string>
     <string name="special_codes">Special Codes</string>
@@ -158,6 +158,8 @@
     <string name="clear_preferences_message">Do you want to clear all Configuartions?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="valueCard">valueCardView</string>
+
     <!-- -->
     <string name="na">N/A</string>
 

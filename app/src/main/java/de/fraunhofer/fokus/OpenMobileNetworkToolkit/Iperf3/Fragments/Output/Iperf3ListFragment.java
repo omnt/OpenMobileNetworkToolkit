@@ -8,9 +8,10 @@
 
 //from https://codeburst.io/android-swipe-menu-with-recyclerview-8f28a235ff28
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Output;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +22,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,7 +33,13 @@ import androidx.work.WorkManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAdapter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResultDao;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SwipeController;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SwipeControllerActions;
@@ -45,6 +53,30 @@ public class Iperf3ListFragment extends Fragment {
     private LinearLayoutManager linearLayoutManager;
     private FloatingActionButton uploadBtn;
     private Iperf3ResultsDataBase db;
+    private Context context;
+
+
+
+    public static Iperf3ListFragment newInstance() {
+        Iperf3ListFragment fragment = new Iperf3ListFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+
+    private void observeDatabaseChanges() {
+        if(db == null) return;
+        db.iperf3RunResultDao().getAll().observe(getViewLifecycleOwner(), new Observer<List<Iperf3RunResult>>() {
+            @Override
+            public void onChanged(@Nullable List<Iperf3RunResult> runResults) {
+                updateIperf3ListAdapter();
+            }
+        });
+    }
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,53 +84,57 @@ public class Iperf3ListFragment extends Fragment {
 
     @SuppressLint("NotifyDataSetChanged")
     public void updateIperf3ListAdapter() {
-        if (this.adapter != null) {
-            this.adapter.notifyDataSetChanged();
-        }
+        if (this.adapter != null) this.adapter.notifyDataSetChanged();
     }
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_iperf3_list, parent, false);
-        ArrayList<String> uids = this.getArguments().getStringArrayList("iperf3List");
+        this.context = requireContext();
+
         recyclerView = v.findViewById(R.id.runners_list);
         uploadBtn = v.findViewById(R.id.iperf3_upload_button);
+        db = Iperf3ResultsDataBase.getDatabase(this.context);
+
+        observeDatabaseChanges();
+
+
         linearLayoutManager =
             new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new Iperf3RecyclerViewAdapter(getActivity(), uids, uploadBtn);
-        recyclerView.setAdapter(adapter);
-        db = Iperf3ResultsDataBase.getDatabase(requireContext());
+        this.adapter = new Iperf3RecyclerViewAdapter(getActivity(),
+                new ArrayList<String>(db.iperf3RunResultDao().getIDs()),
+                uploadBtn);
 
+
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setAdapter(adapter);
 
         swipeController = new SwipeController(new SwipeControllerActions() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onRightClicked(int position) {
                 WorkManager iperf3WM = WorkManager.getInstance(getContext());
-                String uid = uids.get(position);
+                String uid = new ArrayList<String>(db.iperf3RunResultDao().getIDs()).get(position);
                 iperf3WM.cancelAllWorkByTag(uid);
                 Iperf3RunResultDao iperf3RunResultDao = Iperf3ResultsDataBase.getDatabase(requireContext()).iperf3RunResultDao();
                 Iperf3RunResult runResult = iperf3RunResultDao.getRunResult(uid);
 
-
                 Data.Builder iperf3Data = new Data.Builder();
 
-                iperf3Data.putString("rawIperf3file", runResult.input.iperf3rawIperf3file);
-                iperf3Data.putString("iperf3LineProtocolFile", runResult.input.iperf3LineProtocolFile);
-                iperf3Data.putString("measurementName", runResult.input.measurementName);
-                iperf3Data.putString("ip", runResult.input.iperf3IP);
-                iperf3Data.putString("port", runResult.input.iperf3Port);
-                iperf3Data.putString("bandwidth", runResult.input.iperf3Bandwidth);
-                iperf3Data.putString("duration", runResult.input.iperf3Duration);
-                iperf3Data.putString("interval", runResult.input.iperf3Interval);
-                iperf3Data.putString("bytes", runResult.input.iperf3Bytes);
-                iperf3Data.putString("protocol", Iperf3Utils.getProtocolString(runResult.input.iperf3IdxProtocol));
-                iperf3Data.putBoolean("rev", runResult.input.iperf3Reverse);
-                iperf3Data.putBoolean("biDir", runResult.input.iperf3BiDir);
-                iperf3Data.putBoolean("oneOff", runResult.input.iperf3OneOff);
-                iperf3Data.putString("client", Iperf3Utils.getModeString(runResult.input.iperf3IdxMode));
-                iperf3Data.putString("timestamp", runResult.input.timestamp.toString());
+                iperf3Data.putString("rawIperf3file", runResult.input.getRawFile());
+                iperf3Data.putString("iperf3LineProtocolFile", runResult.input.getLineProtocolFile());
+                iperf3Data.putString("measurementName", runResult.input.getMeasurementName());
+                iperf3Data.putString("ip", runResult.input.getIp());
+                iperf3Data.putString("port", runResult.input.getPort());
+                iperf3Data.putString("bandwidth", runResult.input.getBandwidth());
+                iperf3Data.putString("duration", runResult.input.getDuration());
+                iperf3Data.putString("interval", runResult.input.getInterval());
+                iperf3Data.putString("bytes", runResult.input.getBytes());
+                iperf3Data.putString("protocol", runResult.input.getProtocol().toString());
+                iperf3Data.putString("direction", runResult.input.getDirection().toString());
+                iperf3Data.putBoolean("oneOff", runResult.input.isOneOff());
+                iperf3Data.putString("mode", runResult.input.getMode().toString());
+                iperf3Data.putString("timestamp", runResult.input.getTimestamp().toString());
 
                 OneTimeWorkRequest iperf3LP =
                         new OneTimeWorkRequest
@@ -121,12 +157,11 @@ public class Iperf3ListFragment extends Fragment {
             @Override
             public void onLeftClicked(int position) {
                 Bundle input = new Bundle();
-                input.putString("uid", uids.get(position));
+                input.putString("uid", new ArrayList<String>(db.iperf3RunResultDao().getIDs()).get(position));
                 getActivity().getSupportFragmentManager().setFragmentResult("input", input);
                 getActivity().getSupportFragmentManager().popBackStack();
             }
         });
-
 
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(recyclerView);
@@ -137,6 +172,8 @@ public class Iperf3ListFragment extends Fragment {
                 swipeController.onDraw(c);
             }
         });
+
+
         return v;
     }
 

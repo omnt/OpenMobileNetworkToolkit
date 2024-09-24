@@ -47,6 +47,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.work.WorkManager;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
         pm = getPackageManager();
         feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
-
+        WorkManager.getInstance(context).cancelAllWork();
         // populate global vars we use in other parts of the app.
         gv.setPm(pm);
         gv.setPermission_phone_state(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED);
@@ -478,4 +479,5 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         return true;
     }
+
 }

@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -15,6 +15,12 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.IntervalsConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3InputConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 
 @Entity(tableName = "iperf3_result_database")
 public class Iperf3RunResult {
@@ -33,9 +39,13 @@ public class Iperf3RunResult {
 
     @ColumnInfo(name = "input")
     @TypeConverters({Iperf3InputConverter.class})
-    public Iperf3Fragment.Iperf3Input input;
+    public Iperf3Input input;
 
-    public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Fragment.Iperf3Input input,
+    @ColumnInfo(name = "intervals")
+    @TypeConverters({IntervalsConverter.class})
+    public ArrayList<Interval> intervals;
+
+    public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Input input,
                            Timestamp timestamp) {
         this.uid = uid;
         this.result = result;

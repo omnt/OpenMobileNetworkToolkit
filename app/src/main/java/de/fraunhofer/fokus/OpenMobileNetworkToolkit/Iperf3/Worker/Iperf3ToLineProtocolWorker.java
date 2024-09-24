@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
 import android.content.Context;
 import android.os.Build;
@@ -22,6 +22,12 @@ import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,10 +40,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformati
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
@@ -57,7 +59,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     private final String protocol;
     private final String iperf3LineProtocolFile;
 
-    private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
+    private final DeviceInformation di;
 
     private final boolean rev;
     private final boolean biDir;
@@ -68,6 +70,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         rawIperf3file = getInputData().getString("rawIperf3file");
+        di = GlobalVars.getInstance().get_dp().getDeviceInformation();
 
         ip = getInputData().getString("ip");
         measurementName = getInputData().getString("measurementName");
@@ -145,7 +148,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
-        Iperf3Parser iperf3Parser = new Iperf3Parser(rawIperf3file);
+        Iperf3Parser iperf3Parser = new Iperf3Parser(getApplicationContext(), rawIperf3file, new Iperf3Input());
         iperf3Parser.parse();
 
 
@@ -238,7 +241,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             iperf3Stream = new FileOutputStream(iperf3LineProtocolFile, true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
-            Log.d(TAG,e.toString());
+            e.printStackTrace();
         }
 
         if(iperf3Stream == null){

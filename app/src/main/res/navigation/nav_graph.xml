@@ -86,7 +86,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragment_iperf3_input"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Fragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Iperf3Fragment"
         android:label="fragment_iperf3_input"
         tools:layout="@layout/fragment_iperf3_input">
 
@@ -99,7 +99,7 @@
     </fragment>
     <fragment
         android:id="@+id/runners_list"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ListFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Output.Iperf3ListFragment"
         android:label="fragment_iperf3_runners_list"
         tools:layout="@layout/fragment_iperf3_list">
 

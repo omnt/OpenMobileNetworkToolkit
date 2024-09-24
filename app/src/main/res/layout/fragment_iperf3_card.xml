@@ -1,0 +1,236 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/iperf3_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_marginBottom="2dp"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/input_card"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="4dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_ip_layout"
+                style="@style/iperf3TextInputLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_ip"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="IP Address"
+                    android:inputType="textUri" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_port_layout"
+                style="@style/iperf3TextInputLayout"
+                android:layout_marginBottom="4dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_port"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="Port"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_bandwidth_layout"
+                style="@style/iperf3TextInputLayout"
+                app:suffixText="MB">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_bandwidth"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="Bandwidth"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_duration_layout"
+                style="@style/iperf3TextInputLayout"
+                app:suffixText="s">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_duration"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="Duration"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_interval_layout"
+                style="@style/iperf3TextInputLayout"
+                app:suffixText="s">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_interval"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="Interval"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_bytes_layout"
+                style="@style/iperf3TextInputLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_bytes"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="Bytes"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_streams_layout"
+                style="@style/iperf3TextInputLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_streams"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="Streams"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/iperf3_cport_layout"
+                style="@style/iperf3TextInputLayout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/iperf3_cport"
+                    style="@style/iperf3TextInputEditText"
+                    android:hint="Client Port"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4"
+        android:orientation="vertical"
+        android:weightSum="3"
+        android:padding="4dp">
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/iperf3_mode_toggle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_client_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Client" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_server_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Server" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/iperf3_protocol_toggle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_tcp_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TCP" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_udp_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="UDP" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/iperf3_direction_toggle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_download_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Download" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_upload_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Upload" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_bidir_button"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="BiDir" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/iperf3_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/execute_iperf_command"
+        android:paddingTop="18dp"
+        android:paddingBottom="18dp"
+        android:paddingLeft="50dp"
+        android:paddingRight="50dp"
+        android:layout_margin="5dp"/>
+</LinearLayout>

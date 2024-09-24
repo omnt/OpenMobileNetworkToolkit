@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -14,9 +14,15 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.TypeConverters;
 import androidx.room.Update;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.IntervalsConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 
 @Dao
 public interface Iperf3RunResultDao {
@@ -43,6 +49,15 @@ public interface Iperf3RunResultDao {
 
     @Query("UPDATE iperf3_result_database SET uploaded=:uploaded WHERE uid=:uid")
     void updateUpload(String uid, boolean uploaded);
+
+    @Query("SELECT intervals FROM iperf3_result_database WHERE uid=:uid")
+    LiveData<Intervals> getIntervals(String uid);
+
+    @Query("UPDATE iperf3_result_database SET intervals=:intervals WHERE uid=:uid")
+    void updateIntervals(String uid, ArrayList<Interval> intervals);
+
+    @Query("SELECT * FROM iperf3_result_database WHERE uid=:uid")
+    LiveData<Iperf3RunResult> getLiveRunResult(String uid);
 
     @Update
     void update(Iperf3RunResult iperf3RunResult);

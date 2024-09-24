@@ -63,13 +63,20 @@
         <service
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.LoggingService"
             android:foregroundServiceType="location" />
-        <service
-            android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingService" />
-
+        <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingService">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="to run Ping"/>
+        </service>
 
         <service android:name="androidx.work.impl.foreground.SystemForegroundService" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="explanation_for_special_use"/>
+        </service>
+        <service android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Service"
+            android:foregroundServiceType="specialUse"
+            android:label="iPerf3 Service">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="to run iPerf3 executions"/>
         </service>
 
 
