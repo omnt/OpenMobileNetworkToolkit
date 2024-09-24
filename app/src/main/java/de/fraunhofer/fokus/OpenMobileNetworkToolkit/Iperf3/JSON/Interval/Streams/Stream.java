@@ -1,9 +1,14 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Stream {
+public class Stream implements Parcelable {
     private int socket;
     private int start;
     private double end;
@@ -17,6 +22,30 @@ public class Stream {
 
     public Stream(){
     }
+
+    protected Stream(Parcel in) {
+        socket = in.readInt();
+        start = in.readInt();
+        end = in.readDouble();
+        seconds = in.readDouble();
+        bytes = in.readLong();
+        bits_per_second = in.readDouble();
+        omitted = in.readBoolean();
+        sender = in.readBoolean();
+    }
+
+    public static final Creator<Stream> CREATOR = new Creator<Stream>() {
+        @Override
+        public Stream createFromParcel(Parcel in) {
+            return new Stream(in);
+        }
+
+        @Override
+        public Stream[] newArray(int size) {
+            return new Stream[size];
+        }
+    };
+
     public void parse(JSONObject data) throws JSONException {
         this.socket = data.getInt("socket");
         this.start = data.getInt("start");
@@ -60,5 +89,22 @@ public class Stream {
     public void setStreamType(
         STREAM_TYPE streamType) {
         this.streamType = streamType;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeInt(socket);
+        parcel.writeInt(start);
+        parcel.writeDouble(end);
+        parcel.writeDouble(seconds);
+        parcel.writeLong(bytes);
+        parcel.writeDouble(bits_per_second);
+        parcel.writeBoolean(omitted);
+        parcel.writeBoolean(sender);
     }
 }

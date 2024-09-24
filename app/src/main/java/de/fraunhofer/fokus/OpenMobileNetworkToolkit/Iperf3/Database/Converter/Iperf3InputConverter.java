@@ -6,12 +6,14 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter;
 
 import androidx.room.ProvidedTypeConverter;
 import androidx.room.TypeConverter;
 
 import com.google.gson.Gson;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 
 @ProvidedTypeConverter
 public class Iperf3InputConverter {

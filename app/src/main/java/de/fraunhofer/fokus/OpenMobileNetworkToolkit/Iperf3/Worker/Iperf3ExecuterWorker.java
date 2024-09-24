@@ -38,7 +38,7 @@ public class Iperf3ExecuterWorker extends Worker {
     private final String[] cmd;
     private final String uuid;
     private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
-    private final int notificationID = 1;
+    private final int notificationID = 1002;
     private String ip;
     private String port;
     private String protocol;
@@ -85,6 +85,7 @@ public class Iperf3ExecuterWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        Log.i(TAG, "doWork: called!");
         if (port == null) port = "5201";
         String progress = String.format("Connecting to %s:%s with %s", ip, port, protocol);
         if (mode.equals(Iperf3Input.Iperf3Mode.SERVER)) {

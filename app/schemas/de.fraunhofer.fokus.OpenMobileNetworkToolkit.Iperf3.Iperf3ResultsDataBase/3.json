@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "3d98e37212367d9d5ef195be31a59c58",
+    "identityHash": "12fc36c505cf323268351cd8ce794593",
     "entities": [
       {
         "tableName": "iperf3_result_database",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` TEXT NOT NULL, `result` INTEGER NOT NULL, `uploaded` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `input` TEXT, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` TEXT NOT NULL, `result` INTEGER NOT NULL, `uploaded` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `input` TEXT, `intervals` TEXT, PRIMARY KEY(`uid`))",
         "fields": [
           {
             "fieldPath": "uid",
@@ -37,13 +37,19 @@
             "columnName": "input",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "intervals",
+            "columnName": "intervals",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
+          "autoGenerate": false,
           "columnNames": [
             "uid"
-          ],
-          "autoGenerate": false
+          ]
         },
         "indices": [],
         "foreignKeys": []
@@ -52,7 +58,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3d98e37212367d9d5ef195be31a59c58')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12fc36c505cf323268351cd8ce794593')"
     ]
   }
 }
