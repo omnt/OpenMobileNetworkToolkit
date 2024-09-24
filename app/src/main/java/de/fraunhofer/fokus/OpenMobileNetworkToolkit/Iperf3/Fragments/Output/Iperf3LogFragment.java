@@ -419,6 +419,12 @@ public class Iperf3LogFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        v.requestLayout();
+    }
+
     public void onPause() {
         super.onPause();
         if(logHandler != null) logHandler.removeCallbacks(logUpdate);

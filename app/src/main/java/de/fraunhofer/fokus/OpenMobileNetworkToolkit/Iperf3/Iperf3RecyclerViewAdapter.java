@@ -123,6 +123,19 @@ public class Iperf3RecyclerViewAdapter
             }
         });
 
+        for(String uid: uids){
+            LiveData<Intervals> liveData = db.iperf3RunResultDao().getIntervals(uid);
+            Observer observer = new Observer<Intervals>() {
+                @Override
+                public void onChanged(Intervals intervals) {
+                    notifyDataSetChanged();
+                }
+            };
+            liveData.observe(c, observer);
+        }
+
+
+
     }
 
 
@@ -145,9 +158,6 @@ public class Iperf3RecyclerViewAdapter
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
 
-
-
-
     private TextView createTextView(Context ct, String text, float weight) {
         TextView textView = new TextView(ct);
         textView.setText(text);
@@ -156,8 +166,6 @@ public class Iperf3RecyclerViewAdapter
         textView.setLayoutParams(layoutParams);
         return textView;
     }
-
-
 
     private LinearLayout getTextViewValue(String key, String value, Context ct) {
         LinearLayout mainLL = new LinearLayout(ct);
@@ -196,8 +204,6 @@ public class Iperf3RecyclerViewAdapter
     }
 
 
-
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.iPerf3Parameters.removeAllViews();
@@ -224,43 +230,21 @@ public class Iperf3RecyclerViewAdapter
         IntentFilter filter = new IntentFilter(context.getPackageName() + ".broadcast.iperf3.INTERVAL");
 
 
-        LiveData<Iperf3RunResult> liveData = db.iperf3RunResultDao().getLiveRunResult(this.uids.get(position));
-        liveData.observe(c, new Observer<Iperf3RunResult>() {
-            @Override
-            public void onChanged(Iperf3RunResult iperf3RunResult) {
-                if (iperf3RunResult == null) return;
-                switch (iperf3RunResult.result){
-                    case 0:
-                        holder.linearProgressIndicator.setProgress(holder.linearProgressIndicator.getMax(), false);
-                        liveData.removeObserver(this);
-                        break;
-                    case -100:
-                        ArrayList<Interval> intervals = iperf3RunResult.intervals;
-                        if(intervals == null || intervals.isEmpty()) return;
-                        holder.linearProgressIndicator.setProgress((int) intervals.get(intervals.size()-1).getSum().getEnd(), false);
-                        break;
-                    default:
-                        holder.linearProgressIndicator.setProgress(0, false);
-                        liveData.removeObserver(this);
-                        break;
-
-                }
-                holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, iperf3RunResult.result));
-                holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, iperf3RunResult.result, iperf3RunResult.uploaded));
-                notifyDataSetChanged();
-            }
-        });
 
         Iperf3RunResult iperf3RunResult = db.iperf3RunResultDao().getRunResult(this.uids.get(position));
         String duration = iperf3RunResult.input.getDuration();
         if(duration == null || duration.equals("")) duration = "10";
+        int progress = 0;
+        try {
+            progress = (int) iperf3RunResult.intervals.get(iperf3RunResult.intervals.size()-1).getSum().getEnd();
+        } catch (Exception e) {}
         holder.linearProgressIndicator.setMax(Integer.parseInt(duration));
-
-
+        holder.linearProgressIndicator.setProgress(progress);
 
 
         this.c.registerReceiver(holder.broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
+
     private Iperf3RunResult getItemByPosition(int position) {
         return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));
     }
@@ -332,7 +316,6 @@ public class Iperf3RecyclerViewAdapter
 
         public ViewHolder(View itemView) {
             super(itemView);
-            Log.d(TAG, "ViewHolder: " + itemView);
             measurement = new TextView(context);
             timestamp = new TextView(context);
             iperf3State = new TextView(context);

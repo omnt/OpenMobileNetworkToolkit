@@ -164,14 +164,14 @@ public class Iperf3Input implements Parcelable {
         this.isJson = false;
         this.isOneOff = false;
         //if(uuid == null) this.uuid = UUID.randomUUID().toString();
-        this.uuid = UUID.randomUUID().toString();
-        this.rawFile = rootPath+"/omnt/iperf3/json/"+this.uuid+".json";;
+        this.uuid = "";
+        this.rawFile = jsonDirPath+this.uuid+".json";;
         this.logFileName = "";
         this.measurementName = "";
         this.ip = "";
         this.port = "";
         this.bandwidth = "";
-        this.lineProtocolFile = rootPath+"/omnt/iperf3/lineprotocol/"+this.uuid+".txt";
+        this.lineProtocolFile = lineProtocolDirPath+this.uuid+".txt";
         this.duration = "";
         this.interval = "";
         this.bytes = "";
@@ -216,6 +216,8 @@ public class Iperf3Input implements Parcelable {
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
+        this.rawFile = jsonDirPath+this.uuid+".json";
+        this.lineProtocolFile = lineProtocolDirPath+this.uuid+".txt";
     }
 
 

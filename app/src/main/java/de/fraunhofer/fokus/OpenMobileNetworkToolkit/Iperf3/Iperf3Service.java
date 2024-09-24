@@ -8,33 +8,21 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Handler;
+import android.os.FileObserver;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.work.WorkManager;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Service extends Service {
@@ -42,10 +30,9 @@ public class Iperf3Service extends Service {
     public final static int NOTIFICATION_ID = 1002;
     private static final String CHANNEL_ID = "Iperf3ServiceChannel";
     private static final String TAG = "Iperf3Service";
+    private ArrayList<String> parsing = new ArrayList<>();
+    private FileObserver fileObserver;
 
-
-
-    private HashMap<String, Iperf3Parser> iperfParser = new HashMap<>();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -77,7 +64,6 @@ public class Iperf3Service extends Service {
             startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         }
         try{
-
             Files.createDirectories(Paths.get(Iperf3Input.jsonDirPath));
             Files.createDirectories(Paths.get(Iperf3Input.lineProtocolDirPath));
         } catch (IOException e){
@@ -87,59 +73,21 @@ public class Iperf3Service extends Service {
         Iperf3Executor iperf3Executor = new Iperf3Executor(getApplicationContext(), iperf3Input);
         iperf3Executor.start();
 
-        iperfParser.put(iperf3Input.getUuid(), new Iperf3Parser(getApplicationContext(), iperf3Input.getRawFile(), iperf3Input));
-        Objects.requireNonNull(iperfParser.get(iperf3Input.getUuid())).addPropertyChangeListener(evt -> {
-            switch (evt.getPropertyName()) {
-                case "interval":
-                    Intent intent1 = new Intent();
-                    Interval interval = (Interval) evt.getNewValue();
-                    intent1.setAction(getApplicationContext().getApplicationInfo().packageName + ".broadcast.iperf3.INTERVAL");
-                    intent1.putExtra("interval", interval);
-                    intent1.putExtra("uuid", iperf3Input.getUuid());
-                    Log.d(TAG, "onStartCommand: sending intent!");
-                    sendBroadcast(intent1);
-                    break;
-                case "error":
-                    // Handle error case if needed
-                    break;
-            }
-        });
-
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Runnable runnable = new Runnable() {
+        fileObserver = new FileObserver(new File(Iperf3Input.jsonDirPath),
+                FileObserver.ALL_EVENTS) {
             @Override
-            public void run() {
-                while(true){
-                    File file = new File(iperf3Input.getRawFile());
-                    if(file.exists()) iperfParser.get(iperf3Input.getUuid()).parse();
+            public void onEvent(int i, @Nullable String s) {
+                Log.i(TAG, "onEvent: " + i + " " + s);
+                switch (i){
+                    case FileObserver.MODIFY:
+                        Log.i(TAG, "onEvent: File modified by iPerf3");
+                        Iperf3Parser iperf3Parser = new Iperf3Parser(getApplicationContext(), iperf3Input.getRawFile(), iperf3Input);
+                        iperf3Parser.parse();
+                        break;
                 }
             }
         };
-        Future future = executorService.submit(runnable);
-
-
-        WorkManager workManager = WorkManager.getInstance(getApplicationContext());
-        workManager.getWorkInfoByIdLiveData(iperf3Executor.getUuid()).observeForever(workInfo -> {
-
-
-
-            switch (workInfo.getState()){
-                case ENQUEUED:
-                    break;
-                case RUNNING:
-                   break;
-                case SUCCEEDED:
-                    break;
-                case FAILED:
-                case CANCELLED:
-                case BLOCKED:
-                    future.cancel(true);
-                    break;
-
-            }
-        });
-
-
+        fileObserver.startWatching();
 
         return START_STICKY;
     }

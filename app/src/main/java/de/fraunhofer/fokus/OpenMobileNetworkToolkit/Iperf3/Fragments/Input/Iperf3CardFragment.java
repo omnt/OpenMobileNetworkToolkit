@@ -23,6 +23,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 
 
+import java.sql.Timestamp;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
@@ -38,6 +40,7 @@ public class Iperf3CardFragment extends Fragment {
     private Iperf3Input iperf3Input;
     private Context ct;
     private MaterialButton sendBtn;
+    private View view;
     //todo start iperf3 as a service
     private TextInputEditText ip;
     private TextInputEditText port;
@@ -145,7 +148,7 @@ public class Iperf3CardFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_iperf3_card, container, false);
+        view = inflater.inflate(R.layout.fragment_iperf3_card, container, false);
         // Initialize the TextView
         progressBar = view.findViewById(R.id.iperf3_progress);
         progressBar.setVisibility(View.INVISIBLE);
@@ -160,6 +163,8 @@ public class Iperf3CardFragment extends Fragment {
                     Toast.makeText(ct, "Please give at least an IP!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                iperf3Input.setUuid(UUID.randomUUID().toString());
+                iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 intent.putExtra("input", iperf3Input);
 
                 ct.startService(intent);
@@ -303,6 +308,12 @@ public class Iperf3CardFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        view.requestLayout();
     }
 
 

@@ -50,6 +50,12 @@ public interface Iperf3RunResultDao {
     @Query("UPDATE iperf3_result_database SET uploaded=:uploaded WHERE uid=:uid")
     void updateUpload(String uid, boolean uploaded);
 
+    @Query("SELECT intervals FROM iperf3_result_database WHERE uid=:uid")
+    LiveData<Intervals> getIntervals(String uid);
+
+    @Query("UPDATE iperf3_result_database SET intervals=:intervals WHERE uid=:uid")
+    void updateIntervals(String uid, ArrayList<Interval> intervals);
+
     @Query("SELECT * FROM iperf3_result_database WHERE uid=:uid")
     LiveData<Iperf3RunResult> getLiveRunResult(String uid);
 
