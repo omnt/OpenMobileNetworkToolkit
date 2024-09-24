@@ -30,28 +30,17 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
-import org.w3c.dom.Text;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ResultsDataBase;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Utils;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.UDP.UDP_DL_SUM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -114,7 +103,7 @@ public class Iperf3LogFragment extends Fragment {
                 return;
             }
             String line;
-
+    /*
             Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3RunResult.input.getRawFile());
             iperf3Parser.addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -165,7 +154,7 @@ public class Iperf3LogFragment extends Fragment {
                 }
             });
 
-            iperf3Parser.parse();
+            iperf3Parser.parse();*/
             if (iperf3RunResult.result != -100) {
                 logHandler.removeCallbacks(logUpdate);
                 return;

@@ -9,7 +9,10 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -23,9 +26,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -34,14 +40,16 @@ import androidx.work.WorkManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Output.Iperf3LogFragment;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -50,12 +58,13 @@ public class Iperf3RecyclerViewAdapter
     extends RecyclerView.Adapter<Iperf3RecyclerViewAdapter.ViewHolder> {
     private final String TAG = "Iperf3RecyclerViewAdapter";
     private final Iperf3ResultsDataBase db;
-    private final ArrayList<String> uids;
+    private ArrayList<String> uids;
     private Context context;
-    private final FragmentActivity c;
+    private FragmentActivity c;
     private final HashMap<String, Integer> selectedRuns;
     private final HashMap<CardView, Boolean> selectedCardViews;
     private final FloatingActionButton uploadBtn;
+    private BroadcastReceiver receiver;
 
     public Iperf3RecyclerViewAdapter(FragmentActivity c, ArrayList<String> uids,
                                      FloatingActionButton uploadBtn) {
@@ -187,6 +196,8 @@ public class Iperf3RecyclerViewAdapter
     }
 
 
+
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.iPerf3Parameters.removeAllViews();
@@ -210,7 +221,45 @@ public class Iperf3RecyclerViewAdapter
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
         holder.iPerf3Parameters = getInputAsLinearLayoutValue(holder.iPerf3Parameters, context, test.input);
+        IntentFilter filter = new IntentFilter(context.getPackageName() + ".broadcast.iperf3.INTERVAL");
 
+
+        LiveData<Iperf3RunResult> liveData = db.iperf3RunResultDao().getLiveRunResult(this.uids.get(position));
+        liveData.observe(c, new Observer<Iperf3RunResult>() {
+            @Override
+            public void onChanged(Iperf3RunResult iperf3RunResult) {
+                if (iperf3RunResult == null) return;
+                switch (iperf3RunResult.result){
+                    case 0:
+                        holder.linearProgressIndicator.setProgress(holder.linearProgressIndicator.getMax(), false);
+                        liveData.removeObserver(this);
+                        break;
+                    case -100:
+                        ArrayList<Interval> intervals = iperf3RunResult.intervals;
+                        if(intervals == null || intervals.isEmpty()) return;
+                        holder.linearProgressIndicator.setProgress((int) intervals.get(intervals.size()-1).getSum().getEnd(), false);
+                        break;
+                    default:
+                        holder.linearProgressIndicator.setProgress(0, false);
+                        liveData.removeObserver(this);
+                        break;
+
+                }
+                holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, iperf3RunResult.result));
+                holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, iperf3RunResult.result, iperf3RunResult.uploaded));
+                notifyDataSetChanged();
+            }
+        });
+
+        Iperf3RunResult iperf3RunResult = db.iperf3RunResultDao().getRunResult(this.uids.get(position));
+        String duration = iperf3RunResult.input.getDuration();
+        if(duration == null || duration.equals("")) duration = "10";
+        holder.linearProgressIndicator.setMax(Integer.parseInt(duration));
+
+
+
+
+        this.c.registerReceiver(holder.broadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
     private Iperf3RunResult getItemByPosition(int position) {
         return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));
@@ -229,6 +278,13 @@ public class Iperf3RecyclerViewAdapter
         public ImageView uploadIcon;
         private final LinearLayout linearLayout;
         private LinearLayout iPerf3Parameters;
+        private String uid;
+        private LinearProgressIndicator linearProgressIndicator;
+        private BroadcastReceiver broadcastReceiver;
+
+        public LinearLayout getLinearLayout() {
+            return linearLayout;
+        }
 
         private LinearLayout firstRow(LinearLayout ll){
             measurement.setLayoutParams(
@@ -263,12 +319,12 @@ public class Iperf3RecyclerViewAdapter
             return ll;
         }
 
+
         private LinearLayout fourthRow(LinearLayout ll){
             ll.setOrientation(LinearLayout.HORIZONTAL);
-            LinearProgressIndicator linearProgressIndicator = new LinearProgressIndicator(context);
+            linearProgressIndicator = new LinearProgressIndicator(context);
             linearProgressIndicator.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 40));
             ll.addView(linearProgressIndicator);
-
 
 
             return ll;
@@ -292,6 +348,7 @@ public class Iperf3RecyclerViewAdapter
             linearLayout.addView(secondRow(new LinearLayout(context)));
             linearLayout.addView(thirdRow(new LinearLayout(context)));
             linearLayout.addView(fourthRow(new LinearLayout(context)));
+
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -334,13 +391,15 @@ public class Iperf3RecyclerViewAdapter
                     bundle.putString("uid", uid);
                     Iperf3LogFragment test = new Iperf3LogFragment();
                     test.setArguments(bundle);
+
                     c.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragmentContainerView, test, "iperf3LogFragment")
                         .addToBackStack("findThisFragment").commit();
 
                 }
             });
-
+            int itemPos = getLayoutPosition();
+            if(uids.contains(itemPos)) uid = uids.get(getLayoutPosition());
         }
 
     }

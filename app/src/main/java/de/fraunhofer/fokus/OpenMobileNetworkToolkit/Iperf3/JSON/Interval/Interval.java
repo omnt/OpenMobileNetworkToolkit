@@ -2,6 +2,11 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 
 import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.*;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.STREAM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
@@ -17,7 +22,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.UDP
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Interval {
+public class Interval implements Parcelable{
     private final Streams streams;
     private Sum sum;
     public Sum sumBidirReverse;
@@ -25,6 +30,24 @@ public class Interval {
     public Interval(){
         streams = new Streams();
     }
+
+    protected Interval(Parcel in) {
+        streams = in.readParcelable(Streams.class.getClassLoader());
+        sum = in.readParcelable(Sum.class.getClassLoader());
+        sumBidirReverse = in.readParcelable(Sum.class.getClassLoader());
+    }
+
+    public static final Creator<Interval> CREATOR = new Creator<Interval>() {
+        @Override
+        public Interval createFromParcel(Parcel in) {
+            return new Interval(in);
+        }
+
+        @Override
+        public Interval[] newArray(int size) {
+            return new Interval[size];
+        }
+    };
 
     private SUM_TYPE getSumType(JSONObject data) throws JSONException {
         boolean sender = data.getBoolean("sender");
@@ -75,5 +98,17 @@ public class Interval {
     }
     public Sum getSumBidirReverse() {
         return sumBidirReverse;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeParcelable(streams, i);
+        parcel.writeParcelable(sum, i);
+        parcel.writeParcelable(sumBidirReverse, i);
     }
 }

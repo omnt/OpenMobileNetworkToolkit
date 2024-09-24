@@ -10,9 +10,14 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import java.util.UUID;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecuterWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
@@ -94,12 +99,17 @@ public class Iperf3Executor {
 
     }
 
+    public UUID getUuid() {
+        return this.iperf3WR.getId();
+    }
+
     public void start() {
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
             workManager.beginWith(iperf3WR).then(iperf3LP).then(iperf3UP).enqueue();
         } else {
             workManager.beginWith(iperf3WR).then(iperf3LP).enqueue();
         }
+
     }
 
     public void stop(){

@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,12 +33,12 @@ import androidx.work.WorkManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAdapter;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ResultsDataBase;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResult;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RunResultDao;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Utils;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SwipeController;
@@ -53,12 +54,28 @@ public class Iperf3ListFragment extends Fragment {
     private FloatingActionButton uploadBtn;
     private Iperf3ResultsDataBase db;
     private Context context;
+
+
+
     public static Iperf3ListFragment newInstance() {
         Iperf3ListFragment fragment = new Iperf3ListFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
+
+
+
+    private void observeDatabaseChanges() {
+        if(db == null) return;
+        db.iperf3RunResultDao().getAll().observe(getViewLifecycleOwner(), new Observer<List<Iperf3RunResult>>() {
+            @Override
+            public void onChanged(@Nullable List<Iperf3RunResult> runResults) {
+                updateIperf3ListAdapter();
+            }
+        });
+    }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,18 +91,23 @@ public class Iperf3ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_iperf3_list, parent, false);
         this.context = requireContext();
+
         recyclerView = v.findViewById(R.id.runners_list);
         uploadBtn = v.findViewById(R.id.iperf3_upload_button);
-        db = Iperf3ResultsDataBase.getDatabase(requireContext());
+        db = Iperf3ResultsDataBase.getDatabase(this.context);
+
+        observeDatabaseChanges();
+
 
         linearLayoutManager =
             new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         this.adapter = new Iperf3RecyclerViewAdapter(getActivity(),
                 new ArrayList<String>(db.iperf3RunResultDao().getIDs()),
                 uploadBtn);
+
+
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
-
 
         swipeController = new SwipeController(new SwipeControllerActions() {
             @SuppressLint("NotifyDataSetChanged")
@@ -141,7 +163,6 @@ public class Iperf3ListFragment extends Fragment {
             }
         });
 
-
         ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
         itemTouchhelper.attachToRecyclerView(recyclerView);
 
@@ -151,6 +172,8 @@ public class Iperf3ListFragment extends Fragment {
                 swipeController.onDraw(c);
             }
         });
+
+
         return v;
     }
 

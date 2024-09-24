@@ -22,6 +22,7 @@ import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
@@ -58,7 +59,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     private final String protocol;
     private final String iperf3LineProtocolFile;
 
-    private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
+    private final DeviceInformation di;
 
     private final boolean rev;
     private final boolean biDir;
@@ -69,6 +70,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         rawIperf3file = getInputData().getString("rawIperf3file");
+        di = GlobalVars.getInstance().get_dp().getDeviceInformation();
 
         ip = getInputData().getString("ip");
         measurementName = getInputData().getString("measurementName");
@@ -146,7 +148,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
-        Iperf3Parser iperf3Parser = new Iperf3Parser(rawIperf3file);
+        Iperf3Parser iperf3Parser = new Iperf3Parser(getApplicationContext(), rawIperf3file, new Iperf3Input());
         iperf3Parser.parse();
 
 

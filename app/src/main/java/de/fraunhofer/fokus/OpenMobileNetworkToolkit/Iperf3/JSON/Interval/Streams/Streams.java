@@ -1,5 +1,10 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_DL_STREAM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
@@ -9,11 +14,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Streams {
+public class Streams implements Parcelable {
     private final ArrayList<Stream> streams;
     public Streams(){
         this.streams = new ArrayList<>();
     }
+
+    protected Streams(Parcel in) {
+        streams = in.createTypedArrayList(Stream.CREATOR);
+    }
+
+    public static final Creator<Streams> CREATOR = new Creator<Streams>() {
+        @Override
+        public Streams createFromParcel(Parcel in) {
+            return new Streams(in);
+        }
+
+        @Override
+        public Streams[] newArray(int size) {
+            return new Streams[size];
+        }
+    };
 
     private STREAM_TYPE identifyStream(JSONObject data) throws JSONException {
         boolean sender = data.getBoolean("sender");
@@ -70,5 +91,15 @@ public class Streams {
     }
     public Stream getStream(int i) {
         return streams.get(i);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int i) {
+        parcel.writeTypedList(streams);
     }
 }

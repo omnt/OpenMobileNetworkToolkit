@@ -235,7 +235,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         if (tm.hasCarrierPrivileges()) {
             try {
                 di.setIMEI(tm.getImei());
-                di.setMEID(tm.getMeid());
+                //di.setMEID(tm.getMeid());
                 di.setSimSerial(tm.getSimSerialNumber());
                 di.setSubscriberId(tm.getSubscriberId());
                 di.setNetworkAccessIdentifier(tm.getNai());
