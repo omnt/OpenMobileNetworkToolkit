@@ -20,6 +20,8 @@ import com.influxdb.client.write.Point;
 
 import java.util.Arrays;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+
 public class LTEInformation extends CellInformation {
 
     private int earfcn;
@@ -220,6 +222,18 @@ public class LTEInformation extends CellInformation {
 
     @Override
     public Point getPoint(Point point){
+        super.getPoint(point);
+        point.addField("ARFCN", this.getEarfcn());
+        point.addField("Bandwidth", this.getBandwidth());
+        point.addField("CQI", this.getCqi());
+        point.addField("RSRP", this.getRsrp());
+        point.addField("RSRQ", this.getRsrq());
+        point.addField("RSSI", this.getRssi());
+        point.addField("RSSNR", this.getRssnr());
+        point.addField("TimingAdvance", this.getTimingAdvance());
+        point.addField("DBM", this.getDbm());
+        point.addField("MCC", this.getMcc());
+
         return point;
     }
 

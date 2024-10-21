@@ -4,6 +4,8 @@ import android.telephony.CellIdentityCdma;
 import android.telephony.CellInfoCdma;
 import android.telephony.CellSignalStrengthCdma;
 
+import com.influxdb.client.write.Point;
+
 public class CDMAInformation extends CellInformation {
     private int cmdaDbm;
     private int cmdaEcio;
@@ -108,6 +110,16 @@ public class CDMAInformation extends CellInformation {
         return Integer.toString(evdoSnr);
     }
 
+    @Override
+    public Point getPoint(Point point){
+        super.getPoint(point);
+        point.addField("CMDA_DBM", cmdaDbm);
+        point.addField("CMDA_ECIO", cmdaEcio);
+        point.addField("EVDO_DBM", evdoDbm);
+        point.addField("EVDO_ECIO", evdoEcio);
+        point.addField("EVDO_SNR", evdoSnr);
+        return point;
+    }
 
 
 }

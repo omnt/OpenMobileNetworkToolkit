@@ -5,6 +5,8 @@ import android.telephony.CellIdentityGsm;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrengthGsm;
 
+import com.influxdb.client.write.Point;
+
 public class GSMInformation extends CellInformation {
     private int lac;
     private int timingAdvance;
@@ -136,6 +138,19 @@ public class GSMInformation extends CellInformation {
 
     public void setRssi(int rssi) {
         this.rssi = rssi;
+    }
+
+    @Override
+    public Point getPoint(Point point){
+        super.getPoint(point);
+        point.addField("Lac", lac);
+        point.addField("TimingAdvance", timingAdvance);
+        point.addField("BitErrorRate", bitErrorRate);
+        point.addField("Dbm", dbm);
+        point.addField("RSSI", rssi);
+        point.addField("BSIC", bsic);
+        point.addField("MCC", mcc);
+        return point;
     }
 
 }

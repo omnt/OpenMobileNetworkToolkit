@@ -208,7 +208,7 @@ public class CellInformation extends Information {
     public Point getPoint(Point point){
         if(point == null) {
             Log.e(TAG, "getPoint: given point == null!");
-            return null;
+            point = Point.measurement("CellInformation");
         }
         point.addField("CellType", cellType.toString());
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {

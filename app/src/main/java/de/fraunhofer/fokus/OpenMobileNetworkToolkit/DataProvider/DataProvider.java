@@ -409,11 +409,11 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             }
             if (Objects.equals(ci_.getCellType(), "CDMA")) {
                 CDMAInformation cdma = (CDMAInformation) ci_;
-                cdma.getPoint(point);
+                point = cdma.getPoint(point);
             }
             if (Objects.equals(ci_.getCellType(), "GSM")) {
                 GSMInformation gsm = (GSMInformation) ci_;
-                gsm.getPoint(point);
+                point = gsm.getPoint(point);
             }
             points.add(point);
         }
