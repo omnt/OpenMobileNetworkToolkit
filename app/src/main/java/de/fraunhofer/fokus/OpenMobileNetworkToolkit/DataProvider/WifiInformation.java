@@ -22,15 +22,11 @@ import static android.net.wifi.ScanResult.WIFI_STANDARD_11N;
 import static android.net.wifi.ScanResult.WIFI_STANDARD_LEGACY;
 import static android.net.wifi.ScanResult.WIFI_STANDARD_UNKNOWN;
 
-import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
-import android.widget.TableLayout;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Timestamp;
 
 public class WifiInformation extends Information {
     private String ssid;
@@ -64,7 +60,7 @@ public class WifiInformation extends Information {
         super(timestamp);
         ssid = scanResult.SSID;
         bssid = scanResult.BSSID;
-        rssi = Integer.parseInt(scanResult.SSID);
+        rssi = scanResult.level;
         frequency = scanResult.frequency;
         channel_bandwidth = scanResult.channelWidth;
     }
