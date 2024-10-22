@@ -11,7 +11,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,30 +20,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textview.MaterialTextView;
+
+import java.io.FileOutputStream;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.FileOutputStream;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class PingFragment extends Fragment {
     private final String TAG = "PingFragment";
@@ -62,20 +56,22 @@ public class PingFragment extends Fragment {
 
     public PingFragment() {
     }
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      }
+    }
 
-    private void startPingService(){
+    private void startPingService() {
         input.setEnabled(false);
         Intent pingStart = new Intent(ct, PingService.class);
         ct.startService(pingStart);
         rttMetric.resetMetric();
         packetLossMetric.resetMetric();
     }
-    private void stopPingService(){
+
+    private void stopPingService() {
         input.setEnabled(true);
         Intent pingStart = new Intent(ct, PingService.class);
         ct.stopService(pingStart);
@@ -101,9 +97,10 @@ public class PingFragment extends Fragment {
         });
     }
 
-    private void handleInput(boolean ping_running){
+    private void handleInput(boolean ping_running) {
         input.setEnabled(!ping_running);
     }
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -120,54 +117,47 @@ public class PingFragment extends Fragment {
         input.setText(spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "-w 5 8.8.8.8"));
         input.setEnabled(!PingService.isRunning());
         saveTextInputToSharedPreferences(input, "ping_input");
-        Boolean pingRunning = spg.getSharedPreference(SPType.ping_sp).getBoolean("ping_running", false);
-        if(pingRunning){
+        boolean pingRunning = spg.getSharedPreference(SPType.ping_sp).getBoolean("ping_running", false);
+        if (pingRunning && PingService.isRunning()) {
             v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
-
-        }else{
+        } else {
             v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
         }
-        spg.setListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
-                if(key.equals("ping_running")){
-                    Boolean isRunning = sharedPreferences.getBoolean("ping_running", false);
-                    handleInput(isRunning);
-                    if(isRunning){
-                        v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
-                        v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
-                    } else {
-                        v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                        v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
-                    }
-
+        spg.setListener((sharedPreferences, key) -> {
+            if (key != null && key.equals("ping_running")) {
+                boolean isRunning = sharedPreferences.getBoolean("ping_running", false);
+                handleInput(isRunning);
+                if (isRunning) {
+                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
+                } else {
+                    v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
                 }
+
             }
         }, SPType.ping_sp);
 
         input.setEnabled(!pingRunning);
-        toggleGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
-            @Override
-            public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-                Log.d(TAG, "onButtonChecked: "+checkedId);
-                if(!isChecked) return;
-                switch (checkedId){
-                    case R.id.ping_start:
-                        startPingService();
-                        v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
-                        v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
-                        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
+        toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            Log.d(TAG, "onButtonChecked: " + checkedId);
+            if (!isChecked) return;
+            switch (checkedId) {
+                case R.id.ping_start:
+                    startPingService();
+                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
+                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
 
-                        break;
-                    case R.id.ping_stop:
-                        v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                        v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
-                        stopPingService();
-                        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
-                        break;
-                }
-
+                    break;
+                case R.id.ping_stop:
+                    v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    stopPingService();
+                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                    break;
             }
+
         });
 
         rttMetric = new Metric(METRIC_TYPE.PING_RTT, ct);
@@ -175,8 +165,8 @@ public class PingFragment extends Fragment {
         LinearLayout metricsLL = new LinearLayout(ct);
         metricsLL.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams foo1 = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
         );
         metricsLL.setLayoutParams(foo1);
         metricsLL.addView(rttMetric.createMainLL("RTT [ms]"));
@@ -186,19 +176,16 @@ public class PingFragment extends Fragment {
 
 
         PingParser pingParser = PingParser.getInstance(null);
-        pingParser.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                PingInformation pi = (PingInformation) evt.getNewValue();
-                switch (pi.getLineType()){
-                    case RTT:
-                        rttMetric.update( ((RTTLine)pi).getRtt());
-                        break;
-                    case PACKET_LOSS:
-                        packetLossMetric.update(((PacketLossLine)pi).getPacketLoss());
-                        //packetLossMetric.setVisibility(View.VISIBLE);
-                        break;
-                }
+        pingParser.addPropertyChangeListener(evt -> {
+            PingInformation pi = (PingInformation) evt.getNewValue();
+            switch (pi.getLineType()) {
+                case RTT:
+                    rttMetric.update(((RTTLine) pi).getRtt());
+                    break;
+                case PACKET_LOSS:
+                    packetLossMetric.update(((PacketLossLine) pi).getPacketLoss());
+                    //packetLossMetric.setVisibility(View.VISIBLE);
+                    break;
             }
         });
 
