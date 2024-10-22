@@ -46,7 +46,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
@@ -107,20 +106,7 @@ public class LoggingService extends Service {
                 Log.e(TAG, "run: Data provider is null!");
                 return;
             }
-            List<CellInformation> cil = dp.getRegisteredCells();
-            StringBuilder s = new StringBuilder();
-            for (CellInformation ci : cil) {
-                switch (ci.getCellType()) {
-                    case LTE:
-                        s = ci.getStringBuilder();
-                        break;
-                    case NR:
-                        s = ci.getStringBuilder();
-                        break;
-                    case GSM:
-                        s = ci.getStringBuilder();
-                }
-            }
+            StringBuilder s = dp.getRegisteredCells().get(0).getStringBuilder();
             builder.setContentText(s);
             nm.notify(1, builder.build());
             notificationHandler.postDelayed(this, interval);
