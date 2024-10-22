@@ -6,6 +6,8 @@ import android.telephony.CellSignalStrengthCdma;
 
 import com.influxdb.client.write.Point;
 
+import java.util.Objects;
+
 public class CDMAInformation extends CellInformation {
     private int cmdaDbm;
     private int cmdaEcio;
@@ -37,7 +39,7 @@ public class CDMAInformation extends CellInformation {
                 -1,
                 -1,
                 cellSignalStrengthCdma.getLevel(),
-                cellIdentityCdma.getOperatorAlphaLong().toString(),
+                Objects.requireNonNull(cellIdentityCdma.getOperatorAlphaLong()).toString(),
                 cellSignalStrengthCdma.getAsuLevel(),
                 cellInfoCdma.isRegistered(),
                 cellInfoCdma.getCellConnectionStatus());

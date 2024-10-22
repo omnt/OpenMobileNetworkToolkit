@@ -11,23 +11,11 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformatio
 
 // https://developer.android.com/reference/android/telephony/CellIdentityLte
 
-import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.telephony.CellInfo;
 
-import androidx.cardview.widget.CardView;
-
 import com.influxdb.client.write.Point;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.Information;
 
@@ -234,7 +222,7 @@ public class CellInformation extends Information {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && this.getAlphaLong() != null){
             stringBuilder.append(this.getAlphaLong());
         }
-        stringBuilder.append(" Type: " + this.getCellType());
+        stringBuilder.append(" Type: ").append(this.getCellType());
         if(this.getPci() != -1) stringBuilder.append(" PCI: ").append(this.getPci());
         if(!this.getAlphaLong().equals("N/A")) stringBuilder.append(" Alpha Long: ").append(this.getAlphaLong());
 

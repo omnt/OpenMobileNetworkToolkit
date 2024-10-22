@@ -20,10 +20,7 @@ import com.influxdb.client.write.Point;
 
 import java.util.Arrays;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-
 public class LTEInformation extends CellInformation {
-
     private int earfcn;
     private int bandwidth;
     private int cqi;
@@ -34,8 +31,6 @@ public class LTEInformation extends CellInformation {
     private int timingAdvance;
     private int dbm;
     private String mcc;
-
-
     public LTEInformation() {
         super();
     }
