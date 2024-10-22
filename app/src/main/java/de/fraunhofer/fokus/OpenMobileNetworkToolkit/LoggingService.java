@@ -47,9 +47,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
@@ -107,7 +104,7 @@ public class LoggingService extends Service {
         @Override
         public void run() {
             if(dp == null) {
-                Log.e(TAG, "run: Dataprovider is null!");
+                Log.e(TAG, "run: Data provider is null!");
                 return;
             }
             List<CellInformation> cil = dp.getRegisteredCells();
@@ -115,13 +112,13 @@ public class LoggingService extends Service {
             for (CellInformation ci : cil) {
                 switch (ci.getCellType()) {
                     case LTE:
-                        s = ((LTEInformation) ci).getStringBuilder();
+                        s = ci.getStringBuilder();
                         break;
                     case NR:
-                        s = ((NRInformation) ci).getStringBuilder();
+                        s = ci.getStringBuilder();
                         break;
                     case GSM:
-                        s = ((GSMInformation) ci).getStringBuilder();
+                        s = ci.getStringBuilder();
                 }
             }
             builder.setContentText(s);
@@ -135,18 +132,18 @@ public class LoggingService extends Service {
         @Override
         public void run() {
             gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
-            long ts = System.currentTimeMillis();
+            //long ts = System.currentTimeMillis();
             // write network information
             if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
-
+                return;
             }
             // write signal strength information
             if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_signal_data", false)) { // user settings here
-
+                return;
             }
             // write cell information
             if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
-
+                return;
             }
 //            always add location information
 //                try {
