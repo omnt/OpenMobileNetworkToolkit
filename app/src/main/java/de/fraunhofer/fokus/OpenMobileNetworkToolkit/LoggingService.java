@@ -128,9 +128,7 @@ public class LoggingService extends Service {
     };
 
     // Handle local on-device influxDB
-    private final Runnable localInfluxUpdate = new Runnable() {
-        @Override
-        public void run() {
+    private final Runnable localInfluxUpdate = () -> {
 //            gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
 //            //long ts = System.currentTimeMillis();
 //            // write network information
@@ -155,7 +153,6 @@ public class LoggingService extends Service {
 //                }
 
 //            remoteInfluxHandler.postDelayed(this, interval);
-        }
     };
 
     // Handle remote on-server influxdb update
