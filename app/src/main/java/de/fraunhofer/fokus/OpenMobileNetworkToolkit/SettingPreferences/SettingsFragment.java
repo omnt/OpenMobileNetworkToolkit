@@ -9,13 +9,11 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -49,17 +47,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             entries.add(info.getDisplayName().toString());
             entryValues.add(String.valueOf(info.getSubscriptionId()));
         }
-        CharSequence[] entries_char = entries.toArray(new CharSequence[entries.size()]);
-        CharSequence[] entryValues_char = entryValues.toArray(new CharSequence[entryValues.size()]);
+        CharSequence[] entries_char = entries.toArray(new CharSequence[0]);
+        CharSequence[] entryValues_char = entryValues.toArray(new CharSequence[0]);
         sub_select.setEntries(entries_char);
         sub_select.setEntryValues(entryValues_char);
-        sub_select.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
-                Toast.makeText(requireContext().getApplicationContext(), "Subscription Changed, please restart OMNT", Toast.LENGTH_SHORT).show();
-                //spg.getSharedPreference(SPType.default_sp).edit().putString("select_subscription", newValue.toString()).apply();
-                return true;
-            }
+        sub_select.setOnPreferenceChangeListener((preference, newValue) -> {
+            Toast.makeText(requireContext().getApplicationContext(), "Subscription Changed, please restart OMNT", Toast.LENGTH_SHORT).show();
+            //spg.getSharedPreference(SPType.default_sp).edit().putString("select_subscription", newValue.toString()).apply();
+            return true;
         });
 
         Preference button = pfm.findPreference("reset_modem");
@@ -67,23 +62,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (button != null) {
             if (GlobalVars.getInstance().isCarrier_permissions()) {
                 button.setEnabled(true);
-                button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            Toast.makeText(getActivity(), "rebooting modem",
-                                    Toast.LENGTH_SHORT).show();
-                            GlobalVars.getInstance().getTm().rebootModem();
-                        }
-                        return true;
+                button.setOnPreferenceClickListener(preference -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        Toast.makeText(getActivity(), "rebooting modem",
+                                Toast.LENGTH_SHORT).show();
+                        GlobalVars.getInstance().getTm().rebootModem();
                     }
+                    return true;
                 });
             } else {
                 button.setEnabled(false);
             }
         }
-
-
     }
 
     @Override

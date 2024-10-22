@@ -366,7 +366,7 @@ public class LoggingService extends Service {
                     p.time(time, WritePrecision.MS);
                     p.addTags(tags_map);
                 } else {
-                    Log.w(TAG, "Point without fields from getNetworkInformationPoints");
+                    Log.w(TAG, "Point without fields from getNetworkInterfaceInformationPoints");
                 }
             }
             logPoints.addAll(ps);
