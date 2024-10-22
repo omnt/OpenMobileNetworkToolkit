@@ -3,7 +3,7 @@
 
 ### Added
 - WiFi Data logging and display on the home screen
-- New Quick View on home screen for
+- New Quick View on home screen for Cell Information
 - Import / Export application settings
 
 ### Changed
