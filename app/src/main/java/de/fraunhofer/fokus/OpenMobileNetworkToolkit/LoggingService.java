@@ -131,20 +131,20 @@ public class LoggingService extends Service {
     private final Runnable localInfluxUpdate = new Runnable() {
         @Override
         public void run() {
-            gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
-            //long ts = System.currentTimeMillis();
-            // write network information
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
-                return;
-            }
-            // write signal strength information
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_signal_data", false)) { // user settings here
-                return;
-            }
-            // write cell information
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
-                return;
-            }
+//            gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
+//            //long ts = System.currentTimeMillis();
+//            // write network information
+//            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
+//                return;
+//            }
+//            // write signal strength information
+//            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_signal_data", false)) { // user settings here
+//                return;
+//            }
+//            // write cell information
+//            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
+//
+//            }
 //            always add location information
 //                try {
 //                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
