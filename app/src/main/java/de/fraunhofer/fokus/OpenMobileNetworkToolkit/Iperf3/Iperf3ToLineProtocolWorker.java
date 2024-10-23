@@ -9,13 +9,11 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -24,10 +22,6 @@ import com.google.common.base.Splitter;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,31 +34,37 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformati
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private SharedPreferences sp;
     private String rawIperf3file;
     private String measurementName;
     private String ip;
+    private SharedPreferencesGrouper spg;
 
     private String port;
     private String bandwidth;
     private String duration;
     private String intervalIperf;
     private String bytes;
-    private String protocol;
-    private String iperf3LineProtocolFile;
+    private final String protocol;
+    private final String iperf3LineProtocolFile;
 
-    private DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
+    private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
 
-    private boolean rev;
-    private boolean biDir;
-    private boolean oneOff;
-    private boolean client;
+    private final boolean rev;
+    private final boolean biDir;
+    private final boolean oneOff;
+    private final boolean client;
 
-    private String runID;
+    private final String runID;
     public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         rawIperf3file = getInputData().getString("rawIperf3file");
@@ -106,7 +106,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         oneOff = getInputData().getBoolean("oneOff",false);
         client = getInputData().getBoolean("client",false);
         runID = getInputData().getString("iperf3WorkerID");
-        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
     }
 
     private void setup(){
@@ -115,7 +115,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
 
     public Map<String, String> getTagsMap() {
-        String tags = sp.getString("tags", "").strip().replace(" ", "");
+        String tags = spg.getSharedPreference(SPType.logging_sp).getString("tags", "").strip().replace(" ", "");
         Map<String, String> tags_map = Collections.emptyMap();
         if (!tags.isEmpty()) {
             try {
@@ -125,7 +125,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             }
         }
         Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
-        tags_map_modifiable.put("measurement_name", sp.getString("measurement_name", "OMNT"));
+        tags_map_modifiable.put("measurement_name", spg.getSharedPreference(SPType.logging_sp).getString("measurement_name", "OMNT"));
         tags_map_modifiable.put("manufacturer", di.getManufacturer());
         tags_map_modifiable.put("model", di.getModel());
         tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));
@@ -238,7 +238,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             iperf3Stream = new FileOutputStream(iperf3LineProtocolFile, true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
         }
 
         if(iperf3Stream == null){

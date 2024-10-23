@@ -8,14 +8,19 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-public class NetworkInterfaceInformation {
+import android.content.Context;
+import android.widget.TableLayout;
+
+public class NetworkInterfaceInformation extends Information{
     private String interfaceName;
     private String address;
+
 
     public NetworkInterfaceInformation() {
     }
 
-    public NetworkInterfaceInformation(String interfaceName, String address) {
+    public NetworkInterfaceInformation(String interfaceName, String address, long timestamp) {
+        super(timestamp);
         this.interfaceName = interfaceName;
         this.address = address;
     }
@@ -35,4 +40,5 @@ public class NetworkInterfaceInformation {
     public void setAddress(String address) {
         this.address = address;
     }
+
 }

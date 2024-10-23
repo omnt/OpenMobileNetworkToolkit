@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PingInformation {
-    private String line;
+    private final String line;
     private LINEType lineType;
     private Double unixTimestamp;
     private DataProvider dp;

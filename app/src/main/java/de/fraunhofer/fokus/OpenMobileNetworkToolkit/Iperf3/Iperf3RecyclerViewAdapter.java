@@ -38,13 +38,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3RecyclerViewAdapter
     extends RecyclerView.Adapter<Iperf3RecyclerViewAdapter.ViewHolder> {
     private final String TAG = "Iperf3RecyclerViewAdapter";
     private final Iperf3ResultsDataBase db;
-    private ArrayList<String> uids;
+    private final ArrayList<String> uids;
     private Context context;
     private final FragmentActivity c;
     private final HashMap<String, Integer> selectedRuns;
@@ -63,8 +65,7 @@ public class Iperf3RecyclerViewAdapter
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
-                SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences preferences = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.logging_sp);
                 Iperf3ResultsDataBase db = Iperf3ResultsDataBase.getDatabase(context);
                 Iperf3RunResultDao iperf3RunResultDao = db.iperf3RunResultDao();
                 if (preferences.getBoolean("enable_influx", false)) {
@@ -83,12 +84,12 @@ public class Iperf3RecyclerViewAdapter
 
                     Data.Builder data = new Data.Builder();
                     data.putString("iperf3LineProtocolFile", runResult.input.iperf3LineProtocolFile);
-
                     OneTimeWorkRequest iperf3UP =
                         new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class)
                             .setInputData(data.build())
                             .addTag("iperf3_upload")
                             .build();
+
                     uploads.add(iperf3UP);
                     iperf3WM.getWorkInfoByIdLiveData(iperf3UP.getId()).observeForever(workInfo -> {
                         boolean iperf3_upload;
@@ -169,7 +170,7 @@ public class Iperf3RecyclerViewAdapter
         public TextView iperf3State;
         public ImageView runIcon;
         public ImageView uploadIcon;
-        private LinearLayout linearLayout;
+        private final LinearLayout linearLayout;
         private LinearLayout iPerf3Parameters;
 
         private LinearLayout firstRow(LinearLayout ll){

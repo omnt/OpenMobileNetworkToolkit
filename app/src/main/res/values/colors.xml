@@ -31,4 +31,8 @@
 
     <color name="debug_gray">#A9A9A9</color>
     <color name="debug_black_trans50">#80000000</color>
+
+    <color name="radio_red">#ff8989</color>
+    <color name="radio_green">#a9ff68</color>
+
 </resources>

@@ -1,4 +1,23 @@
 # OpenMobileNetworkToolkit Changelog
+## Release [0.4] - Stralsund
+
+### Added
+- WiFi Data logging and display on the home screen
+- New Quick View on home screen for Cell Information
+- Import / Export application settings
+
+### Changed
+- code clean up around soon to be deprecated functions
+- refactored code that causes warnings
+- refactored data model for cell information
+- Bump lib dependencies
+- Bump gradle version
+
+### Fixed
+- Fix crash where no UICC or Cell is available
+- Wrong value in Wifi RSSI filed
+
+# OpenMobileNetworkToolkit Changelog
 ## Release [0.3.1]
 
 ### Added
@@ -7,7 +26,7 @@
 ### Changed
 - Use [TelephonyCallback](https://developer.android.com/reference/android/telephony/TelephonyCallback) instead of [PhoneStateListener](https://developer.android.com/reference/android/telephony/PhoneStateListener)
 - Bump gradle to 8.5.0
-- Bump lib depencies
+- Bump lib decencies
 - disable Radio Settings if Carrier Permissions are not available
 - minor documentation update
 

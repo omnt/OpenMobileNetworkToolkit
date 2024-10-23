@@ -1,21 +1,22 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.LINEType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.LINEType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
+
 public class PingParser {
     private static PingParser instance = null;
     private BufferedReader br;
-    private ArrayList<PingInformation> lines;
+    private final ArrayList<PingInformation> lines;
 
-    private PropertyChangeSupport support;
+    private final PropertyChangeSupport support;
     private PropertyChangeListener listener;
     private PingParser(BufferedReader br) {
         this.br = br;

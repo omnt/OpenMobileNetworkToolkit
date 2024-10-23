@@ -188,4 +188,15 @@
             app:destination="@id/HomeFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/fragment_shared_preferences_io"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesIOFragment"
+        android:label="SharedPreferencesIO" >
+        <action
+            android:id="@+id/action_SharedPreferencesIO_to_HomeFragment"
+            app:destination="@id/HomeFragment" />
+    </fragment>
+
+
+
 </navigation>
