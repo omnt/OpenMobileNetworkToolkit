@@ -14,7 +14,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
 import android.os.Build;
@@ -22,7 +21,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -55,17 +53,12 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 
 public class LoggingService extends Service {
     private static final String TAG = "Logging_Service";
-    public TelephonyManager tm;
-    public PackageManager pm;
-    public boolean feature_telephony = false;
-    public boolean cp = false;
     public NotificationManager nm;
     NotificationCompat.Builder builder;
     InfluxdbConnection ic; // remote influxDB
     InfluxdbConnection lic; // local influxDB
     DataProvider dp;
     SharedPreferencesGrouper spg;
-    //private MainActivity ma;
     private Handler notificationHandler;
     private Handler remoteInfluxHandler;
     private Handler localInfluxHandler;
@@ -115,30 +108,30 @@ public class LoggingService extends Service {
 
     // Handle local on-device influxDB
     private final Runnable localInfluxUpdate = () -> {
-//            gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
-//            //long ts = System.currentTimeMillis();
-//            // write network information
-//            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
-//                return;
-//            }
-//            // write signal strength information
-//            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_signal_data", false)) { // user settings here
-//                return;
-//            }
-//            // write cell information
-//            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
-//
-//            }
-//            always add location information
-//                try {
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//                        ic.writePoints(new ArrayList<>(Collections.singleton(dp.getLocationPoint())));
-//                    }
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
+/*            gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
+            //long ts = System.currentTimeMillis();
+            // write network information
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
+                return;
+            }
+            // write signal strength information
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_signal_data", false)) { // user settings here
+                return;
+            }
+            // write cell information
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
 
-//            remoteInfluxHandler.postDelayed(this, interval);
+            }
+            //always add location information
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        ic.writePoints(new ArrayList<>(Collections.singleton(dp.getLocationPoint())));
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            remoteInfluxHandler.postDelayed(this, interval);*/
     };
 
     // Handle remote on-server influxdb update
@@ -167,17 +160,13 @@ public class LoggingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Start logging service");
         GlobalVars gv = GlobalVars.getInstance();
+
         // setup class variables
         dp = gv.get_dp();
-        pm = getPackageManager();
         nm = getSystemService(NotificationManager.class);
         spg = SharedPreferencesGrouper.getInstance(this);
         interval = Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000"));
-        feature_telephony = pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
-        if (feature_telephony) {
-            tm = GlobalVars.getInstance().getTm();
-            cp = gv.isCarrier_permissions();
-        }
+
         // create intent for notifications
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
