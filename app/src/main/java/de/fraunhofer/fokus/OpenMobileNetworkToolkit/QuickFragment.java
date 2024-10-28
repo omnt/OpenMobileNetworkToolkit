@@ -310,7 +310,6 @@ public class QuickFragment extends Fragment {
         @Override
         public void run() {
             mainLL.removeAllViews();
-            dp.refreshAll();
             List<CellInformation> cellInformations = dp.getRegisteredCells();
             List<CellInformation> neighborCells = dp.getNeighbourCellInformation();
             if(cellInformations.isEmpty()){
