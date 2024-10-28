@@ -463,9 +463,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // Instantiate the new Fragment
         Log.d(TAG, "onPreferenceStartFragment: " + pref.getKey());
         switch (pref.getKey()) {
-            case "app_settings":
-                navController.navigate(R.id.applicationSettingsFragment);
-                break;
             case "log_settings":
                 navController.navigate(R.id.loggingSettingsFragment);
                 break;

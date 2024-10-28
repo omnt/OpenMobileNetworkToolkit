@@ -265,93 +265,97 @@ public class LoggingService extends Service {
 
     private ArrayList<Point> getPoints() {
         long time = System.currentTimeMillis();
-        Map<String, String> tags_map = dp.getTagsMap();
         ArrayList<Point> logPoints = new ArrayList<>();
+        if (dp != null) {
+            Map<String, String> tags_map = dp.getTagsMap();
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
-            Point p = dp.getNetworkInformationPoint();
-            if (p.hasFields()) {
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-                logPoints.add(p);
-            } else {
-                Log.w(TAG, "Point without fields from getNetworkInformationPoint");
-            }
-        }
-
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_throughput_data", false)) {
-            Point p = dp.getNetworkCapabilitiesPoint();
-            if (p.hasFields()) {
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-                logPoints.add(p);
-            } else {
-                Log.w(TAG, "Point without fields from getNetworkCapabilitiesPoint");
-            }
-        }
-
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_signal_data", false)) {
-            Point p = dp.getSignalStrengthPoint();
-            if (p.hasFields()) {
-                p.time(time, WritePrecision.MS);
-                p.addTags(tags_map);
-                logPoints.add(p);
-            } else {
-                Log.w(TAG, "Point without fields from getSignalStrengthPoint");
-            }
-        }
-
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
-            WifiInformation wifiInformation = dp.getWifiInformation();
-            if(wifiInformation != null) {
-                Point p = wifiInformation.getWifiInformationPoint();
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
+                Point p = dp.getNetworkInformationPoint();
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
                     p.addTags(tags_map);
                     logPoints.add(p);
                 } else {
-                    Log.w(TAG, "Point without fields from getWifiInformationPoint");
+                    Log.w(TAG, "Point without fields from getNetworkInformationPoint");
                 }
             }
-        }
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
-            List<Point> ps = dp.getCellInformationPoint();
-            for (Point p : ps) {
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_throughput_data", false)) {
+                Point p = dp.getNetworkCapabilitiesPoint();
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
                     p.addTags(tags_map);
+                    logPoints.add(p);
                 } else {
-                    Log.w(TAG, "Point without fields from getCellInformationPoint");
+                    Log.w(TAG, "Point without fields from getNetworkCapabilitiesPoint");
                 }
             }
-            logPoints.addAll(ps);
-        }
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_ip_address_data", false)) {
-            List<Point> ps = dp.getNetworkInterfaceInformationPoints();
-            for (Point p : ps) {
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_signal_data", false)) {
+                Point p = dp.getSignalStrengthPoint();
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
                     p.addTags(tags_map);
+                    logPoints.add(p);
                 } else {
-                    Log.w(TAG, "Point without fields from getNetworkInterfaceInformationPoints");
+                    Log.w(TAG, "Point without fields from getSignalStrengthPoint");
                 }
             }
-            logPoints.addAll(ps);
-        }
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_battery_data", false)) {
-            Point bp = dp.getBatteryInformationPoint();
-            bp.time(time, WritePrecision.MS);
-            bp.addTags(tags_map);
-            logPoints.add(bp);
-        }
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
+                WifiInformation wifiInformation = dp.getWifiInformation();
+                if (wifiInformation != null) {
+                    Point p = wifiInformation.getWifiInformationPoint();
+                    if (p.hasFields()) {
+                        p.time(time, WritePrecision.MS);
+                        p.addTags(tags_map);
+                        logPoints.add(p);
+                    } else {
+                        Log.w(TAG, "Point without fields from getWifiInformationPoint");
+                    }
+                }
+            }
 
-        Point p = dp.getLocationPoint();
-        p.time(time, WritePrecision.MS);
-        p.addTags(tags_map);
-        logPoints.add(p);
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
+                List<Point> ps = dp.getCellInformationPoint();
+                for (Point p : ps) {
+                    if (p.hasFields()) {
+                        p.time(time, WritePrecision.MS);
+                        p.addTags(tags_map);
+                    } else {
+                        Log.w(TAG, "Point without fields from getCellInformationPoint");
+                    }
+                }
+                logPoints.addAll(ps);
+            }
+
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_ip_address_data", false)) {
+                List<Point> ps = dp.getNetworkInterfaceInformationPoints();
+                for (Point p : ps) {
+                    if (p.hasFields()) {
+                        p.time(time, WritePrecision.MS);
+                        p.addTags(tags_map);
+                    } else {
+                        Log.w(TAG, "Point without fields from getNetworkInterfaceInformationPoints");
+                    }
+                }
+                logPoints.addAll(ps);
+            }
+
+            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_battery_data", false)) {
+                Point bp = dp.getBatteryInformationPoint();
+                bp.time(time, WritePrecision.MS);
+                bp.addTags(tags_map);
+                logPoints.add(bp);
+            }
+
+            Point p = dp.getLocationPoint();
+            p.time(time, WritePrecision.MS);
+            p.addTags(tags_map);
+            logPoints.add(p);
+        } else {
+            Log.w(TAG,"data provider not initialized, generating empty point");
+        }
         return logPoints;
     }
 

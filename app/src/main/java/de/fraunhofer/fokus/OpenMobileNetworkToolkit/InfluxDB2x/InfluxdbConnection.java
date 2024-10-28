@@ -36,7 +36,7 @@ import io.reactivex.rxjava3.core.BackpressureOverflowStrategy;
 
 public class InfluxdbConnection {
     private final static String TAG = "InfluxDBConnection";
-    SharedPreferencesGrouper spg;
+    private final SharedPreferencesGrouper spg;
     private final String url;
     private InfluxDBClient influxDBClient;
     private WriteApi writeApi;

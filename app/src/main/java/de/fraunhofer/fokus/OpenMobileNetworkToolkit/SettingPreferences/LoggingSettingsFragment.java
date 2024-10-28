@@ -22,7 +22,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 
 public class LoggingSettingsFragment extends PreferenceFragmentCompat
     implements SharedPreferences.OnSharedPreferenceChangeListener {
-    public static String TAG = "PreferenceSettings";
+    public static final String TAG = "PreferenceSettings";
     SwitchPreferenceCompat enable_influx_switch;
 
     @Override

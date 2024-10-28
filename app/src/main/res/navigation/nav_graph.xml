@@ -109,16 +109,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/applicationSettingsFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ApplicationSettingsFragment"
-        android:label="ApplicationSettingsFragment"
-        tools:layout="@xml/preference_application">
-
-        <action
-            android:id="@+id/action_applicationSettingsFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
-    </fragment>
-    <fragment
         android:id="@+id/flagSettingFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment"
         android:label="FlagSettingFragment"
@@ -141,9 +131,6 @@
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment"
         android:label="SettingsFragment"
         tools:layout="@xml/preference">
-        <action
-            android:id="@+id/action_settingsFragment2_to_applicationSettingsFragment"
-            app:destination="@id/applicationSettingsFragment" />
         <action
             android:id="@+id/action_settingsFragment2_to_flagSettingFragment"
             app:destination="@id/flagSettingFragment" />
@@ -196,7 +183,4 @@
             android:id="@+id/action_SharedPreferencesIO_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
-
-
-
 </navigation>

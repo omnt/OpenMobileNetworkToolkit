@@ -1,12 +1,10 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +15,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textview.MaterialTextView;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -31,8 +30,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 
 
 public class QuickFragment extends Fragment {
-    public TelephonyManager tm;
-    public PackageManager pm;
     private DataProvider dp;
     private Context context;
     private SharedPreferencesGrouper spg;
@@ -42,6 +39,7 @@ public class QuickFragment extends Fragment {
     private static final int TEXT_SIZE_MEDIUM = 16;
     private static final int TEXT_SIZE_SMALL = 14;
     private static final int TEXT_SIZE_XSMALL = 10;
+
     public QuickFragment() {
         // Required empty public constructor
     }
@@ -51,8 +49,6 @@ public class QuickFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = requireContext();
-        tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        pm = context.getPackageManager();
         GlobalVars gv = GlobalVars.getInstance();
         dp = gv.get_dp();
         spg = SharedPreferencesGrouper.getInstance(context);
@@ -306,13 +302,13 @@ public class QuickFragment extends Fragment {
     }
 
 
-    Runnable updateUI = new Runnable() {
+     final Runnable updateUI = new Runnable() {
         @Override
         public void run() {
             mainLL.removeAllViews();
-            List<CellInformation> cellInformations = dp.getRegisteredCells();
+            List<CellInformation> cellInformationList = dp.getRegisteredCells();
             List<CellInformation> neighborCells = dp.getNeighbourCellInformation();
-            if(cellInformations.isEmpty()){
+            if(cellInformationList.isEmpty()){
                 LinearLayout error = new LinearLayout(context);
                 error.setLayoutParams(new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -328,7 +324,7 @@ public class QuickFragment extends Fragment {
                 error.addView(errorText);
                 mainLL.addView(error);
             } else {
-                cellInformations.forEach(cellInformation -> addCellInformationToView(cellInformation));
+                cellInformationList.forEach(cellInformation -> addCellInformationToView(cellInformation));
             }
             if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
                 if(!neighborCells.isEmpty()){

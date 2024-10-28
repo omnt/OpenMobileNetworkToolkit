@@ -45,9 +45,9 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     private Context ct;
     private String plmnId;
     private String accessNetworkType;
-    public static String SELECTNETWORKTYPE = "select_network_type";
-    public static String ADDPLMN = "add_plmn";
-    public static String PERSISTREBOOT = "persist_boot";
+    public static final String SELECTNETWORKTYPE = "select_network_type";
+    public static final String ADDPLMN = "add_plmn";
+    public static final String PERSISTREBOOT = "persist_boot";
     TelephonyManager tm;
     PackageManager pm;
     GlobalVars gv;
