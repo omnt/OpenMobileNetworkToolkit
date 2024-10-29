@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
+
 public class InfluxdbConnections {
     private static final String TAG = "InfluxdbConnections";
     private static InfluxdbConnection ric;
@@ -27,11 +30,11 @@ public class InfluxdbConnections {
 
     public static InfluxdbConnection getRicInstance(Context context) {
         if (ric == null) {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-            String url = sp.getString("influx_URL", "");
-            String org = sp.getString("influx_org", "");
-            String bucket = sp.getString("influx_bucket", "");
-            String token = sp.getString("influx_token", "");
+            SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(context);
+            String url = spg.getSharedPreference(SPType.logging_sp).getString("influx_URL", "");
+            String org = spg.getSharedPreference(SPType.logging_sp).getString("influx_org", "");
+            String bucket = spg.getSharedPreference(SPType.logging_sp).getString("influx_bucket", "");
+            String token = spg.getSharedPreference(SPType.logging_sp).getString("influx_token", "");
             if (url.isEmpty() || org.isEmpty() || bucket.isEmpty() || token.isEmpty()) {
                 Log.e(TAG, "Influx parameters incomplete, can't setup logging");
                 // if we are an UI thread we make a toast, if not logging have to be enough

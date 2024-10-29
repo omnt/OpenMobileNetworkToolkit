@@ -7,11 +7,12 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@style/Theme.MaterialComponents.DayNight"
+    android:theme="@style/Theme.Material3.DayNight"
     tools:context=".Ping.PingFragment"
     android:id="@+id/fragment_ping">
 
@@ -20,74 +21,60 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:ignore="UselessParent">
+        android:paddingHorizontal="16dp"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <TextView
-            android:id="@+id/ping_title"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="@string/ping"
-            android:textStyle="bold" />
+            android:layout_marginTop="16dp"
+            app:endIconMode="clear_text">
 
-        <LinearLayout
-            android:id="@+id/ping_horizontal_ll"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal">
-
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/ping_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:forceDarkAllowed="true"
                 android:inputType="text"
-                android:paddingStart="16dp"
-                android:text="@string/ping_command"
-                android:autofillHints="add Ping Parameters"
+                android:hint="Ping Command"
                 tools:ignore="LabelFor,RtlSymmetry" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
-        <LinearLayout
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/ping_toggle_group"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal">
-            <Switch
-                android:layout_marginLeft="210dp"
-                android:layout_marginRight="16dp"
-                android:id="@+id/ping_switch"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/ping_run_continuously"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            app:singleSelection="true"
+            app:selectionRequired="true">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ping_start"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Start" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ping_stop"
+                style="@style/CustomUnifiedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Stop" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <LinearLayout
             android:id="@+id/ping_horizontal1_ll"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <ScrollView
-                android:id="@+id/ping_scrollviewer"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                tools:ignore="UselessParent">
 
-                <TextView
-                    android:id="@+id/ping_viewer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="10sp"
-                    tools:ignore="SmallSp" />
-            </ScrollView>
         </LinearLayout>
     </LinearLayout>
 
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

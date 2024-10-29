@@ -9,11 +9,9 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -31,14 +29,12 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnectio
 public class Iperf3UploadWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private SharedPreferences sp;
-    private String iperf3LineProtocolFile;
+    private final String iperf3LineProtocolFile;
 
 
     public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         iperf3LineProtocolFile = getInputData().getString("iperf3LineProtocolFile");
-        sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     }
     private void setup(){
         influx = InfluxdbConnections.getRicInstance(getApplicationContext());
@@ -63,11 +59,11 @@ public class Iperf3UploadWorker extends Worker {
         if(!influx.ping()){
             return Result.failure(output);
         }
-        BufferedReader br = null;
+        BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(iperf3LineProtocolFile));
         } catch (FileNotFoundException | NullPointerException e) {
-            e.printStackTrace();
+            Log.d(TAG,e.toString());
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());

@@ -11,7 +11,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.telephony.CarrierConfigManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,15 +27,12 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.textfield.TextInputLayout;
-
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class CarrierSettingsFragment extends Fragment {
-    String TAG = "CarrierSettingsFragment";
+    final String TAG = "CarrierSettingsFragment";
     Context context;
     TelephonyManager tm;
 

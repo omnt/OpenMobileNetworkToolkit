@@ -2,20 +2,25 @@
 
 OMNT provides tooling to researchers and developers of mobile communication networks like 3GPP 2/3/4/5G.
 The main objective of OMNT is the collection of measurement data on the mobile network like RSSI, RSRQ, RSRP, GNSS position, Cell ID, PLNM and much more.
-On top of those passive measurements on the radio environment and network parameters, OMNT can also run a iPerf3 server / client for bandwidth, latency and jitter evaluation as well as
+On top of those passive measurements on the radio environment and network parameters, OMNT can also run an iPerf3 server / client for bandwidth, latency and jitter evaluation as well as
 round-trip-time and jitter evaluation via ICMP (Ping). Measurement data can be stored locally and / or send to an InfluxDB 2.x server.
-Measurement results can be visualized e.g. via provided Graphana Dashboards or be further processed e.g. with python.
-Besides its measurement capabilities, OMNT provides a deep insight in the state of the phone e.g. software versions, connectivity states, SIM card content and much more.
+Measurement results can be visualized e.g. via provided Grafana Dashboards or be further processed e.g. with python.
+Besides its measurement capabilities, OMNT provides a deep insight into the state of the phone e.g. software versions, connectivity states, SIM card content and much more.
 Network related Carrier Settings can be configured (if the app is granted the corresponding privileges).
 Also, OMNT provides access to different "secret" settings in Android phones.
 
 The current state of the app can be described as "research software", it fits our needs but does not aim to be complete or bug free.
 Use the app at your own risk. If you find it useful for your research, please cite the app in publications.
 
-
 * [Quick Start HowTo](docs/quick-start.md)
 * [User Manual](docs/OpenMobileNetworkToolkit.md)
 * [Signing HowTo](docs/signing.md)
+
+## Requirements
+
+OMNT currently supports Android 11 (API Level 30) and is tested up to Android 15 (API Level 35). While it would be technical possible to support lower API levels,
+it would be a lot of work and would require some duplicate implementations. If you can, try to update your phone to the latest software update. If there is no recent enough
+firmware from you phone vendor you might have luck with LineageOS or other after market firmware.
 
 ## Why use this app
 

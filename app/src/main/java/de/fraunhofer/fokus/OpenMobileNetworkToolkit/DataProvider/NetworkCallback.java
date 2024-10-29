@@ -16,7 +16,6 @@ import android.net.ConnectivityManager;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 import android.os.OutcomeReceiver;
@@ -347,52 +346,6 @@ public class NetworkCallback {
         return interfaceName;
     }
 
-
-    /**
-     * WIP: Get the PLMN of the currently active connection
-     * @return String of current PLMN
-     */
-    @SuppressLint("ObsoleteSdkInt")
-    public String getPLMN() {
-        String plmn = null;
-        Network network = connectivityManager.getActiveNetwork();
-        if (network != null) {
-            NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
-            int networktype = networkInfo.getType();
-            int networksubtype = networkInfo.getSubtype();
-            String typename = networkInfo.getTypeName();
-            String subtypename = networkInfo.getSubtypeName();
-            Log.d(TAG, "Network Type: " + networktype);
-            Log.d(TAG, "Network Type Sub: " + networksubtype);
-            Log.d(TAG, "Type Name " + typename);
-            Log.d(TAG, "Subtype Name " + subtypename);
-            if (tm != null) {
-                @SuppressLint("MissingPermission")
-                ServiceState serviceState = tm.getServiceState(); // todo handle this according to the privileges granted the app
-                if (serviceState != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        List<NetworkRegistrationInfo> networkRegistrationInfoList = serviceState.getNetworkRegistrationInfoList();
-                        for (int i = 0; i < networkRegistrationInfoList.size(); i++) {
-                            NetworkRegistrationInfo networkRegistrationInfo = networkRegistrationInfoList.get(i);
-                            if (networkRegistrationInfo != null) {
-                                plmn = networkRegistrationInfo.getRegisteredPlmn();
-                                Log.d(TAG, "PLMN: " + plmn);
-                            } else {
-                                Log.d(TAG, "PLMN unavailable");
-                            }
-                        }
-                    } else {
-                        plmn = ""; // todo use old API here
-                    }
-                } else {
-                    Log.d(TAG, "Missing permission to access service state");
-                }
-            } else {
-                Log.d(TAG, "This is not a phone");
-            }
-        }
-        return plmn;
-    }
 
     /**
      * WIP: Get the PLMN from the NetworkRegistrationInfo API
@@ -775,87 +728,34 @@ public class NetworkCallback {
      */
     @SuppressLint("ObsoleteSdkInt")
     public boolean customNetworkCallback(int capability, int transport_type) {
-        boolean flag = false;
         try {
-            if (connectivityManager == null) {
-                Toast.makeText(context.getApplicationContext(), "Connectivity Manager does not exist: " + connectivityManager,
-                        Toast.LENGTH_SHORT).show();
-            }
             NetworkRequest.Builder builder = new NetworkRequest.Builder()
                     .addCapability(capability)
                     .addTransportType(transport_type);
 
-            if (builder != null) {
-                Log.d(TAG, "Network Request Capability: " + builder.addCapability(capability));
-                Log.d(TAG, "Network Request Transport Type: " + builder.addTransportType(transport_type));
-            }
-            Network network = connectivityManager.getActiveNetwork();
-            LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
-            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-            NetworkCapabilities networkCapabilities =
-                    connectivityManager.getNetworkCapabilities(network);
-            boolean validated_capability =
-                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-            boolean internet_capability =
-                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-            boolean enterprise_capability =
-                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
-
-            String interfaceName = linkProperties.getInterfaceName();
-            //Inet4Address inet4Address = linkProperties.getDhcpServerAddress();
-
-            Log.d(TAG, "Validated Capabilities:" + validated_capability);
-            Log.d(TAG, "Internet Capabilities:" + internet_capability);
-            Log.d(TAG, "Enterprise Capabilities:" + enterprise_capability);
-            Log.d(TAG, "Interface Name: " + interfaceName);
-            //Log.d(TAG, "INET4Address: "+ inet4Address.toString());
-            Log.d(TAG, "LINK PROPERTIES: " + linkProperties);
-            Log.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                Log.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
-            }
-            Log.d(TAG, "Network Type Name: " + networkInfo.getTypeName());
-
-            connectivityManager.registerNetworkCallback(builder.build(),
-                    new ConnectivityManager.NetworkCallback() {
+            connectivityManager.registerNetworkCallback(builder.build(), new ConnectivityManager.NetworkCallback() {
                         @Override
                         public void onAvailable(@NonNull android.net.Network network) {
                             super.onAvailable(network);
-                            GlobalVars.isNetworkConnected = true;
-                            Log.d(TAG, "onAvailable");
-                            Toast.makeText(context.getApplicationContext(), "Available",
-                                    Toast.LENGTH_SHORT).show();
+                            GlobalVars.isNetworkConnected = true; // todo this needs to be handled somewhere else
                         }
 
                         @Override
                         public void onLost(@NonNull android.net.Network network) {
                             super.onLost(network);
                             GlobalVars.isNetworkConnected = false;
-                            Log.d(TAG, "onLost");
-                            Toast.makeText(context.getApplicationContext(), "on Lost",
-                                    Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "onLost"); // todo this needs to be handled somewhere else
                         }
 
                         @Override
                         public void onBlockedStatusChanged(@NonNull Network network, boolean blocked) {
                             super.onBlockedStatusChanged(network, blocked);
-                            Log.d(TAG, "onBlockedStatusChanged");
-                            Toast.makeText(context.getApplicationContext(), "onBlockedStatusChanged",
-                                    Toast.LENGTH_SHORT).show();
-
                         }
 
                         @Override
                         public void onCapabilitiesChanged(@NonNull Network network, @NonNull
                         NetworkCapabilities networkCapabilities) {
                             super.onCapabilitiesChanged(network, networkCapabilities);
-                            Log.d(TAG, "onCapabilitiesChanged");
-                            Toast.makeText(context.getApplicationContext(), "onCapability Changed",
-                                    Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, " capabilities for the default network is " +
-                                    networkCapabilities);
-
-
                             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
                                 int[] enterpriseID = new int[0];
                                 enterpriseID = networkCapabilities.getEnterpriseIds();
@@ -869,183 +769,40 @@ public class NetworkCallback {
                                     NetworkCapabilities.NET_CAPABILITY_VALIDATED));
                             if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
                                 if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) && !GlobalVars.isNetworkConnected) {
-                                    GlobalVars.isNetworkConnected = true;
+                                    GlobalVars.isNetworkConnected = true; // todo this needs to be handled somewhere else
                                 } else if (!networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) && GlobalVars.isNetworkConnected) {
                                     // handles the scenario when the internet is blocked by ISP,
                                     // or when the dsl/fiber/cable line to the router is disconnected
-                                    GlobalVars.isNetworkConnected = false;
+                                    GlobalVars.isNetworkConnected = false; // todo this needs to be handled somewhere else
                                     Log.d(TAG, " Internet Connection is lost temporarily for network: " + network);
                                 }
                             }
                         }
 
                         @Override
-                        public void onLinkPropertiesChanged(@NonNull Network network,
-                                                            @NonNull LinkProperties linkProperties) {
+                        public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties linkProperties) {
                             super.onLinkPropertiesChanged(network, linkProperties);
                             Log.d(TAG, "onLinkPropertiesChanged: " + network);
-                            Toast.makeText(context.getApplicationContext(), "onLinkProperties Changed",
-                                    Toast.LENGTH_SHORT).show();
+
                         }
 
                         @Override
                         public void onLosing(@NonNull Network network, int maxMsToLive) {
                             super.onLosing(network, maxMsToLive);
                             Log.d(TAG, "onLosing" + network);
-                            Toast.makeText(context.getApplicationContext(), "on Losing",
-                                    Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
                         public void onUnavailable() {
                             super.onUnavailable();
                             Log.d(TAG, "onUnavailable");
-                            Toast.makeText(context.getApplicationContext(), "on Unavailable", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-            flag = true;
+            return true;
         } catch (Exception e) {
             Log.d("Network Callback: Exception in registerNetworkCallback", "Catch exception");
-            Toast.makeText(context.getApplicationContext(), "registerNetworkCallback Exception", Toast.LENGTH_SHORT).show();
-            GlobalVars.isNetworkConnected = false;
+            GlobalVars.isNetworkConnected = false; // todo this needs to be handled somewhere else
         }
-        return flag;
-    }
-
-
-    @SuppressLint("ObsoleteSdkInt")
-    public void registerNetworkCallback() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                NetworkRequest.Builder builder = new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
-                if (builder != null) {
-                    Log.d(TAG, "Network Request: " + builder.addCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE));
-                }
-                connectivityManager.registerNetworkCallback(builder.build(),
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(@NonNull android.net.Network network) {
-                            super.onAvailable(network);
-                            GlobalVars.isNetworkConnected = true;
-                            Log.d(TAG, "onAvailable");
-                            Toast.makeText(context.getApplicationContext(), "Available",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onLost(@NonNull android.net.Network network) {
-                            super.onLost(network);
-                            GlobalVars.isNetworkConnected = false;
-                            Log.d(TAG, "onLost");
-                            Toast.makeText(context.getApplicationContext(), "on Lost",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onBlockedStatusChanged(@NonNull Network network, boolean blocked) {
-                            super.onBlockedStatusChanged(network, blocked);
-                            Log.d(TAG, "onBlockedStatusChanged");
-                            Toast.makeText(context.getApplicationContext(), "onBlockedStatusChanged",
-                                    Toast.LENGTH_SHORT).show();
-
-                        }
-
-                        @Override
-                        public void onCapabilitiesChanged(@NonNull Network network, @NonNull
-                        NetworkCapabilities networkCapabilities) {
-                            super.onCapabilitiesChanged(network, networkCapabilities);
-                            Log.d(TAG, "onCapabilitiesChanged");
-                            Toast.makeText(context.getApplicationContext(), "onCapability Changed",
-                                    Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, " capabilities for the default network is " +
-                                    networkCapabilities);
-                            Log.d(TAG, " does it have validated network connection internet presence : "
-                                    + networkCapabilities.hasCapability(
-                                    NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                                    + " is it validated "
-                                    + networkCapabilities.hasCapability(
-                                    NetworkCapabilities.NET_CAPABILITY_VALIDATED));
-                            if (networkCapabilities.hasCapability(
-                                    NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-
-                                if (networkCapabilities.hasCapability(
-                                        NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                                        && !GlobalVars.isNetworkConnected) {
-                                    GlobalVars.isNetworkConnected = true;
-                                } else if (!networkCapabilities.hasCapability(
-                                        NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                                        && GlobalVars.isNetworkConnected) {
-                                    // handles the scenario when the internet is blocked by ISP,
-                                    // or when the dsl/fiber/cable line to the router is disconnected
-                                    GlobalVars.isNetworkConnected = false;
-                                    Log.d(TAG,
-                                            " Internet Connection is lost temporarily for network: " +
-                                                    network);
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onLinkPropertiesChanged(@NonNull Network network,
-                                                            @NonNull LinkProperties linkProperties) {
-                            super.onLinkPropertiesChanged(network, linkProperties);
-                            Log.d(TAG, "onLinkPropertiesChanged: " + network);
-                            Toast.makeText(context.getApplicationContext(), "onLinkProperties Changed",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onLosing(@NonNull Network network, int maxMsToLive) {
-                            super.onLosing(network, maxMsToLive);
-                            Log.d(TAG, "onLosing" + network);
-                            Toast.makeText(context.getApplicationContext(), "on Losing",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onUnavailable() {
-                            super.onUnavailable();
-                            Log.d(TAG, "onUnavailable");
-                            Toast.makeText(context.getApplicationContext(), "on Unavailable",
-                                    Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-            }
-
-            NetworkRequest.Builder builder1 = new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_CBS);
-            if (builder1 != null) {
-                Log.d(TAG, "Network Request: " +
-                        builder1.addCapability(NetworkCapabilities.NET_CAPABILITY_CBS));
-            }
-
-            Network network = connectivityManager.getActiveNetwork();
-            LinkProperties linkProperties = connectivityManager.getLinkProperties(network);
-            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(network);
-            assert networkCapabilities != null;
-            boolean validated_capability = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-            boolean internet_capability = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                boolean enterprise_capability = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_ENTERPRISE);
-                Log.d(TAG, "Enterprise Capabilities:" + enterprise_capability);
-            }
-            assert linkProperties != null;
-            String interfaceName = linkProperties.getInterfaceName();
-
-            Log.d(TAG, "Validated Capabilities:" + validated_capability);
-            Log.d(TAG, "Internet Capabilities:" + internet_capability);
-            Log.d(TAG, "Interface Name: " + interfaceName);
-            Log.d(TAG, "LINK PROPERTIES: " + linkProperties);
-            Log.d(TAG, "DNS LIST: " + linkProperties.getDnsServers());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                Log.d(TAG, "DHCP SERVER ADDRESS: " + linkProperties.getDhcpServerAddress());
-            }
-        } catch (Exception e) {
-            Log.d("Network Callback: Exception in registerNetworkCallback", "Catch exception");
-            Toast.makeText(context.getApplicationContext(), "registerNetworkCallback Exception",
-                    Toast.LENGTH_SHORT).show();
-            GlobalVars.isNetworkConnected = false;
-        }
+        return false;
     }
 }
