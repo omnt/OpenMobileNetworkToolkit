@@ -1,4 +1,13 @@
 # OpenMobileNetworkToolkit Changelog
+## Release [0.5]
+
+### Added
+
+### Changed
+
+### Fixed
+
+
 ## Release [0.4] - Stralsund
 
 ### Added
@@ -17,7 +26,6 @@
 - Fix crash where no UICC or Cell is available
 - Wrong value in Wifi RSSI filed
 
-# OpenMobileNetworkToolkit Changelog
 ## Release [0.3.1]
 
 ### Added
