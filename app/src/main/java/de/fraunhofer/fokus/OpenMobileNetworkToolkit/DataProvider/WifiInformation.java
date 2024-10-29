@@ -24,6 +24,7 @@ import static android.net.wifi.ScanResult.WIFI_STANDARD_UNKNOWN;
 
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
+import android.os.Build;
 
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
@@ -40,8 +41,9 @@ public class WifiInformation extends Information {
     private int max_rx_link_speed;
     private int standard;
     private int channel_bandwidth;
+    private int security_type;
 
-    public WifiInformation(String ssid, String bssid, int rssi, int frequency, int link_speed, int tx_link_speed, int max_tx_link_speed, int rx_link_speed, int max_rx_link_speed, int standard, int channel_bandwidth, long timestamp) {
+    public WifiInformation(String ssid, String bssid, int rssi, int frequency, int link_speed, int tx_link_speed, int max_tx_link_speed, int rx_link_speed, int max_rx_link_speed, int standard, int channel_bandwidth, long timestamp, int security_type) {
         super(timestamp);
         this.ssid = ssid;
         this.bssid = bssid;
@@ -54,6 +56,7 @@ public class WifiInformation extends Information {
         this.max_rx_link_speed = max_rx_link_speed;
         this.standard = standard;
         this.channel_bandwidth = channel_bandwidth;
+        this.security_type = security_type;
     }
 
     public WifiInformation(ScanResult scanResult, long timestamp) {
@@ -63,6 +66,9 @@ public class WifiInformation extends Information {
         rssi = scanResult.level;
         frequency = scanResult.frequency;
         channel_bandwidth = scanResult.channelWidth;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            scanResult.getSecurityTypes();
+        }
     }
 
     public WifiInformation(WifiInfo wifiInfo, long timestamp) {
@@ -77,9 +83,55 @@ public class WifiInformation extends Information {
         max_rx_link_speed = wifiInfo.getMaxSupportedRxLinkSpeedMbps();
         rx_link_speed = wifiInfo.getTxLinkSpeedMbps();
         standard = wifiInfo.getWifiStandard();
+        security_type = wifiInfo.getCurrentSecurityType();
     }
 
+    public int getSecurity_type() {
+        return security_type;
+    }
 
+    public void setSecurity_type(int security_type) {
+        this.security_type = security_type;
+    }
+
+    public String getWifiSecurityTypeString(int type) {
+        switch (type) {
+            case WifiInfo.SECURITY_TYPE_UNKNOWN:
+                return "Unknown";
+            case WifiInfo.SECURITY_TYPE_OPEN:
+                return "Open";
+            case WifiInfo.SECURITY_TYPE_WEP:
+                return "WEP";
+            case WifiInfo.SECURITY_TYPE_PSK:
+                return "PSK";
+            case WifiInfo.SECURITY_TYPE_EAP:
+                return "EAP";
+            case WifiInfo.SECURITY_TYPE_SAE:
+                return "SAE";
+            case WifiInfo.SECURITY_TYPE_EAP_WPA3_ENTERPRISE_192_BIT:
+                return "WPA3 EP 192Bit";
+            case WifiInfo.SECURITY_TYPE_OWE:
+                return "OWE";
+            case WifiInfo.SECURITY_TYPE_WAPI_PSK:
+                return "WAPI PSK";
+            case WifiInfo.SECURITY_TYPE_WAPI_CERT:
+                return "WAPI Cert";
+            case WifiInfo.SECURITY_TYPE_EAP_WPA3_ENTERPRISE:
+                return "EAP WPA3 EP";
+            case WifiInfo.SECURITY_TYPE_OSEN:
+                return "OSEN";
+            case WifiInfo.SECURITY_TYPE_PASSPOINT_R1_R2:
+                return "Passpoint R1 R2";
+            case WifiInfo.SECURITY_TYPE_PASSPOINT_R3:
+                return "Passpoint R3";
+            default:
+                return "Unknown";
+        }
+    }
+
+    public String getSecurityTypeString() {
+        return getWifiSecurityTypeString(security_type);
+    }
 
     public String getWifiStandardString(int standard) {
         switch (standard) {
@@ -125,7 +177,7 @@ public class WifiInformation extends Information {
         }
     }
 
-    public String getChannelBandwithString(){
+    public String getChannelBandwithString() {
         return getChannelBandwidthStringFromInt(channel_bandwidth);
     }
 
@@ -213,11 +265,16 @@ public class WifiInformation extends Information {
         return channel_bandwidth;
     }
 
+    public void setChannel_bandwidth(int channel_bandwidth) {
+        this.channel_bandwidth = channel_bandwidth;
+    }
+
     public void setChannel_width(int channel_bandwidth) {
         this.channel_bandwidth = channel_bandwidth;
     }
 
-    /** Return a influx point representation of the wifi information
+    /**
+     * Return a influx point representation of the wifi information
      *
      * @return Influx Point
      */
@@ -235,6 +292,7 @@ public class WifiInformation extends Information {
         point.addField("Max Supported RX Speed", getMax_rx_link_speed());
         point.addField("Standard", getStandardString());
         point.addField("Channel Width", getChannelBandwithString());
+        point.addField("Security Type", getSecurityTypeString());
         return point;
     }
 

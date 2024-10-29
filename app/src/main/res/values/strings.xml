@@ -253,5 +253,6 @@
     <string name="max_rx_link_speed">Max Supported RX Speed</string>
     <string name="standard">Standard</string>
     <string name="channel_bandwidth">Channel Bandwidth</string>
+    <string name="wifi_security_type">Security Type</string>
 
 </resources>

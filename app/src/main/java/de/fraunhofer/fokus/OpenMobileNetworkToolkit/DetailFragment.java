@@ -628,7 +628,9 @@ public class DetailFragment extends Fragment {
                     {getString(R.string.rx_link_speed), Integer.toString(wi.getRx_link_speed())},
                     {getString(R.string.max_rx_link_speed), Integer.toString(wi.getMax_rx_link_speed())},
                     {getString(R.string.standard), wi.getStandardString()},
-                    {getString(R.string.channel_bandwidth), wi.getChannelBandwithString()}
+                    {getString(R.string.channel_bandwidth), wi.getChannelBandwithString()},
+                    {getString(R.string.wifi_security_type), wi.getSecurityTypeString()}
+
             }, true);
 
 
