@@ -19,8 +19,8 @@ import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -60,9 +60,13 @@ public class LoggingService extends Service {
     DataProvider dp;
     SharedPreferencesGrouper spg;
     private Handler notificationHandler;
+    private HandlerThread notificationHandlerThread;
     private Handler remoteInfluxHandler;
+    private HandlerThread remoteInfluxHandlerThread;
     private Handler localInfluxHandler;
+    private HandlerThread localInfluxHandlerThread;
     private Handler localFileHandler;
+    private HandlerThread localFileHandlerThread;
     private List<Point> logFilePoints;
     private FileOutputStream stream;
     private int interval;
@@ -250,6 +254,7 @@ public class LoggingService extends Service {
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
             stopRemoteInfluxDB();
         }
+
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false)) {
             stopLocalFile();
         }
@@ -398,8 +403,7 @@ public class LoggingService extends Service {
             Log.d(TAG,e.toString());
         }
 
-        localFileHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        localFileHandler.post(localFileUpdate);
+        initLocalFileHandlerAndItsThread();
     }
 
     private void stopLocalFile() {
@@ -414,11 +418,22 @@ public class LoggingService extends Service {
                 Log.d(TAG,e.toString());
             }
         }
+
+        if (localFileHandlerThread != null) {
+            localFileHandlerThread.quitSafely();
+            try {
+                localFileHandlerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+        }
     }
 
     private void setupNotificationUpdate() {
         Log.d(TAG, "setupNotificationUpdate");
-        notificationHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        notificationHandlerThread = new HandlerThread("NotificationHandlerThread");
+        notificationHandlerThread.start();
+        notificationHandler = new Handler(Objects.requireNonNull(notificationHandlerThread.getLooper()));
         notificationHandler.post(notification_updater);
     }
 
@@ -427,13 +442,25 @@ public class LoggingService extends Service {
         notificationHandler.removeCallbacks(notification_updater);
         builder.setContentText(null);
         nm.notify(1, builder.build());
+
+        if (notificationHandlerThread != null) {
+            notificationHandlerThread.quitSafely();
+            try {
+                notificationHandlerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+            notificationHandlerThread = null;
+        }
     }
 
     private void setupLocalInfluxDB() {
         Log.d(TAG, "setupLocalInfluxDB");
         lic = InfluxdbConnections.getLicInstance(getApplicationContext());
         Objects.requireNonNull(lic).open_write_api();
-        localInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        localInfluxHandlerThread = new HandlerThread("LocalInfluxHandlerThread");
+        localInfluxHandlerThread.start();
+        localInfluxHandler = new Handler(Objects.requireNonNull(localFileHandlerThread.getLooper()));
         localInfluxHandler.post(localInfluxUpdate);
     }
 
@@ -449,6 +476,15 @@ public class LoggingService extends Service {
         if (lic != null) {
             lic.disconnect();
         }
+        if (localInfluxHandlerThread != null) {
+            localInfluxHandlerThread.quitSafely();
+            try {
+                localInfluxHandlerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+            localInfluxHandlerThread = null;
+        }
     }
 
     /**
@@ -458,7 +494,9 @@ public class LoggingService extends Service {
         Log.d(TAG, "setupRemoteInfluxDB");
         ic = InfluxdbConnections.getRicInstance(getApplicationContext());
         Objects.requireNonNull(ic).open_write_api();
-        remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        remoteInfluxHandlerThread = new HandlerThread("RemoteInfluxHandlerThread");
+        remoteInfluxHandlerThread.start();
+        remoteInfluxHandler = new Handler(Objects.requireNonNull(remoteInfluxHandlerThread.getLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
         ImageView log_status = gv.getLog_status();
         if (log_status != null) {
@@ -480,6 +518,16 @@ public class LoggingService extends Service {
             }
         }
 
+        if (remoteInfluxHandlerThread != null) {
+            remoteInfluxHandlerThread.quitSafely();
+            try {
+                remoteInfluxHandlerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+            remoteInfluxHandlerThread = null;
+        }
+
         // close disconnect influx connection if existing
         if (ic != null) {
             ic.disconnect();
@@ -495,5 +543,12 @@ public class LoggingService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private void initLocalFileHandlerAndItsThread() {
+        localFileHandlerThread = new HandlerThread("LocalFileHandlerThread");
+        localFileHandlerThread.start();
+        localFileHandler = new Handler(Objects.requireNonNull(localFileHandlerThread.getLooper()));
+        localFileHandler.post(localFileUpdate);
     }
 }
