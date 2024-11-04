@@ -1,6 +1,5 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,8 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.StringRes;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -307,36 +306,31 @@ public class QuickFragment extends Fragment {
      final Runnable updateUI = new Runnable() {
         @Override
         public void run() {
-            Activity parentActivity = getActivity();
-            if (parentActivity != null && isAdded()) {
-                mainLL.removeAllViews();
-                List<CellInformation> cellInformationList = dp.getRegisteredCells();
-                List<CellInformation> neighborCells = dp.getNeighbourCellInformation();
-                if (cellInformationList.isEmpty()) {
-                    LinearLayout error = new LinearLayout(context);
-                    error.setLayoutParams(new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                    ));
-                    error.setOrientation(LinearLayout.VERTICAL);
-                    TextView errorText = new TextView(context);
-                    errorText.setLayoutParams(new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                    ));
-                    errorText.setText(getString(R.string.cell_na));
-                    error.addView(errorText);
-                    mainLL.addView(error);
-                } else {
-                    cellInformationList.forEach(cellInformation -> addCellInformationToView(cellInformation));
-                }
-                if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
-                    if (!neighborCells.isEmpty()) {
-                        neighborCells.forEach(cellInformation -> addCellInformationToView(cellInformation));
-                    }
-                }
+            mainLL.removeAllViews();
+            List<CellInformation> cellInformationList = dp.getRegisteredCells();
+            List<CellInformation> neighborCells = dp.getNeighbourCellInformation();
+            if(cellInformationList.isEmpty()){
+                LinearLayout error = new LinearLayout(context);
+                error.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                ));
+                error.setOrientation(LinearLayout.VERTICAL);
+                TextView errorText = new TextView(context);
+                errorText.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                ));
+                errorText.setText(getSafeString(R.string.cell_na));
+                error.addView(errorText);
+                mainLL.addView(error);
             } else {
-                Toast.makeText(getContext(), "Tried updating QuickFragment UI while not being added/attached!", Toast.LENGTH_SHORT).show();
+                cellInformationList.forEach(cellInformation -> addCellInformationToView(cellInformation));
+            }
+            if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
+                if(!neighborCells.isEmpty()){
+                    neighborCells.forEach(cellInformation -> addCellInformationToView(cellInformation));
+                }
             }
             updateUIHandler.postDelayed(updateUI, 500);
         }
@@ -349,5 +343,13 @@ public class QuickFragment extends Fragment {
         mainLL = view.findViewById(R.id.quick_fragment);
         updateUIHandler.postDelayed(updateUI, 500);
         return view;
+    }
+
+    public String getSafeString(@StringRes int resId) {
+        if (context == null) {
+            return "NOT AVAILABLE AT THE MOMENT";
+        } else {
+            return context.getResources().getString(resId);
+        }
     }
 }
