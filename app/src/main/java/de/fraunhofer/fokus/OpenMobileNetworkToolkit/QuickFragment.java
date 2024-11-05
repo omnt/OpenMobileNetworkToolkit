@@ -347,7 +347,7 @@ public class QuickFragment extends Fragment {
 
     public String getSafeString(@StringRes int resId) {
         if (context == null) {
-            return "NOT AVAILABLE AT THE MOMENT";
+            return "N/A";
         } else {
             return context.getResources().getString(resId);
         }
