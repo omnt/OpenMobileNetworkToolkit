@@ -325,11 +325,19 @@ public class QuickFragment extends Fragment {
                 error.addView(errorText);
                 mainLL.addView(error);
             } else {
-                cellInformationList.forEach(cellInformation -> addCellInformationToView(cellInformation));
+                // We will filter out nulls from the list and only add non-null ones
+                cellInformationList
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .forEach(cellInformation -> addCellInformationToView(cellInformation));
             }
             if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
                 if(!neighborCells.isEmpty()){
-                    neighborCells.forEach(cellInformation -> addCellInformationToView(cellInformation));
+                    // Similarly to above, we will also filter out nulls from the list and only add non-null ones
+                    neighborCells
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .forEach(cellInformation -> addCellInformationToView(cellInformation));
                 }
             }
             updateUIHandler.postDelayed(updateUI, 500);
