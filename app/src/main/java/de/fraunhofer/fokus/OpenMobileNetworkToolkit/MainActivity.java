@@ -24,7 +24,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
+import android.os.HandlerThread;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     Intent loggingServiceIntent;
     NavController navController;
     private Handler requestCellInfoUpdateHandler;
+    private HandlerThread requestCellInfoUpdateHandlerThread;
     private GlobalVars gv;
     /**
      * Runnable to handle Cell Info Updates
@@ -191,8 +192,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }
 
-        requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
+        initHandlerAndHandlerThread();
 
         loggingServiceIntent = new Intent(this, LoggingService.class);
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
@@ -474,5 +474,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 break;
         }
         return true;
+    }
+
+    private void initHandlerAndHandlerThread() {
+        requestCellInfoUpdateHandlerThread = new HandlerThread("RequestCellInfoUpdateHandlerThread");
+        requestCellInfoUpdateHandlerThread.start();
+        requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(requestCellInfoUpdateHandlerThread.getLooper()));
+        requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
     }
 }

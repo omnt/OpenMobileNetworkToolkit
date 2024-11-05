@@ -15,6 +15,8 @@
     * [Slicing](./slicing.md)
     * [InfluxDB](./influxdb.md)
     * [Workprofile](./workprofile.md)
+    * IMS
+        * [How-to Enable IMS on 999xx PLMNs](./howto_ims.md)
     * [Settings](settings/settings.md)
         * [Logging](settings/logging.md)
         * [Mobile Network](settings/mobile_network.md)
