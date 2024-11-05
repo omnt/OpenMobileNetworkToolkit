@@ -1,8 +1,8 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-import android.content.Context;
 import android.util.Log;
-import android.widget.TableLayout;
+
+import com.influxdb.client.write.Point;
 
 import org.json.JSONObject;
 
@@ -39,7 +39,7 @@ public class BuildInformation extends Information {
         return BuildConfig.DEBUG;
     }
 
-    public JSONObject toJSON(){
+    public JSONObject toJSON() {
 
         JSONObject json = new JSONObject();
         try {
@@ -49,9 +49,22 @@ public class BuildInformation extends Information {
             json.put("ApplicationId", getApplicationId());
             json.put("Debug", isDebug());
         } catch (Exception e) {
-            Log.d(TAG,e.toString());
+            Log.d(TAG, e.toString());
         }
         return json;
+    }
+
+    public Point getPoint(Point point) {
+        if (point == null) {
+            Log.e(TAG, "getPoint: given point == null!");
+            point = Point.measurement("BuildInformation");
+        }
+        point.addField("BuildType", getBuildType());
+        point.addField("VersionCode", getVersionCode());
+        point.addField("VersionName", getVersionName());
+        point.addField("ApplicationID", getApplicationId());
+        point.addField("Debug", isDebug());
+        return point;
     }
 
 }

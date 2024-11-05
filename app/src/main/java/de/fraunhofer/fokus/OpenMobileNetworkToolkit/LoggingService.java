@@ -349,6 +349,11 @@ public class LoggingService extends Service {
                 logPoints.add(bp);
             }
 
+            Point bi = dp.getBuildInformationPoint();
+            bi.time(time, WritePrecision.MS);
+            bi.addTags(tags_map);
+            logPoints.add(bi);
+
             Point p = dp.getLocationPoint();
             p.time(time, WritePrecision.MS);
             p.addTags(tags_map);

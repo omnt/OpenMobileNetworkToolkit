@@ -357,6 +357,14 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         return buildInformation;
     }
 
+    public Point getBuildInformationPoint() {
+        Point point = new Point("BuildInformation");
+        point.time(ts, WritePrecision.MS);
+        point = buildInformation.getPoint(point);
+        return point;
+    }
+
+
     /**
      * Get CellInformation object
      *
