@@ -7,6 +7,7 @@ import com.influxdb.client.write.Point;
 import org.json.JSONObject;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.BuildConfig;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class BuildInformation extends Information {
     private final String TAG = "BuildInformation";
@@ -39,6 +40,10 @@ public class BuildInformation extends Information {
         return BuildConfig.DEBUG;
     }
 
+    public int getGitHash() {
+        return R.string.git_hash;
+    }
+
     public JSONObject toJSON() {
 
         JSONObject json = new JSONObject();
@@ -48,6 +53,7 @@ public class BuildInformation extends Information {
             json.put("VersionName", getVersionName());
             json.put("ApplicationId", getApplicationId());
             json.put("Debug", isDebug());
+            json.put("GitHash", getGitHash());
         } catch (Exception e) {
             Log.d(TAG, e.toString());
         }
@@ -64,6 +70,7 @@ public class BuildInformation extends Information {
         point.addField("VersionName", getVersionName());
         point.addField("ApplicationID", getApplicationId());
         point.addField("Debug", isDebug());
+        point.addField("GitHash", getGitHash());
         return point;
     }
 
