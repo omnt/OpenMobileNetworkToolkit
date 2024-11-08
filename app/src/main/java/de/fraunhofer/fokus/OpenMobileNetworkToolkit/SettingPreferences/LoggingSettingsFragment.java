@@ -14,6 +14,7 @@ import android.text.InputType;
 import android.util.Log;
 
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreferenceCompat;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -48,6 +49,18 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
         if (s.equals("enable_logging")) {
             boolean logger = sharedPreferences.getBoolean("enable_logging", false);
             Log.d(TAG, "Logger update: " + logger);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        PreferenceScreen prefScreen = getPreferenceScreen();
+        if (prefScreen != null) {
+            SharedPreferences prefsSharedPref = prefScreen.getSharedPreferences();
+            if (prefsSharedPref != null) {
+                prefsSharedPref.unregisterOnSharedPreferenceChangeListener(this);
+            }
         }
     }
 }
