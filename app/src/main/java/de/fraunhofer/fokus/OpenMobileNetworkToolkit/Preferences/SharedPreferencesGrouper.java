@@ -7,7 +7,9 @@ import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class SharedPreferencesGrouper {
     private static final String TAG = "SharedPreferencesGrouper";
@@ -20,7 +22,7 @@ public class SharedPreferencesGrouper {
     private final SharedPreferences defaultSP;
     private final SharedPreferences pingSP;
     private final Context ct;
-    private HashMap <SPType, SharedPreferences.OnSharedPreferenceChangeListener> spMap = new HashMap<>();
+    private HashMap <SPType, List<SharedPreferences.OnSharedPreferenceChangeListener>> spMap = new HashMap<>();
     public String getSharedPreferenceIdentifier(SPType key)  {
         return this.ct.getPackageName()+"_"+key.toString();
     }
@@ -74,20 +76,87 @@ public class SharedPreferencesGrouper {
         return sp;
     }
 
-    public void removeListener(SPType key){
+    /**
+     * Removes a particular {@code listener} for a particular {@code key}
+     * @param key the key holding the listener
+     * @param listener the listener to remove
+     */
+    public void removeListener(SPType key, SharedPreferences.OnSharedPreferenceChangeListener listener) {
         SharedPreferences sp = this.getSharedPreference(key);
         if(sp == null) {
             Log.e(TAG, "SharedPreferences not found for "+key);
             return;
         }
-        SharedPreferences.OnSharedPreferenceChangeListener listener = this.spMap.get(key);
-        if(listener == null) {
+        List<SharedPreferences.OnSharedPreferenceChangeListener> listenerList = this.spMap.get(key);
+        if(listenerList == null || !listenerList.contains(listener)) {
             Log.e(TAG, "Listener not found for "+key);
             return;
         }
         sp.unregisterOnSharedPreferenceChangeListener(listener);
-        this.spMap.remove(key);
+        listenerList.remove(listener);
+        // If listener list isn't empty, write in the new reduced list, otherwise just delete the whole key
+        if (!listenerList.isEmpty()) {
+            this.spMap.put(key, listenerList);
+        } else {
+            this.spMap.remove(key);
+        }
         Log.i(TAG, "Listener removed for "+key);
+    }
+
+    /**
+     * Removes all listeners for a particular {@link SPType} {@code key}
+     * @param key the key for which to remove all listeners
+     */
+    public void removeAllListeners(SPType key){
+        SharedPreferences sp = this.getSharedPreference(key);
+        if(sp == null) {
+            Log.e(TAG, "SharedPreferences not found for "+key);
+            return;
+        }
+        List<SharedPreferences.OnSharedPreferenceChangeListener> listenerList = this.spMap.get(key);
+        if(listenerList == null) {
+            Log.e(TAG, "Listener(s) not found for "+key);
+            return;
+        }
+        // Unregister all listeners
+        for (SharedPreferences.OnSharedPreferenceChangeListener listener : listenerList) {
+            sp.unregisterOnSharedPreferenceChangeListener(listener);
+        }
+        // Delete them all from the map
+        this.spMap.remove(key);
+        Log.i(TAG, "Listener(s) removed for "+key);
+    }
+
+    /**
+     * Searches for the passed-in {@code listener} and removes it if found. The listener
+     * <b>must have been</b> already added via {@link #setListener(SharedPreferences.OnSharedPreferenceChangeListener, SPType)}
+     * @param listener the listener to add
+     */
+    public void removeListener(SharedPreferences.OnSharedPreferenceChangeListener listener){
+        for (SPType potentialMatch : spMap.keySet()) {
+            SharedPreferences sp = this.getSharedPreference(potentialMatch);
+            if (sp == null) {
+                Log.e(TAG, "SharedPreferences not found for " + potentialMatch);
+                continue;
+            }
+            List<SharedPreferences.OnSharedPreferenceChangeListener> listenerList = this.spMap.get(potentialMatch);
+            if (listener == null || !listenerList.contains(listener)) {
+                Log.e(TAG, "Listener not found for " + potentialMatch);
+                continue;
+            }
+            // Now the easy part, when we know which SharedPref owns the listener and it's in the
+            // registered listenerList, just remove it from the list and cleanup the key if the list
+            // remains empty
+            listenerList.remove(listener);
+            sp.unregisterOnSharedPreferenceChangeListener(listener);
+            // If the listenerList is empty, remove the whole key from the map, otherwise update value
+            if (listenerList.isEmpty()) {
+                this.spMap.remove(potentialMatch);
+            } else {
+                this.spMap.put(potentialMatch, listenerList);
+            }
+            Log.i(TAG, "Listener removed for " + potentialMatch);
+        }
     }
     public HashMap<SPType,SharedPreferences> getAllSharedPreferences() {
 
@@ -103,8 +172,14 @@ public class SharedPreferencesGrouper {
             Log.e(TAG, "SharedPreferences not found for "+key);
             return;
         }
+        List listenerList = this.spMap.get(key);
+        if (listenerList == null) {
+            listenerList = new ArrayList();
+        }
+
         sp.registerOnSharedPreferenceChangeListener(listener);
-        this.spMap.put(key, listener);
+        listenerList.add(listener);
+        this.spMap.put(key, listenerList);
         Log.i(TAG, "Listener registered for "+key);
     }
 
