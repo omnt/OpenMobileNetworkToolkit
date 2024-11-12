@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.StringRes;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -320,15 +321,23 @@ public class QuickFragment extends Fragment {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                 ));
-                errorText.setText(getString(R.string.cell_na));
+                errorText.setText(getSafeString(R.string.cell_na));
                 error.addView(errorText);
                 mainLL.addView(error);
             } else {
-                cellInformationList.forEach(cellInformation -> addCellInformationToView(cellInformation));
+                // We will filter out nulls from the list and only add non-null ones
+                cellInformationList
+                        .stream()
+                        .filter(Objects::nonNull)
+                        .forEach(cellInformation -> addCellInformationToView(cellInformation));
             }
             if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
                 if(!neighborCells.isEmpty()){
-                    neighborCells.forEach(cellInformation -> addCellInformationToView(cellInformation));
+                    // Similarly to above, we will also filter out nulls from the list and only add non-null ones
+                    neighborCells
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .forEach(cellInformation -> addCellInformationToView(cellInformation));
                 }
             }
             updateUIHandler.postDelayed(updateUI, 500);
@@ -342,5 +351,13 @@ public class QuickFragment extends Fragment {
         mainLL = view.findViewById(R.id.quick_fragment);
         updateUIHandler.postDelayed(updateUI, 500);
         return view;
+    }
+
+    public String getSafeString(@StringRes int resId) {
+        if (context == null) {
+            return "N/A";
+        } else {
+            return context.getResources().getString(resId);
+        }
     }
 }
