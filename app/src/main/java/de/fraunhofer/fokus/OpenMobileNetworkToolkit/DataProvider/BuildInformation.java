@@ -7,7 +7,7 @@ import com.influxdb.client.write.Point;
 import org.json.JSONObject;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.BuildConfig;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 
 public class BuildInformation extends Information {
     private final String TAG = "BuildInformation";
@@ -40,8 +40,8 @@ public class BuildInformation extends Information {
         return BuildConfig.DEBUG;
     }
 
-    public int getGitHash() {
-        return R.string.git_hash;
+    public String getGitHash() {
+        return GlobalVars.getInstance().getGit_hash();
     }
 
     public JSONObject toJSON() {

@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }, SPType.logging_sp);
         getAppSignature();
+        gv.setGit_hash(getString(R.string.git_hash));
     }
 
     /**

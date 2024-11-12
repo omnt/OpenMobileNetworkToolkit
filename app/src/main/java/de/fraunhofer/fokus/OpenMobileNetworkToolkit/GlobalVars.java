@@ -38,6 +38,16 @@ public class GlobalVars {
     private boolean feature_work_profile;
     private boolean permission_phone_state;
     private String signing_hash;
+
+    public String getGit_hash() {
+        return git_hash;
+    }
+
+    public void setGit_hash(String git_hash) {
+        this.git_hash = git_hash;
+    }
+
+    private String git_hash;
     private boolean permission_fine_location;
 
     private GlobalVars() {
