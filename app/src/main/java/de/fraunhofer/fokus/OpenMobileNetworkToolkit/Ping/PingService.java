@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.icu.text.SimpleDateFormat;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -48,6 +49,7 @@ public class PingService extends Service {
     private static final String TAG = "PingService";
     private FileOutputStream ping_stream;
     private Handler pingLogging;
+    private HandlerThread pingLoggingHandleThread;
     private WorkManager wm;
     private Context context;
     private ArrayList<OneTimeWorkRequest> pingWRs;
@@ -128,7 +130,9 @@ public class PingService extends Service {
             return;
         }
         spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", true).apply();
-        pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        pingLoggingHandleThread = new HandlerThread("PingLoggingHandlerThread");
+        pingLoggingHandleThread.start();
+        pingLogging = new Handler(Objects.requireNonNull(pingLoggingHandleThread.getLooper()));
         PingParser pingParser = PingParser.getInstance(null);
         propertyChangeListener = pingParser.getListener();
         if(propertyChangeListener != null){
@@ -230,6 +234,15 @@ public class PingService extends Service {
     private void stopPing(){
 
         if (pingLogging != null )pingLogging.removeCallbacks(pingUpdate);
+        if (pingLoggingHandleThread != null) {
+            pingLoggingHandleThread.quitSafely();
+            try {
+                pingLoggingHandleThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+            pingLoggingHandleThread = null;
+        }
         try {
             if (ping_stream != null) ping_stream.close();
         } catch (IOException e) {
