@@ -160,8 +160,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 }
                 // switch the telephony manager to a new one according to the app settings
                 tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.default_sp).getString("select_subscription", "0")));
+
+                // update reference to tm
                 gv.setTm(tm);
-                dp = new DataProvider(this);
+                dp.setTm(tm);
             }
 
             gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));

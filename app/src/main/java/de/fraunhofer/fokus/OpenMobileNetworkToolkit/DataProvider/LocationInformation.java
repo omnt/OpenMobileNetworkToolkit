@@ -8,9 +8,6 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-import android.content.Context;
-import android.widget.TableLayout;
-
 import java.util.List;
 
 public class LocationInformation extends Information {
@@ -33,6 +30,12 @@ public class LocationInformation extends Information {
     }
 
     public LocationInformation() {
+        this.longitude = -1;
+        this.latitude = -1;
+        this.altitude = -1;
+        this.provider = "N/A";
+        this.accuracy = -1;
+        this.speed = -1;
     }
 
     public List<String> getProviderList() {
