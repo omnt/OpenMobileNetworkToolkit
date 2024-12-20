@@ -108,7 +108,7 @@ public class QuickFragment extends Fragment {
                                 int min, int minColor,
                                 int max, int maxColor) {
         textView.setText(value);
-        if(value.equals(String.valueOf(Integer.MAX_VALUE))) {
+        if (value.equals(String.valueOf(Integer.MAX_VALUE)) || value.equals("nullnull")) {
             textView.setText("N/A");
             return;
         }

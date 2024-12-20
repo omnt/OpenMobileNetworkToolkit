@@ -446,8 +446,6 @@ public class DetailFragment extends Fragment {
                 }, displayNull);
                 break;
         }
-
-
     }
 
 
