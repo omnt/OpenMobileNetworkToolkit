@@ -472,6 +472,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case "shared_preferences_io":
                 navController.navigate(R.id.fragment_shared_preferences_io);
                 break;
+            case "mqtt_settings":
+                navController.navigate(R.id.mqttSettingsFragment);
+                break;
         }
         return true;
     }

@@ -148,6 +148,10 @@
     <string name="action_android_ims">Android IMS</string>>
     <string name="influx_wifi_data">Log WiFi information</string>>
 
+
+    <!-- MQTT Preferences -->
+
+
     <!-- -->
 
     <!-- SharedPreferences Identifier -->
@@ -254,5 +258,14 @@
     <string name="standard">Standard</string>
     <string name="channel_bandwidth">Channel Bandwidth</string>
     <string name="wifi_security_type">Security Type</string>
+    <string name="mqtt_client_username_summary">MQTT Username</string>
+    <string name="enable_mqtt">Enable MQTT</string>
+    <string name="enable_mqtt_on_boot">Enable MQTT on boot</string>
+    <string name="mqtt_client_username_dialog_title">Username provided by your MQTT-Broker</string>
+    <string name="mqtt_client_user_name_title">MQTT Client Username</string>
+    <string name="mqtt_client_password_dialog_title">Password provided by your MQTT-Broker</string>
+    <string name="mqtt_client_password">MQTT Client Password</string>
+    <string name="mqtt_host_dialog_title">MQTT-Broker Address, including Port</string>
+    <string name="mqtt_host">MQTT-Broker Address</string>
 
 </resources>

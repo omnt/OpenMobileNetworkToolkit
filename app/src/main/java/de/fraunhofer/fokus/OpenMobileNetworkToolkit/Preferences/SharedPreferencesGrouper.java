@@ -17,6 +17,7 @@ public class SharedPreferencesGrouper {
     private final SharedPreferences carrierSP;
     private final SharedPreferences iperf3SP;
     private final SharedPreferences mobileNetworkSP;
+    private final SharedPreferences mqttSP;
     private final SharedPreferences defaultSP;
     private final SharedPreferences pingSP;
     private final Context ct;
@@ -32,12 +33,13 @@ public class SharedPreferencesGrouper {
     }
 
 
-    private SharedPreferencesGrouper(Context ct) {
+    private SharedPreferencesGrouper( Context ct) {
         this.ct = ct;
         loggingSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.logging_sp), Context.MODE_PRIVATE);
         carrierSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.carrier_sp), Context.MODE_PRIVATE);
         iperf3SP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.iperf3_sp), Context.MODE_PRIVATE);
         pingSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.ping_sp), Context.MODE_PRIVATE);
+        mqttSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.mqtt_sp), Context.MODE_PRIVATE);
         mobileNetworkSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.mobile_network_sp), Context.MODE_PRIVATE);
         defaultSP = PreferenceManager.getDefaultSharedPreferences(ct);
     }
@@ -66,6 +68,9 @@ public class SharedPreferencesGrouper {
                 break;
             case mobile_network_sp:
                 sp = mobileNetworkSP;
+                break;
+            case mqtt_sp:
+                sp = mqttSP;
                 break;
             default:
                 sp = defaultSP;

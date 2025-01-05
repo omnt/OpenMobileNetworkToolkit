@@ -53,6 +53,7 @@
             app:destination="@id/HomeFragment" />
 
     </fragment>
+
     <fragment
         android:id="@+id/about_fragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.AboutFragment"
@@ -124,6 +125,16 @@
         tools:layout="@xml/preference_logging">
         <action
             android:id="@+id/action_loggingSettingsFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mqttSettingsFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MQTTSettingsFragment"
+        android:label="MQTTSettingsFragment"
+        tools:layout="@xml/preference_mqtt">
+        <action
+            android:id="@+id/action_mqttSettingsFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
     </fragment>
     <fragment

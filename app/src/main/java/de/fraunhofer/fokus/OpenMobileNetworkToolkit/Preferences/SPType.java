@@ -6,7 +6,8 @@ public enum SPType {
     ping_sp,
     carrier_sp,
     mobile_network_sp,
-    default_sp;
+    default_sp,
+    mqtt_sp;
 
 
     public String toString() {
