@@ -150,6 +150,7 @@ dependencies {
     implementation 'com.github.anastr:speedviewlib:1.6.1'
     implementation "androidx.viewpager2:viewpager2:1.1.0"
     implementation "androidx.compose.material3:material3:1.3.0"
+    implementation 'com.github.hannesa2:paho.mqtt.android:4.3'
 }
 
 configurations.implementation {
