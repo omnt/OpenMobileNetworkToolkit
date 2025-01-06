@@ -56,6 +56,7 @@ import java.util.concurrent.Executors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.MQTTService;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public boolean cp = false;
     public boolean feature_telephony = false;
     Intent loggingServiceIntent;
+    Intent mqttServiceIntent;
     NavController navController;
     private Handler requestCellInfoUpdateHandler;
     private GlobalVars gv;
@@ -211,7 +213,29 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 }
             }
         }, SPType.logging_sp);
+
+        mqttServiceIntent = new Intent(this, MQTTService.class);
+        if (spg.getSharedPreference(SPType.mqtt_sp).getBoolean("enable_mqtt", false)) {
+            Log.d(TAG, "Start MQTT service");
+            context.startService(mqttServiceIntent);
+        }
+
+        spg.setListener((prefs, key) -> {
+            if (Objects.equals(key, "enable_mqtt")) {
+                if (prefs.getBoolean(key, false)) {
+                    Log.d(TAG, "MQTT enabled");
+                    context.startForegroundService(mqttServiceIntent);
+                } else {
+                    Log.d(TAG, "MQTT disabled");
+                    context.stopService(mqttServiceIntent);
+                }
+            }
+        }, SPType.mqtt_sp);
+
         getAppSignature();
+
+
+
     }
 
     /**

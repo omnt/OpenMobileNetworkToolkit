@@ -30,3 +30,6 @@
     public static *** d(...);
     public static *** v(...);
 }
+
+-keepclassmembernames class io.netty.** { *; }
+-keepclassmembers class org.jctools.** { *; }

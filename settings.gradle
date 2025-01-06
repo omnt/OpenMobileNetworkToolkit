@@ -10,12 +10,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-        }
     }
 }
 
 
 rootProject.name = "OpenMobileNetworkToolkit"
 include ':app'
+include ':model'

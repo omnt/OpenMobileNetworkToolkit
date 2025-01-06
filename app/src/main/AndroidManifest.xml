@@ -65,7 +65,8 @@
             android:foregroundServiceType="location" />
         <service
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingService" />
-
+        <service
+            android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.MQTTService" />
 
         <service android:name="androidx.work.impl.foreground.SystemForegroundService" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"

@@ -30,7 +30,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:key="influx_category"
+        app:key="mqtt_credentials"
         app:title="MQTT Credentials">
 
         <EditTextPreference
@@ -39,6 +39,7 @@
             app:key="mqtt_host"
             app:dependency="enable_mqtt"
             app:title="@string/mqtt_host"
+            android:hint="@string/mqtt_host_hint"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
