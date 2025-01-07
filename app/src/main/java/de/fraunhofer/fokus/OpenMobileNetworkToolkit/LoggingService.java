@@ -238,7 +238,7 @@ public class LoggingService extends Service {
         }
 
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_influx_log", false)) {
-            setupLocalFile();
+            //TODO
         }
         return START_STICKY;
     }
