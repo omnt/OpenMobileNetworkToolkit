@@ -33,9 +33,6 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
         getPreferenceScreen().getSharedPreferences()
             .registerOnSharedPreferenceChangeListener(this);
 
-        enable_influx_switch = findPreference("enable_influx");
-
-
         androidx.preference.EditTextPreference editTextPreference =
             getPreferenceManager().findPreference("logging_interval");
         editTextPreference.setOnBindEditTextListener(
@@ -45,9 +42,10 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         if(s == null) return;
+        Log.d(TAG, "onSharedPreferenceChanged: " + s);
         if (s.equals("enable_logging")) {
             boolean logger = sharedPreferences.getBoolean("enable_logging", false);
-            Log.d(TAG, "Logger update: " + logger);
+            Log.d(TAG, "onSharedPreferenceChanged: " + logger);
         }
     }
 }
