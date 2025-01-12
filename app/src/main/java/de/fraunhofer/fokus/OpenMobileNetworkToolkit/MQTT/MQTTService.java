@@ -25,6 +25,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
+import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -172,6 +173,15 @@ public class MQTTService extends Service {
     public  void connectClient(){
         CompletableFuture<Mqtt5ConnAck> connAck = client.connectWith()
                 .keepAlive(10)
+                .willPublish()
+                    .topic("device/OMNT3/status")
+                    .qos(MqttQos.AT_MOST_ONCE)
+                    .payload("offline".getBytes())
+                    .retain(true)
+                    .payloadFormatIndicator(Mqtt5PayloadFormatIndicator.UTF_8)
+                    .contentType("text/plain")
+                    .noMessageExpiry()
+                    .applyWillPublish()
                 .send();
 
         connAck.whenComplete((mqtt5ConnAck, throwable) -> {
@@ -351,6 +361,7 @@ public class MQTTService extends Service {
         Log.d(TAG, "onStartCommand: Start MQTT service");
         context = getApplicationContext();
         mqttSP = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.mqtt_sp);
+        startForeground(3, builder.build());
         setupSharedPreferences();
         createClient();
         connectClient();
