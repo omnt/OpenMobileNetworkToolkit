@@ -175,7 +175,7 @@ public class MQTTService extends Service {
                 .keepAlive(10)
                 .willPublish()
                     .topic("device/OMNT3/status")
-                    .qos(MqttQos.AT_MOST_ONCE)
+                    .qos(MqttQos.EXACTLY_ONCE)
                     .payload("offline".getBytes())
                     .retain(true)
                     .payloadFormatIndicator(Mqtt5PayloadFormatIndicator.UTF_8)
