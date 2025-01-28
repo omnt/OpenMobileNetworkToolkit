@@ -50,6 +50,7 @@ public class MQTTService extends Service {
     private Handler notificationHandler;
     private Mqtt5AsyncClient client;
     private SharedPreferencesGrouper spg;
+    private String deviceName;
 
     @Nullable
     @Override
@@ -174,7 +175,7 @@ public class MQTTService extends Service {
         CompletableFuture<Mqtt5ConnAck> connAck = client.connectWith()
                 .keepAlive(10)
                 .willPublish()
-                    .topic("device/OMNT3/status")
+                    .topic(String.format("device/%s/status", deviceName))
                     .qos(MqttQos.EXACTLY_ONCE)
                     .payload("offline".getBytes())
                     .retain(true)
@@ -351,7 +352,7 @@ public class MQTTService extends Service {
 
     private void subscribeToAllTopics(){
         // TODO fix hardcoded deviceID
-        subsribetoTopic("device/OMNT3/#");
+        subsribetoTopic(String.format("device/%s/#", deviceName));
     }
 
 
@@ -361,6 +362,7 @@ public class MQTTService extends Service {
         Log.d(TAG, "onStartCommand: Start MQTT service");
         context = getApplicationContext();
         mqttSP = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.mqtt_sp);
+        deviceName = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.default_sp).getString("device_name", "null").strip();
         startForeground(3, builder.build());
         setupSharedPreferences();
         createClient();
