@@ -25,8 +25,8 @@
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="enable_radio_notification"
-            app:summary="@string/enablle_radio_notification_summary"
-            app:title="@string/enablle_radio_notification" />
+            app:summary="@string/enable_radio_notification_summary"
+            app:title="@string/enable_radio_notification" />
 
     </PreferenceCategory>
     <PreferenceCategory
