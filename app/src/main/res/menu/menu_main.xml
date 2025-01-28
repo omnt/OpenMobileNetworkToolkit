@@ -44,11 +44,13 @@
     <item
         android:id="@+id/slicingSetup"
         android:icon="@drawable/slicing"
-        android:title="@string/slicing_setup" />
+        android:title="@string/slicing_setup"
+        android:visible="false"/>
     <item
         android:id="@+id/influxDBMenu"
         android:icon="@drawable/database"
-        android:title="@string/influxdb" />
+        android:title="@string/influxdb"
+        android:visible="false"/>
     <item
         android:id="@+id/workprofilemanagement"
         android:icon="@drawable/outline_business_center_24"

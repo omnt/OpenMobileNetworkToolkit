@@ -19,8 +19,8 @@ import android.icu.text.SimpleDateFormat;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -28,8 +28,13 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
+import com.influxdb.client.write.events.BackpressureEvent;
+import com.influxdb.client.write.events.WriteErrorEvent;
+import com.influxdb.client.write.events.WriteRetriableErrorEvent;
+import com.influxdb.client.write.events.WriteSuccessEvent;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,6 +52,7 @@ import java.util.Objects;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbWriteApiStatus;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -59,13 +65,18 @@ public class LoggingService extends Service {
     InfluxdbConnection lic; // local influxDB
     DataProvider dp;
     SharedPreferencesGrouper spg;
-    private Handler notificationHandler;
     private Handler remoteInfluxHandler;
+    private HandlerThread remoteInfluxHandlerThread;
     private Handler localInfluxHandler;
+    private HandlerThread localInfluxHandlerThread;
     private Handler localFileHandler;
+    private HandlerThread localFileHandlerThread;
     private List<Point> logFilePoints;
     private FileOutputStream stream;
     private int interval;
+    private InfluxdbWriteApiStatus currentInfluxdbWriteApiStatus = InfluxdbWriteApiStatus.Unknown;
+    private boolean influxConnectionStatus = true;
+    private String currentInfluxDbWriteApiStatusMessage = "";
     GlobalVars gv;
     // Handle local on-device logging to logfile
     private final Runnable localFileUpdate = new Runnable() {
@@ -88,21 +99,6 @@ public class LoggingService extends Service {
                 }
             }
             localFileHandler.postDelayed(this, interval);
-        }
-    };
-    // Handle notification bar update
-    private final Runnable notification_updater = new Runnable() {
-        @SuppressLint("ObsoleteSdkInt")
-        @Override
-        public void run() {
-            if(dp == null) {
-                Log.e(TAG, "run: Data provider is null!");
-                return;
-            }
-            StringBuilder s = dp.getRegisteredCells().get(0).getStringBuilder();
-            builder.setContentText(s);
-            nm.notify(1, builder.build());
-            notificationHandler.postDelayed(this, interval);
         }
     };
 
@@ -134,6 +130,8 @@ public class LoggingService extends Service {
             remoteInfluxHandler.postDelayed(this, interval);*/
     };
 
+
+
     // Handle remote on-server influxdb update
     private final Runnable RemoteInfluxUpdate = new Runnable() {
         @Override
@@ -155,6 +153,131 @@ public class LoggingService extends Service {
         gv = GlobalVars.getInstance();
     }
 
+
+    private StringBuilder getStringBuilder() {
+        StringBuilder s = new StringBuilder();
+        s.append(getText(R.string.loggin_notifaction)).append("\n");
+        s.append("Logging to...\n");
+
+        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false))
+            s.append("File\n");
+
+        if(ic == null) {
+            // influx not initialized
+            //s.append("InfluxDB: not connected\n");
+            if(s.toString().equals("Logging to...\n")) {
+                s.append("No logging targets enabled\n");
+            }
+            return s;
+        }
+        s.append("InfluxDB: ");
+        if(!influxConnectionStatus){
+            //influx not reachable
+                s.append(ic.getUrl())
+                    .append(" not reachable\n");
+            return s;
+        } else {
+            //influx reachable, so showing the writeApi Status
+            s.append(currentInfluxdbWriteApiStatus).append("\n");
+        }
+
+        switch (currentInfluxdbWriteApiStatus) {
+            case Backpressure:
+            case WriteErrorEvent:
+            case WriteRetriableErrorEvent:
+                s.append("\tReason: ").append(currentInfluxDbWriteApiStatusMessage).append("\n");
+                break;
+            case WriteSuccess:
+            case Unknown:
+            default:
+                break;
+        }
+
+        return s;
+    }
+
+    private void setupNotification() {
+        // create intent for notifications
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        StringBuilder s = getStringBuilder();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // create notification
+            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel")
+                    .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                    .setColor(Color.WHITE)
+                    .setContentIntent(pendingIntent)
+                    // prevent to swipe the notification away
+                    .setOngoing(true)
+                    .setShowWhen(false)
+
+                    .setOnlyAlertOnce(true)
+                    .setContentText(getText(R.string.loggin_notifaction))
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(s))
+                    // don't wait 10 seconds to show the notification
+                    .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
+        } else {
+            // create notification
+            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel")
+                    .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                    .setColor(Color.WHITE)
+                    .setContentIntent(pendingIntent)
+                    .setOnlyAlertOnce(true)
+                    .setShowWhen(false)
+
+                    .setContentText(getText(R.string.loggin_notifaction))
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(s))
+                    // prevent to swipe the notification away
+                    .setOngoing(true);
+        }
+    }
+
+    private void updateNotification(){
+        StringBuilder s = getStringBuilder();
+        builder.setStyle(new NotificationCompat.BigTextStyle()
+                .bigText(s));
+        builder.setContentText(getText(R.string.loggin_notifaction));
+        nm.notify(1, builder.build());
+    }
+    private void getInfluxDBConnectionStatus() {
+        if (ic == null) return;
+        WriteApi writeApi = ic.getWriteApi();
+        if (writeApi == null) return;
+
+        // Listen for different WriteApi events
+        writeApi.listenEvents(BackpressureEvent.class, event ->
+                handleWriteApiEvent(InfluxdbWriteApiStatus.Backpressure, event.getReason().toString()));
+
+        writeApi.listenEvents(WriteSuccessEvent.class, event ->
+                handleWriteApiEvent(InfluxdbWriteApiStatus.WriteSuccess, null));
+
+        writeApi.listenEvents(WriteErrorEvent.class, event ->
+                handleWriteApiEvent(InfluxdbWriteApiStatus.WriteErrorEvent, event.getThrowable().getMessage()));
+
+        writeApi.listenEvents(WriteRetriableErrorEvent.class, event ->
+                handleWriteApiEvent(InfluxdbWriteApiStatus.WriteRetriableErrorEvent, event.getThrowable().getMessage()));
+    }
+
+    private void handleWriteApiEvent(InfluxdbWriteApiStatus status, String message) {
+        if (!spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) return;
+
+        // Check if status has changed
+        if (currentInfluxdbWriteApiStatus == status &&
+                (message == null || message.equals(currentInfluxDbWriteApiStatusMessage))) return;
+
+        // Update the status and log message
+        currentInfluxdbWriteApiStatus = status;
+        if (message != null) currentInfluxDbWriteApiStatusMessage = message;
+
+        Log.d(TAG, String.format("getInfluxDBConnectionStatus: Could not write to InfluxDBv2 due to %s %s", status.toString(), currentInfluxDbWriteApiStatusMessage));
+
+        updateNotification();
+    }
+
+
     @SuppressLint("ObsoleteSdkInt")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -167,26 +290,30 @@ public class LoggingService extends Service {
         spg = SharedPreferencesGrouper.getInstance(this);
         interval = Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000"));
 
-        // create intent for notifications
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // create notification
-            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(getText(R.string.loggin_notifaction)).setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE).setContentIntent(pendingIntent)
-                    // prevent to swipe the notification away
-                    .setOngoing(true)
-                    // don't wait 10 seconds to show the notification
-                    .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
-        } else {
-            // create notification
-            builder = new NotificationCompat.Builder(this, "OMNT_notification_channel").setContentTitle(getText(R.string.loggin_notifaction)).setSmallIcon(R.mipmap.ic_launcher_foreground).setColor(Color.WHITE).setContentIntent(pendingIntent)
-                    // prevent to swipe the notification away
-                    .setOngoing(true);
-        }
+
 
         // create preferences listener
         spg.setListener((prefs, key) -> {
+            if(Objects.equals(key, "enable_logging")) {
+                if (prefs.getBoolean(key, false)) {
+                    Log.d(TAG, "onSharedPreferenceChanged: " + prefs.getBoolean(key, false));
+                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+                        // enable influx when enable_logging is enabled
+                        setupRemoteInfluxDB();
+                    }
+                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false)){
+                        // enable local file log when enable_logging is enabled
+                        setupLocalFile();
+                        updateNotification();
+                    }
+
+
+                } else {
+                    updateNotification();
+                    this.onDestroy();
+                }
+            } else
             if (Objects.equals(key, "enable_influx")) {
                 if (prefs.getBoolean(key, false)) {
                     if (prefs.getString("influx_URL", "").isEmpty() || prefs.getString("influx_org", "").isEmpty() || prefs.getString("influx_token", "").isEmpty() || prefs.getString("influx_bucket", "").isEmpty()) {
@@ -194,22 +321,34 @@ public class LoggingService extends Service {
                         Toast.makeText(getApplicationContext(), "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
                         prefs.edit().putBoolean("enable_influx", false).apply();
                     } else {
-                        setupRemoteInfluxDB();
+                        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                            // only enable influx log, when enable_logging is also enabled
+                            setupRemoteInfluxDB();
+                            updateNotification();
+                        }
+
                     }
                 } else {
-                    stopRemoteInfluxDB();
-                }
-            } else if (Objects.equals(key, "enable_notification_update")) {
-                if (prefs.getBoolean(key, false)) {
-                    setupNotificationUpdate();
-                } else {
-                    stopNotificationUpdate();
+                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                        // only stop influx log, when enable_logging is also enabled
+                        stopRemoteInfluxDB();
+                        updateNotification();
+                    }
+
                 }
             } else if (Objects.equals(key, "enable_local_file_log")) {
                 if (prefs.getBoolean(key, false)) {
-                    setupLocalFile();
+                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                        // only enable file log, when enable_logging is also enabled
+                        setupLocalFile();
+                        updateNotification();
+                    }
                 } else {
-                    stopLocalFile();
+                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                        // only stop file log, when enable_logging is also enabled
+                        stopLocalFile();
+                        updateNotification();
+                    }
                 }
             } else if (Objects.equals(key, "enable_local_influx_log")) {
                 if (prefs.getBoolean(key, false)) {
@@ -222,13 +361,6 @@ public class LoggingService extends Service {
             }
         }, SPType.logging_sp);
 
-        // Start foreground service and setup logging targets
-        startForeground(1, builder.build());
-
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_notification_update", false)) {
-            setupNotificationUpdate();
-        }
-
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
             setupRemoteInfluxDB();
         }
@@ -240,6 +372,12 @@ public class LoggingService extends Service {
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_influx_log", false)) {
             //TODO
         }
+
+        setupNotification();
+        // Start foreground service and setup logging targets
+        startForeground(1, builder.build());
+
+
         return START_STICKY;
     }
 
@@ -250,6 +388,7 @@ public class LoggingService extends Service {
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
             stopRemoteInfluxDB();
         }
+
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false)) {
             stopLocalFile();
         }
@@ -257,6 +396,8 @@ public class LoggingService extends Service {
             stopLocalInfluxDB();
         }
 
+        //remove notification
+        nm.cancel(1);
         // Stop foreground service and remove the notification.
         stopForeground(STOP_FOREGROUND_DETACH);
         // Stop the foreground service.
@@ -349,6 +490,11 @@ public class LoggingService extends Service {
                 logPoints.add(bp);
             }
 
+            Point bi = dp.getBuildInformationPoint();
+            bi.time(time, WritePrecision.MS);
+            bi.addTags(tags_map);
+            logPoints.add(bi);
+
             Point p = dp.getLocationPoint();
             p.time(time, WritePrecision.MS);
             p.addTags(tags_map);
@@ -398,8 +544,7 @@ public class LoggingService extends Service {
             Log.d(TAG,e.toString());
         }
 
-        localFileHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        localFileHandler.post(localFileUpdate);
+        initLocalFileHandlerAndItsThread();
     }
 
     private void stopLocalFile() {
@@ -414,26 +559,25 @@ public class LoggingService extends Service {
                 Log.d(TAG,e.toString());
             }
         }
+
+        if (localFileHandlerThread != null) {
+            localFileHandlerThread.quitSafely();
+            try {
+                localFileHandlerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+        }
     }
 
-    private void setupNotificationUpdate() {
-        Log.d(TAG, "setupNotificationUpdate");
-        notificationHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        notificationHandler.post(notification_updater);
-    }
-
-    private void stopNotificationUpdate() {
-        Log.d(TAG, "stopNotificationUpdate");
-        notificationHandler.removeCallbacks(notification_updater);
-        builder.setContentText(null);
-        nm.notify(1, builder.build());
-    }
 
     private void setupLocalInfluxDB() {
         Log.d(TAG, "setupLocalInfluxDB");
         lic = InfluxdbConnections.getLicInstance(getApplicationContext());
         Objects.requireNonNull(lic).open_write_api();
-        localInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        localInfluxHandlerThread = new HandlerThread("LocalInfluxHandlerThread");
+        localInfluxHandlerThread.start();
+        localInfluxHandler = new Handler(Objects.requireNonNull(localFileHandlerThread.getLooper()));
         localInfluxHandler.post(localInfluxUpdate);
     }
 
@@ -449,7 +593,30 @@ public class LoggingService extends Service {
         if (lic != null) {
             lic.disconnect();
         }
+        if (localInfluxHandlerThread != null) {
+            localInfluxHandlerThread.quitSafely();
+            try {
+                localInfluxHandlerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+            localInfluxHandlerThread = null;
+        }
     }
+
+    Runnable monitorInfluxDBConnectionStatus = new Runnable() {
+        @Override
+        public void run() {
+            if (ic == null) return;
+            boolean newInfluxConnectionStatus = ic.ping();
+            Log.d(TAG, "run: monitorInfluxDBConnectionStatus: "+newInfluxConnectionStatus);
+            if(newInfluxConnectionStatus != influxConnectionStatus) {
+                influxConnectionStatus = newInfluxConnectionStatus;
+                updateNotification();
+            };
+            remoteInfluxHandler.postDelayed(this, interval);
+        }
+    };
 
     /**
      * initialize a new remote influxDB connection
@@ -458,8 +625,12 @@ public class LoggingService extends Service {
         Log.d(TAG, "setupRemoteInfluxDB");
         ic = InfluxdbConnections.getRicInstance(getApplicationContext());
         Objects.requireNonNull(ic).open_write_api();
-        remoteInfluxHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        getInfluxDBConnectionStatus();
+        remoteInfluxHandlerThread = new HandlerThread("RemoteInfluxHandlerThread");
+        remoteInfluxHandlerThread.start();
+        remoteInfluxHandler = new Handler(Objects.requireNonNull(remoteInfluxHandlerThread.getLooper()));
         remoteInfluxHandler.post(RemoteInfluxUpdate);
+        remoteInfluxHandler.post(monitorInfluxDBConnectionStatus);
         ImageView log_status = gv.getLog_status();
         if (log_status != null) {
             gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
@@ -480,6 +651,16 @@ public class LoggingService extends Service {
             }
         }
 
+        if (remoteInfluxHandlerThread != null) {
+            remoteInfluxHandlerThread.quitSafely();
+            try {
+                remoteInfluxHandlerThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+            remoteInfluxHandlerThread = null;
+        }
+
         // close disconnect influx connection if existing
         if (ic != null) {
             ic.disconnect();
@@ -495,5 +676,12 @@ public class LoggingService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private void initLocalFileHandlerAndItsThread() {
+        localFileHandlerThread = new HandlerThread("LocalFileHandlerThread");
+        localFileHandlerThread.start();
+        localFileHandler = new Handler(Objects.requireNonNull(localFileHandlerThread.getLooper()));
+        localFileHandler.post(localFileUpdate);
     }
 }

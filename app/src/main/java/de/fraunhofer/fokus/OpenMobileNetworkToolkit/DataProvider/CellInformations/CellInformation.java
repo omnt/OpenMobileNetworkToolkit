@@ -219,10 +219,10 @@ public class CellInformation extends Information {
 
     public StringBuilder getStringBuilder(){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(" Type: ").append(this.getCellType());
-        if(this.getPci() != -1) stringBuilder.append(" PCI: ").append(this.getPci());
+        stringBuilder.append(" Type: ").append(this.getCellType()).append("\n");
+        if(this.getPci() != -1) stringBuilder.append(" PCI: ").append(this.getPci()).append("\n");
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && this.getAlphaLong() != null && !this.getAlphaLong().equals("N/A") && !this.getAlphaLong().isEmpty()){
-            stringBuilder.append(" Alpha Long: ").append(this.getAlphaLong());
+            stringBuilder.append(" Alpha Long: ").append(this.getAlphaLong()).append("\n");
         }
         return stringBuilder;
     }

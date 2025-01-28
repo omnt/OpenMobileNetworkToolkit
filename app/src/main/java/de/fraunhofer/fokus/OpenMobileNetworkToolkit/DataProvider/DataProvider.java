@@ -98,7 +98,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     // internal data caches
     private List<CellInformation> ci = new ArrayList<>();
     private LocationInformation li = new LocationInformation();
-    private NetworkInformation ni;// = new NetworkInformation();
+    private NetworkInformation ni = new NetworkInformation();
     private List<NetworkInterfaceInformation> nii = new ArrayList<>();
     private ArrayList<CellInformation> ssi = new ArrayList<>();
     private WifiInformation wi = null;
@@ -158,6 +158,14 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
         // initialize internal state
         refreshAll();
+    }
+
+    /**
+     * Update the current Telephony Manager reference e.g. after subscription change
+     * @param tm new Telephony Manager reference
+     */
+    public void setTm(TelephonyManager tm) {
+        this.tm = tm;
     }
 
     /**
@@ -356,6 +364,14 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     public BuildInformation getBuildInformation() {
         return buildInformation;
     }
+
+    public Point getBuildInformationPoint() {
+        Point point = new Point("BuildInformation");
+        point.time(ts, WritePrecision.MS);
+        point = buildInformation.getPoint(point);
+        return point;
+    }
+
 
     /**
      * Get CellInformation object
@@ -880,11 +896,12 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                         wi = null;
                     }
                 };
-                cm.registerNetworkCallback(request, networkCallback);
-                cm.requestNetwork(request, networkCallback);
+                cm.registerNetworkCallback(request, networkCallback); //todo this call back is already registered
+                //cm.requestNetwork(request, networkCallback);
             }
         } catch (Exception e) {
-            Log.d("Network Callback: Exception in registerNetworkCallback", "Catch exception");
+            Log.d(TAG, "Network Callback: Exception in registerNetworkCallback");
+            Log.d(TAG,e.toString());
         }
     }
 

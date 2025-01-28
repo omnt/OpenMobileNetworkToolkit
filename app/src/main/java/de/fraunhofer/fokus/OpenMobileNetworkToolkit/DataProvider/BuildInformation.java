@@ -1,12 +1,13 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
-import android.content.Context;
 import android.util.Log;
-import android.widget.TableLayout;
+
+import com.influxdb.client.write.Point;
 
 import org.json.JSONObject;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.BuildConfig;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 
 public class BuildInformation extends Information {
     private final String TAG = "BuildInformation";
@@ -39,7 +40,11 @@ public class BuildInformation extends Information {
         return BuildConfig.DEBUG;
     }
 
-    public JSONObject toJSON(){
+    public String getGitHash() {
+        return GlobalVars.getInstance().getGit_hash();
+    }
+
+    public JSONObject toJSON() {
 
         JSONObject json = new JSONObject();
         try {
@@ -48,10 +53,25 @@ public class BuildInformation extends Information {
             json.put("VersionName", getVersionName());
             json.put("ApplicationId", getApplicationId());
             json.put("Debug", isDebug());
+            json.put("GitHash", getGitHash());
         } catch (Exception e) {
-            Log.d(TAG,e.toString());
+            Log.d(TAG, e.toString());
         }
         return json;
+    }
+
+    public Point getPoint(Point point) {
+        if (point == null) {
+            Log.e(TAG, "getPoint: given point == null!");
+            point = Point.measurement("BuildInformation");
+        }
+        point.addField("BuildType", getBuildType());
+        point.addField("VersionCode", getVersionCode());
+        point.addField("VersionName", getVersionName());
+        point.addField("ApplicationID", getApplicationId());
+        point.addField("Debug", isDebug());
+        point.addField("GitHash", getGitHash());
+        return point;
     }
 
 }

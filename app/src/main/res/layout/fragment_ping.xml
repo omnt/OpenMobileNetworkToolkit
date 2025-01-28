@@ -24,6 +24,15 @@
         android:paddingHorizontal="16dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
+        <TextView
+            android:id="@+id/ping_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/ping_title"
+            android:textAlignment="center"
+            android:textSize="20sp" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,7 +62,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Start" />
+                android:text="Start"
+                android:textColor="@color/purple_200"
+                app:strokeColor="@color/purple_200" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/ping_stop"
@@ -61,7 +72,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Stop" />
+                android:text="Stop"
+                android:textColor="@color/purple_200"
+                app:strokeColor="@color/purple_200" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 

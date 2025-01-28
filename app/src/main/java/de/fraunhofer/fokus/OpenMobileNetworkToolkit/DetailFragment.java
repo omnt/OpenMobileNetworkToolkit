@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -445,8 +446,6 @@ public class DetailFragment extends Fragment {
                 }, displayNull);
                 break;
         }
-
-
     }
 
 
@@ -532,16 +531,19 @@ public class DetailFragment extends Fragment {
         NetworkCallback nc = new NetworkCallback(context);
         TableLayout tl = new TableLayout(context);
 
-        addRows(tl, new String[][]{
-                {getString(R.string.networkOperatorName), ni.getNetworkOperatorName()},
-                {getString(R.string.simOperatorName), ni.getSimOperatorName()},
-                {getString(R.string.networkSpecifier), ni.getNetworkSpecifier()},
-                {getString(R.string.dataState), ni.getDataStateString()},
-                {getString(R.string.dataNetworkType), ni.getDataNetworkTypeString()},
-                {getString(R.string.phoneType), ni.getPhoneTypeString()},
-                {getString(R.string.preferredOpportunisticDataSubscriptionId), String.valueOf(ni.getPreferredOpportunisticDataSubscriptionId())},
-        }, true);
-
+        if (ni != null) {
+            addRows(tl, new String[][]{
+                    {getString(R.string.networkOperatorName), ni.getNetworkOperatorName()},
+                    {getString(R.string.simOperatorName), ni.getSimOperatorName()},
+                    {getString(R.string.networkSpecifier), ni.getNetworkSpecifier()},
+                    {getString(R.string.dataState), ni.getDataStateString()},
+                    {getString(R.string.dataNetworkType), ni.getDataNetworkTypeString()},
+                    {getString(R.string.phoneType), ni.getPhoneTypeString()},
+                    {getString(R.string.preferredOpportunisticDataSubscriptionId), String.valueOf(ni.getPreferredOpportunisticDataSubscriptionId())},
+            }, true);
+        } else {
+            Toast.makeText(getContext(), "NetworkInformation was not ready!", Toast.LENGTH_SHORT).show();
+        }
 
         if (GlobalVars.getInstance().isPermission_phone_state() && tm.getSimState() == TelephonyManager.SIM_STATE_READY) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

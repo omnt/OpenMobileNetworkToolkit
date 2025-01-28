@@ -8,12 +8,12 @@
 
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.OpenMobileNetworkToolkitCarrierSettings" parent="Theme.MaterialComponents.DayNight">
+    <style name="Base.Theme.OpenMobileNetworkToolkit" parent="Theme.Material3.DayNight.NoActionBar">
 
     </style>
 
-    <style name="Theme.OpenMobileNetworkToolkitCarrierSettings.NoActionBar">
-        <item name="windowActionBar">false</item>
+    <style name="Theme.OpenMobileNetworkToolkit.NoActionBar">
+        <item name="windowActionBar">true</item>
         <item name="windowNoTitle">true</item>
     </style>
 </resources>

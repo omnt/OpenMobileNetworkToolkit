@@ -44,7 +44,7 @@
     <string name="iperf_bidir">BiDir</string>
     <string name="iperf_json">JSON</string>
     <string name="iperf_one_off">one-off</string>
-    <string name="iperf3_title">iPerf3 Testing</string>
+    <string name="iperf3_title">Bandwidth / iPerf3</string>
     <string name="iperf3_instances">Instances</string>
     <string name="export_logs">Export Logs</string>
     <string name="channel_name">OMNT_Notification</string>
@@ -136,7 +136,7 @@
     <string name="current_carrier_settings_text">Current Carrier Settings of the main subscription</string>
     <string name="ping">Ping</string>
     <string name="ping_command">-w 5 8.8.8.8</string>
-    <string name="read_carrier_settings">Read Carrier Settings</string>
+    <string name="read_carrier_settings">Read</string>
     <string name="press_the_read_button">Press the read button</string>
     <string name="exit">Exit\n</string>
     <string name="iperf3_cport">--cport</string>
@@ -150,6 +150,17 @@
 
 
     <!-- MQTT Preferences -->
+    <string name="mqtt_client_username_summary">MQTT Username</string>
+    <string name="enable_mqtt">Enable MQTT</string>
+    <string name="enable_mqtt_on_boot">Enable MQTT on boot</string>
+    <string name="mqtt_client_username_dialog_title">Username provided by your MQTT-Broker</string>
+    <string name="mqtt_client_user_name_title">MQTT Client Username</string>
+    <string name="mqtt_client_password_dialog_title">Password provided by your MQTT-Broker</string>
+    <string name="mqtt_client_password">MQTT Client Password</string>
+    <string name="mqtt_host_dialog_title">MQTT-Broker Address, including Port</string>
+    <string name="mqtt_host">MQTT-Broker Address</string>
+    <string name="mqtt_host_hint">tcp://192.168.213.89:1883</string>
+    <string name="mqtt_service_running">MQTT Service</string>
 
 
     <!-- -->
@@ -258,16 +269,12 @@
     <string name="standard">Standard</string>
     <string name="channel_bandwidth">Channel Bandwidth</string>
     <string name="wifi_security_type">Security Type</string>
-    <string name="mqtt_client_username_summary">MQTT Username</string>
-    <string name="enable_mqtt">Enable MQTT</string>
-    <string name="enable_mqtt_on_boot">Enable MQTT on boot</string>
-    <string name="mqtt_client_username_dialog_title">Username provided by your MQTT-Broker</string>
-    <string name="mqtt_client_user_name_title">MQTT Client Username</string>
-    <string name="mqtt_client_password_dialog_title">Password provided by your MQTT-Broker</string>
-    <string name="mqtt_client_password">MQTT Client Password</string>
-    <string name="mqtt_host_dialog_title">MQTT-Broker Address, including Port</string>
-    <string name="mqtt_host">MQTT-Broker Address</string>
-    <string name="mqtt_host_hint">tcp://192.168.213.89:1883</string>
-    <string name="mqtt_service_running">MQTT Service</string>
+    <string name="enablle_radio_notification_summary">Serving Cell Parameter: PCI, RSRP...</string>
+    <string name="enablle_radio_notification">Enable Cell Notification</string>
+    <string name="cell_notifcation">Serving Cell</string>
+    <string name="ping_title">ICMP / Ping</string>
+    <string name="special_codes_title">Special Codes</string>
+    <string name="subscriptions_title">Subscriptions\n</string>
+    <string name="about_title">About</string>
 
 </resources>

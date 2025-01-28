@@ -119,20 +119,20 @@ public class PingFragment extends Fragment {
         saveTextInputToSharedPreferences(input, "ping_input");
         boolean pingRunning = spg.getSharedPreference(SPType.ping_sp).getBoolean("ping_running", false);
         if (pingRunning && PingService.isRunning()) {
-            v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+            v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
         } else {
-            v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+            v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
         }
         spg.setListener((sharedPreferences, key) -> {
             if (key != null && key.equals("ping_running")) {
                 boolean isRunning = sharedPreferences.getBoolean("ping_running", false);
                 handleInput(isRunning);
                 if (isRunning) {
-                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
                 } else {
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
                 }
 
             }
@@ -145,14 +145,14 @@ public class PingFragment extends Fragment {
             switch (checkedId) {
                 case R.id.ping_start:
                     startPingService();
-                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
 
                     break;
                 case R.id.ping_stop:
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.teal_200, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
                     stopPingService();
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
                     break;

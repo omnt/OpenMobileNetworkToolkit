@@ -1,7 +1,7 @@
 /*
- *  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+ *  SPDX-FileCopyrightText: 2025 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2025 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+ *  SPDX-FileCopyrightText: 2025 Fraunhofer FOKUS
  *
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
@@ -34,79 +34,83 @@ import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
-    implements OnSharedPreferenceChangeListener {
+        implements OnSharedPreferenceChangeListener {
 
-    public static String TAG = "version";
-    private Context ct;
-    private String plmnId;
-    private String accessNetworkType;
     public static final String SELECTNETWORKTYPE = "select_network_type";
     public static final String ADDPLMN = "add_plmn";
     public static final String PERSISTREBOOT = "persist_boot";
+    public static String TAG = "MobileNetworkSettingsFragment";
     TelephonyManager tm;
     PackageManager pm;
     GlobalVars gv;
     SharedPreferences preferences;
+    private Context ct;
+    private String plmnId;
+    private String accessNetworkType;
+
     @SuppressLint("ObsoleteSdkInt")
-    private boolean setNetworkSelection(){
+    private boolean setNetworkSelection() {
         String networkType = preferences.getString(SELECTNETWORKTYPE, "");
         String plmn = preferences.getString(ADDPLMN, "");
         boolean persist = preferences.getBoolean(PERSISTREBOOT, false);
-        if(networkType.isEmpty()){
-            Toast.makeText(ct, "Please specify PLMN", Toast.LENGTH_SHORT).show();
+
+        if (networkType.isEmpty()) {
+            Toast.makeText(ct, "Please specify a PLMN", Toast.LENGTH_SHORT).show();
             return false;
         }
-        if(!pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS)){
-            Toast.makeText(ct, "App doesn't have the rights", Toast.LENGTH_SHORT).show();
+
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_RADIO_ACCESS)) {
+            Toast.makeText(ct, "App doesn't have the permission to alter radio settings", Toast.LENGTH_SHORT).show();
             return false;
         }
+
         int networkTypeId = NetworkInformation.getAccessNetworkID(networkType);
+
         if (gv.isCarrier_permissions() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return tm.setNetworkSelectionModeManual(plmn, persist,
-                networkTypeId);
+            return tm.setNetworkSelectionModeManual(plmn, persist, networkTypeId);
         }
+
         return tm.setNetworkSelectionModeManual(plmn, persist);
     }
 
-    private void handleSetNetwork(){
-        if(gv.isCarrier_permissions()){
-            if(setNetworkSelection()){
+    private void handleSetNetwork() {
+        if (gv.isCarrier_permissions()) {
+            if (setNetworkSelection()) {
                 Toast.makeText(ct, "Network Selection Successful", Toast.LENGTH_SHORT).show();
-                return;
             } else {
                 Toast.makeText(ct, "Network Selection Failed", Toast.LENGTH_SHORT).show();
-                return;
             }
+        } else {
+            Toast.makeText(ct, "OMNT doesn't have Carrier Permissions", Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(ct, "App doesn't have Carrier Permissions", Toast.LENGTH_SHORT).show();
     }
-
 
     @SuppressLint("ObsoleteSdkInt")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DropDownPreference selectNetworkType = findPreference(SELECTNETWORKTYPE);
-        EditTextPreference inputPLMN = findPreference(ADDPLMN);
-        SwitchPreference reboot = findPreference(PERSISTREBOOT);
-
-        if(!gv.isCarrier_permissions()){
-            selectNetworkType.setEnabled(false);
-            inputPLMN.setEnabled(false);
-            reboot.setEnabled(false);
-        }
         ct = requireContext();
         plmnId = ct.getString(R.string.select_plmn);
         accessNetworkType = ct.getString(R.string.access_networktype);
         preferences = SharedPreferencesGrouper.getInstance(ct).getSharedPreference(SPType.mobile_network_sp);
-
-
+        tm = gv.getTm();
+        pm = gv.getPm();
         int sdk_version = Build.VERSION.SDK_INT;
+
+        DropDownPreference selectNetworkType = findPreference(SELECTNETWORKTYPE);
+        EditTextPreference inputPLMN = findPreference(ADDPLMN);
+        SwitchPreference reboot = findPreference(PERSISTREBOOT);
+
+        if (!gv.isCarrier_permissions()) {
+            selectNetworkType.setEnabled(false);
+            inputPLMN.setEnabled(false);
+            reboot.setEnabled(false);
+        }
 
         // we require at least android 29 but if run below 31 we disable settings not available
         if (sdk_version < 31) {
@@ -118,21 +122,24 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
 
         List<String> list;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            list = Arrays.asList(NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.CDMA2000),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.GERAN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.IWLAN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.EUTRAN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UNKNOWN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.NGRAN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UTRAN));
+            list = Arrays.asList(
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.CDMA2000),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.GERAN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.IWLAN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.EUTRAN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UNKNOWN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.NGRAN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UTRAN));
         } else {
-            list = Arrays.asList(NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.CDMA2000),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.GERAN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.IWLAN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.EUTRAN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UNKNOWN),
-                NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UTRAN));
+            list = Arrays.asList(
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.CDMA2000),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.GERAN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.IWLAN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.EUTRAN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UNKNOWN),
+                    NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UTRAN));
         }
+
         CharSequence[] cs = list.toArray(new CharSequence[list.size()]);
 
         if (selectNetworkType != null) {
@@ -141,11 +148,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 selectNetworkType.setDefaultValue(NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.NGRAN));
             }
-
         }
-        tm = gv.getTm();
-        pm = gv.getPm();
-
 
         selectNetworkType.setOnPreferenceChangeListener((preference, newValue) -> {
             String updatedValue = (String) newValue;
@@ -195,14 +198,12 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
             } else {
                 button.setEnabled(false);
             }
-
         }
     }
 
-
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        switch (Objects.requireNonNull(key)){
+        switch (Objects.requireNonNull(key)) {
             case "selected_plmn":
             case "select_network_type":
                 Toast.makeText(requireContext(), sharedPreferences.getString(key, "null"), Toast.LENGTH_LONG).show();
@@ -214,5 +215,4 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
         CarrierConfigManager cs = (CarrierConfigManager) requireContext().getSystemService(Context.CARRIER_CONFIG_SERVICE);
         cs.notifyConfigChangedForSubId(tm.getSubscriptionId());
     }
-
 }

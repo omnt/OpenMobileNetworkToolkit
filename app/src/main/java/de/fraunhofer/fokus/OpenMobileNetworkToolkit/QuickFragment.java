@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.StringRes;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -107,7 +108,7 @@ public class QuickFragment extends Fragment {
                                 int min, int minColor,
                                 int max, int maxColor) {
         textView.setText(value);
-        if(value.equals(String.valueOf(Integer.MAX_VALUE))) {
+        if (value.equals(String.valueOf(Integer.MAX_VALUE)) || value.equals("nullnull")) {
             textView.setText("N/A");
             return;
         }
@@ -320,7 +321,7 @@ public class QuickFragment extends Fragment {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                 ));
-                errorText.setText(getString(R.string.cell_na));
+                errorText.setText(getSafeString(R.string.cell_na));
                 error.addView(errorText);
                 mainLL.addView(error);
             } else {
@@ -342,5 +343,13 @@ public class QuickFragment extends Fragment {
         mainLL = view.findViewById(R.id.quick_fragment);
         updateUIHandler.postDelayed(updateUI, 500);
         return view;
+    }
+
+    public String getSafeString(@StringRes int resId) {
+        if (context == null) {
+            return "N/A";
+        } else {
+            return context.getResources().getString(resId);
+        }
     }
 }

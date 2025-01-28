@@ -1,4 +1,17 @@
 # OpenMobileNetworkToolkit Changelog
+## Release [0.5] - 38c3
+
+### Added
+- Option to set EPDG static address
+- build information are now also written to the logging framework
+- git hash is no shown and logged
+
+### Changed
+- tm instance is now updated in favor of creating a new one if subscription does not match
+
+### Fixed
+- crash of the quick view on some phones
+
 ## Release [0.4] - Stralsund
 
 ### Added
@@ -17,7 +30,6 @@
 - Fix crash where no UICC or Cell is available
 - Wrong value in Wifi RSSI filed
 
-# OpenMobileNetworkToolkit Changelog
 ## Release [0.3.1]
 
 ### Added

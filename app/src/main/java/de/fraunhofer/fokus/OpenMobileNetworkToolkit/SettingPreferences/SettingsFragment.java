@@ -22,6 +22,7 @@ import androidx.preference.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -42,19 +43,22 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (sub_select != null) {
             ArrayList<String> entries = new ArrayList<>();
             ArrayList<String> entryValues = new ArrayList<>();
-            List<SubscriptionInfo> subscriptions = GlobalVars.getInstance().get_dp().getSubscriptions();
-            for (SubscriptionInfo info : subscriptions) {
-                entries.add(info.getDisplayName().toString());
-                entryValues.add(String.valueOf(info.getSubscriptionId()));
-            }
-            CharSequence[] entries_char = entries.toArray(new CharSequence[0]);
-            CharSequence[] entryValues_char = entryValues.toArray(new CharSequence[0]);
+            DataProvider dp = GlobalVars.getInstance().get_dp();
+            if (dp != null) {
+                List<SubscriptionInfo> subscriptions = GlobalVars.getInstance().get_dp().getSubscriptions();
+                for (SubscriptionInfo info : subscriptions) {
+                    entries.add(info.getDisplayName().toString());
+                    entryValues.add(String.valueOf(info.getSubscriptionId()));
+                }
+                CharSequence[] entries_char = entries.toArray(new CharSequence[0]);
+                CharSequence[] entryValues_char = entryValues.toArray(new CharSequence[0]);
                 sub_select.setEntries(entries_char);
                 sub_select.setEntryValues(entryValues_char);
                 sub_select.setOnPreferenceChangeListener((preference, newValue) -> {
                     Toast.makeText(requireContext().getApplicationContext(), "Subscription Changed, please restart OMNT", Toast.LENGTH_SHORT).show();
                     return true;
                 });
+            }
         }
 
         Preference button = pfm.findPreference("reset_modem");

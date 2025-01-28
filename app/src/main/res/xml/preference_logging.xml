@@ -33,11 +33,7 @@
             android:title="@string/logging_interval"
             app:iconSpaceReserved="false"
             app:summary="Logging interval in milliseconds" />
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="false"
-            app:key="enable_notification_update"
-            app:summary="@string/enable_notification_update_summary"
-            app:title="@string/enable_notification_update" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

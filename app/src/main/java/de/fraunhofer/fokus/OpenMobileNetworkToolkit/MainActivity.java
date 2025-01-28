@@ -24,7 +24,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
+import android.os.HandlerThread;
 import android.os.StrictMode;
 import android.provider.Settings;
 import android.telephony.CarrierConfigManager;
@@ -43,6 +43,7 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.Preference;
@@ -71,8 +72,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public boolean feature_telephony = false;
     Intent loggingServiceIntent;
     Intent mqttServiceIntent;
+    Intent notificationServiceIntent;
     NavController navController;
     private Handler requestCellInfoUpdateHandler;
+    private HandlerThread requestCellInfoUpdateHandlerThread;
     private GlobalVars gv;
     /**
      * Runnable to handle Cell Info Updates
@@ -117,14 +120,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         gv.setFeature_telephony(feature_telephony);
 
         // initialize android UX related thing the app needs
+        WindowCompat.setDecorFitsSystemWindows(this.getWindow(), false);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         gv.setLog_status(findViewById(R.id.log_status_icon));
 
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
         navController = Objects.requireNonNull(navHostFragment).getNavController();
+
         // create notification channel
         CharSequence name = getString(R.string.channel_name);
         String description = getString(R.string.channel_description);
@@ -161,8 +165,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 }
                 // switch the telephony manager to a new one according to the app settings
                 tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.default_sp).getString("select_subscription", "0")));
+
+                // update reference to tm
                 gv.setTm(tm);
-                dp = new DataProvider(this);
+                dp.setTm(tm);
             }
 
             gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
@@ -193,8 +199,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             }
         }
 
-        requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
+        initHandlerAndHandlerThread();
 
         loggingServiceIntent = new Intent(this, LoggingService.class);
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
@@ -213,6 +218,20 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 }
             }
         }, SPType.logging_sp);
+
+        notificationServiceIntent = new Intent(context, NotificationService.class);
+        if(spg.getSharedPreference(SPType.default_sp).getBoolean("enable_radio_notification", false)){
+            context.startService(notificationServiceIntent);
+        }
+        spg.setListener((prefs, key) -> {
+            if(Objects.equals(key, "enable_radio_notification")){
+                if(prefs.getBoolean(key, false)){
+                    context.startService(notificationServiceIntent);
+                } else {
+                    context.stopService(notificationServiceIntent);
+                }
+            }
+        }, SPType.default_sp);
 
         mqttServiceIntent = new Intent(this, MQTTService.class);
         if (spg.getSharedPreference(SPType.mqtt_sp).getBoolean("enable_mqtt", false)) {
@@ -233,9 +252,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }, SPType.mqtt_sp);
 
         getAppSignature();
-
-
-
+        gv.setGit_hash(getString(R.string.git_hash));
     }
 
     /**
@@ -501,5 +518,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 break;
         }
         return true;
+    }
+
+    private void initHandlerAndHandlerThread() {
+        requestCellInfoUpdateHandlerThread = new HandlerThread("RequestCellInfoUpdateHandlerThread");
+        requestCellInfoUpdateHandlerThread.start();
+        requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(requestCellInfoUpdateHandlerThread.getLooper()));
+        requestCellInfoUpdateHandler.post(requestCellInfoUpdate);
     }
 }

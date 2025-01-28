@@ -1,0 +1,53 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~ SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~
+  ~ SPDX-License-Identifier: apache2
+  -->
+
+<vector xmlns:aapt="http://schemas.android.com/aapt" xmlns:android="http://schemas.android.com/apk/res/android" android:height="17.411764dp" android:viewportHeight="444" android:viewportWidth="612" android:width="24dp">
+      
+    <group>
+            
+        <clip-path android:pathData="M0,0h612v444h-612z"/>
+            
+        <path android:fillType="evenOdd" android:pathData="M116.67,32.63C12.11,137.26 12.1,306.91 116.65,411.55 116.66,411.56 116.67,411.56 116.67,411.57 124.01,419.17 123.8,431.29 116.2,438.63 108.79,445.79 97.04,445.79 89.63,438.63 -29.87,319.05 -29.88,125.16 89.62,5.58 89.62,5.57 89.63,5.57 89.63,5.57 97.23,-1.78 109.34,-1.57 116.67,6.04 123.83,13.45 123.83,25.21 116.67,32.63ZM197.84,113.85C138.11,173.64 138.11,270.56 197.84,330.34 205.32,337.83 205.32,349.96 197.84,357.44 190.36,364.93 178.24,364.93 170.76,357.44 96.06,282.71 96.05,161.54 170.72,86.79 170.73,86.77 170.75,86.76 170.76,86.75 178.24,79.27 190.36,79.27 197.84,86.75 205.32,94.23 205.32,106.37 197.84,113.85ZM414.18,86.75C421.64,79.27 433.75,79.25 441.23,86.72 441.24,86.73 441.25,86.74 441.26,86.75 515.96,161.48 515.97,282.66 441.3,357.41 441.28,357.42 441.27,357.43 441.26,357.44 433.78,364.93 421.66,364.93 414.18,357.44 406.7,349.96 406.7,337.83 414.18,330.34 473.91,270.56 473.91,173.64 414.18,113.85 406.7,106.39 406.69,94.27 414.15,86.78 414.16,86.77 414.17,86.76 414.18,86.75ZM495.35,5.6C502.81,-1.87 514.92,-1.87 522.39,5.6 641.87,125.18 641.87,319.05 522.39,438.63 514.79,445.97 502.68,445.76 495.35,438.16 488.19,430.74 488.19,418.99 495.35,411.57 599.91,306.94 599.92,137.29 495.37,32.65 495.36,32.64 495.35,32.63 495.35,32.63 487.88,25.15 487.88,13.04 495.35,5.57Z">
+                  
+            <aapt:attr name="android:fillColor">
+                        
+                <gradient android:endX="306" android:endY="0" android:startX="306" android:startY="444" android:tileMode="mirror" android:type="linear">
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0"/>
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0.15"/>
+                              
+                    <item android:color="#FF8E2DE2" android:offset="1"/>
+                            
+                </gradient>
+                      
+            </aapt:attr>
+                
+        </path>
+            
+        <path android:fillType="evenOdd" android:pathData="M382,222.5C382,264.75 347.97,299 306,299 264.03,299 230,264.75 230,222.5 230,180.25 264.03,146 306,146 347.97,146 382,180.25 382,222.5Z">
+                  
+            <aapt:attr name="android:fillColor">
+                        
+                <gradient android:endX="306" android:endY="0" android:startX="306" android:startY="444" android:tileMode="mirror" android:type="linear">
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0"/>
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0.15"/>
+                              
+                    <item android:color="#FF8E2DE2" android:offset="1"/>
+                            
+                </gradient>
+                      
+            </aapt:attr>
+                
+        </path>
+          
+    </group>
+    
+</vector>

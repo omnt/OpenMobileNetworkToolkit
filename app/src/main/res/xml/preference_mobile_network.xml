@@ -47,6 +47,11 @@
                     app:icon="@drawable/baseline_android_24"
                     app:iconSpaceReserved="true"
                     app:key="buildVersionS">
+                        <EditTextPreference
+                            android:dependency="buildVersionS"
+                            android:key="edit_text_EPDG_STATIC_ADDRESS"
+                            android:title="EPDG_STATIC_ADDRESS"
+                            app:iconSpaceReserved="false"/>
                         <MultiSelectListPreference
                             android:dependency="buildVersionS"
                             android:entries="@array/nr_availability"

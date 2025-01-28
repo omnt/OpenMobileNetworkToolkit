@@ -235,15 +235,22 @@ public class LTEInformation extends CellInformation {
     @Override
     public StringBuilder getStringBuilder(){
         StringBuilder stringBuilder = super.getStringBuilder();
-        stringBuilder.append(" RSRQ: ").append(this.getRsrq());
-        stringBuilder.append(" RSRP: ").append(this.getRsrp());
-        stringBuilder.append(" RSSI: ").append(this.getRssi());
-        stringBuilder.append(" RSSNR: ").append(this.getRssnr());
-        stringBuilder.append(" CQI: ").append(this.getCqi());
-        stringBuilder.append(" Bandwidth: ").append(this.getBandwidth());
-        stringBuilder.append(" EARFCN: ").append(this.getEarfcn());
-        stringBuilder.append(" TimingAdvance: ").append(this.getTimingAdvance());
+        String max = Integer.MAX_VALUE + "";
+        if(!this.getRsrqString().equals(max)) stringBuilder.append(" RSRQ: ").append(this.getRsrq()).append(" dB").append("\n");
 
+        if(!this.getRsrpString().equals(max)) stringBuilder.append(" RSRP: ").append(this.getRsrp()).append(" dBm").append("\n");
+
+        if(!this.getRssiString().equals(max)) stringBuilder.append(" RSSI: ").append(this.getRssi()).append(" dBm").append("\n");
+
+        if(!this.getRssnrString().equals(max)) stringBuilder.append(" RSSNR: ").append(this.getRssnr()).append(" dB").append("\n");
+
+        if(!this.getCqiString().equals(max)) stringBuilder.append(" CQI: ").append(this.getCqi()).append("\n");
+
+        if(!this.getBandwidthString().equals(max)) stringBuilder.append(" Bandwidth: ").append(this.getBandwidth()).append(" kHz").append("\n");
+
+        if(!this.getEarfcnString().equals(max)) stringBuilder.append(" EARFCN: ").append(this.getEarfcn()).append("\n");
+
+        if(!this.getTimingAdvanceString().equals(max)) stringBuilder.append(" TimingAdvance: ").append(this.getTimingAdvance()).append(" ns").append("\n");
 
         return stringBuilder;
 

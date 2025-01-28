@@ -136,6 +136,18 @@ public class NRInformation extends CellInformation {
         return cqis;
     }
 
+    public int getFirstCqi() {
+        try {
+            return cqis.get(0);
+        } catch (IndexOutOfBoundsException e) {
+            return 0;
+        }
+    }
+
+    public String getFirstCqiString(){
+        return Integer.toString(this.getFirstCqi());
+    }
+
     public void setCqis(List<Integer> cqis) {
         this.cqis = cqis;
     }
@@ -279,11 +291,20 @@ public class NRInformation extends CellInformation {
 
     @Override
     public StringBuilder getStringBuilder(){
-        StringBuilder sb = super.getStringBuilder();
-        sb.append(" SSRSQ: ").append(this.getSsrsrq());
-        sb.append(" SSRSRP: ").append(this.getSsrsrp());
-        sb.append(" SSSINR: ").append(this.getSssinr());
-        return sb;
-    }
+        StringBuilder stringBuilder = super.getStringBuilder();
+        String max = Integer.MAX_VALUE + "";
+        if(!this.getSsrsrqString().equals(max)) stringBuilder.append(" SSRSRQ: ").append(this.getSsrsrqString()).append(" dB").append("\n");
 
+        if(!this.getSsrsrpString().equals(max)) stringBuilder.append(" SSRSRP: ").append(this.getSsrsrpString()).append(" dBm").append("\n");
+
+        if(!this.getSssinrString().equals(max)) stringBuilder.append(" SSRSRP: ").append(this.getSssinrString()).append(" dBm").append("\n");
+
+        if(!this.getFirstCqiString().equals(max)) stringBuilder.append(" CQI: ").append(this.getFirstCqiString()).append("\n");
+
+        if(!this.getNrarfcnString().equals(max)) stringBuilder.append(" NRARFCN: ").append(this.getNrarfcnString()).append("\n");
+
+        if(!this.getTimingAdvanceString().equals(max)) stringBuilder.append(" TimingAdvance: ").append(this.getTimingAdvance()).append(" ns").append("\n");
+
+        return stringBuilder;
+    }
 }

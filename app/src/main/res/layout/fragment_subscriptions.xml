@@ -7,23 +7,39 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/subscriptions_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AboutFragment">
 
-    <ScrollView
-        android:id="@+id/subsriptions_scroll_view"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/subscriptions_linear_layout"
+        <TextView
+            android:id="@+id/subscriptions_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"></LinearLayout>
-    </ScrollView>
+            android:layout_marginTop="20dp"
+            android:text="@string/subscriptions_title"
+            android:textAlignment="center"
+            android:textSize="20sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ScrollView
+            android:id="@+id/subsriptions_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/subscriptions_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"></LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

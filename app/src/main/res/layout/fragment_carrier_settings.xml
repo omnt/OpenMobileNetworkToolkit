@@ -18,14 +18,17 @@
         android:id="@+id/carrier_settings_fragment_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:paddingLeft="16dp"
         android:text="Carrier Settings"
-        android:textStyle="bold" />
+        android:textAlignment="center"
+        android:textSize="20sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/button_read_carrier_settings"
@@ -38,9 +41,9 @@
 
         <EditText
             android:id="@+id/carrier_settings_filter"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
             android:autofillHints="filter string"
             android:hint="filter string"></EditText>
     </LinearLayout>

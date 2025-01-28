@@ -9,15 +9,10 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.Build;
 import android.telephony.AccessNetworkConstants;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
-import android.widget.TableLayout;
-
-import java.util.Arrays;
-
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 
 public class NetworkInformation extends Information {
     private final String networkOperatorName;
@@ -37,6 +32,16 @@ public class NetworkInformation extends Information {
         this.dataNetworkType = dataNetworkType;
         this.phoneType = phoneType;
         this.preferredOpportunisticDataSubscriptionId = preferredOpportunisitcDataSubscitptionId;
+    }
+
+    public NetworkInformation() {
+        this.networkOperatorName = "N/A";
+        this.simOperatorName = "N/A";
+        this.networkSpecifier = "N/A";
+        this.dataState = TelephonyManager.DATA_UNKNOWN;
+        this.dataNetworkType = TelephonyManager.NETWORK_TYPE_UNKNOWN;
+        this.phoneType = TelephonyManager.NETWORK_TYPE_UNKNOWN;
+        this.preferredOpportunisticDataSubscriptionId = SubscriptionManager.DEFAULT_SUBSCRIPTION_ID;
     }
 
     /**

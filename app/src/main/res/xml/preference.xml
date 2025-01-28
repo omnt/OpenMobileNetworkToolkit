@@ -15,13 +15,19 @@
         android:title="@string/home_screen_settings"
         app:iconSpaceReserved="false">
 
-        <SwitchPreference
-            android:defaultValue="true"
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
             android:key="show_neighbour_cells"
             android:title="@string/show_neighbour_cells"
             app:allowDividerAbove="false"
             app:allowDividerBelow="false"
             app:iconSpaceReserved="false" />
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="enable_radio_notification"
+            app:summary="@string/enablle_radio_notification_summary"
+            app:title="@string/enablle_radio_notification" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/app_settings"

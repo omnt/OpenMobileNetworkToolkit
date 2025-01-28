@@ -25,6 +25,7 @@ public class GlobalVars {
     public static final String SSRSRP = "SSRSRP";
     public static final String SSRSRQ = "SSRSRQ";
     public static final String SSSINR = "SSSINR";
+    public static final String INFLUX_WRITE_STATUS = "influxdb_write_status";
     private static GlobalVars instance;
     ImageView log_status;
     private DataProvider dp;
@@ -38,6 +39,16 @@ public class GlobalVars {
     private boolean feature_work_profile;
     private boolean permission_phone_state;
     private String signing_hash;
+
+    public String getGit_hash() {
+        return git_hash;
+    }
+
+    public void setGit_hash(String git_hash) {
+        this.git_hash = git_hash;
+    }
+
+    private String git_hash;
     private boolean permission_fine_location;
 
     private GlobalVars() {

@@ -13,7 +13,9 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:keepScreenOn="true"
+    app:layout_insetEdge="none"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -25,13 +27,17 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:navigationIcon="@drawable/openmnt_logo_no_title">
+            android:layout_height="28dp"
+            android:layout_marginLeft="16dp"
+            android:visibility="visible"
+            app:navigationIcon="@drawable/openmnt_logo_titel_right"
+            app:title=" "
+            app:titleCentered="false">
 
             <ImageView
                 android:id="@+id/log_status_icon"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:tint="#40C0C0C0"
                 app:srcCompat="@drawable/ic_baseline_code_24"

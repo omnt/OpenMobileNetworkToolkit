@@ -75,7 +75,7 @@ public class SlicingSetupFragment extends Fragment {
             btn_enterprise1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d(TAG, "Enterprise 1 network request: " + networkCallback.customNetworkCallback(29, 0));
+                    //Log.d(TAG, "Enterprise 1 network request: " + networkCallback.customNetworkCallback(29, 0));
                     if (networkCallback.customNetworkCallback(29, 0)) { //CAPABILITY ENTERPRISE1)
                         tm.getNetworkSlicingConfiguration(getActivity().getMainExecutor(), new OutcomeReceiver<NetworkSlicingConfig, TelephonyManager.NetworkSlicingException>() {
                             @Override

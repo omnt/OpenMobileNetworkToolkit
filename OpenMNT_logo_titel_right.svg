@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  -  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  -  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  -  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  -
+  -  SPDX-License-Identifier: CC-BY-4.0
+  -->
+
+<svg
+   width="1577.0468"
+   height="444.0004"
+   overflow="hidden"
+   version="1.1"
+   id="svg114"
+   sodipodi:docname="OpenMNT_logo_titel_right.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview23"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="true"
+     inkscape:zoom="1.0816303"
+     inkscape:cx="676.75616"
+     inkscape:cy="318.50068"
+     inkscape:window-width="2558"
+     inkscape:window-height="1384"
+     inkscape:window-x="0"
+     inkscape:window-y="36"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg114" />
+  <defs
+     id="defs100">
+    <linearGradient
+       x1="2211.6699"
+       y1="1350.84"
+       x2="2211.6699"
+       y2="987.84399"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="reflect"
+       id="fill1"
+       gradientTransform="translate(-2427.1267,-240.4776)">
+      <stop
+         offset="0"
+         stop-color="#4C4CCC"
+         id="stop79" />
+      <stop
+         offset="0.18"
+         stop-color="#4C4CCC"
+         id="stop81" />
+      <stop
+         offset="1"
+         stop-color="#8E2DE2"
+         id="stop83" />
+    </linearGradient>
+    <linearGradient
+       x1="2200"
+       y1="1042"
+       x2="2200"
+       y2="598"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="reflect"
+       id="fill2"
+       gradientTransform="translate(-1605.72,-598)">
+      <stop
+         offset="0"
+         stop-color="#4C4CCC"
+         id="stop86" />
+      <stop
+         offset="0.15"
+         stop-color="#4C4CCC"
+         id="stop88" />
+      <stop
+         offset="1"
+         stop-color="#8E2DE2"
+         id="stop90" />
+    </linearGradient>
+    <linearGradient
+       x1="2200"
+       y1="1042"
+       x2="2200"
+       y2="598"
+       gradientUnits="userSpaceOnUse"
+       spreadMethod="reflect"
+       id="fill3"
+       gradientTransform="translate(-1605.72,-598)">
+      <stop
+         offset="0"
+         stop-color="#4C4CCC"
+         id="stop93" />
+      <stop
+         offset="0.15"
+         stop-color="#4C4CCC"
+         id="stop95" />
+      <stop
+         offset="1"
+         stop-color="#8E2DE2"
+         id="stop97" />
+    </linearGradient>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4641">
+      <g
+         id="g4645">
+        <rect
+           x="-65.720001"
+           y="0"
+           width="990"
+           height="841"
+           id="rect4643" />
+      </g>
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4647">
+      <g
+         id="g4651">
+        <rect
+           x="-65.720001"
+           y="0"
+           width="990"
+           height="841"
+           id="rect4649" />
+      </g>
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4653">
+      <g
+         id="g4657">
+        <rect
+           x="-65.720001"
+           y="0"
+           width="990"
+           height="841"
+           id="rect4655" />
+      </g>
+    </clipPath>
+  </defs>
+  <path
+     d="m 101.2,491.62 c -22.29,0 -40.39,8.04 -54.3,24.12 -13.91,16.07 -20.86,37.18 -20.86,63.32 0,26.14 6.78,47.17 20.34,63.1 13.56,15.93 31.24,23.89 53.04,23.89 23.28,0 41.63,-7.59 55.04,-22.78 13.41,-15.19 20.12,-36.44 20.12,-63.77 0,-28.01 -6.51,-49.66 -19.53,-64.95 -13.02,-15.28 -30.97,-22.93 -53.85,-22.93 z m 617.96,-18.94 h 147.21 v 22.49 H 805.12 V 684.84 H 780.26 V 495.17 h -61.1 z m -205.25,0 h 32.25 l 106.23,166.45 c 4.44,6.9 7.3,11.64 8.58,14.2 h 0.59 c -0.99,-6.11 -1.48,-16.52 -1.48,-31.22 V 472.68 h 24.86 V 684.84 H 654.46 L 545.27,515.74 c -2.76,-4.24 -5.03,-8.68 -6.8,-13.32 h -0.89 c 0.79,4.54 1.18,14.25 1.18,29.15 v 153.27 h -24.85 z m -272,0 h 32.84 l 65.1,147.95 c 5.03,11.35 8.28,19.83 9.76,25.45 h 0.89 c 4.24,-11.64 7.65,-20.32 10.21,-26.04 l 66.43,-147.36 h 31.07 V 684.84 H 433.5 V 542.52 c 0,-11.25 0.69,-25.01 2.07,-41.28 h -0.59 c -2.37,9.57 -4.49,16.42 -6.36,20.56 l -72.5,163.04 H 343.99 L 271.65,522.99 c -2.08,-4.74 -4.2,-11.99 -6.37,-21.75 h -0.59 c 0.79,8.48 1.19,22.34 1.19,41.57 v 142.03 h -23.97 z m -138.94,-3.55 c 29.3,0 52.89,9.87 70.8,29.59 17.9,19.73 26.85,45.52 26.85,77.38 0,34.62 -9.17,61.99 -27.52,82.11 -18.34,20.12 -42.9,30.18 -73.68,30.18 -30.08,0 -54.17,-9.91 -72.27,-29.73 C 9.05,638.83 0,613.04 0,581.28 c 0,-34.13 9.22,-61.35 27.67,-81.67 18.44,-20.32 43.54,-30.48 75.3,-30.48 z"
+     fill="url(#fill1)"
+     fill-rule="evenodd"
+     id="path102"
+     style="fill:url(#fill1)"
+     clip-path="url(#clipPath4653)"
+     transform="translate(710.12668,-357.5224)" />
+  <path
+     d="m 227.95,32.627 c -104.56,104.631 -104.57,274.28 -0.02,378.923 0.01,0.01 0.02,0.01 0.02,0.02 7.34,7.6 7.13,19.72 -0.47,27.06 -7.41,7.16 -19.16,7.16 -26.57,0 C 81.41,319.049 81.4,125.164 200.9,5.576 c 0,-0.003 0.01,-0.007 0.01,-0.011 7.6,-7.343 19.71,-7.132 27.04,0.471 7.16,7.416 7.16,19.175 0,26.591 z m 81.17,81.223 c -59.73,59.789 -59.73,156.706 0,216.494 7.48,7.483 7.48,19.617 0,27.1 -7.48,7.483 -19.6,7.483 -27.08,0 -74.7,-74.73 -74.71,-195.908 -0.04,-270.658 0.01,-0.012 0.03,-0.024 0.04,-0.036 7.48,-7.483 19.6,-7.483 27.08,0 7.48,7.484 7.48,19.617 0,27.1 z m 216.34,-27.1 c 7.46,-7.483 19.57,-7.499 27.05,-0.034 0.01,0.011 0.02,0.023 0.03,0.034 74.7,74.73 74.71,195.908 0.04,270.659 -0.02,0.012 -0.03,0.023 -0.04,0.035 -7.48,7.483 -19.6,7.483 -27.08,0 -7.48,-7.483 -7.48,-19.617 0,-27.1 59.73,-59.788 59.73,-156.705 0,-216.494 -7.48,-7.464 -7.49,-19.582 -0.03,-27.066 0.01,-0.011 0.02,-0.022 0.03,-0.034 z M 606.63,5.604 c 7.46,-7.472 19.57,-7.472 27.04,0 119.48,119.581 119.48,313.445 0,433.026 -7.6,7.34 -19.71,7.13 -27.04,-0.47 -7.16,-7.42 -7.16,-19.17 0,-26.59 104.56,-104.632 104.57,-274.282 0.02,-378.923 -0.01,-0.007 -0.02,-0.014 -0.02,-0.02 -7.47,-7.474 -7.47,-19.588 0,-27.062 z"
+     fill="url(#fill2)"
+     fill-rule="evenodd"
+     id="path108"
+     style="fill:url(#fill2)"
+     clip-path="url(#clipPath4647)"
+     transform="translate(-111.28)" />
+  <path
+     d="m 493.28,222.5 c 0,42.25 -34.03,76.5 -76,76.5 -41.97,0 -76,-34.25 -76,-76.5 0,-42.25 34.03,-76.5 76,-76.5 41.97,0 76,34.25 76,76.5 z"
+     fill="url(#fill3)"
+     fill-rule="evenodd"
+     id="path110"
+     style="fill:url(#fill3)"
+     clip-path="url(#clipPath4641)"
+     transform="translate(-111.28)" />
+</svg>

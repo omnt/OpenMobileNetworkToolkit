@@ -81,6 +81,15 @@ public class OpenMobileNetworkToolkit extends CarrierService {
             configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL, spg.getSharedPreference(SPType.carrier_sp).getBoolean("switch_KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL", false));
             //configForSubId.putBoolean(CarrierConfigManager.KEY_HIDE_ENABLE_2G, spg.getSharedPreference(SPType.carrier_sp).getBoolean("switch_KEY_HIDE_ENABLE_2G", false));
             configForSubId.putBoolean(CarrierConfigManager.KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL, spg.getSharedPreference(SPType.carrier_sp).getBoolean("switch_KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL", true));
+
+            // VoLTE
+            // check if a VoLTE / VoNR EPDG address is configured and apply it.
+            String epdg = spg.getSharedPreference(SPType.carrier_sp).getString("edit_text_EPDG_STATIC_ADDRESS", "");
+            if (!epdg.isEmpty()) {
+                configForSubId.putString(CarrierConfigManager.Iwlan.KEY_EPDG_STATIC_ADDRESS_STRING, epdg);
+                configForSubId.putString(CarrierConfigManager.Iwlan.KEY_EPDG_STATIC_ADDRESS_ROAMING_STRING, epdg);
+                configForSubId.putInt(CarrierConfigManager.Iwlan.KEY_EPDG_ADDRESS_PRIORITY_INT_ARRAY, CarrierConfigManager.Iwlan.EPDG_ADDRESS_STATIC);
+            }
         }
 
         // API <= 29

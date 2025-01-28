@@ -69,23 +69,22 @@ public class InfluxdbConnection {
                 .exponentialBase(4)
                 .build());
             writeApi.listenEvents(BackpressureEvent.class, value -> {
-                Log.d(TAG, "Backpressure: Reason: " + value.getReason());
-                value.logEvent();
+                Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to backpressure");
             });
             writeApi.listenEvents(WriteSuccessEvent.class, value -> {
+                //Log.d(TAG, "open_write_api: Write to InfluxDBv2 was successful");
                 if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 0, 255, 0));
                 }
             });
             writeApi.listenEvents(WriteErrorEvent.class, value -> {
-                value.logEvent();
+                Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to error");
                 if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
                 }
             });
-
             writeApi.listenEvents(WriteRetriableErrorEvent.class, value -> {
-                value.logEvent();
+                Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to retriable error");
                 if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
                 }
@@ -109,27 +108,20 @@ public class InfluxdbConnection {
                 writeApi.close();
                 writeApi = null;
             } catch (com.influxdb.exceptions.InfluxException e) {
-                Log.d(TAG, "disconnect: Error while closing write API");
-                Log.d(TAG,e.toString());
-            }
-            try {
-                Log.d(TAG, "disconnect: Closing influx connection");
-                influxDBClient.close();
-                influxDBClient = null;
-            } catch (com.influxdb.exceptions.InfluxException e) {
-                Log.d(TAG, "disconnect: Error while closing influx connection");
+                Log.e(TAG, "disconnect: Error while closing write API");
                 Log.d(TAG,e.toString());
             }
         } else {
             Log.d(TAG, "disconnect() was called on not existing instance of the influx client");
         }
+        Log.d(TAG, "disconnect: InfluxDB connection closed");
     }
 
     /**
      * Add a point to the message queue
      */
     public boolean writePoint(Point point) {
-        if (influxDBClient != null && influxDBClient.ping()) {
+        if (influxDBClient != null && ping()) {
             try {
                 writeApi.writePoint(point);
             } catch (com.influxdb.exceptions.InfluxException e) {
@@ -153,7 +145,7 @@ public class InfluxdbConnection {
     public boolean writeRecords(List<String> points) throws IOException {
         new Thread(() -> {
             try {
-                if (influxDBClient != null && influxDBClient.ping()) {
+                if (influxDBClient != null && ping()) {
                     try {
                         writeApi.writeRecords(WritePrecision.MS, points);
                     } catch (com.influxdb.exceptions.InfluxException e) {
@@ -180,18 +172,19 @@ public class InfluxdbConnection {
     public boolean writePoints(List<Point> points) throws IOException {
         new Thread(() -> {
             try {
-                if (influxDBClient != null && influxDBClient.ping()) {
+                if (influxDBClient != null && ping()) {
                     try {
                         writeApi.writePoints(points);
                     } catch (com.influxdb.exceptions.InfluxException e) {
-                        Log.d(TAG, "writePoint: Error while writing points to influx DB");
+                        Log.e(TAG, "writePoint: Error while writing points to influx DB");
                         Log.d(TAG,e.toString());
                     }
                 } else {
-                    Log.d(TAG, "writePoints: InfluxDB not reachable: " + url);
+                    Log.e(TAG, "writePoints: InfluxDB not reachable: " + url);
                 }
             }
             catch (Exception e) {
+                Log.e(TAG, "writePoints: Error while writing points to influx DB");
                 Log.d(TAG,e.toString());
             }
         }).start();
@@ -230,11 +223,12 @@ public class InfluxdbConnection {
     public boolean flush() {
         new Thread(() -> {
             try {
-                if (influxDBClient.ping()) {
+                if (ping()) {
                     writeApi.flush();
                 }
             } catch (Exception e) {
-                Log.d(TAG,e.toString());
+                Log.e(TAG, "flush: Error while flushing write API");
+                Log.d(TAG, "flush: \n"+e.toString());
             }
         }).start();
         return true;
@@ -242,6 +236,9 @@ public class InfluxdbConnection {
 
     public WriteApi getWriteApi() {
         return writeApi;
+    }
+    public String getUrl() {
+        return this.url;
     }
 
     public boolean ping() {

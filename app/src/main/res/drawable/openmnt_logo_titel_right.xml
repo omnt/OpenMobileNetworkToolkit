@@ -1,0 +1,83 @@
+<!--
+  ~ SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~ SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~
+  ~ SPDX-License-Identifier: apache2
+  -->
+
+<vector xmlns:aapt="http://schemas.android.com/aapt" xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:viewportHeight="444" android:viewportWidth="1577" android:width="85.24324dp">
+      
+    <group>
+            
+        <clip-path android:pathData="M644.4,-357.5h990v841h-990z"/>
+            
+        <path android:fillType="evenOdd" android:pathData="m811.3,134.1c-22.3,0 -40.4,8 -54.3,24.1 -13.9,16.1 -20.9,37.2 -20.9,63.3 0,26.1 6.8,47.2 20.3,63.1 13.6,15.9 31.2,23.9 53,23.9 23.3,0 41.6,-7.6 55,-22.8 13.4,-15.2 20.1,-36.4 20.1,-63.8 0,-28 -6.5,-49.7 -19.5,-64.9 -13,-15.3 -31,-22.9 -53.8,-22.9zM1429.3,115.2h147.2v22.5L1515.2,137.6L1515.2,327.3L1490.4,327.3L1490.4,137.6h-61.1zM1224,115.2h32.3l106.2,166.4c4.4,6.9 7.3,11.6 8.6,14.2h0.6c-1,-6.1 -1.5,-16.5 -1.5,-31.2L1370.2,115.2h24.9L1395.1,327.3L1364.6,327.3L1255.4,158.2c-2.8,-4.2 -5,-8.7 -6.8,-13.3h-0.9c0.8,4.5 1.2,14.3 1.2,29.1v153.3h-24.9zM952,115.2h32.8l65.1,147.9c5,11.4 8.3,19.8 9.8,25.5h0.9c4.2,-11.6 7.7,-20.3 10.2,-26l66.4,-147.4h31.1L1168.3,327.3L1143.6,327.3L1143.6,185c0,-11.3 0.7,-25 2.1,-41.3h-0.6c-2.4,9.6 -4.5,16.4 -6.4,20.6l-72.5,163L1054.1,327.3L981.8,165.5c-2.1,-4.7 -4.2,-12 -6.4,-21.8h-0.6c0.8,8.5 1.2,22.3 1.2,41.6v142h-24zM813.1,111.6c29.3,0 52.9,9.9 70.8,29.6 17.9,19.7 26.9,45.5 26.9,77.4 0,34.6 -9.2,62 -27.5,82.1 -18.3,20.1 -42.9,30.2 -73.7,30.2 -30.1,0 -54.2,-9.9 -72.3,-29.7C719.2,281.3 710.1,255.5 710.1,223.8c0,-34.1 9.2,-61.3 27.7,-81.7 18.4,-20.3 43.5,-30.5 75.3,-30.5z">
+                  
+            <aapt:attr name="android:fillColor">
+                        
+                <gradient android:endX="494.7" android:endY="389.8" android:startX="494.7" android:startY="752.8" android:tileMode="mirror" android:type="linear">
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0"/>
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0.2"/>
+                              
+                    <item android:color="#FF8E2DE2" android:offset="1"/>
+                            
+                </gradient>
+                      
+            </aapt:attr>
+                
+        </path>
+          
+    </group>
+      
+    <group>
+            
+        <clip-path android:pathData="M-177,0h990v841h-990z"/>
+            
+        <path android:fillType="evenOdd" android:pathData="m116.7,32.6c-104.6,104.6 -104.6,274.3 -0,378.9 0,0 0,0 0,0 7.3,7.6 7.1,19.7 -0.5,27.1 -7.4,7.2 -19.2,7.2 -26.6,0C-29.9,319 -29.9,125.2 89.6,5.6c0,-0 0,-0 0,-0 7.6,-7.3 19.7,-7.1 27,0.5 7.2,7.4 7.2,19.2 0,26.6zM197.8,113.8c-59.7,59.8 -59.7,156.7 0,216.5 7.5,7.5 7.5,19.6 0,27.1 -7.5,7.5 -19.6,7.5 -27.1,0 -74.7,-74.7 -74.7,-195.9 -0,-270.7 0,-0 0,-0 0,-0 7.5,-7.5 19.6,-7.5 27.1,0 7.5,7.5 7.5,19.6 0,27.1zM414.2,86.8c7.5,-7.5 19.6,-7.5 27,-0 0,0 0,0 0,0 74.7,74.7 74.7,195.9 0,270.7 -0,0 -0,0 -0,0 -7.5,7.5 -19.6,7.5 -27.1,0 -7.5,-7.5 -7.5,-19.6 0,-27.1 59.7,-59.8 59.7,-156.7 0,-216.5 -7.5,-7.5 -7.5,-19.6 -0,-27.1 0,-0 0,-0 0,-0zM495.4,5.6c7.5,-7.5 19.6,-7.5 27,0 119.5,119.6 119.5,313.4 0,433 -7.6,7.3 -19.7,7.1 -27,-0.5 -7.2,-7.4 -7.2,-19.2 0,-26.6 104.6,-104.6 104.6,-274.3 0,-378.9 -0,-0 -0,-0 -0,-0 -7.5,-7.5 -7.5,-19.6 0,-27.1z">
+                  
+            <aapt:attr name="android:fillColor">
+                        
+                <gradient android:endX="483" android:endY="0" android:startX="483" android:startY="444" android:tileMode="mirror" android:type="linear">
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0"/>
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0.1"/>
+                              
+                    <item android:color="#FF8E2DE2" android:offset="1"/>
+                            
+                </gradient>
+                      
+            </aapt:attr>
+                
+        </path>
+          
+    </group>
+      
+    <group>
+            
+        <clip-path android:pathData="M-177,0h990v841h-990z"/>
+            
+        <path android:fillType="evenOdd" android:pathData="m382,222.5c0,42.3 -34,76.5 -76,76.5 -42,0 -76,-34.3 -76,-76.5 0,-42.3 34,-76.5 76,-76.5 42,0 76,34.3 76,76.5z">
+                  
+            <aapt:attr name="android:fillColor">
+                        
+                <gradient android:endX="483" android:endY="0" android:startX="483" android:startY="444" android:tileMode="mirror" android:type="linear">
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0"/>
+                              
+                    <item android:color="#FF4C4CCC" android:offset="0.1"/>
+                              
+                    <item android:color="#FF8E2DE2" android:offset="1"/>
+                            
+                </gradient>
+                      
+            </aapt:attr>
+                
+        </path>
+          
+    </group>
+    
+</vector>
