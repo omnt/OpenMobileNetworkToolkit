@@ -276,5 +276,8 @@
     <string name="special_codes_title">Special Codes</string>
     <string name="subscriptions_title">Subscriptions\n</string>
     <string name="about_title">About</string>
+    <string name="notification_settings">Notification settings</string>
+    <string name="device_name">Unique Device Name</string>
+
 
 </resources>
