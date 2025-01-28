@@ -733,7 +733,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         tags_map_modifiable.put("security_patch", di.getSecurityPatchLevel());
         String device = spg.getSharedPreference(SPType.default_sp).getString("device_name", "null").strip();
         //if(device.equals("null")); TODO handle this
-        tags_map.put("device", device);
+        tags_map_modifiable.put("device", device);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             tags_map_modifiable.put("soc_model", di.getSOCModel());
         }

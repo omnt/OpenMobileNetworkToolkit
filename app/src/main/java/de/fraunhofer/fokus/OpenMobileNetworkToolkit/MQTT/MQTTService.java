@@ -89,7 +89,7 @@ public class MQTTService extends Service {
         }
         InetSocketAddress address = new InetSocketAddress(host, port);
         client = Mqtt5Client.builder()
-                .identifier(UUID.randomUUID().toString())
+                .identifier(deviceName)
                 .serverAddress(address)
                 .automaticReconnect()
                 .initialDelay(200, TimeUnit.MILLISECONDS)
@@ -274,6 +274,11 @@ public class MQTTService extends Service {
         }
 
         // config logging content
+        if(topic.contains("/content/measurement_name")){
+            Log.d(TAG, "handleConfigMessage: Measurement Name: " + payload);
+            spg.getSharedPreference(SPType.logging_sp).edit().putString("measurement_name", payload).apply();
+            return;
+        }
         if(topic.contains("/content/network_information")){
             Log.d(TAG, "handleConfigMessage: Network Information: " + payload);
             spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("influx_network_data", parseBoolean(payload)).apply();

@@ -37,5 +37,8 @@ public class MQTTSettingsFragment extends PreferenceFragmentCompat implements Sh
             boolean logger = sharedPreferences.getBoolean("enable_mqtt", false);
             Log.d(TAG, "Logger update: " + logger);
         }
+
+
+
     }
 }
