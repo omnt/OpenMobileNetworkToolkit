@@ -320,6 +320,14 @@ public class MQTTService extends Service {
             return;
         }
 
+        if(topic.contains("iperf3/command")){
+            Log.d(TAG, "handleConfigMessage: Iperf3 Command: " + payload);
+            return;
+        }
+        if(topic.contains("/iperf3/enable")){
+            Log.d(TAG, "handleConfigMessage: Enable Iperf3: " + payload);
+            return;
+        }
 
         Log.d(TAG, "handleConfigMessage: No matching topic found: " + topic);
 
@@ -356,7 +364,6 @@ public class MQTTService extends Service {
 
 
     private void subscribeToAllTopics(){
-        // TODO fix hardcoded deviceID
         subsribetoTopic(String.format("device/%s/#", deviceName));
     }
 
