@@ -59,6 +59,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -458,7 +464,7 @@ public class Iperf3Fragment extends Fragment {
 
         OneTimeWorkRequest iperf3WR =
             new OneTimeWorkRequest
-                .Builder(Iperf3Worker.class)
+                .Builder(Iperf3ExecutorWorker.class)
                 .setInputData(iperf3Data.build())
                 .addTag("iperf3Run")
                 .addTag(iperf3WorkerID)

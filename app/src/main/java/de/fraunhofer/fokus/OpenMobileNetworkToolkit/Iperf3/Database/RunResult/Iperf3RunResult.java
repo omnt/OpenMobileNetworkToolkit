@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -15,6 +15,9 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import java.sql.Timestamp;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Fragment;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3InputConverter;
 
 @Entity(tableName = "iperf3_result_database")
 public class Iperf3RunResult {

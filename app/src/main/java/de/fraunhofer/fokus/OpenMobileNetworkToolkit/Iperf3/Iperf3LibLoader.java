@@ -27,7 +27,7 @@ public class Iperf3LibLoader {
         "iperf3.17.1"
     );
 
-    protected static synchronized void load() {
+    public static synchronized void load() {
         if (done) {
             return;
         }

@@ -6,13 +6,15 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult;
 
 import android.content.Context;
 
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3InputConverter;
 
 @Database(
     entities = {Iperf3RunResult.class},
@@ -21,7 +23,7 @@ import androidx.room.RoomDatabase;
 public abstract class Iperf3ResultsDataBase extends RoomDatabase {
     private static volatile Iperf3ResultsDataBase INSTANCE;
 
-    static Iperf3ResultsDataBase getDatabase(final Context context) {
+    public static Iperf3ResultsDataBase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (Iperf3ResultsDataBase.class) {
                 if (INSTANCE == null) {

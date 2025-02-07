@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
 import android.content.Context;
 import android.os.Build;
@@ -19,6 +19,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.common.base.Splitter;
+import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
@@ -34,6 +35,9 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformati
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parameter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
@@ -44,68 +48,15 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 public class Iperf3ToLineProtocolWorker extends Worker {
     private static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private String rawIperf3file;
-    private String measurementName;
-    private String ip;
     private SharedPreferencesGrouper spg;
 
-    private String port;
-    private String bandwidth;
-    private String duration;
-    private String intervalIperf;
-    private String bytes;
-    private final String protocol;
-    private final String iperf3LineProtocolFile;
-
     private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
-
-    private final boolean rev;
-    private final boolean biDir;
-    private final boolean oneOff;
-    private final boolean client;
-
-    private final String runID;
+    private Iperf3Input iperf3Input;
     public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        rawIperf3file = getInputData().getString("rawIperf3file");
-
-        ip = getInputData().getString("ip");
-        measurementName = getInputData().getString("measurementName");
-        iperf3LineProtocolFile = getInputData().getString("iperf3LineProtocolFile");
-        port = getInputData().getString("port");
-        if(port == null)
-            port = "5201";
-        protocol = getInputData().getString("protocol");
-        bandwidth = getInputData().getString("bandwidth");
-
-        if(bandwidth == null){
-            if(protocol.equals("TCP")) {
-                bandwidth = "unlimited";
-            } else {
-                bandwidth = "1000";
-            }
-        }
-
-        duration = getInputData().getString("duration");
-        if(duration == null)
-            duration = "10";
-        intervalIperf = getInputData().getString("interval");
-        if(intervalIperf == null)
-            intervalIperf = "1";
-        bytes = getInputData().getString("bytes");
-        if(bytes == null){
-            if(protocol.equals("TCP")) {
-                bytes = "8";
-            } else {
-                bytes = "1470";
-            }
-        }
-
-        rev = getInputData().getBoolean("rev", false);
-        biDir = getInputData().getBoolean("biDir",false);
-        oneOff = getInputData().getBoolean("oneOff",false);
-        client = getInputData().getBoolean("client",false);
-        runID = getInputData().getString("iperf3WorkerID");
+        Gson gson = new Gson();
+        String iperf3InputString = getInputData().getString(Iperf3Input.IPERF3INPUT);
+        iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
         spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
     }
 
@@ -114,30 +65,6 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     }
 
 
-    public Map<String, String> getTagsMap() {
-        String tags = spg.getSharedPreference(SPType.logging_sp).getString("tags", "").strip().replace(" ", "");
-        Map<String, String> tags_map = Collections.emptyMap();
-        if (!tags.isEmpty()) {
-            try {
-                tags_map = Splitter.on(',').withKeyValueSeparator('=').split(tags);
-            } catch (IllegalArgumentException e) {
-                Log.d(TAG, "can't parse tags, ignoring");
-            }
-        }
-        Map<String, String> tags_map_modifiable = new HashMap<>(tags_map);
-        tags_map_modifiable.put("measurement_name", spg.getSharedPreference(SPType.logging_sp).getString("measurement_name", "OMNT"));
-        tags_map_modifiable.put("manufacturer", di.getManufacturer());
-        tags_map_modifiable.put("model", di.getModel());
-        tags_map_modifiable.put("sdk_version", String.valueOf(di.getAndroidSDK()));
-        tags_map_modifiable.put("android_version", di.getAndroidRelease());
-        tags_map_modifiable.put("secruity_patch", di.getSecurityPatchLevel());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            tags_map_modifiable.put("soc_model", di.getSOCModel());
-        }
-        tags_map_modifiable.put("radio_version", Build.getRadioVersion());
-        return tags_map_modifiable;
-    }
-
 
     @NonNull
     @Override
@@ -145,7 +72,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
-        Iperf3Parser iperf3Parser = new Iperf3Parser(rawIperf3file);
+        Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getRawFile());
         iperf3Parser.parse();
 
 
@@ -163,16 +90,25 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             int intervalIdx = iperf3Parser.getIntervals().getIntervalArrayList().indexOf(interval);
             for (Stream stream: interval.getStreams().getStreamArrayList()){
                 Point point = new Point("Iperf3");
-                point.addTag("run_uid", runID);
-                point.addTag("bidir", String.valueOf(biDir));
+
+                point.addTag(Iperf3Input.TESTUUID, iperf3Input.getTestUUID());
+                point.addTag(Iperf3Input.SEQUENCEUUID, iperf3Input.getSequenceUUID());
+                point.addTag(Iperf3Input.MEASUREMENTUUID, iperf3Input.getMeasurementUUID());
+                point.addTag(Iperf3Input.CAMPAIGNUUID, iperf3Input.getCampaignUUID());
+                point.addTag(Iperf3Input.IPERF3UUID, iperf3Input.getIperf3Parameter().getiPerf3UUID());
+
+
+
+
+                point.addTag("bidir", String.valueOf(iperf3Input.getIperf3Parameter().getBidir()));
                 point.addTag("sender", String.valueOf(stream.getSender()));
                 point.addTag("role", role);
                 point.addTag("socket", String.valueOf(stream.getSocket()));
-                point.addTag("protocol", protocol);
-                point.addTag("interval", intervalIperf);
+                point.addTag("protocol", iperf3Parser.getStart().getTest_start().protocol);
+                point.addTag("interval", String.valueOf(iperf3Input.getIperf3Parameter().getInterval()));
                 point.addTag("version", iperf3Parser.getStart().getVersion());
-                point.addTag("reversed", String.valueOf(rev));
-                point.addTag("oneOff", String.valueOf(oneOff));
+                point.addTag("reversed", String.valueOf(iperf3Input.getIperf3Parameter().getReverse()));
+                point.addTag("oneOff", String.valueOf(iperf3Input.getIperf3Parameter().getOneOff()));
                 point.addTag("connectingToHost", iperf3Parser
                     .getStart()
                     .getConnecting_to()
@@ -181,9 +117,9 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                     .getStart()
                     .getConnecting_to()
                     .getPort()));
-                point.addTag("bandwidth", bandwidth);
-                point.addTag("duration", duration);
-                point.addTag("bytesToTransmit", bytes);
+                point.addTag("bandwidth", iperf3Input.getIperf3Parameter().getBitrate());
+                point.addTag("duration", String.valueOf(iperf3Input.getIperf3Parameter().getDuration()));
+                point.addTag("bytesToTransmit", String.valueOf(iperf3Input.getIperf3Parameter().getBytes()));
                 point.addTag("streams", String.valueOf(interval.getStreams().size()));
                 point.addTag("streamIdx", String.valueOf(interval.getStreams().getStreamArrayList().indexOf(stream)));
                 point.addTag("intervalIdx", String.valueOf(intervalIdx));
@@ -227,7 +163,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         // is needed when only --udp is, otherwise no lostpackets/lostpercent parsed
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             for (Point point:points) {
-                point.addTags(getTagsMap());
+                point.addTags(GlobalVars.getInstance().get_dp().getTagsMap());
             }
 
         }
@@ -235,7 +171,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
         FileOutputStream iperf3Stream = null;
         try {
-            iperf3Stream = new FileOutputStream(iperf3LineProtocolFile, true);
+            iperf3Stream = new FileOutputStream(iperf3Input.getLineProtocolFile(), true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
             Log.d(TAG,e.toString());

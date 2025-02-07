@@ -1,6 +1,5 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,30 +11,24 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 
-import com.hivemq.client.mqtt.MqttGlobalPublishFilter;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
-import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler.Iperf3Handler;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -51,7 +44,7 @@ public class MQTTService extends Service {
     private Mqtt5AsyncClient client;
     private SharedPreferencesGrouper spg;
     private String deviceName;
-
+    private Iperf3Handler iperf3Handler;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -322,10 +315,17 @@ public class MQTTService extends Service {
 
         if(topic.contains("iperf3/command")){
             Log.d(TAG, "handleConfigMessage: Iperf3 Command: " + payload);
+            iperf3Handler = new Iperf3Handler(payload);
             return;
         }
         if(topic.contains("/iperf3/enable")){
             Log.d(TAG, "handleConfigMessage: Enable Iperf3: " + payload);
+
+            if(iperf3Handler != null && parseBoolean(payload)){
+                iperf3Handler.enableSequence(getApplicationContext());
+            } else if(iperf3Handler != null && !parseBoolean(payload)){
+                iperf3Handler.disableSequence(getApplicationContext());
+            }
             return;
         }
 
@@ -380,7 +380,6 @@ public class MQTTService extends Service {
         createClient();
         connectClient();
         subscribeToAllTopics();
-
         return START_STICKY;
     }
 

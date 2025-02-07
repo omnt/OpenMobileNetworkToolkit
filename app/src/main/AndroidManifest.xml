@@ -40,6 +40,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
+        android:name=".Application"
         android:description="@string/app_description"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -47,6 +48,53 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OpenMobileNetworkToolkit"
         android:usesCleartextTraffic="true">
+        <service
+            android:name=".Iperf3.Service.Iperf3ServiceWorkerOne"
+            android:exported="false"
+            android:process=":iperf3Worker1">
+        </service>
+
+        <service
+            android:name=".Iperf3.Service.Iperf3ServiceWorkerTwo"
+            android:exported="false"
+            android:process=":iperf3Worker2" />
+        <service
+            android:name=".Iperf3.Service.Iperf3ServiceWorkerThree"
+            android:exported="false"
+            android:process=":iperf3Worker3" />
+        <service
+            android:name=".Iperf3.Service.Iperf3ServiceWorkerFour"
+            android:exported="false"
+            android:process=":iperf3Worker4" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <!-- If you are using androidx.startup to initialize other components -->
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove">
+        </provider>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
+
         <service
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.OpenMobileNetworkToolkit"
             android:enabled="true"
@@ -131,6 +179,5 @@
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
             </intent-filter>
         </receiver>
-
     </application>
 </manifest>

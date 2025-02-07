@@ -29,6 +29,8 @@ import androidx.cardview.widget.CardView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.Fragment;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
