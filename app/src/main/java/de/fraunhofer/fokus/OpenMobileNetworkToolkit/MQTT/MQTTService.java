@@ -29,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler.Iperf3Handler;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler.PingHandler;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -45,6 +46,7 @@ public class MQTTService extends Service {
     private SharedPreferencesGrouper spg;
     private String deviceName;
     private Iperf3Handler iperf3Handler;
+    private PingHandler pingHandler;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -313,9 +315,15 @@ public class MQTTService extends Service {
             return;
         }
 
-        if(topic.contains("iperf3/command")){
+        if(topic.contains("/iperf3/command")){
             Log.d(TAG, "handleConfigMessage: Iperf3 Command: " + payload);
-            iperf3Handler = new Iperf3Handler(payload);
+            iperf3Handler = new Iperf3Handler();
+            try {
+                iperf3Handler.parsePayload(payload);
+            } catch (Exception e) {
+                Log.e(TAG, "handleConfigMessage: Error parsing iperf3 payload: " + e.getMessage());
+                //TODO PUBLISH ERROR
+            }
             return;
         }
         if(topic.contains("/iperf3/enable")){
@@ -323,8 +331,35 @@ public class MQTTService extends Service {
 
             if(iperf3Handler != null && parseBoolean(payload)){
                 iperf3Handler.enableSequence(getApplicationContext());
+                //TODO PUBLISH iperf3 sequence enabled
             } else if(iperf3Handler != null && !parseBoolean(payload)){
                 iperf3Handler.disableSequence(getApplicationContext());
+                //TODO PUBLISH iperf3 sequence disabled
+            }
+            return;
+        }
+
+        if(topic.contains("/ping/command")){
+            Log.d(TAG, "handleConfigMessage: Ping Command: " + payload);
+            pingHandler = new PingHandler();
+            try {
+                pingHandler.parsePayload(payload);
+            } catch (Exception e) {
+                Log.e(TAG, "handleConfigMessage: Error parsing ping payload: " + e.getMessage());
+                //TODO PUBLISH ERROR
+            }
+            return;
+        }
+
+        if(topic.contains("/ping/enable")){
+            Log.d(TAG, "handleConfigMessage: Enable Ping: " + payload);
+
+            if(pingHandler != null && parseBoolean(payload)){
+                pingHandler.enableSequence(getApplicationContext());
+                //TODO PUBLISH ping sequence enabled
+            } else if(pingHandler != null && !parseBoolean(payload)){
+                pingHandler.disableSequence(getApplicationContext());
+                //TODO PUBLISH ping sequence disabled
             }
             return;
         }

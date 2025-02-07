@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker;
 
 import android.content.Context;
 import android.util.Log;
@@ -27,30 +27,30 @@ import java.util.stream.Collectors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Inputs;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
-public class Iperf3UploadWorker extends Worker {
-    private static final String TAG = "Iperf3UploadWorker";
+public class InfluxDB2xUploadWorker extends Worker {
+    private static final String TAG = "InfDB2xUploadWorker";
     InfluxdbConnection influx;
-    private Iperf3Input iperf3Input;
+    private Inputs input;
+    public static final String UPLOAD = "influxdb2x_upload";
 
-    public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public InfluxDB2xUploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         Gson gson = new Gson();
-        String iperf3InputString = getInputData().getString(Iperf3Input.INPUT);
-        iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
+        String inputString = getInputData().getString(Inputs.INPUT);
+        input = gson.fromJson(inputString, Inputs.class);
     }
     private void setup(){
         influx = InfluxdbConnections.getRicInstance(getApplicationContext());
     }
 
-
-
     @NonNull
     @Override
     public Result doWork() {
         setup();
-        Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
+        Data output = new Data.Builder().putBoolean(UPLOAD, false).build();
         if(influx == null){
             return Result.failure(output);
         }
@@ -65,24 +65,24 @@ public class Iperf3UploadWorker extends Worker {
         }
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader(iperf3Input.getLineProtocolFile()));
+            br = new BufferedReader(new FileReader(input.getLineProtocolFile()));
         } catch (FileNotFoundException | NullPointerException e) {
             Log.d(TAG,e.toString());
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());
         try {
-            Log.d(TAG, String.format("doWork: uploading %s", iperf3Input.getLineProtocolFile()));
+            Log.d(TAG, String.format("doWork: uploading %s", input.getLineProtocolFile()));
             influx.writeRecords(points);
         } catch (IOException e) {
-            Log.d(TAG, String.format("doWork: upload of %s failed!", iperf3Input.getLineProtocolFile()));
+            Log.d(TAG, String.format("doWork: upload of %s failed!", input.getLineProtocolFile()));
             return Result.failure(output);
         }
 
 
         influx.flush();
 
-        output = new Data.Builder().putBoolean("iperf3_upload", true).build();
+        output = new Data.Builder().putBoolean(UPLOAD, true).build();
         return Result.success(output);
     }
 }

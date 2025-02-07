@@ -1,19 +1,12 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler;
 
-import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
-import androidx.work.multiprocess.RemoteCoroutineWorker;
 import androidx.work.multiprocess.RemoteWorkContinuation;
 import androidx.work.multiprocess.RemoteWorkManager;
-
-import com.google.common.collect.Streams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,13 +15,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parameter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 
-public class Iperf3Handler{
+public class Iperf3Handler extends Handler {
     private final String TAG = "Iperf3Handler";
     private ArrayList<Iperf3Input> iperf3Inputs = new ArrayList<>();
-    private void parsePayload(String payload) throws JSONException {
+
+    @Override
+    public void parsePayload(String payload) throws JSONException {
         iperf3Inputs.clear();
         JSONArray tests = new JSONArray(payload);
         for (int i = 0; i < tests.length(); i++) {
@@ -49,17 +44,13 @@ public class Iperf3Handler{
         }
     }
 
-    public Iperf3Handler(String payload) {
-        try {
-            parsePayload(payload);
-        } catch (JSONException e){
-            Log.e(TAG, "Error parsing payload: " + e.getMessage());
-            return;
-        }
+    public Iperf3Handler() {
+        super();
     }
 
 
 
+    @Override
     public void enableSequence(Context context){
         if(iperf3Inputs.isEmpty()) {
             Log.e(TAG, "No iperf3 tests to run");
@@ -89,6 +80,7 @@ public class Iperf3Handler{
 
     }
 
+    @Override
     public void disableSequence(Context context){
         RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
         for(Iperf3Input iperf3Input: iperf3Inputs){

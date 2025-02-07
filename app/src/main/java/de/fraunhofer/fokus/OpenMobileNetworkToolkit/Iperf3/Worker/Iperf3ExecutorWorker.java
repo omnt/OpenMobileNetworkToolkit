@@ -20,24 +20,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.NotificationCompat;
-import androidx.work.CoroutineWorker;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkManager;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.multiprocess.RemoteCoroutineWorker;
-import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import kotlin.coroutines.Continuation;
-
-import java.io.IOException;
 
 public class Iperf3ExecutorWorker extends RemoteCoroutineWorker {
     private static final String TAG = "iperf3Worker";
@@ -53,7 +48,7 @@ public class Iperf3ExecutorWorker extends RemoteCoroutineWorker {
     public Iperf3ExecutorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         Gson gson = new Gson();
-        String iperf3InputString = getInputData().getString(Iperf3Input.IPERF3INPUT);
+        String iperf3InputString = getInputData().getString(Iperf3Input.INPUT);
         notificationNumber = getInputData().getInt("notificationNumber", 0);
         iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
 
