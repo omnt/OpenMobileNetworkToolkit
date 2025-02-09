@@ -138,9 +138,8 @@ dependencies {
     androidTestImplementation "androidx.work:work-testing:$work_version"
     implementation "androidx.work:work-multiprocess:$work_version"
 
-
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0"
     implementation 'androidx.preference:preference:1.2.1'
-
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation 'androidx.appcompat:appcompat:1.7.0'

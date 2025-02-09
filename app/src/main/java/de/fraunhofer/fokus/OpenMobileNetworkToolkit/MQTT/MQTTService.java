@@ -15,6 +15,11 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.multiprocess.RemoteWorkManager;
 
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
@@ -25,15 +30,20 @@ import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.CustomEventListener;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler.Iperf3Handler;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler.PingHandler;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.RemoteWorkInfoChecker;
 
 public class MQTTService extends Service {
     private static final String TAG = "MQTTService";
@@ -47,6 +57,8 @@ public class MQTTService extends Service {
     private String deviceName;
     private Iperf3Handler iperf3Handler;
     private PingHandler pingHandler;
+    private boolean isEnabled = false;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -364,6 +376,12 @@ public class MQTTService extends Service {
             return;
         }
 
+        if(topic.contains("/sequence/enable")){
+            Log.d(TAG, "handleConfigMessage: Enable Sequence: " + payload);
+            setEnabled(parseBoolean(payload));
+            return;
+        }
+
         Log.d(TAG, "handleConfigMessage: No matching topic found: " + topic);
 
         return;
@@ -378,14 +396,9 @@ public class MQTTService extends Service {
                         Log.e(TAG, "Received empty payload from topic: " + publish.getTopic());
                         return;
                     };
-                    new Runnable(){
-                        @Override
-                        public void run() {
-                            Log.d(TAG, "Received config message: " + publish.getTopic());
-                            String payload = StandardCharsets.UTF_8.decode(publish.getPayload().get()).toString();
-                            handleConfigMessage(publish.getTopic().toString(), payload);
-                        }
-                    }.run();
+                        Log.d(TAG, "Received message: " + publish.getTopic());
+                        String payload = StandardCharsets.UTF_8.decode(publish.getPayload().get()).toString();
+                        handleConfigMessage(publish.getTopic().toString(), payload);
                 })
                 .send()
                 .whenComplete((subAck, throwable) -> {
@@ -415,7 +428,79 @@ public class MQTTService extends Service {
         createClient();
         connectClient();
         subscribeToAllTopics();
+
         return START_STICKY;
     }
 
+    private void executeWork() {
+        ArrayList<OneTimeWorkRequest> oneTimeWorkExecutorRequests = new ArrayList<>();
+        ArrayList<OneTimeWorkRequest> oneTimeWorkLineProtocolRequests = new ArrayList<>();
+        ArrayList<OneTimeWorkRequest> oneTimeWorkUploadRequests = new ArrayList<>();
+
+        RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(context);
+
+        if (iperf3Handler != null && isEnabled) {
+            oneTimeWorkExecutorRequests.addAll(iperf3Handler.getExecutorWorkRequests(context));
+            oneTimeWorkLineProtocolRequests.addAll(iperf3Handler.getToLineProtocolWorkRequests(context));
+            oneTimeWorkUploadRequests.addAll(iperf3Handler.getUploadWorkRequests(context));
+        } else {
+            Log.d(TAG, "executeWork: Iperf3 Handler is either null or not enabled");
+        }
+
+        if (pingHandler != null && isEnabled) {
+            oneTimeWorkExecutorRequests.addAll(pingHandler.getExecutorWorkRequests(context));
+            oneTimeWorkLineProtocolRequests.addAll(pingHandler.getToLineProtocolWorkRequests(context));
+            oneTimeWorkUploadRequests.addAll(pingHandler.getUploadWorkRequests(context));
+        } else {
+            Log.d(TAG, "executeWork: Ping Handler is either null or not enabled");
+        }
+
+        enqueueWorkRequests(remoteWorkManager, oneTimeWorkExecutorRequests, oneTimeWorkLineProtocolRequests, oneTimeWorkUploadRequests);
+    }
+
+    private void enqueueWorkRequests(RemoteWorkManager remoteWorkManager,
+                                     ArrayList<OneTimeWorkRequest> executorRequests,
+                                     ArrayList<OneTimeWorkRequest> lineProtocolRequests,
+                                     ArrayList<OneTimeWorkRequest> uploadRequests) {
+
+
+        Log.d(TAG, "enqueueWorkRequests: Enqueueing work Executor requests "+executorRequests.size());
+        Log.d(TAG, "enqueueWorkRequests: Enqueueing work LineProtocol requests "+lineProtocolRequests.size());
+        Log.d(TAG, "enqueueWorkRequests: Enqueueing work Upload requests "+uploadRequests.size());
+        remoteWorkManager.beginUniqueWork("foobar", ExistingWorkPolicy.REPLACE, executorRequests)
+                .then(lineProtocolRequests)
+       //         .then(uploadRequests)
+               .enqueue();
+
+        CustomEventListener listener = new CustomEventListener() {
+            @Override
+            public void onChange(HashMap<UUID, WorkInfo> workInfos) {
+                for (WorkInfo info : workInfos.values()) {
+                    WorkInfo.State state = info.getState();
+                    Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
+                    Data data = info.getOutputData();
+                    Log.i(TAG, "onChange: "+data.toString());
+                }
+
+            }
+        };
+        startWorkInfoChecker(remoteWorkManager, executorRequests, listener);
+        //startWorkInfoChecker(remoteWorkManager, lineProtocolRequests,  listener);
+        //startWorkInfoChecker(remoteWorkManager, uploadRequests, listener);
+    }
+
+    private void startWorkInfoChecker(RemoteWorkManager remoteWorkManager, ArrayList<OneTimeWorkRequest> workRequests, CustomEventListener listener) {
+        ArrayList<UUID> workIdGroups = new ArrayList<>();
+        for (OneTimeWorkRequest workRequest : workRequests) {
+            workIdGroups.add(workRequest.getId());
+        }
+        RemoteWorkInfoChecker remoteWorkInfoChecker = new RemoteWorkInfoChecker(remoteWorkManager, workIdGroups);
+        remoteWorkInfoChecker.setListener(listener);
+        remoteWorkInfoChecker.start();
+    }
+
+    private void setEnabled(boolean isEnabled) {
+        this.isEnabled = isEnabled;
+        executeWork();
+    }
 }

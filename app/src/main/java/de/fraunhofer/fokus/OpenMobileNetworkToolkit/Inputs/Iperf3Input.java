@@ -25,9 +25,9 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWo
 
 
 public class Iperf3Input extends Inputs {
-    public static final String rawDirPath = rootPath+"/omnt/iperf3/raw/";
-    public static final String lineProtocolDirPath = rootPath+"/omnt/iperf3/lineprotocol/";
+
     private static final String TAG = "Iperf3Input";
+
     public static final String IPERF3UUID = "iPerf3UUID";
 
     private Iperf3Parameter iperf3Parameter;
@@ -65,8 +65,6 @@ public class Iperf3Input extends Inputs {
                        String measurementUUID,
                        String campaignUUID) {
         super(testUUID, sequenceUUID, measurementUUID, campaignUUID);
-        super.setRawFile(rawDirPath +testUUID+".json");
-        super.setLineProtocolFile(lineProtocolDirPath+testUUID+".txt");
         this.iperf3Parameter = iperf3Parameter;
     }
 
@@ -98,46 +96,46 @@ public class Iperf3Input extends Inputs {
 
         data.putString(ARGUMENT_PACKAGE_NAME, componentName.getPackageName());
         data.putString(ARGUMENT_CLASS_NAME, componentName.getClassName());
-        data.putInt("notificationNumber", i);
+        data.putInt(NOTIFICATIONUMBER, i);
         data.putString(Inputs.INPUT, new GsonBuilder().create().toJson(this, Iperf3Input.class));
         return data;
     }
 
     @Override
     public OneTimeWorkRequest getWorkRequestExecutor(int i, String packageName) {
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
+        return new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
+                .addTag(Iperf3ExecutorWorker.TAG)
                 .addTag(iperf3Parameter.getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i, packageName).build())
                 .build();
-        return workRequest;
     }
     @Override
     public OneTimeWorkRequest getWorkRequestLineProtocol(int i, String packageName) {
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
+        return new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
+                .addTag(Iperf3ToLineProtocolWorker.TAG)
                 .addTag(iperf3Parameter.getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i, packageName).build())
                 .build();
-        return workRequest;
     }
 
     @Override
     public OneTimeWorkRequest getWorkRequestUpload(int i, String packageName) {
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class)
+        return new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
+                .addTag(Iperf3UploadWorker.TAG)
                 .addTag(iperf3Parameter.getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i, packageName).build())
                 .build();
-        return workRequest;
     }
 }

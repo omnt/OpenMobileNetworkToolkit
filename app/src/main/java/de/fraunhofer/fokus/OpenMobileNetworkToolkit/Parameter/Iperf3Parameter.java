@@ -1,5 +1,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter;
 
+import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -9,9 +10,15 @@ import androidx.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Iperf3Parameter implements Parcelable  {
+    public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+    public static final String rawDirPath = rootPath+"/omnt/iperf3/raw/";
+    public static final String lineProtocolDirPath = rootPath+"/omnt/iperf3/lineprotocol/";
     public static final String HOST = "host";
     public static final String PORT = "port";
     public static final String BANDWIDTH = "bandwidth";
@@ -76,8 +83,10 @@ public class Iperf3Parameter implements Parcelable  {
     public static final String IPERF3UUID = "iperf3UUID";
 
     private static final String TAG = "Iperf3Parameter";
+    private String lineProtocolFile;
 
     protected Iperf3Parameter(Parcel in) {
+        lineProtocolFile = in.readString();
         host = in.readString();
         iPerf3UUID = in.readString();
         duration = in.readInt();
@@ -365,7 +374,12 @@ public class Iperf3Parameter implements Parcelable  {
         this.rsaPublicKeyPath = rsaPublicKeyPath;
     }
 
-    public Iperf3Parameter(JSONObject jsonObject) {
+    public Iperf3Parameter(JSONObject jsonObject, String testUUID) {
+        this.testUUID = testUUID;
+        this.logfile = rawDirPath+testUUID+".json";
+        this.lineProtocolFile = lineProtocolDirPath+testUUID+".txt";
+        this.jsonStream = true;
+
         try {
             this.host = jsonObject.getString(HOST);
         } catch (JSONException e) {
@@ -479,7 +493,7 @@ public class Iperf3Parameter implements Parcelable  {
             Log.d(TAG, "extraData not set.");
         }
         try{
-            this.title = jsonObject.getString(TIME);
+            this.title = jsonObject.getString(TITLE);
         } catch (JSONException e) {
             Log.d(TAG, "title not set.");
         }
@@ -664,12 +678,7 @@ public class Iperf3Parameter implements Parcelable  {
         } catch (JSONException e) {
             Log.d(TAG, "forceflush not set.");
         }
-        try{
-            this.logfile = jsonObject.getString(LOGFILE);
-        } catch (JSONException e) {
-            Log.d(TAG, "logfile not set.");
-        }
-        this.jsonStream = true;
+
         try{
             this.verbose = jsonObject.getBoolean(VERBOSE);
         } catch (JSONException e) {
@@ -710,6 +719,12 @@ public class Iperf3Parameter implements Parcelable  {
         } catch (JSONException e) {
             Log.d(TAG, "title not set.");
         }
+        try {
+            Files.createDirectories(Paths.get(rawDirPath));
+            Files.createDirectories(Paths.get(lineProtocolDirPath));
+        } catch (IOException e) {
+            Log.d(TAG, "Could not create directories.");
+        }
     }
 
     @Override
@@ -719,6 +734,7 @@ public class Iperf3Parameter implements Parcelable  {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(lineProtocolFile);
         dest.writeString(host);
         dest.writeString(iPerf3UUID);
         dest.writeInt(duration);
@@ -790,6 +806,10 @@ public class Iperf3Parameter implements Parcelable  {
         return host;
     }
 
+    public String getLineProtocolFile() {
+        return lineProtocolFile;
+    }
+
     // --- Enums ---
     public enum Iperf3Mode {
         CLIENT,
@@ -820,7 +840,7 @@ public class Iperf3Parameter implements Parcelable  {
     // Required field.
     private String host;
     private String iPerf3UUID;
-
+    private String testUUID;
     // Optional fields with defaults based on iperf3.
     private int duration = 10;                   // Default duration: 10 seconds.
     private Iperf3Protocol protocol = Iperf3Protocol.TCP;  // Default protocol: TCP.
@@ -932,7 +952,9 @@ public class Iperf3Parameter implements Parcelable  {
     public void setProtocol(Iperf3Protocol protocol) {
         this.protocol = (protocol != null) ? protocol : Iperf3Protocol.TCP;
     }
-
+    public void setTestUUID(String testUUID) {
+        this.testUUID = testUUID;
+    }
     public int getPort() {
         return port;
     }
@@ -1561,10 +1583,6 @@ public class Iperf3Parameter implements Parcelable  {
             command.add("-J");
         }
 
-        if (logfile != null && !logfile.trim().isEmpty()) {
-            command.add("--logfile");
-            command.add(logfile);
-        }
         if (forceflush != null && forceflush) {
             command.add("--forceflush");
         }
@@ -1769,6 +1787,9 @@ public class Iperf3Parameter implements Parcelable  {
 
         // Always add these extra fixed options.
         command.add("--json-stream");
+        command.add("--logfile");
+        command.add(logfile);
+
 
 
         return command.toArray(new String[0]);

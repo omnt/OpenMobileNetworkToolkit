@@ -174,8 +174,9 @@ public class PingFragment extends Fragment {
 
         horizontalLL1.addView(metricsLL);
 
-
-        PingParser pingParser = PingParser.getInstance(null);
+        //ToDO
+        /*
+        PingParser pingParser = PingParser;
         pingParser.addPropertyChangeListener(evt -> {
             PingInformation pi = (PingInformation) evt.getNewValue();
             switch (pi.getLineType()) {
@@ -188,7 +189,7 @@ public class PingFragment extends Fragment {
                     break;
             }
         });
-
+        */
         //packetLossMetric.setVisibility(View.INVISIBLE);
         return v;
     }

@@ -8,17 +8,14 @@ import androidx.work.OneTimeWorkRequest;
 import com.google.gson.Gson;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 
 
 public class PingInput extends Inputs {
-    PingParameter pingParameter;
-    public static final String rawDirPath = rootPath+"/omnt/ping/raw/";
-    public static final String lineProtocolDirPath = rootPath+"/omnt/ping/lineprotocol/";
+    private PingParameter pingParameter;
+
     protected PingInput(Parcel in) {
         super(in);
 
@@ -29,8 +26,6 @@ public class PingInput extends Inputs {
                        String measurementUUID,
                        String campaignUUID) {
         super(testUUID, sequenceUUID, measurementUUID, campaignUUID);
-        super.setRawFile(rawDirPath +testUUID+".json");
-        super.setLineProtocolFile(lineProtocolDirPath+testUUID+".txt");
         this.pingParameter = pingParameter;
     }
 
@@ -43,8 +38,13 @@ public class PingInput extends Inputs {
     public Data.Builder getInputAsDataBuilder(int i, String packageName) {
         Data.Builder data = new Data.Builder();
         Gson gson = new Gson();
-        data.putString(INPUT, gson.toJson(pingParameter));
+        data.putInt(NOTIFICATIONUMBER, i);
+        data.putString(INPUT, gson.toJson(this));
         return data;
+    }
+
+    public PingParameter getPingParameter() {
+        return pingParameter;
     }
 
     @Override
@@ -67,37 +67,38 @@ public class PingInput extends Inputs {
 
     @Override
     public OneTimeWorkRequest getWorkRequestLineProtocol(int i, String packageName) {
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
+        // TODO FIX
+        return new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
+                .addTag("Ping") // TODO FIX
                 .setInputData(getInputAsDataBuilder(i,  packageName).build())
                 .build();
-        return workRequest;
     }
 
     @Override
     public OneTimeWorkRequest getWorkRequestUpload(int i, String packageName) {
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(InfluxDB2xUploadWorker.class)
+        return new OneTimeWorkRequest.Builder(InfluxDB2xUploadWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
+                .addTag(InfluxDB2xUploadWorker.TAG)
                 .setInputData(getInputAsDataBuilder(i, packageName).build())
                 .build();
-        return workRequest;
     }
 
     @Override
     public OneTimeWorkRequest getWorkRequestExecutor(int i, String packageName) {
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(PingWorker.class)
+        return new OneTimeWorkRequest.Builder(PingWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
+                .addTag(PingWorker.TAG)
                 .setInputData(getInputAsDataBuilder(i,  packageName).build())
                 .build();
-        return workRequest;
     }
 }

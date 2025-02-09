@@ -41,6 +41,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
@@ -129,38 +130,8 @@ public class PingService extends Service {
         }
         spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", true).apply();
         pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
-        PingParser pingParser = PingParser.getInstance(null);
-        propertyChangeListener = pingParser.getListener();
-        if(propertyChangeListener != null){
-            pingParser.removePropertyChangeListener(propertyChangeListener);
-        }
-        propertyChangeListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                PingInformation pi = (PingInformation) evt.getNewValue();
 
-                Point point = pi.getPoint();
-                point.addTags(dp.getTagsMap());
-                Log.d(TAG, "propertyChange: "+point.toLineProtocol());
-                try {
-                    ping_stream.write((point.toLineProtocol() + "\n").getBytes());
-                } catch (IOException e) {
-                    Log.d(TAG,e.toString());
-                }
 
-                if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
-                    try {
-                        influx.writePoints(List.of(point));
-                    } catch (IOException e) {
-                        Log.d(TAG,e.toString());
-                    }
-                }
-
-            }
-        };
-
-        pingParser.addPropertyChangeListener(propertyChangeListener);
-        pingParser.setListener(propertyChangeListener);
         pingLogging.post(pingUpdate);
     }
     public void parsePingCommand() {

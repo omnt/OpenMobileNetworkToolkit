@@ -12,29 +12,25 @@ import java.sql.Timestamp;
 
 public abstract class Inputs implements Parcelable {
 
-    public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+
     public static final String INPUT = "input";
     public static final String TESTUUID = "testUUID";
     public static final String SEQUENCEUUID = "sequenceUUID";
     public static final String MEASUREMENTUUID = "measurementUUID";
     public static final String CAMPAIGNUUID = "campaignUUID";
-    private String rawFile;
+    public static final String DEVICE = "device";
+    public static final String TYPE = "type";
+    public static final String PARAMS = "params";
+    public static final String NOTIFICATIONUMBER = "notificationNumber";
     private String testUUID;
-    private String logFileName;
-    private String measurementName;
-    private String lineProtocolFile;
+
     private Timestamp timestamp;
     private String campaignUUID;
     private String sequenceUUID;
     private String measurementUUID;
 
-    public String getRawFile() {
-        return rawFile;
-    }
 
-    public void setRawFile(String rawFile) {
-        this.rawFile = rawFile;
-    }
+
 
     public String getTestUUID() {
         return testUUID;
@@ -44,29 +40,6 @@ public abstract class Inputs implements Parcelable {
         this.testUUID = testUUID;
     }
 
-    public String getLogFileName() {
-        return logFileName;
-    }
-
-    public void setLogFileName(String logFileName) {
-        this.logFileName = logFileName;
-    }
-
-    public String getMeasurementName() {
-        return measurementName;
-    }
-
-    public void setMeasurementName(String measurementName) {
-        this.measurementName = measurementName;
-    }
-
-    public String getLineProtocolFile() {
-        return lineProtocolFile;
-    }
-
-    public void setLineProtocolFile(String lineProtocolFile) {
-        this.lineProtocolFile = lineProtocolFile;
-    }
 
     public Timestamp getTimestamp() {
         return timestamp;
@@ -88,37 +61,15 @@ public abstract class Inputs implements Parcelable {
         return measurementUUID;
     }
     protected Inputs(Parcel in) {
-        rawFile = in.readString();
-        logFileName = in.readString();
-        measurementName = in.readString();
-        lineProtocolFile = in.readString();
         timestamp = (Timestamp) in.readSerializable();
         campaignUUID = in.readString();
         sequenceUUID = in.readString();
         measurementUUID = in.readString();
         testUUID = in.readString();
     }
-    public Inputs(String rawFile, String logFileName, String measurementName, String lineProtocolFile, String campaignUUID, String sequenceUUID, String measurementUUID, String testUUID) {
-
-        this.rawFile = rawFile;
-        this.logFileName = logFileName;
-        this.measurementName = measurementName;
-        this.lineProtocolFile = lineProtocolFile;
-        this.timestamp = new Timestamp(System.currentTimeMillis());
-
-        this.campaignUUID = campaignUUID;
-        this.sequenceUUID = sequenceUUID;
-        this.measurementUUID = measurementUUID;
-        this.testUUID = testUUID;
-    }
 
     public Inputs(String campaignUUID, String sequenceUUID, String measurementUUID, String testUUID) {
-        this.rawFile = "";
-        this.logFileName = "";
-        this.measurementName = "";
-        this.lineProtocolFile = "";
         this.timestamp = new Timestamp(System.currentTimeMillis());
-
         this.campaignUUID = campaignUUID;
         this.sequenceUUID = sequenceUUID;
         this.measurementUUID = measurementUUID;
@@ -132,10 +83,6 @@ public abstract class Inputs implements Parcelable {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeString(rawFile);
-        dest.writeString(logFileName);
-        dest.writeString(measurementName);
-        dest.writeString(lineProtocolFile);
         dest.writeSerializable(timestamp);
         dest.writeString(campaignUUID);
         dest.writeString(sequenceUUID);

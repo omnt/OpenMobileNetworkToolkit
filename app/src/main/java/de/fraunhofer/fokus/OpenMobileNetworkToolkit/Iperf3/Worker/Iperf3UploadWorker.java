@@ -30,7 +30,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnectio
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
 public class Iperf3UploadWorker extends Worker {
-    private static final String TAG = "Iperf3UploadWorker";
+    public static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
     private Iperf3Input iperf3Input;
 
@@ -65,17 +65,17 @@ public class Iperf3UploadWorker extends Worker {
         }
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader(iperf3Input.getLineProtocolFile()));
+            br = new BufferedReader(new FileReader(iperf3Input.getIperf3Parameter().getLineProtocolFile()));
         } catch (FileNotFoundException | NullPointerException e) {
             Log.d(TAG,e.toString());
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());
         try {
-            Log.d(TAG, String.format("doWork: uploading %s", iperf3Input.getLineProtocolFile()));
+            Log.d(TAG, String.format("doWork: uploading %s", iperf3Input.getIperf3Parameter().getLineProtocolFile()));
             influx.writeRecords(points);
         } catch (IOException e) {
-            Log.d(TAG, String.format("doWork: upload of %s failed!", iperf3Input.getLineProtocolFile()));
+            Log.d(TAG, String.format("doWork: upload of %s failed!", iperf3Input.getIperf3Parameter().getLineProtocolFile()));
             return Result.failure(output);
         }
 

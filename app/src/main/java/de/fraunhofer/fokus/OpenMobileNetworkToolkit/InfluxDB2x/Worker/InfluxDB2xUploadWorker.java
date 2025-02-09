@@ -31,7 +31,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Inputs;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
 public class InfluxDB2xUploadWorker extends Worker {
-    private static final String TAG = "InfDB2xUploadWorker";
+    public static final String TAG = "InfDB2xUploadWorker";
     InfluxdbConnection influx;
     private Inputs input;
     public static final String UPLOAD = "influxdb2x_upload";
@@ -65,17 +65,17 @@ public class InfluxDB2xUploadWorker extends Worker {
         }
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader(input.getLineProtocolFile()));
+            br = new BufferedReader(new FileReader(""));
         } catch (FileNotFoundException | NullPointerException e) {
             Log.d(TAG,e.toString());
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());
         try {
-            Log.d(TAG, String.format("doWork: uploading %s", input.getLineProtocolFile()));
+        //    Log.d(TAG, String.format("doWork: uploading %s", input.getLineProtocolFile()));
             influx.writeRecords(points);
         } catch (IOException e) {
-            Log.d(TAG, String.format("doWork: upload of %s failed!", input.getLineProtocolFile()));
+        //    Log.d(TAG, String.format("doWork: upload of %s failed!", input.getLineProtocolFile()));
             return Result.failure(output);
         }
 

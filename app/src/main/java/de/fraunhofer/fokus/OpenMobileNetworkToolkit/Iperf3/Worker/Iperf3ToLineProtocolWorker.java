@@ -40,7 +40,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
-    private static final String TAG = "Iperf3UploadWorker";
+    public static final String TAG = "Iperf3ToLineProtocolWorker";
     InfluxdbConnection influx;
     private SharedPreferencesGrouper spg;
 
@@ -66,7 +66,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
-        Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getRawFile());
+        Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getIperf3Parameter().getLogfile());
         iperf3Parser.parse();
 
 
@@ -165,7 +165,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
         FileOutputStream iperf3Stream = null;
         try {
-            iperf3Stream = new FileOutputStream(iperf3Input.getLineProtocolFile(), true);
+            iperf3Stream = new FileOutputStream(iperf3Input.getIperf3Parameter().getLineProtocolFile(), true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
             Log.d(TAG,e.toString());

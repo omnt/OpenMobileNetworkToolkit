@@ -3,7 +3,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler;
 import android.content.Context;
 
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,7 +15,9 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
 
 public class PingHandler extends Handler {
 
+    public static final String TAG = "PingHandler";
     private ArrayList<PingInput> pingInputs = new ArrayList<>();
+    private boolean isEnable = false;
     @Override
     public void parsePayload(String payload) throws JSONException {
         pingInputs.clear();
@@ -32,34 +33,63 @@ public class PingHandler extends Handler {
             if(!testType.equals("ping")) continue;
             JSONObject params = test.getJSONObject("params");
 
-            PingParameter pingParameter = new PingParameter(params);
+            PingParameter pingParameter = new PingParameter(params, testUUID);
             if(pingParameter == null) continue;
             PingInput pingInput = new PingInput(pingParameter, testUUID, sequenceUUID, measurementUUUID,campaignUUID);
             pingInputs.add(pingInput);
         }
+
+    }
+
+    public ArrayList<String> getTestUUIDs() {
+        ArrayList<String> testUUIDs = new ArrayList<>();
+        for(PingInput pingInput : pingInputs) {
+            testUUIDs.add(pingInput.getTestUUID());
+        }
+        return testUUIDs;
+    }
+
+    @Override
+    public ArrayList<OneTimeWorkRequest> getExecutorWorkRequests(Context context) {
+        ArrayList<OneTimeWorkRequest> executorWorkRequests = new ArrayList<>();
+        for(PingInput pingInput : pingInputs) {
+            executorWorkRequests.add(pingInput.getWorkRequestExecutor(pingInputs.indexOf(pingInput), context.getPackageName()));
+        }
+        return executorWorkRequests;
+    }
+    @Override
+    public ArrayList<OneTimeWorkRequest> getToLineProtocolWorkRequests(Context context) {
+        ArrayList<OneTimeWorkRequest> toLineProtocolWorkRequests = new ArrayList<>();
+        for(PingInput pingInput : pingInputs) {
+            toLineProtocolWorkRequests.add(pingInput.getWorkRequestLineProtocol(pingInputs.indexOf(pingInput), context.getPackageName()));
+        }
+        return toLineProtocolWorkRequests;
+    }
+    @Override
+    public ArrayList<OneTimeWorkRequest> getUploadWorkRequests(Context context) {
+        ArrayList<OneTimeWorkRequest> uploadWorkRequests = new ArrayList<>();
+        for(PingInput pingInput : pingInputs) {
+            uploadWorkRequests.add(pingInput.getWorkRequestUpload(pingInputs.indexOf(pingInput), context.getPackageName()));
+        }
+        return uploadWorkRequests;
     }
 
     @Override
     public void enableSequence(Context context) {
 
-        WorkManager workManager = WorkManager.getInstance(context);
-        ArrayList<OneTimeWorkRequest> executorWorkRequests = new ArrayList<>();
-        ArrayList<OneTimeWorkRequest> toLineProtocolWorkRequests = new ArrayList<>();
-        ArrayList<OneTimeWorkRequest> uploadWorkRequests = new ArrayList<>();
-        for(PingInput pingInput : pingInputs) {
-            executorWorkRequests.add(pingInput.getWorkRequestExecutor(pingInputs.indexOf(pingInput), context.getPackageName()));
-            toLineProtocolWorkRequests.add(pingInput.getWorkRequestLineProtocol(pingInputs.indexOf(pingInput), context.getPackageName()));
-            uploadWorkRequests.add(pingInput.getWorkRequestUpload(pingInputs.indexOf(pingInput), context.getPackageName()));
-        }
-
-        workManager.beginWith(executorWorkRequests)
-                .then(toLineProtocolWorkRequests)
-                .then(uploadWorkRequests)
-                .enqueue();
     }
 
     @Override
     public void disableSequence(Context context) {
 
+
+    }
+
+    public boolean isEnable() {
+        return isEnable;
+    }
+
+    public void setEnable(boolean enable) {
+        isEnable = enable;
     }
 }
