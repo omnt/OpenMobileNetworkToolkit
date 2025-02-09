@@ -8,13 +8,19 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+
+import android.app.Notification;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
+import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -25,6 +31,7 @@ import com.influxdb.client.write.Point;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
@@ -38,32 +45,46 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3ToLineProtocolWorker extends Worker {
     public static final String TAG = "Iperf3ToLineProtocolWorker";
     InfluxdbConnection influx;
+    private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
     private SharedPreferencesGrouper spg;
+    private Notification notification;
+    private NotificationCompat.Builder notificationBuilder;
 
     private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
+    private int notificationID;
     private Iperf3Input iperf3Input;
     public Iperf3ToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         Gson gson = new Gson();
         String iperf3InputString = getInputData().getString(Iperf3Input.INPUT);
         iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
+        notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), "OMNT_notification_channel");
+        notificationID = 200+getInputData().getInt(Iperf3Input.NOTIFICATIONUMBER, 0);
         spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
+        setForegroundAsync(createForegroundInfo("Processing iPerf3 data"));
     }
-
-    private void setup(){
-        influx = InfluxdbConnections.getRicInstance(getApplicationContext());
+    private ForegroundInfo createForegroundInfo(String progress) {
+        notification = notificationBuilder
+                .setContentTitle("iPerf32LineProtocol")
+                .setContentText(progress)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setColor(Color.WHITE)
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_DEFAULT)
+                .build();
+        return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE);
     }
-
 
 
     @NonNull
     @Override
     public Result doWork() {
-        setup();
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
         Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getIperf3Parameter().getLogfile());
@@ -79,7 +100,8 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         }
 
         LinkedList<Point> points = new LinkedList<Point>();
-        for (Interval interval: iperf3Parser.getIntervals().getIntervalArrayList()) {
+        ArrayList<Interval> intervals = iperf3Parser.getIntervals().getIntervalArrayList();
+        for (Interval interval: intervals) {
             long tmpTimestamp = timestamp + (long) (interval.getSum().getEnd() * 1000);
             int intervalIdx = iperf3Parser.getIntervals().getIntervalArrayList().indexOf(interval);
             for (Stream stream: interval.getStreams().getStreamArrayList()){
@@ -151,6 +173,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                 point.time(tmpTimestamp, WritePrecision.MS);
 
                 points.add(point);
+                setForegroundAsync(createForegroundInfo("Processing iPerf3 data: "+intervalIdx+"/"+intervals.size()));
             }
         }
 

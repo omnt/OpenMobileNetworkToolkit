@@ -28,9 +28,12 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -114,14 +117,13 @@ public class PingWorker extends Worker {
 
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             Process process = processBuilder.start();
-
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(getApplicationContext().getFilesDir()+pingInput.getTestUUID()+".txt"));
+            FileOutputStream pingStream = new FileOutputStream(pingInput.getPingParameter().getLogfile(), true);
 
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-                writer.write(line + "\n");
+                Log.d(TAG, "doWork: "+line);
+                pingStream.write((line + "\n").getBytes());
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.find()) {
                     try {
@@ -141,7 +143,7 @@ public class PingWorker extends Worker {
                 setProgressAsync(output.putString(LINE, line).build());
             }
 
-            writer.close();
+            pingStream.close();
             reader.close();
 
             result = process.waitFor();

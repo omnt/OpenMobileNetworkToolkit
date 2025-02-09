@@ -64,7 +64,7 @@ public class Iperf3Input extends Inputs {
                        String sequenceUUID,
                        String measurementUUID,
                        String campaignUUID) {
-        super(testUUID, sequenceUUID, measurementUUID, campaignUUID);
+        super(testUUID, sequenceUUID, measurementUUID, campaignUUID, iperf3Parameter);
         this.iperf3Parameter = iperf3Parameter;
     }
 
@@ -101,6 +101,13 @@ public class Iperf3Input extends Inputs {
         return data;
     }
 
+    public Data.Builder getInputAsDataBuilder(int i) {
+        Data.Builder data = new Data.Builder();
+        data.putInt(NOTIFICATIONUMBER, i);
+        data.putString(Inputs.INPUT, new GsonBuilder().create().toJson(this, Iperf3Input.class));
+        return data;
+    }
+
     @Override
     public OneTimeWorkRequest getWorkRequestExecutor(int i, String packageName) {
         return new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
@@ -122,7 +129,7 @@ public class Iperf3Input extends Inputs {
                 .addTag(super.getCampaignUUID())
                 .addTag(Iperf3ToLineProtocolWorker.TAG)
                 .addTag(iperf3Parameter.getiPerf3UUID())
-                .setInputData(getInputAsDataBuilder(i, packageName).build())
+                .setInputData(getInputAsDataBuilder(i).build())
                 .build();
     }
 
@@ -135,7 +142,7 @@ public class Iperf3Input extends Inputs {
                 .addTag(super.getCampaignUUID())
                 .addTag(Iperf3UploadWorker.TAG)
                 .addTag(iperf3Parameter.getiPerf3UUID())
-                .setInputData(getInputAsDataBuilder(i, packageName).build())
+                .setInputData(getInputAsDataBuilder(i).build())
                 .build();
     }
 }

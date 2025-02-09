@@ -58,7 +58,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingParser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class PingToLineProtocolWorker extends Worker {
-    public static final String TAG = "Iperf3ToLineProtocolWorker";
+    public static final String TAG = "PingToLineProtocolWorker";
     InfluxdbConnection influx;
     private SharedPreferencesGrouper spg;
 
@@ -90,7 +90,6 @@ public class PingToLineProtocolWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-;
         Data.Builder output = new Data.Builder().putBoolean("pingUpload", false);
         File myObj = new File(pingInput.getPingParameter().getLogfile());
         Scanner scanner = null;
@@ -99,7 +98,7 @@ public class PingToLineProtocolWorker extends Worker {
         } catch (FileNotFoundException e) {
             return Result.failure(output.putString("error", "File not found").build());
         }
-        ArrayList<PingInformation> points = new ArrayList<>();
+        ArrayList<PingInformation> pingInformations = new ArrayList<>();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             PingInformation pi = null;
@@ -120,30 +119,31 @@ public class PingToLineProtocolWorker extends Worker {
             }
             if (pi == null) continue;
             pi.parse();
-            points.add(pi);
+            pingInformations.add(pi);
         }
         scanner.close();
-        try {
-            Files.createDirectories(Paths.get(PingParameter.lineProtocolDirPath));
-        } catch (IOException e) {
-            Log.d(TAG, "doWork: "+e.toString());
-        }
         try {
             Files.createFile(Paths.get(pingInput.getPingParameter().getLineProtocolFile()));
         } catch (IOException e) {
             Log.d(TAG, "doWork: "+e.toString());
             return Result.failure(output.putString("error", "File not created").build());
         }
-        BufferedWriter writer = null;
+        FileOutputStream pingStream = null;
         try {
-            writer = new BufferedWriter(new FileWriter(pingInput.getPingParameter().getLineProtocolFile()));
-        } catch (IOException e) {
-            Log.d(TAG, "doWork: "+e.toString());
-            return Result.failure(output.putString("error", "File not created").build());
+            pingStream = new FileOutputStream(pingInput.getPingParameter().getLineProtocolFile(), true);
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "doWork: " + e.toString());
+            Log.e(TAG, "doWork: Could not create FileOutputStream");
         }
-        for (PingInformation pi : points) {
+
+        for (PingInformation pi : pingInformations) {
             try {
-                writer.write(pi.getPoint().toLineProtocol() + "\n");
+                Point point = pi.getPoint();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    point.addTags(GlobalVars.getInstance().get_dp().getTagsMap());
+                }
+                pingStream.write((point.toLineProtocol() + "\n").getBytes());
+
             } catch (IOException e) {
                 Log.d(TAG, "doWork: "+e.toString());
                 return Result.failure(output.putString("error", "File not written").build());

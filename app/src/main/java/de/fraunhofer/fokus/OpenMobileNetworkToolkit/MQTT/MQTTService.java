@@ -467,9 +467,9 @@ public class MQTTService extends Service {
         Log.d(TAG, "enqueueWorkRequests: Enqueueing work Executor requests "+executorRequests.size());
         Log.d(TAG, "enqueueWorkRequests: Enqueueing work LineProtocol requests "+lineProtocolRequests.size());
         Log.d(TAG, "enqueueWorkRequests: Enqueueing work Upload requests "+uploadRequests.size());
-        remoteWorkManager.beginUniqueWork("foobar", ExistingWorkPolicy.REPLACE, executorRequests)
+        remoteWorkManager.beginWith(executorRequests)
                 .then(lineProtocolRequests)
-       //         .then(uploadRequests)
+                .then(uploadRequests)
                .enqueue();
 
         CustomEventListener listener = new CustomEventListener() {

@@ -15,13 +15,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Iperf3Parameter implements Parcelable  {
+public class Iperf3Parameter extends Parameter {
     public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
     public static final String rawDirPath = rootPath+"/omnt/iperf3/raw/";
     public static final String lineProtocolDirPath = rootPath+"/omnt/iperf3/lineprotocol/";
     public static final String HOST = "host";
     public static final String PORT = "port";
-    public static final String BANDWIDTH = "bandwidth";
+    public static final String BITRATE = "bitrate";
     public static final String INTERVAL = "interval";
     public static final String BYTES = "bytes";
     public static final String STREAMS = "streams";
@@ -83,10 +83,10 @@ public class Iperf3Parameter implements Parcelable  {
     public static final String IPERF3UUID = "iperf3UUID";
 
     private static final String TAG = "Iperf3Parameter";
-    private String lineProtocolFile;
+
 
     protected Iperf3Parameter(Parcel in) {
-        lineProtocolFile = in.readString();
+        super(in);
         host = in.readString();
         iPerf3UUID = in.readString();
         duration = in.readInt();
@@ -105,7 +105,6 @@ public class Iperf3Parameter implements Parcelable  {
         json = tmpJson == 0 ? null : tmpJson == 1;
         byte tmpJsonStream = in.readByte();
         jsonStream = tmpJsonStream == 0 ? null : tmpJsonStream == 1;
-        logfile = in.readString();
         byte tmpForceflush = in.readByte();
         forceflush = tmpForceflush == 0 ? null : tmpForceflush == 1;
         timestamps = in.readString();
@@ -306,6 +305,7 @@ public class Iperf3Parameter implements Parcelable  {
                            Boolean dontFragment,
                            String username,
                            String rsaPublicKeyPath) {
+        super(rawDirPath+iPerf3UUID+".txt", lineProtocolDirPath+iPerf3UUID+".txt");
         this.host = ip;
         this.iPerf3UUID = iPerf3UUID;
         this.duration = duration;
@@ -324,7 +324,6 @@ public class Iperf3Parameter implements Parcelable  {
         this.verbose = verbose;
         this.json = json;
         this.jsonStream = jsonStream;
-        this.logfile = logfile;
         this.forceflush = forceflush;
         this.timestamps = timestamps;
         this.rcvTimeout = rcvTimeout;
@@ -375,9 +374,9 @@ public class Iperf3Parameter implements Parcelable  {
     }
 
     public Iperf3Parameter(JSONObject jsonObject, String testUUID) {
+        super(rawDirPath+testUUID+".txt", lineProtocolDirPath+testUUID+".txt");
+
         this.testUUID = testUUID;
-        this.logfile = rawDirPath+testUUID+".json";
-        this.lineProtocolFile = lineProtocolDirPath+testUUID+".txt";
         this.jsonStream = true;
 
         try {
@@ -396,7 +395,7 @@ public class Iperf3Parameter implements Parcelable  {
             Log.d(TAG, "port is not set. Defaulting to iPerf3 default Port.");
         }
         try {
-            this.bitrate = jsonObject.getString(BANDWIDTH);
+            this.bitrate = jsonObject.getString(BITRATE);
         } catch (JSONException e) {
             Log.d(TAG, "bitrate is not set. Defaulting to iPerf3 default bitrate.");
         }
@@ -734,7 +733,6 @@ public class Iperf3Parameter implements Parcelable  {
 
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeString(lineProtocolFile);
         dest.writeString(host);
         dest.writeString(iPerf3UUID);
         dest.writeInt(duration);
@@ -752,7 +750,6 @@ public class Iperf3Parameter implements Parcelable  {
         dest.writeBoolean(verbose);
         dest.writeBoolean(json);
         dest.writeBoolean(jsonStream);
-        dest.writeString(logfile);
         dest.writeBoolean(forceflush);
         dest.writeString(timestamps);
         dest.writeInt(rcvTimeout);
@@ -806,9 +803,6 @@ public class Iperf3Parameter implements Parcelable  {
         return host;
     }
 
-    public String getLineProtocolFile() {
-        return lineProtocolFile;
-    }
 
     // --- Enums ---
     public enum Iperf3Mode {
@@ -849,7 +843,7 @@ public class Iperf3Parameter implements Parcelable  {
     // For UDP mode: if not set, default bitrate is "1M".
     private String bitrate;
     // For TCP mode: if not set, default buffer length is 131072 (128 KB).
-    private int length = 131072;
+    private int length;
 
     // Mode selection fields.
     // The mode field indicates whether the test is run in CLIENT or SERVER mode.
@@ -868,7 +862,6 @@ public class Iperf3Parameter implements Parcelable  {
     private Boolean verbose;
     private Boolean json;
     private Boolean jsonStream = true;
-    private String logfile;
     private Boolean forceflush;
     private String timestamps;
     private Integer rcvTimeout;
@@ -918,10 +911,6 @@ public class Iperf3Parameter implements Parcelable  {
     private String username;
     private String rsaPublicKeyPath;
 
-    // --- Constructors ---
-    public Iperf3Parameter() {
-        // Defaults are set via field initialization.
-    }
 
     // --- Getters and Setters ---
 
@@ -1074,13 +1063,6 @@ public class Iperf3Parameter implements Parcelable  {
         this.jsonStream = jsonStream;
     }
 
-    public String getLogfile() {
-        return logfile;
-    }
-
-    public void setLogfile(String logfile) {
-        this.logfile = logfile;
-    }
 
     public Boolean getForceflush() {
         return forceflush;
@@ -1479,7 +1461,6 @@ public class Iperf3Parameter implements Parcelable  {
                 ", verbose=" + verbose +
                 ", json=" + json +
                 ", jsonStream=" + jsonStream +
-                ", logfile='" + logfile + '\'' +
                 ", forceflush=" + forceflush +
                 ", timestamps='" + timestamps + '\'' +
                 ", rcvTimeout=" + rcvTimeout +
@@ -1788,7 +1769,7 @@ public class Iperf3Parameter implements Parcelable  {
         // Always add these extra fixed options.
         command.add("--json-stream");
         command.add("--logfile");
-        command.add(logfile);
+        command.add(super.getLogfile());
 
 
 

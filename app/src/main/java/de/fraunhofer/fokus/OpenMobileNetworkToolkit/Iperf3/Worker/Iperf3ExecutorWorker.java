@@ -32,6 +32,7 @@ import androidx.work.multiprocess.RemoteListenableWorker;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.concurrent.ExecutionException;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
@@ -68,7 +69,11 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     public ListenableFuture<Result> startRemoteWork() {
 
         return CallbackToFutureAdapter.getFuture(completer -> {
-
+            File f = new File(iperf3Input.getIperf3Parameter().getLogfile());
+            if(f.exists() && !f.isDirectory()) {
+                //weird hack otherwise the worker gets enqueued two times
+                return completer.set(Result.success(new Data.Builder().putString("testUUID", iperf3Input.getTestUUID()).build()));
+            }
             Log.i(TAG, "Starting "+TAG);
             setForegroundAsync(createForegroundInfo(iperf3Input.getIperf3Parameter().getHost()+":"+iperf3Input.getIperf3Parameter().getPort()));
 

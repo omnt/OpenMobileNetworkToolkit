@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 
 
@@ -25,7 +26,7 @@ public class PingInput extends Inputs {
                        String sequenceUUID,
                        String measurementUUID,
                        String campaignUUID) {
-        super(testUUID, sequenceUUID, measurementUUID, campaignUUID);
+        super(testUUID, sequenceUUID, measurementUUID, campaignUUID, pingParameter);
         this.pingParameter = pingParameter;
     }
 
@@ -68,12 +69,12 @@ public class PingInput extends Inputs {
     @Override
     public OneTimeWorkRequest getWorkRequestLineProtocol(int i, String packageName) {
         // TODO FIX
-        return new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
+        return new OneTimeWorkRequest.Builder(PingToLineProtocolWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
-                .addTag("Ping") // TODO FIX
+                .addTag(PingToLineProtocolWorker.TAG) // TODO FIX
                 .setInputData(getInputAsDataBuilder(i,  packageName).build())
                 .build();
     }

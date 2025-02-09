@@ -10,7 +10,9 @@ import androidx.work.OneTimeWorkRequest;
 
 import java.sql.Timestamp;
 
-public abstract class Inputs implements Parcelable {
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Parameter;
+
+public class Inputs implements Parcelable {
 
 
     public static final String INPUT = "input";
@@ -28,9 +30,20 @@ public abstract class Inputs implements Parcelable {
     private String campaignUUID;
     private String sequenceUUID;
     private String measurementUUID;
+    private Parameter parameter;
 
 
+    public static final Creator<Inputs> CREATOR = new Creator<Inputs>() {
+        @Override
+        public Inputs createFromParcel(Parcel in) {
+            return new Inputs(in);
+        }
 
+        @Override
+        public Inputs[] newArray(int size) {
+            return new Inputs[size];
+        }
+    };
 
     public String getTestUUID() {
         return testUUID;
@@ -66,14 +79,20 @@ public abstract class Inputs implements Parcelable {
         sequenceUUID = in.readString();
         measurementUUID = in.readString();
         testUUID = in.readString();
+        parameter = in.readParcelable(Parameter.class.getClassLoader());
     }
 
-    public Inputs(String campaignUUID, String sequenceUUID, String measurementUUID, String testUUID) {
+    public Inputs(String campaignUUID, String sequenceUUID, String measurementUUID, String testUUID, Parameter parameter) {
         this.timestamp = new Timestamp(System.currentTimeMillis());
         this.campaignUUID = campaignUUID;
         this.sequenceUUID = sequenceUUID;
         this.measurementUUID = measurementUUID;
         this.testUUID = testUUID;
+        this.parameter = parameter;
+    }
+
+    public Parameter getParameter() {
+        return parameter;
     }
 
     @Override
@@ -88,10 +107,23 @@ public abstract class Inputs implements Parcelable {
         dest.writeString(sequenceUUID);
         dest.writeString(measurementUUID);
         dest.writeString(testUUID);
+        dest.writeParcelable(parameter, flags);
     }
-    public abstract Data.Builder getInputAsDataBuilder(int i, String packageName);
-    public abstract OneTimeWorkRequest getWorkRequestExecutor(int i, String packageName);
-    public abstract OneTimeWorkRequest getWorkRequestLineProtocol(int i, String packageName);
-    public abstract OneTimeWorkRequest getWorkRequestUpload(int i, String packageName);
+
+    public Data.Builder getInputAsDataBuilder(int i, String packageName) {
+        return null;
+    }
+
+    public OneTimeWorkRequest getWorkRequestExecutor(int i, String packageName) {
+        return null;
+    }
+
+    public OneTimeWorkRequest getWorkRequestLineProtocol(int i, String packageName) {
+        return null;
+    }
+
+    public OneTimeWorkRequest getWorkRequestUpload(int i, String packageName) {
+        return null;
+    }
 
 }

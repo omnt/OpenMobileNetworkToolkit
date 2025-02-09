@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 public class PingParameter extends Parameter {
     public static final String rawDirPath = rootPath+"/omnt/ping/raw/";
+
     public static final String lineProtocolDirPath = rootPath+"/omnt/ping/lineprotocol/";
     private static final String TAG = "PingParameter";
 
@@ -46,9 +47,6 @@ public class PingParameter extends Parameter {
         return intervalMillis;
     }
 
-    public String getLogfile() {
-        return logfile;
-    }
 
     public Network getNetwork() {
         return network;
@@ -61,8 +59,6 @@ public class PingParameter extends Parameter {
     private long intervalMillis;
     private Network network;
     private int deadline;
-    private String lineProtocolFile;
-    private String logfile;
     private String testUUID;
 
 
@@ -95,7 +91,7 @@ public class PingParameter extends Parameter {
         return command.toArray(new String[0]);
     }
     public PingParameter(JSONObject parameter, String  testUUID) {
-        super(null);
+        super(rawDirPath + testUUID + ".txt", lineProtocolDirPath + testUUID + ".txt");
         this.testUUID = testUUID;
         try {
             destination = parameter.getString(DESTINATION);
@@ -142,8 +138,6 @@ public class PingParameter extends Parameter {
             Log.d(TAG, "Could not create directories.");
         }
 
-        logfile = rawDirPath + this.testUUID + ".txt";
-        lineProtocolFile = lineProtocolDirPath + this.testUUID + ".txt";
 
     }
 
@@ -185,7 +179,4 @@ public class PingParameter extends Parameter {
         dest.writeParcelable(network, flags);
     }
 
-    public String getLineProtocolFile() {
-        return lineProtocolFile;
-    }
 }
