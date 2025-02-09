@@ -28,6 +28,8 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
 
+import org.json.JSONObject;
+
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -105,11 +107,21 @@ public class MQTTService extends Service {
                 .addConnectedListener(context -> {
                     Log.i(TAG, "createClient: Connected to MQTT server");
                     createNotification();
+                    publishToTopic(String.format("device/%s/status", deviceName), "1", false);
                 })
                 .addDisconnectedListener(context -> {
                     Log.i(TAG, "createClient: Disconnected from MQTT server");
                     createNotification();
                 })
+                .willPublish()
+                    .topic(String.format("device/%s/status", deviceName))
+                    .qos(MqttQos.EXACTLY_ONCE)
+                    .payload("0".getBytes())
+                    .retain(true)
+                    .payloadFormatIndicator(Mqtt5PayloadFormatIndicator.UTF_8)
+                    .contentType("text/plain")
+                    .noMessageExpiry()
+                    .applyWillPublish()
                 .buildAsync();
 
         Log.i(TAG, "createClient: Client created with address: " + addressString);
@@ -159,11 +171,12 @@ public class MQTTService extends Service {
 
     }
 
-    public void publishToTopic(String topic, String message){
+    public void publishToTopic(String topic, String message, boolean retain){
         client.publishWith()
                 .topic(topic)
                 .qos(MqttQos.EXACTLY_ONCE)
                 .payload(message.getBytes())
+                .retain(retain)
                 .send();
     }
 
@@ -179,12 +192,13 @@ public class MQTTService extends Service {
     }
 
     public  void connectClient(){
+
         CompletableFuture<Mqtt5ConnAck> connAck = client.connectWith()
-                .keepAlive(10)
+                .keepAlive(1)
                 .willPublish()
                     .topic(String.format("device/%s/status", deviceName))
                     .qos(MqttQos.EXACTLY_ONCE)
-                    .payload("offline".getBytes())
+                    .payload("0".getBytes())
                     .retain(true)
                     .payloadFormatIndicator(Mqtt5PayloadFormatIndicator.UTF_8)
                     .contentType("text/plain")
@@ -197,6 +211,7 @@ public class MQTTService extends Service {
                 Log.e(TAG, "connectClient: Error connecting to MQTT server: " + throwable.getMessage());
             } else {
                 Log.i(TAG, "connectClient: Connected to MQTT server");
+                publishToTopic(String.format("device/%s/status", deviceName), "1", true);
             }
         });
     }
@@ -427,6 +442,7 @@ public class MQTTService extends Service {
         setupSharedPreferences();
         createClient();
         connectClient();
+
         subscribeToAllTopics();
 
         return START_STICKY;
@@ -480,6 +496,7 @@ public class MQTTService extends Service {
                     Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
                     Data data = info.getOutputData();
                     Log.i(TAG, "onChange: "+data.toString());
+                    publishToTopic("device/"+deviceName+"/campaign/status", state.toString(), false);
                 }
 
             }
