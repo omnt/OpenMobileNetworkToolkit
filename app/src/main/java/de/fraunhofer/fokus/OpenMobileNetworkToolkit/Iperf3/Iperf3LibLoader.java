@@ -24,7 +24,8 @@ public class Iperf3LibLoader {
         "iperf3.12",
         "iperf3.15",
         "iperf3.16",
-        "iperf3.17.1"
+        "iperf3.17.1",
+        "iperf3.18"
     );
 
     public static synchronized void load() {

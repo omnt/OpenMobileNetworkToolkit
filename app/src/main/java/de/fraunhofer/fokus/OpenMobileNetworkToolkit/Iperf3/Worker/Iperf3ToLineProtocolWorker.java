@@ -134,7 +134,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                     .getConnecting_to()
                     .getPort()));
                 point.addTag("bandwidth", iperf3Input.getIperf3Parameter().getBitrate());
-                point.addTag("duration", String.valueOf(iperf3Input.getIperf3Parameter().getDuration()));
+                point.addTag("duration", String.valueOf(iperf3Input.getIperf3Parameter().getTime()));
                 point.addTag("bytesToTransmit", String.valueOf(iperf3Input.getIperf3Parameter().getBytes()));
                 point.addTag("streams", String.valueOf(interval.getStreams().size()));
                 point.addTag("streamIdx", String.valueOf(interval.getStreams().getStreamArrayList().indexOf(stream)));

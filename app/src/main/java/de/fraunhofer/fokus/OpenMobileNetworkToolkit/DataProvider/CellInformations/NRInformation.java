@@ -297,7 +297,7 @@ public class NRInformation extends CellInformation {
 
         if(!this.getSsrsrpString().equals(max)) stringBuilder.append(" SSRSRP: ").append(this.getSsrsrpString()).append(" dBm").append("\n");
 
-        if(!this.getSssinrString().equals(max)) stringBuilder.append(" SSRSRP: ").append(this.getSssinrString()).append(" dBm").append("\n");
+        if(!this.getSssinrString().equals(max)) stringBuilder.append(" SSSINR: ").append(this.getSssinrString()).append(" dBm").append("\n");
 
         if(!this.getFirstCqiString().equals(max)) stringBuilder.append(" CQI: ").append(this.getFirstCqiString()).append("\n");
 

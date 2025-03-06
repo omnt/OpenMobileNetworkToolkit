@@ -496,7 +496,8 @@ public class MQTTService extends Service {
                     Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
                     Data data = info.getOutputData();
                     Log.i(TAG, "onChange: "+data.toString());
-                    publishToTopic("device/"+deviceName+"/campaign/status", state.toString(), false);
+
+                    publishToTopic("device/"+deviceName+"/campaign/status", String.valueOf(state.ordinal()), false);
                 }
 
             }

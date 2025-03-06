@@ -89,7 +89,6 @@ public class Iperf3Parameter extends Parameter {
         super(in);
         host = in.readString();
         iPerf3UUID = in.readString();
-        duration = in.readInt();
         port = in.readInt();
         interval = in.readDouble();
         bitrate = in.readString();
@@ -241,7 +240,6 @@ public class Iperf3Parameter extends Parameter {
 
     public Iperf3Parameter(String ip,
                            String iPerf3UUID,
-                           int duration,
                            Iperf3Protocol protocol,
                            int port,
                            double interval,
@@ -308,7 +306,6 @@ public class Iperf3Parameter extends Parameter {
         super(rawDirPath+iPerf3UUID+".txt", lineProtocolDirPath+iPerf3UUID+".txt");
         this.host = ip;
         this.iPerf3UUID = iPerf3UUID;
-        this.duration = duration;
         this.protocol = protocol;
         this.port = port;
         this.interval = interval;
@@ -401,8 +398,9 @@ public class Iperf3Parameter extends Parameter {
         }
         try {
             this.time = jsonObject.getInt(TIME);
+            Log.d(TAG, "Iperf3Parameter: time: "+time);
         } catch (JSONException e) {
-            Log.d(TAG, "duration is not set. Defaulting to iPerf3 default duration.");
+            Log.d(TAG, "time is not set. Defaulting to iPerf3 default time.");
         }
 
         try {
@@ -421,7 +419,9 @@ public class Iperf3Parameter extends Parameter {
             Log.d(TAG, "nstreams not set.");
         }
         try {
-            this.direction = Iperf3Direction.valueOf(jsonObject.getString(DIRECTION).toUpperCase().trim());
+            String direction = jsonObject.getString(DIRECTION);
+            Log.d(TAG, "Iperf3Parameter: direction: "+direction);
+            this.direction = Iperf3Direction.valueOf(direction.toUpperCase().trim());
         } catch (JSONException e) {
             this.direction = Iperf3Direction.UP;
             Log.d(TAG, "direction not set.");
@@ -558,11 +558,6 @@ public class Iperf3Parameter extends Parameter {
             Log.d(TAG, "parallel not set.");
         }
         try{
-            this.cport = jsonObject.getInt(STREAMS);
-        } catch (JSONException e) {
-            Log.d(TAG, "cport not set.");
-        }
-        try{
             this.blockcount = jsonObject.getString(BLOCKCOUNT);
         } catch (JSONException e) {
             Log.d(TAG, "blockcount not set.");
@@ -571,11 +566,6 @@ public class Iperf3Parameter extends Parameter {
             this.bytes = jsonObject.getString(BYTES);
         } catch (JSONException e) {
             Log.d(TAG, "bytes not set.");
-        }
-        try{
-            this.time = jsonObject.getInt(TIME);
-        } catch (JSONException e) {
-            Log.d(TAG, "time not set.");
         }
         try{
             this.fqRate = jsonObject.getString(FQRATE);
@@ -699,14 +689,13 @@ public class Iperf3Parameter extends Parameter {
             Log.d(TAG, "file not set.");
         }
         try {
-            this.direction = Iperf3Direction.valueOf(jsonObject.getString(DIRECTION));
-        } catch (JSONException e) {
-            Log.d(TAG, "direction not set.");
-        }
-        try {
-            this.mode = Iperf3Mode.valueOf(jsonObject.getString(MODE));
+            String mode = jsonObject.getString(MODE);
+            Log.d(TAG, "Iperf3Parameter: mode: "+mode);
+            this.mode = Iperf3Mode.valueOf(mode.toUpperCase().trim());
         } catch (JSONException e) {
             Log.d(TAG, "mode not set.");
+            Log.i(TAG, "Iperf3Parameter: No mode set. Defaulting to Client.");
+            this.mode = Iperf3Mode.CLIENT;
         }
         try{
             this.bind = jsonObject.getString(BIND);
@@ -735,7 +724,6 @@ public class Iperf3Parameter extends Parameter {
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(host);
         dest.writeString(iPerf3UUID);
-        dest.writeInt(duration);
         dest.writeInt(port);
         dest.writeDouble(interval);
         dest.writeString(bitrate);
@@ -836,7 +824,6 @@ public class Iperf3Parameter extends Parameter {
     private String iPerf3UUID;
     private String testUUID;
     // Optional fields with defaults based on iperf3.
-    private int duration = 10;                   // Default duration: 10 seconds.
     private Iperf3Protocol protocol = Iperf3Protocol.TCP;  // Default protocol: TCP.
     private int port = 5201;                     // Default port: 5201.
     private double interval = 1.0;               // Default interval: 1.0 second.
@@ -920,14 +907,6 @@ public class Iperf3Parameter extends Parameter {
 
     public void setiPerf3UUID(String iPerf3UUID) {
         this.iPerf3UUID = iPerf3UUID;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
     }
 
     public Iperf3Protocol getProtocol() {
@@ -1445,7 +1424,6 @@ public class Iperf3Parameter extends Parameter {
     public String toString() {
         return "Params{" +
                 "iPerf3UUID='" + iPerf3UUID + '\'' +
-                ", duration=" + duration +
                 ", protocol=" + protocol +
                 ", port=" + port +
                 ", interval=" + interval +
