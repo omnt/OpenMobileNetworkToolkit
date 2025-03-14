@@ -85,7 +85,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     public ListenableFuture<Result> startRemoteWork() {
 
         return CallbackToFutureAdapter.getFuture(completer -> {
-            File logFile = new File(iperf3Input.getIperf3Parameter().getLogfile());
+            File logFile = new File(iperf3Input.getParameter().getLogfile());
             if(logFile.exists() && !logFile.isDirectory()) {
                 //weird hack otherwise the worker gets enqueued two times
                 return completer.set(Result.success(new Data.Builder().putString("testUUID", iperf3Input.getTestUUID()).build()));
@@ -97,7 +97,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                 return completer.set(Result.failure());
             }
             Log.i(TAG, "Starting "+TAG);
-            setForegroundAsync(createForegroundInfo(iperf3Input.getIperf3Parameter().getHost()+":"+iperf3Input.getIperf3Parameter().getPort()));
+            setForegroundAsync(createForegroundInfo(iperf3Input.getParameter().getHost()+":"+iperf3Input.getParameter().getPort()));
 
             final int[] result = {-1};
             Handler handler = new Handler(Looper.myLooper());
@@ -109,7 +109,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             Runnable iperf3  = new Runnable(){
                 @Override
                 public void run() {
-                    result[0] = iperf3Wrapper(iperf3Input.getIperf3Parameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
+                    result[0] = iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
                     Log.d(TAG, "doWork: " + result[0]);
                 }
             };
@@ -131,8 +131,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             };
             Log.d(TAG, "startRemoteWork: running thread");
             executorService.execute(iperf3);
-            executorService.schedule(read, (long) (iperf3Input.getIperf3Parameter().getInterval()+0.5), TimeUnit.SECONDS);
-            executorService.awaitTermination(iperf3Input.getIperf3Parameter().getTime()+4, TimeUnit.SECONDS);
+            executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+0.5), TimeUnit.SECONDS);
+            executorService.awaitTermination(iperf3Input.getParameter().getTime()+4, TimeUnit.SECONDS);
             Log.d(TAG, "doWork: " + result[0]);
 
             Data.Builder output = new Data.Builder()

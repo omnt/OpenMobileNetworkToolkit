@@ -609,7 +609,9 @@ public class LoggingService extends Service {
         public void run() {
             if (ic == null) return;
             boolean newInfluxConnectionStatus = ic.ping();
-            Log.d(TAG, "run: monitorInfluxDBConnectionStatus: "+newInfluxConnectionStatus);
+            if(!newInfluxConnectionStatus) {
+                Log.d(TAG, "InfluxDB not reachable");
+            }
             if(newInfluxConnectionStatus != influxConnectionStatus) {
                 influxConnectionStatus = newInfluxConnectionStatus;
                 updateNotification();

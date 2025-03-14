@@ -13,15 +13,18 @@ import androidx.room.TypeConverter;
 
 import com.google.gson.Gson;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
+
+
 @ProvidedTypeConverter
 public class Iperf3InputConverter {
     @TypeConverter
-    public Iperf3Fragment.Iperf3Input StringToIperf3Input(String string) {
-        return new Gson().fromJson(string, Iperf3Fragment.Iperf3Input.class);
+    public Iperf3Input StringToIperf3Input(String string) {
+        return new Gson().fromJson(string, Iperf3Input.class);
     }
 
     @TypeConverter
-    public String Iperf3InputToString(Iperf3Fragment.Iperf3Input example) {
+    public String Iperf3InputToString(Iperf3Input example) {
         return new Gson().toJson(example);
     }
 }

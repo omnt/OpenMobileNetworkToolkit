@@ -87,7 +87,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     public Result doWork() {
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
-        Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getIperf3Parameter().getLogfile());
+        Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
         iperf3Parser.parse();
 
 
@@ -111,20 +111,20 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                 point.addTag(Iperf3Input.SEQUENCEUUID, iperf3Input.getSequenceUUID());
                 point.addTag(Iperf3Input.MEASUREMENTUUID, iperf3Input.getMeasurementUUID());
                 point.addTag(Iperf3Input.CAMPAIGNUUID, iperf3Input.getCampaignUUID());
-                point.addTag(Iperf3Input.IPERF3UUID, iperf3Input.getIperf3Parameter().getiPerf3UUID());
+                point.addTag(Iperf3Input.IPERF3UUID, iperf3Input.getParameter().getiPerf3UUID());
 
 
 
 
-                point.addTag("bidir", String.valueOf(iperf3Input.getIperf3Parameter().getBidir()));
+                point.addTag("bidir", String.valueOf(iperf3Input.getParameter().getBidir()));
                 point.addTag("sender", String.valueOf(stream.getSender()));
                 point.addTag("role", role);
                 point.addTag("socket", String.valueOf(stream.getSocket()));
                 point.addTag("protocol", iperf3Parser.getStart().getTest_start().protocol);
-                point.addTag("interval", String.valueOf(iperf3Input.getIperf3Parameter().getInterval()));
+                point.addTag("interval", String.valueOf(iperf3Input.getParameter().getInterval()));
                 point.addTag("version", iperf3Parser.getStart().getVersion());
-                point.addTag("reversed", String.valueOf(iperf3Input.getIperf3Parameter().getReverse()));
-                point.addTag("oneOff", String.valueOf(iperf3Input.getIperf3Parameter().getOneOff()));
+                point.addTag("reversed", String.valueOf(iperf3Input.getParameter().getReverse()));
+                point.addTag("oneOff", String.valueOf(iperf3Input.getParameter().getOneOff()));
                 point.addTag("connectingToHost", iperf3Parser
                     .getStart()
                     .getConnecting_to()
@@ -133,9 +133,9 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                     .getStart()
                     .getConnecting_to()
                     .getPort()));
-                point.addTag("bandwidth", iperf3Input.getIperf3Parameter().getBitrate());
-                point.addTag("duration", String.valueOf(iperf3Input.getIperf3Parameter().getTime()));
-                point.addTag("bytesToTransmit", String.valueOf(iperf3Input.getIperf3Parameter().getBytes()));
+                point.addTag("bandwidth", iperf3Input.getParameter().getBitrate());
+                point.addTag("duration", String.valueOf(iperf3Input.getParameter().getTime()));
+                point.addTag("bytesToTransmit", String.valueOf(iperf3Input.getParameter().getBytes()));
                 point.addTag("streams", String.valueOf(interval.getStreams().size()));
                 point.addTag("streamIdx", String.valueOf(interval.getStreams().getStreamArrayList().indexOf(stream)));
                 point.addTag("intervalIdx", String.valueOf(intervalIdx));
@@ -188,7 +188,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
         FileOutputStream iperf3Stream = null;
         try {
-            iperf3Stream = new FileOutputStream(iperf3Input.getIperf3Parameter().getLineProtocolFile(), true);
+            iperf3Stream = new FileOutputStream(iperf3Input.getParameter().getLineProtocolFile(), true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
             Log.d(TAG,e.toString());

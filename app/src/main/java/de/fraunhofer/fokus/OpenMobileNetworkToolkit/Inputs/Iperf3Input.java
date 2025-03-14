@@ -14,6 +14,8 @@ import androidx.work.OneTimeWorkRequest;
 import com.google.gson.GsonBuilder;
 
 
+import java.util.UUID;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Iperf3ServiceWorkerFour;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Iperf3ServiceWorkerThree;
@@ -58,18 +60,20 @@ public class Iperf3Input extends Inputs {
         super.writeToParcel(parcel, i);
         parcel.writeParcelable(iperf3Parameter, i);
     }
-
+    public Iperf3Input(Iperf3Parameter iperf3Parameter) {
+        this(iperf3Parameter, UUID.randomUUID().toString(), "", "", "");
+    }
     public Iperf3Input(Iperf3Parameter iperf3Parameter,
                        String testUUID,
                        String sequenceUUID,
                        String measurementUUID,
                        String campaignUUID) {
         super(testUUID, sequenceUUID, measurementUUID, campaignUUID, iperf3Parameter);
-        this.iperf3Parameter = iperf3Parameter;
     }
 
-    public Iperf3Parameter getIperf3Parameter() {
-        return iperf3Parameter;
+    @Override
+    public Iperf3Parameter getParameter() {
+        return (Iperf3Parameter) super.getParameter();
     }
 
     public Data.Builder getInputAsDataBuilder(int i, String packageName) {

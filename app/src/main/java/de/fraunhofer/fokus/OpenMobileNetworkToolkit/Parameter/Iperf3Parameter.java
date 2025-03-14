@@ -237,7 +237,9 @@ public class Iperf3Parameter extends Parameter {
             return new Iperf3Parameter[size];
         }
     };
-
+    public Iperf3Parameter(String iPerf3UUID){
+        super(rawDirPath+iPerf3UUID+".txt", lineProtocolDirPath+iPerf3UUID+".txt");
+    }
     public Iperf3Parameter(String ip,
                            String iPerf3UUID,
                            Iperf3Protocol protocol,
@@ -789,6 +791,14 @@ public class Iperf3Parameter extends Parameter {
 
     public String getHost() {
         return host;
+    }
+
+    public void setHost(String s) {
+        this.host = s;
+    }
+
+    public void setBandwidth(String s) {
+        this.bitrate = s ;
     }
 
 

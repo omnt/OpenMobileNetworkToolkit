@@ -86,7 +86,7 @@ public class Iperf3RecyclerViewAdapter
                     Iperf3RunResult runResult = iperf3RunResultDao.getRunResult(uid);
 
                     Data.Builder data = new Data.Builder();
-                    data.putString("iperf3LineProtocolFile", runResult.input.iperf3LineProtocolFile);
+                    data.putString("iperf3LineProtocolFile", runResult.input.getParameter().getLineProtocolFile());
                     OneTimeWorkRequest iperf3UP =
                         new OneTimeWorkRequest.Builder(Iperf3UploadWorker.class)
                             .setInputData(data.build())
@@ -152,11 +152,10 @@ public class Iperf3RecyclerViewAdapter
 
         }
         holder.measurement.setText("iPerf3");
-        holder.timestamp.setText(test.input.timestamp.toString());
+        holder.timestamp.setText(test.input.getParameter().getTimestamps().toString());
 
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
-        holder.iPerf3Parameters = test.input.getInputAsLinearLayoutValue(holder.iPerf3Parameters, context);
     }
     private Iperf3RunResult getItemByPosition(int position) {
         return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));
