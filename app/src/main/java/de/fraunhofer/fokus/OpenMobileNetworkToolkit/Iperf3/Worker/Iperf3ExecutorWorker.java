@@ -128,6 +128,12 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                         while ((line = reader.readLine()) != null) {
                             Log.d(TAG, "Log entry: " + line);
                             setForegroundAsync(createForegroundInfo(line));
+                            try {
+                                Thread.sleep((long) (iperf3Input.getParameter().getInterval() * 1000));
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                Log.e(TAG, "Reading thread interrupted", e);
+                            }
                         }
                         Log.d(TAG, "run: finished reading");
                     } catch (IOException e) {
@@ -137,10 +143,15 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             };
             Log.d(TAG, "startRemoteWork: running thread");
             executorService.execute(iperf3);
-            executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+0.5), TimeUnit.SECONDS);
-            executorService.awaitTermination(iperf3Input.getParameter().getTime()+4, TimeUnit.SECONDS);
-            Log.d(TAG, "doWork: " + result[0]);
-
+            executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
+            executorService.shutdown();
+            int runTime = 10;
+            if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
+            runTime += 4;
+            Log.d(TAG, "startRemoteWork: timeout: "+runTime);
+            int timeout = iperf3Input.getParameter().getTime()+4;
+            boolean taskFinished =  executorService.awaitTermination(runTime, TimeUnit.SECONDS);
+            Log.d(TAG, "startRemoteWork: FOOBAR");
             Data.Builder output = new Data.Builder()
                     .putInt("result", result[0])
                     .putString("testUUID", iperf3Input.getTestUUID());

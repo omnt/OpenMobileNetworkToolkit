@@ -14,6 +14,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2x
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class Iperf3Executor {
@@ -47,15 +48,16 @@ public class Iperf3Executor {
                 .addTag(iperf3Input.getTestUUID())
                 .build();
 
-        this.remoteWorkManager.beginWith(iperf3ExecutorWorker).enqueue();
-        //this.workContinuation = this.remoteWorkManager.beginWith(iperf3ExecutorWorker).then(iPerf3ToLineProtocolWorker);
-        //if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)){
-        //    this.workContinuation = workContinuation.then(influxDB2xUploadWorker);
-        //}
+        this.workContinuation = this.remoteWorkManager.beginWith(iperf3ExecutorWorker).then(iPerf3ToLineProtocolWorker);
+        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)){
+            this.workContinuation = workContinuation.then(influxDB2xUploadWorker);
+        }
+
+
     }
 
     public void execute(){
-        //this.workContinuation.enqueue();
+        this.workContinuation.enqueue();
     }
 
 }
