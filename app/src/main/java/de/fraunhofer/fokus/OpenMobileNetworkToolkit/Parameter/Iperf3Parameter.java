@@ -1587,9 +1587,6 @@ public class Iperf3Parameter extends Parameter {
             command.add("-J");
         }
 
-        if (forceflush != null && forceflush) {
-            command.add("--forceflush");
-        }
         if (timestamps != null && !timestamps.trim().isEmpty()) {
             command.add("--timestamps");
             command.add(timestamps);
@@ -1791,6 +1788,7 @@ public class Iperf3Parameter extends Parameter {
 
         // Always add these extra fixed options.
         command.add("--json-stream");
+        command.add("--forceflush");
         command.add("--logfile");
         command.add(super.getLogfile());
 

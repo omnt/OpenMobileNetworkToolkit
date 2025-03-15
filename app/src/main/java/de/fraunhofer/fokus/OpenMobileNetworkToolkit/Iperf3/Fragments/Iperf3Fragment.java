@@ -3,6 +3,8 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -10,26 +12,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.work.WorkInfo;
+import androidx.work.WorkQuery;
+import androidx.work.multiprocess.RemoteWorkManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Executor;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -38,7 +48,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 public class Iperf3Fragment extends Fragment {
 
     private static final String ARG_POSITION = "position";
-    private ProgressBar progressBar;
+    private LinearProgressIndicator progressBar;
     private Iperf3Input iperf3Input;
     private Context ct;
     private MaterialButton sendBtn;
@@ -69,6 +79,10 @@ public class Iperf3Fragment extends Fragment {
 
     private FrameLayout frameLayout;
     private String TAG = "Iperf3CardFragment";
+
+    private int[] failedColors;
+    private int[] runningColors;
+    private int[] succesColors;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,9 +123,9 @@ public class Iperf3Fragment extends Fragment {
         port.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setPort(Integer.parseInt("0"+s)), Iperf3Parameter.PORT));
         bitrate.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setBandwidth(s), Iperf3Parameter.BITRATE));
         duration.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setTime(Integer.parseInt("0"+s)), Iperf3Parameter.TIME));
-        interval.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setInterval(Integer.parseInt("0"+s)), Iperf3Parameter.INTERVAL));
+        interval.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setInterval(Double.parseDouble("0"+s)), Iperf3Parameter.INTERVAL));
         bytes.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setBytes(s), Iperf3Parameter.BYTES));
-        streams.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setNstreams(Integer.parseInt("0"+s)), Iperf3Parameter.STREAMS));
+        streams.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setParallel(Integer.parseInt("0"+s)), Iperf3Parameter.PARALLEL));
         cport.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setCport(Integer.parseInt("0"+s) ), Iperf3Parameter.CPORT));
     }
 
@@ -160,12 +174,73 @@ public class Iperf3Fragment extends Fragment {
                 iperf3Input.getParameter().updatePaths();
                 Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
                 iperf3Executor.execute();
+                Handler handler = new Handler(Looper.getMainLooper());
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
+                        WorkQuery workQuery = WorkQuery.Builder
+                                .fromTags(Arrays.asList(uuid))
+                                .build();
+
+                        ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
+
+                        Futures.addCallback(
+                                foobar,
+                                new FutureCallback<>() {
+                                    public void onSuccess(List<WorkInfo> result) {
+                                        for (WorkInfo workInfo : result) {
+                                            if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
+                                                Log.d(TAG, "" + workInfo.getState());
+                                                Log.d(TAG, "onSuccess: " + workInfo.getTags());
+                                                Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
+
+                                                switch (workInfo.getState()) {
+                                                    case SUCCEEDED:
+                                                        progressBar.setIndicatorColor(succesColors);
+                                                        progressBar.setVisibility(LinearProgressIndicator.INVISIBLE);
+                                                        break;
+                                                    case CANCELLED:
+                                                    case FAILED:
+                                                        progressBar.setIndicatorColor(failedColors);
+                                                        progressBar.setVisibility(LinearProgressIndicator.INVISIBLE);
+                                                        break;
+                                                    case BLOCKED:
+                                                    case ENQUEUED:
+                                                    case RUNNING:
+                                                        if (progressBar.getVisibility() == LinearProgressIndicator.INVISIBLE) {
+                                                            progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
+                                                            progressBar.setIndicatorColor(runningColors);
+                                                        }
+
+                                                        //TODO slow this down
+                                                        ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
+                                                        Futures.addCallback(foobar,
+                                                                this, getContext().getMainExecutor());
+
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    public void onFailure(@NonNull Throwable thrown) {
+                                        // handle failure
+                                    }
+                                },
+                                getContext().getMainExecutor()
+                        );
+
+                    }
+                };
+                handler.post(runnable); // start the first execution
             }
         });
         BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.standard_bottom_sheet));
         bottomSheetBehavior.setPeekHeight(20);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         bottomSheetBehavior.setHideable(false);
+
         ip = view.findViewById(R.id.iperf3_ip);
         port = view.findViewById(R.id.iperf3_port);
         bitrate = view.findViewById(R.id.iperf3_bandwidth);
@@ -190,9 +265,17 @@ public class Iperf3Fragment extends Fragment {
         directionUp = view.findViewById(R.id.iperf3_upload_button);
         directonBidir = view.findViewById(R.id.iperf3_bidir_button);
 
+        failedColors = new int[] {getContext().getColor(R.color.crimson),
+                getContext().getColor(R.color.crimson), getContext().getColor(R.color.crimson)};
+        runningColors = new int[] {getContext().getColor(R.color.purple_500),
+                getContext().getColor(R.color.crimson), getContext().getColor(R.color.forestgreen)};
+        succesColors = new int[] {getContext().getColor(R.color.forestgreen),
+                getContext().getColor(R.color.forestgreen), getContext().getColor(R.color.forestgreen)};
         setupTextWatchers();
         setTextsFromSharedPreferences();
-
+        progressBar.setIndicatorColor(succesColors);
+        progressBar.setIndeterminateAnimationType(
+                LinearProgressIndicator.INDETERMINATE_ANIMATION_TYPE_CONTIGUOUS);
         try {
             switch (Iperf3Parameter.Iperf3Mode.valueOf(spg.getSharedPreference(SPType.iperf3_sp).getString(Iperf3Parameter.MODE, String.valueOf(Iperf3Parameter.Iperf3Mode.UNDEFINED)))){
                 case CLIENT:
