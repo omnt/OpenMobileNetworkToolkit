@@ -13,13 +13,10 @@
     <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -240,8 +237,7 @@
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
         </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
+            <com.google.android.material.button.MaterialButton
             android:id="@+id/iperf3_send"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -251,14 +247,9 @@
             android:paddingBottom="18dp"
             android:paddingLeft="50dp"
             android:paddingRight="50dp"/>
-
+        </LinearLayout>
 
     </LinearLayout>
-
-
-
-
-</LinearLayout>
     <FrameLayout
         android:id="@+id/standard_bottom_sheet"
         style="@style/Widget.Material3.BottomSheet"

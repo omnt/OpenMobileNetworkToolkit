@@ -237,6 +237,37 @@ public class Iperf3Parameter extends Parameter {
             return new Iperf3Parameter[size];
         }
     };
+
+    public Iperf3Parameter(String ip,
+                           int port,
+                           String bitrate,
+                           int duration,
+                           double interval,
+                           String bytes,
+                           int streams,
+                           int cport,
+                           String testUUID,
+                           Iperf3Mode mode,
+                           Iperf3Protocol protocol,
+                           Iperf3Direction direction
+                           ) {
+
+        super(rawDirPath+testUUID+".txt", lineProtocolDirPath+testUUID+".txt");
+        this.testUUID = testUUID;
+        this.host = ip;
+        this.port = port;
+        this.bitrate = bitrate;
+        this.time = duration;
+        this.interval = interval;
+        this.bytes = bytes;
+        this.nstreams = streams;
+        this.cport = cport;
+        this.mode = mode;
+        this.direction = direction;
+        this.protocol = protocol;
+
+    }
+
     public Iperf3Parameter(String iPerf3UUID){
         super(rawDirPath+iPerf3UUID+".txt", lineProtocolDirPath+iPerf3UUID+".txt");
     }
@@ -372,6 +403,10 @@ public class Iperf3Parameter extends Parameter {
         this.rsaPublicKeyPath = rsaPublicKeyPath;
     }
 
+    public void updatePaths(){
+        super.setLogfile(rawDirPath+testUUID+".txt");
+        super.setLineProtocolFile(lineProtocolDirPath+testUUID+".txt");
+    }
     public Iperf3Parameter(JSONObject jsonObject, String testUUID) {
         super(rawDirPath+testUUID+".txt", lineProtocolDirPath+testUUID+".txt");
 

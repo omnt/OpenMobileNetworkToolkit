@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import kotlin.coroutines.Continuation;
 
@@ -86,11 +87,16 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
 
         return CallbackToFutureAdapter.getFuture(completer -> {
             File logFile = new File(iperf3Input.getParameter().getLogfile());
+            File rawPath = new File(Iperf3Parameter.rawDirPath);
             if(logFile.exists() && !logFile.isDirectory()) {
                 //weird hack otherwise the worker gets enqueued two times
                 return completer.set(Result.success(new Data.Builder().putString("testUUID", iperf3Input.getTestUUID()).build()));
             }
+            if(!rawPath.exists()) {
+                rawPath.mkdirs();
+            }
             try {
+
                 logFile.createNewFile();
             } catch (Exception e) {
                 Log.d(TAG, "startRemoteWork: "+e);

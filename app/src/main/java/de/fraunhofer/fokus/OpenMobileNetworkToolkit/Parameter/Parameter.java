@@ -46,5 +46,11 @@ public class Parameter implements Parcelable {
         dest.writeString(lineProtocolFile);
         dest.writeString(logfile);
     }
+    public void setLineProtocolFile(String lineProtocolFile) {
+        this.lineProtocolFile = lineProtocolFile;
+    }
 
+    public void setLogfile(String logfile) {
+        this.logfile = logfile;
+    }
 }

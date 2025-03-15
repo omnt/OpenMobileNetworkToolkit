@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Executor;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -42,7 +43,6 @@ public class Iperf3Fragment extends Fragment {
     private Context ct;
     private MaterialButton sendBtn;
     private View view;
-    //todo start iperf3 as a service
     private TextInputEditText ip;
     private TextInputEditText port;
     private TextInputEditText bitrate;
@@ -148,13 +148,18 @@ public class Iperf3Fragment extends Fragment {
         progressBar.setVisibility(View.INVISIBLE);
         String iperf3UUID = UUID.randomUUID().toString();
         Iperf3Parameter iperf3Parameter = new Iperf3Parameter(iperf3UUID);
-        iperf3Input = new Iperf3Input(iperf3Parameter);
+        iperf3Input = new Iperf3Input(iperf3Parameter, "");
         sendBtn = view.findViewById(R.id.iperf3_send);
         spg = SharedPreferencesGrouper.getInstance(ct);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO
+                String uuid = UUID.randomUUID().toString();
+                iperf3Input.setTestUUID(uuid);
+                iperf3Input.getParameter().setTestUUID(uuid);
+                iperf3Input.getParameter().updatePaths();
+                Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
+                iperf3Executor.execute();
             }
         });
         BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.standard_bottom_sheet));

@@ -29,7 +29,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWo
 public class Iperf3Input extends Inputs {
 
     private static final String TAG = "Iperf3Input";
-
     public static final String IPERF3UUID = "iPerf3UUID";
 
     private Iperf3Parameter iperf3Parameter;
@@ -37,6 +36,7 @@ public class Iperf3Input extends Inputs {
         super(in);
         iperf3Parameter = in.readParcelable(Iperf3Parameter.class.getClassLoader());
     }
+
 
     public static final Creator<Iperf3Input> CREATOR = new Creator<>() {
         @Override
@@ -58,10 +58,10 @@ public class Iperf3Input extends Inputs {
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
         super.writeToParcel(parcel, i);
-        parcel.writeParcelable(iperf3Parameter, i);
+//        parcel.writeParcelable(iperf3Parameter, i);
     }
-    public Iperf3Input(Iperf3Parameter iperf3Parameter) {
-        this(iperf3Parameter, UUID.randomUUID().toString(), "", "", "");
+    public Iperf3Input(Iperf3Parameter iperf3Parameter, String testUUID) {
+        this(iperf3Parameter, testUUID, "", "", "");
     }
     public Iperf3Input(Iperf3Parameter iperf3Parameter,
                        String testUUID,
@@ -69,11 +69,12 @@ public class Iperf3Input extends Inputs {
                        String measurementUUID,
                        String campaignUUID) {
         super(testUUID, sequenceUUID, measurementUUID, campaignUUID, iperf3Parameter);
+        this.iperf3Parameter = iperf3Parameter;
     }
 
     @Override
     public Iperf3Parameter getParameter() {
-        return (Iperf3Parameter) super.getParameter();
+        return this.iperf3Parameter;
     }
 
     public Data.Builder getInputAsDataBuilder(int i, String packageName) {
@@ -120,7 +121,7 @@ public class Iperf3Input extends Inputs {
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
                 .addTag(Iperf3ExecutorWorker.TAG)
-                .addTag(iperf3Parameter.getiPerf3UUID())
+                .addTag(getParameter().getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i, packageName).build())
                 .build();
     }
@@ -132,7 +133,7 @@ public class Iperf3Input extends Inputs {
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
                 .addTag(Iperf3ToLineProtocolWorker.TAG)
-                .addTag(iperf3Parameter.getiPerf3UUID())
+                .addTag(getParameter().getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i).build())
                 .build();
     }
@@ -145,7 +146,7 @@ public class Iperf3Input extends Inputs {
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
                 .addTag(Iperf3UploadWorker.TAG)
-                .addTag(iperf3Parameter.getiPerf3UUID())
+                .addTag(getParameter().getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i).build())
                 .build();
     }
