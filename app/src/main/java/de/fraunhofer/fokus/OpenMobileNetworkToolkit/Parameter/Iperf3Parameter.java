@@ -977,6 +977,9 @@ public class Iperf3Parameter extends Parameter {
     }
 
     public double getInterval() {
+        if(interval == 0.0){
+            return 1.0;
+        }
         return interval;
     }
 
@@ -1258,6 +1261,9 @@ public class Iperf3Parameter extends Parameter {
     }
 
     public Integer getTime() {
+        if(time == 0){
+            time = 10;
+        }
         return time;
     }
 

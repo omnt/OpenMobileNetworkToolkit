@@ -15,8 +15,10 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3InputConverter;
 
 @Entity(tableName = "iperf3_result_database")
@@ -37,6 +39,19 @@ public class Iperf3RunResult {
     @ColumnInfo(name = "input")
     @TypeConverters({Iperf3InputConverter.class})
     public Iperf3Input input;
+
+    // iperf3 start json object
+    @ColumnInfo(name = "_start")
+    public String start;
+
+    // iperf3 end json object
+    @ColumnInfo(name = "_end")
+    public String end;
+
+    // iperf3 interval json object
+    @ColumnInfo(name = "_intervals")
+    public ArrayList<String> intervals;
+
 
     public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Input input,
                            Timestamp timestamp) {

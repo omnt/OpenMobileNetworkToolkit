@@ -84,6 +84,9 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
+
+
+            Log.d(TAG, "startRemoteWork: tags: "+this.getTags());
             File logFile = new File(iperf3Input.getParameter().getLogfile());
             File rawPath = new File(Iperf3Parameter.rawDirPath);
             if(logFile.exists() && !logFile.isDirectory()) {
@@ -103,44 +106,37 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             setForegroundAsync(createForegroundInfo(iperf3Input.getParameter().getHost()+":"+iperf3Input.getParameter().getPort()));
 
             final int[] result = {-1};
-            Handler handler = new Handler(Looper.myLooper());
 
             Log.d(TAG, "startRemoteWork: running thread");
 
 
             ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
-            Runnable iperf3  = new Runnable(){
-                @Override
-                public void run() {
-                    result[0] = iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
-                    Log.d(TAG, "doWork: " + result[0]);
-                }
+            Runnable iperf3  = () -> {
+                result[0] = iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
+                Log.d(TAG, "JNI Thread: " + result[0]);
             };
 
-            Runnable read = new Runnable() {
-                @Override
-                public void run() {
-                    try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            Log.d(TAG, "Log entry: " + line);
-                            Data data = new Data.Builder().putString("line",line).build();
-                            setProgressAsync(data);
-                            setForegroundAsync(createForegroundInfo(line));
-                            try {
-                                Thread.sleep((long) (iperf3Input.getParameter().getInterval() * 1000));
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                                Log.e(TAG, "Reading thread interrupted", e);
-                            }
+            Runnable read = () -> {
+                try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        Log.d(TAG, "Read Thread: line: " + line);
+                        Data data = new Data.Builder().putString("line",line).build();
+                        setProgressAsync(data);
+                        setForegroundAsync(createForegroundInfo(line));
+                        try {
+                            Thread.sleep((long) (iperf3Input.getParameter().getInterval() * 1000));
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            Log.e(TAG, "Read Thread: Reading thread interrupted", e);
                         }
-                        Log.d(TAG, "run: finished reading");
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     }
+                    Log.d(TAG, "Read Thread: finished reading");
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             };
-            Log.d(TAG, "startRemoteWork: running thread");
+            Log.d(TAG, "startRemoteWork: schedule threads");
             executorService.execute(iperf3);
             executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
             executorService.shutdown();
@@ -148,8 +144,11 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
             runTime += 4;
             Log.d(TAG, "startRemoteWork: timeout: "+runTime);
+
+            Log.d(TAG, "startRemoteWork: awating threads");
             boolean taskFinished =  executorService.awaitTermination(runTime, TimeUnit.SECONDS);
-            Log.d(TAG, "startRemoteWork: FOOBAR");
+            Log.d(TAG, "startRemoteWork: threads awaited");
+            Log.d(TAG, "startRemoteWork: threads timeout: "+!taskFinished);
             Data.Builder output = new Data.Builder()
                     .putInt("result", result[0])
                     .putString("testUUID", iperf3Input.getTestUUID());
@@ -161,10 +160,13 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
         });
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
+        return super.setProgressAsync(data);
+    }
 
     private native int iperf3Wrapper(String[] argv, String cache);
-
-    private native int iperf3Stop();
 
     private ForegroundInfo createForegroundInfo(String progress) {
         notification = notificationBuilder

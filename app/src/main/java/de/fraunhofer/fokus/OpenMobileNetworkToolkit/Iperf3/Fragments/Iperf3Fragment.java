@@ -153,6 +153,7 @@ public class Iperf3Fragment extends Fragment {
         public void run() {
             progressBar.setVisibility(LinearProgressIndicator.INVISIBLE);
             progressBar.setIndicatorColor(requireContext().getColor(R.color.purple_500));
+            progressBar.setProgress(0);
         }
     };
 
@@ -180,7 +181,6 @@ public class Iperf3Fragment extends Fragment {
 
 
             ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
-
             Futures.addCallback(
                     foobar,
                     new FutureCallback<>() {
@@ -190,23 +190,21 @@ public class Iperf3Fragment extends Fragment {
                                     Log.d(TAG, "" + workInfo.getState());
                                     Log.d(TAG, "onSuccess: " + workInfo.getTags());
                                     Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
-
                                     switch (workInfo.getState()) {
                                         case SUCCEEDED:
                                             progressBar.setIndicatorColor(succesColors);
-                                            handler.postDelayed(setVisibility, 3000);
+                                            handler.postDelayed(setVisibility, 1000);
                                             break;
                                         case CANCELLED:
                                         case FAILED:
                                             progressBar.setIndicatorColor(failedColors);
-                                            handler.postDelayed(setVisibility, 3000);
+                                            progressBar.setProgress(progressBar.getMax());
+                                            progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
+                                            handler.postDelayed(setVisibility, 1000);
                                             break;
                                         case BLOCKED:
                                         case ENQUEUED:
                                         case RUNNING:
-                                            if (progressBar.getVisibility() == LinearProgressIndicator.INVISIBLE) {
-                                                progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
-                                            }
                                             String line = workInfo.getProgress().getString("line");
                                             Log.d(TAG, "onSuccess: "+workInfo.getProgress().toString());
                                             Log.d(TAG, "onSuccess: "+line);
@@ -218,16 +216,17 @@ public class Iperf3Fragment extends Fragment {
                                                 }
 
                                                 int progess = Math.toIntExact(Math.round(interval.getJSONObject("data").getJSONObject("sum").getDouble("end")));
+
                                                 Log.d(TAG, "onSuccess: "+progess);
                                                 progressBar.setProgressCompat(progess, true);
+                                                if (progressBar.getVisibility() == LinearProgressIndicator.INVISIBLE) {
+                                                    progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
+                                                }
                                             } catch (JSONException e) {
                                                 Log.d(TAG, "onSuccess: "+e);
                                             }
 
-
-
-                                            ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
-                                            handler.postDelayed(runnable, 1000);
+                                            handler.postDelayed(runnable, 500);
                                             break;
                                     }
                                 }
@@ -281,6 +280,7 @@ public class Iperf3Fragment extends Fragment {
                 iperf3Input.getParameter().updatePaths();
                 Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
                 iperf3Executor.execute();
+                Log.d(TAG, "onClick: "+iperf3Input.getParameter().getTime());
                 progressBar.setMax(iperf3Input.getParameter().getTime());
                 handler.post(runnable); // start the first execution
             }
