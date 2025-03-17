@@ -1,5 +1,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments;
 
+import static com.google.android.material.progressindicator.LinearProgressIndicator.INDETERMINATE_ANIMATION_TYPE_CONTIGUOUS;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,7 +19,9 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
 import androidx.work.multiprocess.RemoteWorkManager;
 
@@ -31,8 +35,12 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -74,12 +82,13 @@ public class Iperf3Fragment extends Fragment {
     private MaterialButton directionUp;
     private MaterialButton directionDown;
     private MaterialButton directonBidir;
+    private Handler handler;
 
     private SharedPreferencesGrouper spg;
 
     private FrameLayout frameLayout;
     private String TAG = "Iperf3CardFragment";
-
+    private String uuid;
     private int[] failedColors;
     private int[] runningColors;
     private int[] succesColors;
@@ -139,6 +148,101 @@ public class Iperf3Fragment extends Fragment {
             editText.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(key, ""));
         }
     }
+    Runnable setVisibility = new Runnable() {
+        @Override
+        public void run() {
+            progressBar.setVisibility(LinearProgressIndicator.INVISIBLE);
+            progressBar.setIndicatorColor(requireContext().getColor(R.color.purple_500));
+        }
+    };
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
+
+            WorkManager workManager = WorkManager.getInstance(ct);
+
+
+            WorkQuery workQuery = WorkQuery.Builder
+                    .fromTags(Arrays.asList(uuid))
+                    .build();
+
+            workManager.getWorkInfosForUniqueWorkLiveData(uuid).observe(getViewLifecycleOwner(), new Observer<List<WorkInfo>>() {
+                @Override
+                public void onChanged(List<WorkInfo> workInfos) {
+                    for(WorkInfo workInfo:workInfos){
+                        Log.d(TAG, "onChanged: "+workInfo.getProgress());
+                    }
+                }
+            });
+
+
+
+            ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
+
+            Futures.addCallback(
+                    foobar,
+                    new FutureCallback<>() {
+                        public void onSuccess(List<WorkInfo> result) {
+                            for (WorkInfo workInfo : result) {
+                                if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
+                                    Log.d(TAG, "" + workInfo.getState());
+                                    Log.d(TAG, "onSuccess: " + workInfo.getTags());
+                                    Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
+
+                                    switch (workInfo.getState()) {
+                                        case SUCCEEDED:
+                                            progressBar.setIndicatorColor(succesColors);
+                                            handler.postDelayed(setVisibility, 3000);
+                                            break;
+                                        case CANCELLED:
+                                        case FAILED:
+                                            progressBar.setIndicatorColor(failedColors);
+                                            handler.postDelayed(setVisibility, 3000);
+                                            break;
+                                        case BLOCKED:
+                                        case ENQUEUED:
+                                        case RUNNING:
+                                            if (progressBar.getVisibility() == LinearProgressIndicator.INVISIBLE) {
+                                                progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
+                                            }
+                                            String line = workInfo.getProgress().getString("line");
+                                            Log.d(TAG, "onSuccess: "+workInfo.getProgress().toString());
+                                            Log.d(TAG, "onSuccess: "+line);
+                                            try {
+                                                if(line == null) throw new JSONException("line empty");
+                                                JSONObject interval = new JSONObject(line);
+                                                if(!interval.getString("event").equals("interval")){
+                                                    throw new JSONException("line not an interval");
+                                                }
+
+                                                int progess = Math.toIntExact(Math.round(interval.getJSONObject("data").getJSONObject("sum").getDouble("end")));
+                                                Log.d(TAG, "onSuccess: "+progess);
+                                                progressBar.setProgressCompat(progess, true);
+                                            } catch (JSONException e) {
+                                                Log.d(TAG, "onSuccess: "+e);
+                                            }
+
+
+
+                                            ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
+                                            handler.postDelayed(runnable, 1000);
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+
+                        public void onFailure(@NonNull Throwable thrown) {
+                            // handle failure
+                        }
+                    },
+                    getContext().getMainExecutor()
+            );
+
+        }
+    };
 
     /**
      * Set the texts from the shared preferences
@@ -160,79 +264,24 @@ public class Iperf3Fragment extends Fragment {
         // Initialize the TextView
         progressBar = view.findViewById(R.id.iperf3_progress);
         progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setIndeterminate(false);
         String iperf3UUID = UUID.randomUUID().toString();
         Iperf3Parameter iperf3Parameter = new Iperf3Parameter(iperf3UUID);
         iperf3Input = new Iperf3Input(iperf3Parameter, "");
         sendBtn = view.findViewById(R.id.iperf3_send);
         spg = SharedPreferencesGrouper.getInstance(ct);
+        handler = new Handler(Looper.getMainLooper());
+
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String uuid = UUID.randomUUID().toString();
+                uuid = UUID.randomUUID().toString();
                 iperf3Input.setTestUUID(uuid);
                 iperf3Input.getParameter().setTestUUID(uuid);
                 iperf3Input.getParameter().updatePaths();
                 Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
                 iperf3Executor.execute();
-                Handler handler = new Handler(Looper.getMainLooper());
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
-                        WorkQuery workQuery = WorkQuery.Builder
-                                .fromTags(Arrays.asList(uuid))
-                                .build();
-
-                        ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
-
-                        Futures.addCallback(
-                                foobar,
-                                new FutureCallback<>() {
-                                    public void onSuccess(List<WorkInfo> result) {
-                                        for (WorkInfo workInfo : result) {
-                                            if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
-                                                Log.d(TAG, "" + workInfo.getState());
-                                                Log.d(TAG, "onSuccess: " + workInfo.getTags());
-                                                Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
-
-                                                switch (workInfo.getState()) {
-                                                    case SUCCEEDED:
-                                                        progressBar.setIndicatorColor(succesColors);
-                                                        progressBar.setVisibility(LinearProgressIndicator.INVISIBLE);
-                                                        break;
-                                                    case CANCELLED:
-                                                    case FAILED:
-                                                        progressBar.setIndicatorColor(failedColors);
-                                                        progressBar.setVisibility(LinearProgressIndicator.INVISIBLE);
-                                                        break;
-                                                    case BLOCKED:
-                                                    case ENQUEUED:
-                                                    case RUNNING:
-                                                        if (progressBar.getVisibility() == LinearProgressIndicator.INVISIBLE) {
-                                                            progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
-                                                            progressBar.setIndicatorColor(runningColors);
-                                                        }
-
-                                                        //TODO slow this down
-                                                        ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
-                                                        Futures.addCallback(foobar,
-                                                                this, getContext().getMainExecutor());
-
-                                                        break;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    public void onFailure(@NonNull Throwable thrown) {
-                                        // handle failure
-                                    }
-                                },
-                                getContext().getMainExecutor()
-                        );
-
-                    }
-                };
+                progressBar.setMax(iperf3Input.getParameter().getTime());
                 handler.post(runnable); // start the first execution
             }
         });
@@ -273,9 +322,6 @@ public class Iperf3Fragment extends Fragment {
                 getContext().getColor(R.color.forestgreen), getContext().getColor(R.color.forestgreen)};
         setupTextWatchers();
         setTextsFromSharedPreferences();
-        progressBar.setIndicatorColor(succesColors);
-        progressBar.setIndeterminateAnimationType(
-                LinearProgressIndicator.INDETERMINATE_ANIMATION_TYPE_CONTIGUOUS);
         try {
             switch (Iperf3Parameter.Iperf3Mode.valueOf(spg.getSharedPreference(SPType.iperf3_sp).getString(Iperf3Parameter.MODE, String.valueOf(Iperf3Parameter.Iperf3Mode.UNDEFINED)))){
                 case CLIENT:

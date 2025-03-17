@@ -80,11 +80,9 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     }
 
 
-
     @NonNull
     @Override
     public ListenableFuture<Result> startRemoteWork() {
-
         return CallbackToFutureAdapter.getFuture(completer -> {
             File logFile = new File(iperf3Input.getParameter().getLogfile());
             File rawPath = new File(Iperf3Parameter.rawDirPath);
@@ -96,7 +94,6 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                 rawPath.mkdirs();
             }
             try {
-
                 logFile.createNewFile();
             } catch (Exception e) {
                 Log.d(TAG, "startRemoteWork: "+e);
@@ -127,6 +124,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                         String line;
                         while ((line = reader.readLine()) != null) {
                             Log.d(TAG, "Log entry: " + line);
+                            Data data = new Data.Builder().putString("line",line).build();
+                            setProgressAsync(data);
                             setForegroundAsync(createForegroundInfo(line));
                             try {
                                 Thread.sleep((long) (iperf3Input.getParameter().getInterval() * 1000));
@@ -149,7 +148,6 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
             runTime += 4;
             Log.d(TAG, "startRemoteWork: timeout: "+runTime);
-            int timeout = iperf3Input.getParameter().getTime()+4;
             boolean taskFinished =  executorService.awaitTermination(runTime, TimeUnit.SECONDS);
             Log.d(TAG, "startRemoteWork: FOOBAR");
             Data.Builder output = new Data.Builder()
