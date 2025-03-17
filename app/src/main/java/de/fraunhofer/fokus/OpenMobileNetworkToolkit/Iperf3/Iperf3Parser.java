@@ -45,6 +45,7 @@ public class Iperf3Parser {
                         start = new Start();
                         JSONObject startData = obj.getJSONObject("data");
                         start.parseStart(startData);
+                        support.firePropertyChange("start", null, start);
                         break;
                     case "interval":
                         Interval interval = new Interval();
@@ -54,6 +55,11 @@ public class Iperf3Parser {
                         intervals.addInterval(interval);
                         break;
                     case "end":
+                        //todo
+                        //End end = new End();
+                        //JSONObject endData = obj.getJSONObject("data");
+                        //end.parseEnd(endData);
+                        //support.firePropertyChange("interval", null, end);
                         System.out.println("End");
                         break;
                     case "error":

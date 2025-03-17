@@ -98,7 +98,7 @@ public class Iperf3RecyclerViewAdapter
                         boolean iperf3_upload;
                         iperf3_upload = workInfo.getOutputData().getBoolean("iperf3_upload", false);
                         if (iperf3_upload) {
-                            iperf3RunResultDao.updateUpload(uid, iperf3_upload);
+                            //iperf3RunResultDao.updateUpload(uid, iperf3_upload);
                             selectedRuns.remove(stringIntegerEntry.getKey());
                             notifyItemChanged(stringIntegerEntry.getValue());
                         }

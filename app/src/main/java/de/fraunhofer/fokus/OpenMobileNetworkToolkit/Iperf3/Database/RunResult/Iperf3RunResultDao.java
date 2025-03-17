@@ -29,6 +29,9 @@ public interface Iperf3RunResultDao {
     @Query("SELECT * FROM iperf3_result_database WHERE uid = :comp_uid")
     Iperf3RunResult getRunResult(String comp_uid);
 
+    @Query("SELECT _intervals FROM iperf3_result_database WHERE uid = :comp_uid")
+    List<String> getIntervals(String comp_uid);
+
     @Query("UPDATE iperf3_result_database SET _intervals = :intervals WHERE uid = :uid")
     void updateIntervals(String uid, List<String> intervals);
 
@@ -37,4 +40,7 @@ public interface Iperf3RunResultDao {
 
     @Query("UPDATE iperf3_result_database SET _end = :end WHERE uid = :uid")
     void updateEnd(String uid, String end);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(Iperf3RunResult iperf3RunResult);
 }

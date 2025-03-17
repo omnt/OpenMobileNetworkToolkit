@@ -1,11 +1,3 @@
-/*
- *  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
- *  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
- *
- *  SPDX-License-Identifier: BSD-3-Clause-Clear
- */
-
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult;
 
 import androidx.annotation.NonNull;
@@ -15,13 +7,16 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3InputConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3IntervalsConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3StartConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3InputConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
 
 @Entity(tableName = "iperf3_result_database")
+@TypeConverters({Iperf3InputConverter.class, Iperf3IntervalsConverter.class, Iperf3StartConverter.class})
 public class Iperf3RunResult {
     @NonNull
     @PrimaryKey
@@ -37,21 +32,16 @@ public class Iperf3RunResult {
     public long timestamp;
 
     @ColumnInfo(name = "input")
-    @TypeConverters({Iperf3InputConverter.class})
     public Iperf3Input input;
 
-    // iperf3 start json object
     @ColumnInfo(name = "_start")
-    public String start;
+    public Start start;
 
-    // iperf3 end json object
     @ColumnInfo(name = "_end")
     public String end;
 
-    // iperf3 interval json object
     @ColumnInfo(name = "_intervals")
-    public ArrayList<String> intervals;
-
+    public Intervals intervals;
 
     public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Input input,
                            Timestamp timestamp) {
@@ -62,8 +52,6 @@ public class Iperf3RunResult {
         this.timestamp = timestamp.getTime();
     }
 
-
     public Iperf3RunResult() {
-
     }
 }

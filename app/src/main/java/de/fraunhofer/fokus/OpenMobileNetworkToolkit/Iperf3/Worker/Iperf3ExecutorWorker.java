@@ -35,12 +35,16 @@ import androidx.work.multiprocess.RemoteListenableWorker;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.Buffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +54,11 @@ import java.util.concurrent.TimeUnit;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import kotlin.coroutines.Continuation;
@@ -67,7 +75,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     private int notificationID = 2000;
     private NotificationCompat.Builder notificationBuilder;
     private Notification notification;
-    private FileObserver observer;
+    private Iperf3ResultsDataBase db;
+    private Iperf3RunResultDao iperf3RunResultDao;
     public Iperf3ExecutorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         Gson gson = new Gson();
@@ -75,6 +84,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
         iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
         int notificationNumber = getInputData().getInt(PingInput.NOTIFICATIONUMBER, 0);
         notificationID += notificationNumber;
+        db = Iperf3ResultsDataBase.getDatabase(context);
+        iperf3RunResultDao = db.iperf3RunResultDao();
 
         notificationBuilder = new NotificationCompat.Builder(context, channelId);
     }
@@ -117,6 +128,36 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             };
 
             Runnable read = () -> {
+
+                Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
+                iperf3Parser.addPropertyChangeListener(evt -> {
+                    switch (evt.getPropertyName()) {
+                        case "interval":
+                            Log.d(TAG, "Read Thread: interval: " + evt.getNewValue());
+                            setProgressAsync(new Data.Builder().putString("interval", evt.getNewValue().toString()).build());
+                            List<String> _intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
+                            _intervals.add(evt.getNewValue().toString());
+                            iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
+                            break;
+                        case "end":
+                            Log.d(TAG, "Read Thread: end: " + evt.getNewValue().toString());
+                            setProgressAsync(new Data.Builder().putString("error", evt.getNewValue().toString()).build());
+                            iperf3RunResultDao.updateEnd(iperf3Input.getTestUUID(), evt.getNewValue().toString());
+                            break;
+                        case "start":
+                            Log.d(TAG, "Read Thread: start: " + evt.getNewValue());
+                            setProgressAsync(new Data.Builder().putString("result", evt.getNewValue().toString()).build());
+                            iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), evt.getNewValue().toString());
+                            break;
+                        default:
+                            Log.d(TAG, "Read Thread: unknown property: " + evt.getPropertyName());
+                            break;
+                    }
+                });
+                iperf3Parser.parse();
+
+
+            /*
                 try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
@@ -132,10 +173,14 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                         }
                     }
                     Log.d(TAG, "Read Thread: finished reading");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                } catch (IOException e) {e.printStackTrace();}
+                */
             };
+
+            Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3Input.getTestUUID(), iperf3Input.getParameter().getLogfile());
+
+
+
             Log.d(TAG, "startRemoteWork: schedule threads");
             executorService.execute(iperf3);
             executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
@@ -158,6 +203,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             return completer.set(Result.failure(output
                     .build()));
         });
+
+
     }
 
     @NonNull
