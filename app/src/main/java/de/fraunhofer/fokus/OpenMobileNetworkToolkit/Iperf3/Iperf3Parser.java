@@ -1,5 +1,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
+import android.util.Log;
+
 import org.json.JSONObject;
 
 import java.beans.PropertyChangeListener;
@@ -22,6 +24,9 @@ public class Iperf3Parser {
     private PropertyChangeSupport support;
     private Start start;
     private final Intervals intervals = new Intervals();
+    private final String TAG = "Iperf3Parser";
+    private boolean isStopped = false;
+
     public Iperf3Parser(String pathToFile) {
         this.pathToFile = pathToFile;
         this.file = new File(this.pathToFile);
@@ -33,11 +38,17 @@ public class Iperf3Parser {
         }
         this.support = new PropertyChangeSupport(this);
     }
-
+    public void close() {
+        isStopped = true;
+    }
     public void parse(){
         String line;
         try {
-            while ((line = br.readLine()) != null) {
+            while (!isStopped) {
+                line = br.readLine();
+                if(line == null) {
+                    continue;
+                }
                 JSONObject obj = new JSONObject(line);
                 String event = obj.getString("event");
                 switch (event) {
@@ -46,6 +57,7 @@ public class Iperf3Parser {
                         JSONObject startData = obj.getJSONObject("data");
                         start.parseStart(startData);
                         support.firePropertyChange("start", null, start);
+                        Log.d(TAG, "parse: Start");
                         break;
                     case "interval":
                         Interval interval = new Interval();
@@ -53,6 +65,7 @@ public class Iperf3Parser {
                         interval.parse(intervalData);
                         support.firePropertyChange("interval", null, interval);
                         intervals.addInterval(interval);
+                        Log.d(TAG, "parse: Interval");
                         break;
                     case "end":
                         //todo
@@ -60,21 +73,23 @@ public class Iperf3Parser {
                         //JSONObject endData = obj.getJSONObject("data");
                         //end.parseEnd(endData);
                         //support.firePropertyChange("interval", null, end);
-                        System.out.println("End");
+                        Log.d(TAG, "parse: End");
                         break;
                     case "error":
                         Error error = new Error();
                         String errorString = obj.getString("data");
                         error.parse(errorString);
                         support.firePropertyChange("error", null, error);
+                        Log.d(TAG, "parse: Error");
                         break;
                     default:
-                        System.out.println("Unknown event");
+                        Log.d(TAG, "parse: Unknown event");
                         break;
                 }
             }
+            Log.d(TAG, "parse: Done reading file");
         } catch (Exception e) {
-            System.out.println("Error reading file");
+            Log.d(TAG, "parse: Error reading file");
         }
     }
 

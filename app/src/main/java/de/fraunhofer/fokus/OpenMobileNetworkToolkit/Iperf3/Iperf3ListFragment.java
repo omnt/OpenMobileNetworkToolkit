@@ -65,12 +65,12 @@ public class Iperf3ListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_iperf3_list, parent, false);
         ArrayList<String> uids = this.getArguments().getStringArrayList("iperf3List");
-        recyclerView = v.findViewById(R.id.runners_list);
-        uploadBtn = v.findViewById(R.id.iperf3_upload_button);
+       // recyclerView = v.findViewById(R.id.runners_list);
+       // uploadBtn = v.findViewById(R.id.iperf3_upload_button);
         linearLayoutManager =
             new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new Iperf3RecyclerViewAdapter(getActivity(), uids, uploadBtn);
+        adapter = new Iperf3RecyclerViewAdapter(uploadBtn);
         recyclerView.setAdapter(adapter);
         db = Iperf3ResultsDataBase.getDatabase(requireContext());
 

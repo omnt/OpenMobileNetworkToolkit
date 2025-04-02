@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -35,6 +36,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
@@ -49,18 +51,23 @@ public class Iperf3RecyclerViewAdapter
     extends RecyclerView.Adapter<Iperf3RecyclerViewAdapter.ViewHolder> {
     private final String TAG = "Iperf3RecyclerViewAdapter";
     private final Iperf3ResultsDataBase db;
-    private final ArrayList<String> uids;
     private Context context;
-    private final FragmentActivity c;
     private final HashMap<String, Integer> selectedRuns;
     private final HashMap<CardView, Boolean> selectedCardViews;
     private final FloatingActionButton uploadBtn;
+    private Iperf3RunResultDao iperf3RunResultDao;
+    private Observer observer;
 
-    public Iperf3RecyclerViewAdapter(FragmentActivity c, ArrayList<String> uids,
-                                     FloatingActionButton uploadBtn) {
-        this.c = c;
-        this.uids = uids;
+    public Iperf3RecyclerViewAdapter(FloatingActionButton uploadBtn) {
+
         this.db = Iperf3ResultsDataBase.getDatabase(context);
+        this.iperf3RunResultDao = db.iperf3RunResultDao();
+        observer = (Observer<List<Iperf3RunResult>>) iperf3RunResults -> {
+            Log.d(TAG, "onChanged: dataset changed!");
+            this.notifyDataSetChanged();
+        };
+        iperf3RunResultDao.getAll().observeForever(observer);
+
         this.selectedRuns = new HashMap<>();
         this.selectedCardViews = new HashMap<>();
         this.uploadBtn = uploadBtn;
@@ -138,7 +145,8 @@ public class Iperf3RecyclerViewAdapter
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.iPerf3Parameters.removeAllViews();
         Iperf3RunResult test = getItemByPosition(position);
-        holder.itemView.setTag(uids.get(position));
+
+        holder.itemView.setTag(iperf3RunResultDao.getIDs().get(position));
         if (selectedRuns.containsKey(test.uid)) {
             holder.itemView.setBackgroundColor(
                 ContextCompat.getColor(context, R.color.forestgreen));
@@ -152,18 +160,19 @@ public class Iperf3RecyclerViewAdapter
 
         }
         holder.measurement.setText("iPerf3");
-        holder.timestamp.setText(test.input.getParameter().getTimestamps().toString());
+        holder.timestamp.setText(test.input.getTimestamp().toString());
 
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
-    }
+
+        }
     private Iperf3RunResult getItemByPosition(int position) {
-        return this.db.iperf3RunResultDao().getRunResult(this.uids.get(position));
+        return iperf3RunResultDao.getRunResult(iperf3RunResultDao.getIDs().get(position));
     }
 
     @Override
     public int getItemCount() {
-        return uids.size();
+        return iperf3RunResultDao.getIDs().size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -218,7 +227,6 @@ public class Iperf3RecyclerViewAdapter
             runIcon.setPadding(0, 10, 0, 0);
             uploadIcon = new ImageView(context);
             uploadIcon.setPadding(0, 10, 0, 0);
-            timestamp = new TextView(context);
             iPerf3Parameters = new LinearLayout(context);
             linearLayout = itemView.findViewById(R.id.iperf3_main_layout);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -237,7 +245,7 @@ public class Iperf3RecyclerViewAdapter
                     if (viewPosition == RecyclerView.NO_POSITION) {
                         return false;
                     }
-                    String uid = uids.get(viewPosition);
+                    String uid = iperf3RunResultDao.getIDs().get(viewPosition);
                     selectedRuns.put(uid, viewPosition);
                     notifyItemChanged(viewPosition);
                     uploadBtn.setVisibility(View.VISIBLE);
@@ -248,7 +256,7 @@ public class Iperf3RecyclerViewAdapter
                 @Override
                 public void onClick(View v) {
                     int viewPosition = getLayoutPosition();
-                    String uid = uids.get(viewPosition);
+                    String uid = iperf3RunResultDao.getIDs().get(viewPosition);
                     if (!selectedRuns.isEmpty() && selectedRuns.containsKey(uid)) {
                         if (selectedRuns.size() == 1 && selectedRuns.containsKey(uid)) {
                             uploadBtn.setVisibility(View.INVISIBLE);
@@ -267,9 +275,6 @@ public class Iperf3RecyclerViewAdapter
                     bundle.putString("uid", uid);
                     Iperf3LogFragment test = new Iperf3LogFragment();
                     test.setArguments(bundle);
-                    c.getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView, test, "iperf3LogFragment")
-                        .addToBackStack("findThisFragment").commit();
 
                 }
             });

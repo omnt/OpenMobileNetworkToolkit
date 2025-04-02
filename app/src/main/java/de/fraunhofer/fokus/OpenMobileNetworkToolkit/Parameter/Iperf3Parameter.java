@@ -969,6 +969,9 @@ public class Iperf3Parameter extends Parameter {
         this.testUUID = testUUID;
     }
     public int getPort() {
+        if(port == 0){
+            return 5201;
+        }
         return port;
     }
 

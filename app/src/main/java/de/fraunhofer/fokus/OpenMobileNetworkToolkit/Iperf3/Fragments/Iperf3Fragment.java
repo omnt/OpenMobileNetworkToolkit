@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
@@ -28,6 +30,7 @@ import androidx.work.multiprocess.RemoteWorkManager;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.common.util.concurrent.FutureCallback;
@@ -38,6 +41,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -46,7 +51,11 @@ import java.util.function.Consumer;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Executor;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAdapter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
@@ -83,7 +92,7 @@ public class Iperf3Fragment extends Fragment {
     private MaterialButton directionDown;
     private MaterialButton directonBidir;
     private Handler handler;
-
+    private RecyclerView recyclerView;
     private SharedPreferencesGrouper spg;
 
     private FrameLayout frameLayout;
@@ -92,7 +101,12 @@ public class Iperf3Fragment extends Fragment {
     private int[] failedColors;
     private int[] runningColors;
     private int[] succesColors;
-
+    private Iperf3RecyclerViewAdapter adapter;
+    private Iperf3RunResultDao iperf3RunResultDao;
+    private Iperf3ResultsDataBase iperf3ResultsDataBase;
+    private BottomSheetBehavior bottomSheetBehavior;
+    private FloatingActionButton fab;
+    private Observer observer;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,23 +176,9 @@ public class Iperf3Fragment extends Fragment {
         public void run() {
             RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
 
-            WorkManager workManager = WorkManager.getInstance(ct);
-
-
             WorkQuery workQuery = WorkQuery.Builder
                     .fromTags(Arrays.asList(uuid))
                     .build();
-
-            workManager.getWorkInfosForUniqueWorkLiveData(uuid).observe(getViewLifecycleOwner(), new Observer<List<WorkInfo>>() {
-                @Override
-                public void onChanged(List<WorkInfo> workInfos) {
-                    for(WorkInfo workInfo:workInfos){
-                        Log.d(TAG, "onChanged: "+workInfo.getProgress());
-                    }
-                }
-            });
-
-
 
             ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
             Futures.addCallback(
@@ -256,6 +256,27 @@ public class Iperf3Fragment extends Fragment {
         setTextFromSharedPreferences(streams, Iperf3Parameter.STREAMS);
         setTextFromSharedPreferences(cport, Iperf3Parameter.CPORT);
     }
+
+    private void setupBottomSheet(){
+        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.standard_bottom_sheet));
+        bottomSheetBehavior.setPeekHeight(20);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        bottomSheetBehavior.setHideable(false);
+    }
+    private void setupDatabase(){
+        iperf3ResultsDataBase = Iperf3ResultsDataBase.getDatabase(ct);
+        iperf3RunResultDao = iperf3ResultsDataBase.iperf3RunResultDao();
+    }
+    private void setupRecyclerView(){
+        LinearLayoutManager linearLayoutManager =
+                new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
+
+        recyclerView = view.findViewById(R.id.runners_list);
+        adapter = new Iperf3RecyclerViewAdapter(fab);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -270,7 +291,7 @@ public class Iperf3Fragment extends Fragment {
         sendBtn = view.findViewById(R.id.iperf3_send);
         spg = SharedPreferencesGrouper.getInstance(ct);
         handler = new Handler(Looper.getMainLooper());
-
+        setupBottomSheet();
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -278,6 +299,7 @@ public class Iperf3Fragment extends Fragment {
                 iperf3Input.setTestUUID(uuid);
                 iperf3Input.getParameter().setTestUUID(uuid);
                 iperf3Input.getParameter().updatePaths();
+                iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
                 iperf3Executor.execute();
                 Log.d(TAG, "onClick: "+iperf3Input.getParameter().getTime());
@@ -285,11 +307,7 @@ public class Iperf3Fragment extends Fragment {
                 handler.post(runnable); // start the first execution
             }
         });
-        BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.standard_bottom_sheet));
-        bottomSheetBehavior.setPeekHeight(20);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        bottomSheetBehavior.setHideable(false);
-
+        fab = view.findViewById(R.id.iperf3_influx_upload_button);
         ip = view.findViewById(R.id.iperf3_ip);
         port = view.findViewById(R.id.iperf3_port);
         bitrate = view.findViewById(R.id.iperf3_bandwidth);
@@ -428,7 +446,9 @@ public class Iperf3Fragment extends Fragment {
                 }
             }
         });
-
+        setupDatabase();
+        setupBottomSheet();
+        setupRecyclerView();
         return view;
     }
 
@@ -437,7 +457,11 @@ public class Iperf3Fragment extends Fragment {
         super.onResume();
         view.requestLayout();
     }
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
+    }
 
 
     private void updateModeState(MaterialButton activeButton, MaterialButton inactiveButton, Iperf3Parameter.Iperf3Mode protocol) {

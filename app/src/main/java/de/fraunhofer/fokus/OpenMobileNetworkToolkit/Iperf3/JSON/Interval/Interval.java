@@ -35,7 +35,27 @@ public class Interval {
         if(data.has("jitter_ms")) return SUM_TYPE.UDP_DL;
         return SUM_TYPE.TCP_DL;
     }
-
+    public String getNotificationString(){
+        StringBuilder notificationString = new StringBuilder();
+        notificationString.append("Throughput: ");
+        notificationString.append(Math.round(this.getSum().getBits_per_second() / 1e6));
+        notificationString.append(" Mbit/s");
+        notificationString.append("\n");
+        notificationString.append("Direction: ");
+        notificationString.append(this.getSum().getSumType());
+        notificationString.append("\n");
+        if(sumBidirReverse != null){
+            notificationString.append("--------------------\n");
+            notificationString.append("Throughput: ");
+            notificationString.append(Math.round(this.getSumBidirReverse().getBits_per_second() / 1e6));
+            notificationString.append(" Mbit/s");
+            notificationString.append("\n");
+            notificationString.append("Direction: ");
+            notificationString.append(this.getSumBidirReverse().getSumType());
+            notificationString.append("\n");
+        }
+        return notificationString.toString();
+    }
     public Sum identifySum(JSONObject data) throws JSONException {
         Sum identifiedSum = null;
         switch (getSumType(data)){

@@ -22,7 +22,9 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Ip
     entities = {Iperf3RunResult.class},
     version = 3
 )
+
 public abstract class Iperf3ResultsDataBase extends RoomDatabase {
+
     private static volatile Iperf3ResultsDataBase INSTANCE;
 
     public static Iperf3ResultsDataBase getDatabase(final Context context) {
@@ -33,9 +35,10 @@ public abstract class Iperf3ResultsDataBase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             Iperf3ResultsDataBase.class, "iperf3_result_database")
                         .addTypeConverter(new Iperf3InputConverter())
-                            .addTypeConverter(new Iperf3IntervalsConverter())
-                            .addTypeConverter(new Iperf3StartConverter())
+                        .addTypeConverter(new Iperf3IntervalsConverter())
+                        .addTypeConverter(new Iperf3StartConverter())
                         .allowMainThreadQueries()
+                        .enableMultiInstanceInvalidation()
                         .build();
                 }
             }
