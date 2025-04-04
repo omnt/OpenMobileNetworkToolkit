@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
@@ -57,7 +59,7 @@ public class Iperf3RecyclerViewAdapter
     private final FloatingActionButton uploadBtn;
     private Iperf3RunResultDao iperf3RunResultDao;
     private Observer observer;
-
+    private String selectedUUID;
     public Iperf3RecyclerViewAdapter(FloatingActionButton uploadBtn) {
 
         this.db = Iperf3ResultsDataBase.getDatabase(context);
@@ -71,7 +73,7 @@ public class Iperf3RecyclerViewAdapter
         this.selectedRuns = new HashMap<>();
         this.selectedCardViews = new HashMap<>();
         this.uploadBtn = uploadBtn;
-        this.uploadBtn.setOnClickListener(new View.OnClickListener() {
+      /*  this.uploadBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
@@ -118,7 +120,7 @@ public class Iperf3RecyclerViewAdapter
 
             }
         });
-
+*/
     }
 
 
@@ -134,6 +136,10 @@ public class Iperf3RecyclerViewAdapter
         ViewHolder viewHolder = new ViewHolder(v);
         selectedCardViews.put(v, false);
         return viewHolder;
+    }
+
+    public String getSelectedUUID(){
+        return selectedUUID;
     }
 
     public boolean isNightMode(Context context) {
@@ -164,8 +170,18 @@ public class Iperf3RecyclerViewAdapter
 
         holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
         holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectedUUID = test.uid;
+                notifyDataSetChanged();
+            }
+        });
 
+        if(Objects.equals(selectedUUID, test.uid)){
+            holder.itemView.setBackgroundColor(Color.parseColor("#567845"));
         }
+    }
     private Iperf3RunResult getItemByPosition(int position) {
         return iperf3RunResultDao.getRunResult(iperf3RunResultDao.getIDs().get(position));
     }
@@ -173,6 +189,11 @@ public class Iperf3RecyclerViewAdapter
     @Override
     public int getItemCount() {
         return iperf3RunResultDao.getIDs().size();
+    }
+
+    private void setSelectedUUID(String selectedUUID) {
+        this.selectedUUID = selectedUUID;
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -271,10 +292,7 @@ public class Iperf3RecyclerViewAdapter
                         return;
                     }
                     Log.d(TAG, "onCreateView: CLICKED!");
-                    Bundle bundle = new Bundle();
-                    bundle.putString("uid", uid);
-                    Iperf3LogFragment test = new Iperf3LogFragment();
-                    test.setArguments(bundle);
+
 
                 }
             });

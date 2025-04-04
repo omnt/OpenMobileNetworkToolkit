@@ -2,6 +2,9 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval;
 
 import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.*;
 
+import com.google.gson.Gson;
+import com.influxdb.client.JSON;
+
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.STREAM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
@@ -96,4 +99,16 @@ public class Interval {
     public Sum getSumBidirReverse() {
         return sumBidirReverse;
     }
+
+    public String toString(){
+        return new Gson().toJson(this);
+    }
+public Interval(String line){
+    this.streams = new Streams();
+    Interval interval = new Gson().fromJson(line, Interval.class);
+    this.sum = interval.sum;
+    this.sumBidirReverse = interval.sumBidirReverse;
+}
+
+
 }

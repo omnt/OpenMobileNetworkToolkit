@@ -1,5 +1,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,6 +85,10 @@ public class Start{
     }
     public TestStart getTest_start() {
         return test_start;
+    }
+
+    public String toString(){
+        return new Gson().toJson(this);
     }
 
 }

@@ -1,6 +1,14 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.google.android.material.progressindicator.LinearProgressIndicator.INDETERMINATE_ANIMATION_TYPE_CONTIGUOUS;
+
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.TCP_DL;
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.TCP_UL;
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.UDP_DL;
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.UDP_UL;
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.UNKNOWN;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -14,7 +22,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,7 +67,11 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Ip
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Executor;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAdapter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -107,6 +122,10 @@ public class Iperf3Fragment extends Fragment {
     private BottomSheetBehavior bottomSheetBehavior;
     private FloatingActionButton fab;
     private Observer observer;
+    private LinearLayout resultView;
+
+    private Metric metricDL;
+    private Metric metricUL;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,6 +190,35 @@ public class Iperf3Fragment extends Fragment {
         }
     };
 
+    private void update(Sum sum, boolean isBidir){
+        switch (sum.getSumType()){
+            case TCP_UL:
+            case UDP_UL:
+                if(isBidir){
+                    metricDL.setVisibility(VISIBLE);
+                    metricUL.setVisibility(VISIBLE);
+                } else {
+                    metricDL.setVisibility(GONE);
+                    metricUL.setVisibility(VISIBLE);
+                }
+                metricUL.update(sum.getBits_per_second());
+                break;
+            case TCP_DL:
+            case UDP_DL:
+                if(isBidir){
+                    metricDL.setVisibility(VISIBLE);
+                    metricUL.setVisibility(VISIBLE);
+                } else {
+                    metricDL.setVisibility(VISIBLE);
+                    metricUL.setVisibility(GONE);
+                }
+                metricDL.update(sum.getBits_per_second());
+                Log.d(TAG, "onSuccess: UPDATING...");
+                break;
+            case UNKNOWN:
+                break;
+        }
+    }
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -179,7 +227,8 @@ public class Iperf3Fragment extends Fragment {
             WorkQuery workQuery = WorkQuery.Builder
                     .fromTags(Arrays.asList(uuid))
                     .build();
-
+            metricDL.resetMetric();
+            metricUL.resetMetric();
             ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
             Futures.addCallback(
                     foobar,
@@ -187,8 +236,7 @@ public class Iperf3Fragment extends Fragment {
                         public void onSuccess(List<WorkInfo> result) {
                             for (WorkInfo workInfo : result) {
                                 if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
-                                    Log.d(TAG, "" + workInfo.getState());
-                                    Log.d(TAG, "onSuccess: " + workInfo.getTags());
+                                    Log.d(TAG, "onSuccess" + workInfo.getState());
                                     Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
                                     switch (workInfo.getState()) {
                                         case SUCCEEDED:
@@ -205,20 +253,26 @@ public class Iperf3Fragment extends Fragment {
                                         case BLOCKED:
                                         case ENQUEUED:
                                         case RUNNING:
-                                            String line = workInfo.getProgress().getString("line");
+                                            String line = workInfo.getProgress().getString("interval");
                                             Log.d(TAG, "onSuccess: "+workInfo.getProgress().toString());
                                             Log.d(TAG, "onSuccess: "+line);
                                             try {
                                                 if(line == null) throw new JSONException("line empty");
-                                                JSONObject interval = new JSONObject(line);
-                                                if(!interval.getString("event").equals("interval")){
-                                                    throw new JSONException("line not an interval");
+                                                Interval interval = new Interval(line);
+                                                boolean isBidir = false;
+                                                if(interval.getSumBidirReverse() != null){
+                                                    isBidir = true;
+                                                    update(interval.getSumBidirReverse(), isBidir);
+
                                                 }
+                                                update(interval.getSum(), isBidir);
 
-                                                int progess = Math.toIntExact(Math.round(interval.getJSONObject("data").getJSONObject("sum").getDouble("end")));
 
-                                                Log.d(TAG, "onSuccess: "+progess);
-                                                progressBar.setProgressCompat(progess, true);
+
+                                                //int progess = Math.toIntExact(Math.round(jsonInterval.getJSONObject("data").getJSONObject("sum").getDouble("end")));
+
+                                                //Log.d(TAG, "onSuccess: "+progess);
+                                                //progressBar.setProgressCompat(progess, true);
                                                 if (progressBar.getVisibility() == LinearProgressIndicator.INVISIBLE) {
                                                     progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
                                                 }
@@ -273,6 +327,14 @@ public class Iperf3Fragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.runners_list);
         adapter = new Iperf3RecyclerViewAdapter(fab);
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                Log.d(TAG, "onChanged: "+adapter.getSelectedUUID());
+            }
+        });
+
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(linearLayoutManager);
     }
@@ -291,6 +353,16 @@ public class Iperf3Fragment extends Fragment {
         sendBtn = view.findViewById(R.id.iperf3_send);
         spg = SharedPreferencesGrouper.getInstance(ct);
         handler = new Handler(Looper.getMainLooper());
+        resultView = view.findViewById(R.id.iperf3_run_linearlayout);
+        metricDL = new Metric(METRIC_TYPE.THROUGHPUT, getContext());
+        metricUL = new Metric(METRIC_TYPE.THROUGHPUT, getContext());
+        LinearLayout metricLayoutDL = metricDL.createMainLL("Download [Mbit/s]");
+        LinearLayout metricLayoutUL = metricUL.createMainLL("Upload [Mbit/s]");
+        resultView.addView(metricLayoutDL);
+        resultView.addView(metricLayoutUL);
+        metricLayoutUL.setVisibility(GONE);
+        metricLayoutDL.setVisibility(GONE);
+
         setupBottomSheet();
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -305,9 +377,10 @@ public class Iperf3Fragment extends Fragment {
                 Log.d(TAG, "onClick: "+iperf3Input.getParameter().getTime());
                 progressBar.setMax(iperf3Input.getParameter().getTime());
                 handler.post(runnable); // start the first execution
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             }
         });
-        fab = view.findViewById(R.id.iperf3_influx_upload_button);
+        //fab = view.findViewById(R.id.iperf3_influx_upload_button);
         ip = view.findViewById(R.id.iperf3_ip);
         port = view.findViewById(R.id.iperf3_port);
         bitrate = view.findViewById(R.id.iperf3_bandwidth);

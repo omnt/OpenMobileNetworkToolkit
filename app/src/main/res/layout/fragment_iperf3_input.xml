@@ -268,8 +268,8 @@
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/iperf3_influx_upload_button"
-                android:layout_width="106dp"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:layout_gravity="end|bottom"
@@ -282,11 +282,17 @@
                 android:contentDescription="@string/upload"
                 android:src="@drawable/ic_upload"
                 android:visibility="invisible" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/iperf3_run_linearlayout"
+                android:orientation="vertical">
 
+            </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/runners_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
             </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
 

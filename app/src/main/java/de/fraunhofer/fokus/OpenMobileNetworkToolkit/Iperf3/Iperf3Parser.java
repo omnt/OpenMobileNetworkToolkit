@@ -27,6 +27,65 @@ public class Iperf3Parser {
     private final String TAG = "Iperf3Parser";
     private boolean isStopped = false;
 
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                String line;
+                    while (!isStopped) {
+                        line = br.readLine();
+                        Log.d(TAG, "run: Reading line");
+                        if(line == null) {
+                            Thread.sleep(50);
+                            continue;
+                        }
+                        JSONObject obj = new JSONObject(line);
+                        String event = obj.getString("event");
+                        switch (event) {
+                            case "start":
+                                Log.d(TAG, "parse: Start");
+                                start = new Start();
+                                JSONObject startData = obj.getJSONObject("data");
+                                start.parseStart(startData);
+                                support.firePropertyChange("start", null, start);
+                                break;
+                            case "interval":
+                                Log.d(TAG, "parse: Interval");
+                                Interval interval = new Interval();
+                                JSONObject intervalData = obj.getJSONObject("data");
+                                interval.parse(intervalData);
+                                support.firePropertyChange("interval", null, interval);
+                                intervals.addInterval(interval);
+                                break;
+                            case "end":
+                                Log.d(TAG, "parse: End");
+                                //todo
+                                //End end = new End();
+                                //JSONObject endData = obj.getJSONObject("data");
+                                //end.parseEnd(endData);
+                                //support.firePropertyChange("interval", null, end);
+                                isStopped = true;
+                                break;
+                            case "error":
+                                Log.d(TAG, "parse: Error");
+                                Error error = new Error();
+                                String errorString = obj.getString("data");
+                                error.parse(errorString);
+                                support.firePropertyChange("error", null, error);
+                                isStopped = true;
+                                break;
+                            default:
+                                Log.d(TAG, "parse: Unknown event");
+                                break;
+                        }
+                    }
+                    Log.d(TAG, "parse: Done reading file");
+            } catch (Exception e) {
+                Log.d(TAG, "run: Error parsing file "+e);
+            }
+        }
+    };
+
     public Iperf3Parser(String pathToFile) {
         this.pathToFile = pathToFile;
         this.file = new File(this.pathToFile);
@@ -42,55 +101,11 @@ public class Iperf3Parser {
         isStopped = true;
     }
     public void parse(){
-        String line;
-        try {
-            while (!isStopped) {
-                line = br.readLine();
-                if(line == null) {
-                    continue;
-                }
-                JSONObject obj = new JSONObject(line);
-                String event = obj.getString("event");
-                switch (event) {
-                    case "start":
-                        start = new Start();
-                        JSONObject startData = obj.getJSONObject("data");
-                        start.parseStart(startData);
-                        support.firePropertyChange("start", null, start);
-                        Log.d(TAG, "parse: Start");
-                        break;
-                    case "interval":
-                        Interval interval = new Interval();
-                        JSONObject intervalData = obj.getJSONObject("data");
-                        interval.parse(intervalData);
-                        support.firePropertyChange("interval", null, interval);
-                        intervals.addInterval(interval);
-                        Log.d(TAG, "parse: Interval");
-                        break;
-                    case "end":
-                        //todo
-                        //End end = new End();
-                        //JSONObject endData = obj.getJSONObject("data");
-                        //end.parseEnd(endData);
-                        //support.firePropertyChange("interval", null, end);
-                        Log.d(TAG, "parse: End");
-                        break;
-                    case "error":
-                        Error error = new Error();
-                        String errorString = obj.getString("data");
-                        error.parse(errorString);
-                        support.firePropertyChange("error", null, error);
-                        Log.d(TAG, "parse: Error");
-                        break;
-                    default:
-                        Log.d(TAG, "parse: Unknown event");
-                        break;
-                }
-            }
-            Log.d(TAG, "parse: Done reading file");
-        } catch (Exception e) {
-            Log.d(TAG, "parse: Error reading file");
-        }
+        runnable.run();
+    }
+
+    public Runnable getRunnable(){
+        return runnable;
     }
 
     public Intervals getIntervals() {

@@ -71,6 +71,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import kotlin.coroutines.Continuation;
@@ -141,8 +142,6 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
 
             final int[] result = {-1};
 
-            Log.d(TAG, "startRemoteWork: running thread");
-
 
             ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
             Runnable iperf3  = () -> {
@@ -151,17 +150,20 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             };
 
             Runnable read = () -> {
+                Log.d(TAG, "startRemoteWork: starting reading thread...");
                 Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
+
                 iperf3Parser.addPropertyChangeListener(evt -> {
                     switch (evt.getPropertyName()) {
                         case "interval":
-                            Log.d(TAG, "Read Thread: interval: " + evt.getNewValue());
                             Interval interval = (Interval) evt.getNewValue();
+                            Log.d(TAG, "Read Thread: interval: " + interval.toString());
+
                             String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
-                            setProgressAsync(new Data.Builder().putString("interval", megabitPerSecond).build());
+                            setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
 
                             notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
-                            notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %d Mbit/s", Math.round(interval.getSum().getBits_per_second() / 1e6)));
+                            notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
                             notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
                             notificationLayout.setViewVisibility(R.id.notification_throughput, VISIBLE);
                             notificationLayout.setViewVisibility(R.id.notification_direction, VISIBLE);
@@ -197,7 +199,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                             break;
                         case "start":
                             Log.d(TAG, "Read Thread: start: " + evt.getNewValue());
-                            setProgressAsync(new Data.Builder().putString("result", evt.getNewValue().toString()).build());
+                            Start start = (Start) evt.getNewValue();
+                            setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
                             iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), evt.getNewValue().toString());
                             break;
                         default:
@@ -207,6 +210,12 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                     }
                 });
                 iperf3Parser.parse();
+                try {
+                    iperf3Parser.getRunnable().wait(iperf3Input.getParameter().getTime());
+                } catch (InterruptedException e) {
+                    Log.d(TAG, "startRemoteWork: "+e);
+                }
+                Log.d(TAG, "Read Thread: finished");
             };
 
 
