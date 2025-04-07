@@ -18,7 +18,9 @@ import androidx.room.TypeConverters;
 import java.util.List;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3IntervalsConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.MetricConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 
 @Dao
 public interface Iperf3RunResultDao {
@@ -38,6 +40,13 @@ public interface Iperf3RunResultDao {
     @Query("UPDATE iperf3_result_database SET _intervals = :intervals WHERE uid = :uid")
     @TypeConverters({Iperf3IntervalsConverter.class})
     void updateIntervals(String uid, Intervals intervals);
+    @Query("UPDATE iperf3_result_database SET metricUL = :metricUL WHERE uid = :uid")
+    @TypeConverters({MetricConverter.class})
+    void updateMetricUL(String uid, MetricCalculator metricUL);
+
+    @Query("UPDATE iperf3_result_database SET metricDL = :metricDL WHERE uid = :uid")
+    @TypeConverters({MetricConverter.class})
+    void updateMetricDL(String uid, MetricCalculator metricDL);
 
     @Query("UPDATE iperf3_result_database SET _start = :start WHERE uid = :uid")
     void updateStart(String uid, String start);
@@ -53,4 +62,14 @@ public interface Iperf3RunResultDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Iperf3RunResult iperf3RunResult);
+
+    @Query("SELECT metricDL FROM iperf3_result_database WHERE uid = :uid")
+    @TypeConverters({MetricConverter.class})
+    MetricCalculator getMetricDL(String uid);
+
+    @Query("SELECT metricUL FROM iperf3_result_database WHERE uid = :uid")
+    @TypeConverters({MetricConverter.class})
+    MetricCalculator getMetricUL(String uid);
+
+
 }

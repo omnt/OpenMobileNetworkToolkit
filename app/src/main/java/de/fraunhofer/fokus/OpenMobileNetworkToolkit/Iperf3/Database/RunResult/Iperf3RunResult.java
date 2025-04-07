@@ -12,11 +12,14 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3InputConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3IntervalsConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3StartConverter;
+
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.MetricConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 
 @Entity(tableName = "iperf3_result_database")
-@TypeConverters({Iperf3InputConverter.class, Iperf3IntervalsConverter.class, Iperf3StartConverter.class})
+@TypeConverters({Iperf3InputConverter.class, Iperf3IntervalsConverter.class, Iperf3StartConverter.class, MetricConverter.class})
 public class Iperf3RunResult {
     @NonNull
     @PrimaryKey
@@ -39,9 +42,12 @@ public class Iperf3RunResult {
 
     @ColumnInfo(name = "_end")
     public String end;
-
     @ColumnInfo(name = "_intervals")
     public Intervals intervals;
+    @ColumnInfo(name = "metricUL")
+    public MetricCalculator metricUL;
+    @ColumnInfo(name = "metricDL")
+    public MetricCalculator metricDL;
 
     public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Input input,
                            Timestamp timestamp) {

@@ -32,10 +32,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.io.FileOutputStream;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
@@ -51,8 +49,8 @@ public class PingFragment extends Fragment {
     private TextInputEditText input;
     private Context ct;
     private SharedPreferencesGrouper spg;
-    private Metric rttMetric;
-    private Metric packetLossMetric;
+    private MetricView rttMetric;
+    private MetricView packetLossMetric;
 
     public PingFragment() {
     }
@@ -67,8 +65,8 @@ public class PingFragment extends Fragment {
         input.setEnabled(false);
         Intent pingStart = new Intent(ct, PingService.class);
         ct.startService(pingStart);
-        rttMetric.resetMetric();
-        packetLossMetric.resetMetric();
+        rttMetric.getMetricCalculator().resetMetric();
+        packetLossMetric.getMetricCalculator().resetMetric();
     }
 
     private void stopPingService() {
@@ -160,8 +158,8 @@ public class PingFragment extends Fragment {
 
         });
 
-        rttMetric = new Metric(METRIC_TYPE.PING_RTT, ct);
-        packetLossMetric = new Metric(METRIC_TYPE.PING_PACKET_LOSS, ct);
+        rttMetric = new MetricView(new MetricCalculator(METRIC_TYPE.PING_RTT), ct);
+        packetLossMetric = new MetricView(new MetricCalculator(METRIC_TYPE.PACKET_LOSS), ct);
         LinearLayout metricsLL = new LinearLayout(ct);
         metricsLL.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams foo1 = new LinearLayout.LayoutParams(

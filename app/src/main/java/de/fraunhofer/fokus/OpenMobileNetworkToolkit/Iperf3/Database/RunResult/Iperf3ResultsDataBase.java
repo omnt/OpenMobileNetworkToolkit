@@ -17,6 +17,7 @@ import androidx.room.RoomDatabase;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3InputConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3IntervalsConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3StartConverter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.MetricConverter;
 
 @Database(
     entities = {Iperf3RunResult.class},
@@ -37,6 +38,7 @@ public abstract class Iperf3ResultsDataBase extends RoomDatabase {
                         .addTypeConverter(new Iperf3InputConverter())
                         .addTypeConverter(new Iperf3IntervalsConverter())
                         .addTypeConverter(new Iperf3StartConverter())
+                            .addTypeConverter(new MetricConverter())
                         .allowMainThreadQueries()
                         .enableMultiInstanceInvalidation()
                         .build();

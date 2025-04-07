@@ -72,6 +72,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import kotlin.coroutines.Continuation;
@@ -152,16 +154,21 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             Runnable read = () -> {
                 Log.d(TAG, "startRemoteWork: starting reading thread...");
                 Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
-
+                MetricCalculator metricCalculatorUL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
+                MetricCalculator metricCalculatorDL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
                 iperf3Parser.addPropertyChangeListener(evt -> {
                     switch (evt.getPropertyName()) {
                         case "interval":
                             Interval interval = (Interval) evt.getNewValue();
                             Log.d(TAG, "Read Thread: interval: " + interval.toString());
-
+                            if(interval.getSum().getSender()){
+                                metricCalculatorUL.update(interval.getSum().getBits_per_second());
+                            } else {
+                                metricCalculatorDL.update(interval.getSum().getBits_per_second());
+                            }
                             String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
                             setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
-
+                            metricCalculatorUL.update(interval.getSum().getBits_per_second());
                             notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
                             notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
                             notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
@@ -174,6 +181,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                                 notificationLayout.setViewVisibility(R.id.notification_bidir_direction, VISIBLE);
                                 notificationLayout.setTextViewText(R.id.notification_bidir_throughput, String.format("Throughput: %d Mbit/s", Math.round(interval.getSumBidirReverse().getBits_per_second() / 1e6)));
                                 notificationLayout.setTextViewText(R.id.notification_bidir_direction, String.format("Direction: %s", interval.getSumBidirReverse().getSumType()));
+                                metricCalculatorDL.update(interval.getSumBidirReverse().getBits_per_second());
                             }
 
                             setForegroundAsync(createForegroundInfo(notificationLayout));
@@ -210,6 +218,10 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                     }
                 });
                 iperf3Parser.parse();
+                metricCalculatorDL.calcAll();
+                metricCalculatorUL.calcAll();
+                iperf3RunResultDao.updateMetricDL(iperf3RunResult.uid, metricCalculatorDL);
+                iperf3RunResultDao.updateMetricUL(iperf3RunResult.uid, metricCalculatorUL);
                 try {
                     iperf3Parser.getRunnable().wait(iperf3Input.getParameter().getTime());
                 } catch (InterruptedException e) {
@@ -218,16 +230,13 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                 Log.d(TAG, "Read Thread: finished");
             };
 
-
-
-
             Log.d(TAG, "startRemoteWork: schedule threads");
             executorService.execute(iperf3);
             executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
             executorService.shutdown();
             long runTime = 10;
             if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
-            runTime += 1;
+            runTime += 10;
             Log.d(TAG, "startRemoteWork: timeout: "+runTime);
 
             Log.d(TAG, "startRemoteWork: awating threads");

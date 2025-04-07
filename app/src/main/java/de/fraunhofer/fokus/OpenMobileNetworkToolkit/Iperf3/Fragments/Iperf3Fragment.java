@@ -2,13 +2,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.google.android.material.progressindicator.LinearProgressIndicator.INDETERMINATE_ANIMATION_TYPE_CONTIGUOUS;
-
-import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.TCP_DL;
-import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.TCP_UL;
-import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.UDP_DL;
-import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.UDP_UL;
-import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.SUM_TYPE.UNKNOWN;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -23,9 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +24,6 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
 import androidx.work.multiprocess.RemoteWorkManager;
 
@@ -50,20 +39,16 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Executor;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAdapter;
@@ -71,7 +56,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interva
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.Metric;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -124,8 +110,8 @@ public class Iperf3Fragment extends Fragment {
     private Observer observer;
     private LinearLayout resultView;
 
-    private Metric metricDL;
-    private Metric metricUL;
+    private MetricView metricDL;
+    private MetricView metricUL;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -227,8 +213,8 @@ public class Iperf3Fragment extends Fragment {
             WorkQuery workQuery = WorkQuery.Builder
                     .fromTags(Arrays.asList(uuid))
                     .build();
-            metricDL.resetMetric();
-            metricUL.resetMetric();
+            metricDL.getMetricCalculator().resetMetric();
+            metricUL.getMetricCalculator().resetMetric();
             ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
             Futures.addCallback(
                     foobar,
@@ -354,8 +340,8 @@ public class Iperf3Fragment extends Fragment {
         spg = SharedPreferencesGrouper.getInstance(ct);
         handler = new Handler(Looper.getMainLooper());
         resultView = view.findViewById(R.id.iperf3_run_linearlayout);
-        metricDL = new Metric(METRIC_TYPE.THROUGHPUT, getContext());
-        metricUL = new Metric(METRIC_TYPE.THROUGHPUT, getContext());
+        metricDL = new MetricView(new MetricCalculator(METRIC_TYPE.THROUGHPUT), getContext());
+        metricUL = new MetricView(new MetricCalculator(METRIC_TYPE.THROUGHPUT), getContext());
         LinearLayout metricLayoutDL = metricDL.createMainLL("Download [Mbit/s]");
         LinearLayout metricLayoutUL = metricUL.createMainLL("Upload [Mbit/s]");
         resultView.addView(metricLayoutDL);
