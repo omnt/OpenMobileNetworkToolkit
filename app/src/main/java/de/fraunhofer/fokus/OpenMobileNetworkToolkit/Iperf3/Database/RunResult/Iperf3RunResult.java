@@ -9,12 +9,14 @@ import androidx.room.TypeConverters;
 import java.sql.Timestamp;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3ErrorConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3InputConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3IntervalsConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3StartConverter;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.MetricConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 
@@ -48,6 +50,10 @@ public class Iperf3RunResult {
     public MetricCalculator metricUL;
     @ColumnInfo(name = "metricDL")
     public MetricCalculator metricDL;
+
+    @ColumnInfo(name = "error")
+    @TypeConverters({Iperf3ErrorConverter.class})
+    public Error error;
 
     public Iperf3RunResult(String uid, int result, boolean upload, Iperf3Input input,
                            Timestamp timestamp) {

@@ -130,14 +130,13 @@ dependencies {
     def work_version = "2.10.0"
     def room_version = "2.6.1"
 
-
     implementation "androidx.work:work-runtime:$work_version"
     implementation "androidx.work:work-runtime-ktx:$work_version"
     implementation "androidx.work:work-rxjava2:$work_version"
     implementation "androidx.work:work-gcm:$work_version"
     androidTestImplementation "androidx.work:work-testing:$work_version"
     implementation "androidx.work:work-multiprocess:$work_version"
-
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.0"
     implementation 'androidx.preference:preference:1.2.1'
     implementation "androidx.room:room-runtime:$room_version"

@@ -5,22 +5,77 @@
   ~
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
-
-<androidx.cardview.widget.CardView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardBackgroundColor="@color/cardview_dark_background"
-    android:id="@+id/cardviewholder"
-    android:layout_margin="5dp"
-    android:translationZ="1dp">
+    android:id="@+id/card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    style="?attr/materialCardViewElevatedStyle">
     <LinearLayout
-        android:id="@+id/iperf3_main_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:orientation="vertical" >
+        android:orientation="vertical">
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress_indicator"
+            android:paddingBottom="2dp">
+        </com.google.android.material.progressindicator.LinearProgressIndicator>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/Parameter"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:padding="16dp" />
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexWrap="wrap"
+                app:alignItems="stretch"
+                app:alignContent="stretch"
+                android:id="@+id/parameter_iperf3_fl"
+                android:orientation="horizontal">
+            </com.google.android.flexbox.FlexboxLayout>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/metrics_iperf3_ll"
+            android:orientation="vertical">
+        </LinearLayout>
+        <!-- Buttons -->
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@string/rerun"
+                android:layout_alignParentLeft="true"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="@string/X"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                />
+        </RelativeLayout>
+
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+
+</com.google.android.material.card.MaterialCardView>

@@ -66,7 +66,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 public class Iperf3Fragment extends Fragment {
 
     private static final String ARG_POSITION = "position";
-    private LinearProgressIndicator progressBar;
     private Iperf3Input iperf3Input;
     private Context ct;
     private MaterialButton sendBtn;
@@ -96,22 +95,14 @@ public class Iperf3Fragment extends Fragment {
     private RecyclerView recyclerView;
     private SharedPreferencesGrouper spg;
 
-    private FrameLayout frameLayout;
     private String TAG = "Iperf3CardFragment";
     private String uuid;
-    private int[] failedColors;
-    private int[] runningColors;
-    private int[] succesColors;
     private Iperf3RecyclerViewAdapter adapter;
     private Iperf3RunResultDao iperf3RunResultDao;
     private Iperf3ResultsDataBase iperf3ResultsDataBase;
     private BottomSheetBehavior bottomSheetBehavior;
     private FloatingActionButton fab;
-    private Observer observer;
-    private LinearLayout resultView;
 
-    private MetricView metricDL;
-    private MetricView metricUL;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,44 +158,7 @@ public class Iperf3Fragment extends Fragment {
             editText.setText(spg.getSharedPreference(SPType.iperf3_sp).getString(key, ""));
         }
     }
-    Runnable setVisibility = new Runnable() {
-        @Override
-        public void run() {
-            progressBar.setVisibility(LinearProgressIndicator.INVISIBLE);
-            progressBar.setIndicatorColor(requireContext().getColor(R.color.purple_500));
-            progressBar.setProgress(0);
-        }
-    };
 
-    private void update(Sum sum, boolean isBidir){
-        switch (sum.getSumType()){
-            case TCP_UL:
-            case UDP_UL:
-                if(isBidir){
-                    metricDL.setVisibility(VISIBLE);
-                    metricUL.setVisibility(VISIBLE);
-                } else {
-                    metricDL.setVisibility(GONE);
-                    metricUL.setVisibility(VISIBLE);
-                }
-                metricUL.update(sum.getBits_per_second());
-                break;
-            case TCP_DL:
-            case UDP_DL:
-                if(isBidir){
-                    metricDL.setVisibility(VISIBLE);
-                    metricUL.setVisibility(VISIBLE);
-                } else {
-                    metricDL.setVisibility(VISIBLE);
-                    metricUL.setVisibility(GONE);
-                }
-                metricDL.update(sum.getBits_per_second());
-                Log.d(TAG, "onSuccess: UPDATING...");
-                break;
-            case UNKNOWN:
-                break;
-        }
-    }
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -213,28 +167,25 @@ public class Iperf3Fragment extends Fragment {
             WorkQuery workQuery = WorkQuery.Builder
                     .fromTags(Arrays.asList(uuid))
                     .build();
-            metricDL.getMetricCalculator().resetMetric();
-            metricUL.getMetricCalculator().resetMetric();
             ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
             Futures.addCallback(
                     foobar,
                     new FutureCallback<>() {
                         public void onSuccess(List<WorkInfo> result) {
+
                             for (WorkInfo workInfo : result) {
                                 if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
                                     Log.d(TAG, "onSuccess" + workInfo.getState());
                                     Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
+
                                     switch (workInfo.getState()) {
                                         case SUCCEEDED:
-                                            progressBar.setIndicatorColor(succesColors);
-                                            handler.postDelayed(setVisibility, 1000);
+                                            adapter.notifyDataSetChanged();
                                             break;
                                         case CANCELLED:
                                         case FAILED:
-                                            progressBar.setIndicatorColor(failedColors);
-                                            progressBar.setProgress(progressBar.getMax());
-                                            progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
-                                            handler.postDelayed(setVisibility, 1000);
+                                            iperf3RunResultDao.updateResult(uuid, 1);
+                                            adapter.notifyDataSetChanged();
                                             break;
                                         case BLOCKED:
                                         case ENQUEUED:
@@ -245,27 +196,17 @@ public class Iperf3Fragment extends Fragment {
                                             try {
                                                 if(line == null) throw new JSONException("line empty");
                                                 Interval interval = new Interval(line);
-                                                boolean isBidir = false;
-                                                if(interval.getSumBidirReverse() != null){
-                                                    isBidir = true;
-                                                    update(interval.getSumBidirReverse(), isBidir);
-
-                                                }
-                                                update(interval.getSum(), isBidir);
 
 
 
                                                 //int progess = Math.toIntExact(Math.round(jsonInterval.getJSONObject("data").getJSONObject("sum").getDouble("end")));
 
                                                 //Log.d(TAG, "onSuccess: "+progess);
-                                                //progressBar.setProgressCompat(progess, true);
-                                                if (progressBar.getVisibility() == LinearProgressIndicator.INVISIBLE) {
-                                                    progressBar.setVisibility(LinearProgressIndicator.VISIBLE);
-                                                }
+
                                             } catch (JSONException e) {
                                                 Log.d(TAG, "onSuccess: "+e);
                                             }
-
+                                            adapter.notifyDataSetChanged();
                                             handler.postDelayed(runnable, 500);
                                             break;
                                     }
@@ -330,24 +271,12 @@ public class Iperf3Fragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_iperf3_input, container, false);
         // Initialize the TextView
-        progressBar = view.findViewById(R.id.iperf3_progress);
-        progressBar.setVisibility(View.INVISIBLE);
-        progressBar.setIndeterminate(false);
         String iperf3UUID = UUID.randomUUID().toString();
         Iperf3Parameter iperf3Parameter = new Iperf3Parameter(iperf3UUID);
         iperf3Input = new Iperf3Input(iperf3Parameter, "");
         sendBtn = view.findViewById(R.id.iperf3_send);
         spg = SharedPreferencesGrouper.getInstance(ct);
         handler = new Handler(Looper.getMainLooper());
-        resultView = view.findViewById(R.id.iperf3_run_linearlayout);
-        metricDL = new MetricView(new MetricCalculator(METRIC_TYPE.THROUGHPUT), getContext());
-        metricUL = new MetricView(new MetricCalculator(METRIC_TYPE.THROUGHPUT), getContext());
-        LinearLayout metricLayoutDL = metricDL.createMainLL("Download [Mbit/s]");
-        LinearLayout metricLayoutUL = metricUL.createMainLL("Upload [Mbit/s]");
-        resultView.addView(metricLayoutDL);
-        resultView.addView(metricLayoutUL);
-        metricLayoutUL.setVisibility(GONE);
-        metricLayoutDL.setVisibility(GONE);
 
         setupBottomSheet();
         sendBtn.setOnClickListener(new View.OnClickListener() {
@@ -361,9 +290,9 @@ public class Iperf3Fragment extends Fragment {
                 Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
                 iperf3Executor.execute();
                 Log.d(TAG, "onClick: "+iperf3Input.getParameter().getTime());
-                progressBar.setMax(iperf3Input.getParameter().getTime());
                 handler.post(runnable); // start the first execution
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                adapter.notifyDataSetChanged();
             }
         });
         //fab = view.findViewById(R.id.iperf3_influx_upload_button);
@@ -391,12 +320,6 @@ public class Iperf3Fragment extends Fragment {
         directionUp = view.findViewById(R.id.iperf3_upload_button);
         directonBidir = view.findViewById(R.id.iperf3_bidir_button);
 
-        failedColors = new int[] {getContext().getColor(R.color.crimson),
-                getContext().getColor(R.color.crimson), getContext().getColor(R.color.crimson)};
-        runningColors = new int[] {getContext().getColor(R.color.purple_500),
-                getContext().getColor(R.color.crimson), getContext().getColor(R.color.forestgreen)};
-        succesColors = new int[] {getContext().getColor(R.color.forestgreen),
-                getContext().getColor(R.color.forestgreen), getContext().getColor(R.color.forestgreen)};
         setupTextWatchers();
         setTextsFromSharedPreferences();
         try {

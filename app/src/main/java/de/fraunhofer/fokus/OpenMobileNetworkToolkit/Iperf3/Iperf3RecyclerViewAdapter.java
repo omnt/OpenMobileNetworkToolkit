@@ -8,45 +8,42 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 
-import android.annotation.SuppressLint;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
+import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3RecyclerViewAdapter
@@ -64,15 +61,11 @@ public class Iperf3RecyclerViewAdapter
 
         this.db = Iperf3ResultsDataBase.getDatabase(context);
         this.iperf3RunResultDao = db.iperf3RunResultDao();
-        observer = (Observer<List<Iperf3RunResult>>) iperf3RunResults -> {
-            Log.d(TAG, "onChanged: dataset changed!");
-            this.notifyDataSetChanged();
-        };
-        iperf3RunResultDao.getAll().observeForever(observer);
 
         this.selectedRuns = new HashMap<>();
         this.selectedCardViews = new HashMap<>();
         this.uploadBtn = uploadBtn;
+
       /*  this.uploadBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -130,7 +123,7 @@ public class Iperf3RecyclerViewAdapter
                                                                    int viewType) {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        CardView v = (CardView) inflater.inflate(R.layout.fragment_iperf3_row_item, parent, false);
+        MaterialCardView v = (MaterialCardView) inflater.inflate(R.layout.fragment_iperf3_row_item, parent, false);
         v.setFocusable(false);
         v.setClickable(false);
         ViewHolder viewHolder = new ViewHolder(v);
@@ -149,7 +142,6 @@ public class Iperf3RecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.iPerf3Parameters.removeAllViews();
         Iperf3RunResult test = getItemByPosition(position);
 
         holder.itemView.setTag(iperf3RunResultDao.getIDs().get(position));
@@ -165,11 +157,8 @@ public class Iperf3RecyclerViewAdapter
                     ContextCompat.getColor(context, R.color.ic_launcher_background));
 
         }
-        holder.measurement.setText("iPerf3");
-        holder.timestamp.setText(test.input.getTimestamp().toString());
 
-        holder.runIcon.setImageDrawable(Iperf3Utils.getDrawableResult(context, test.result));
-        holder.uploadIcon.setImageDrawable(Iperf3Utils.getDrawableUpload(context, test.result, test.uploaded));
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,6 +170,123 @@ public class Iperf3RecyclerViewAdapter
         if(Objects.equals(selectedUUID, test.uid)){
             holder.itemView.setBackgroundColor(Color.parseColor("#567845"));
         }
+        String host = String.valueOf(test.input.getParameter().getHost());
+        String dstPort = String.valueOf(test.input.getParameter().getPort());
+        String bandwidth = String.valueOf(test.input.getParameter().getBitrate());
+        String duration = String.valueOf(test.input.getParameter().getTime());
+        String interval = String.valueOf(test.input.getParameter().getInterval());
+        String bytes = String.valueOf(test.input.getParameter().getBytes());
+        String streams = String.valueOf(test.input.getParameter().getParallel());
+        String srcPort = String.valueOf(test.input.getParameter().getCport());
+
+        String mode = String.valueOf(test.input.getParameter().getMode());
+        String protocol = String.valueOf(test.input.getParameter().getProtocol());
+        String direction = String.valueOf(test.input.getParameter().getDirection());
+
+        ((TextView) holder.host.findViewById(R.id.text_parameter)).setText(host);
+        ((TextView) holder.dstPort.findViewById(R.id.text_parameter)).setText(dstPort);
+        ((TextView) holder.bandwidth.findViewById(R.id.text_parameter)).setText(bandwidth);
+        ((TextView) holder.duration.findViewById(R.id.text_parameter)).setText(duration);
+        ((TextView) holder.interval.findViewById(R.id.text_parameter)).setText(interval);
+        ((TextView) holder.bytes.findViewById(R.id.text_parameter)).setText(bytes);
+        ((TextView) holder.streams.findViewById(R.id.text_parameter)).setText(streams);
+        ((TextView) holder.srcPort.findViewById(R.id.text_parameter)).setText(srcPort);
+
+        ((TextView) holder.mode.findViewById(R.id.text_parameter)).setText(mode);
+        ((TextView) holder.protocol.findViewById(R.id.text_parameter)).setText(protocol);
+        ((TextView) holder.direction.findViewById(R.id.text_parameter)).setText(direction);
+        holder.linearProgressIndicator.setIndicatorColor(Color.CYAN);
+
+        if(test.result == 0){
+            holder.linearProgressIndicator.setIndicatorColor(Color.GREEN);
+            holder.linearProgressIndicator.setMax(1);
+            holder.linearProgressIndicator.setProgress(1);
+        } else if(test.result == -100) {
+            holder.linearProgressIndicator.setMax(test.input.getParameter().getTime()-1);
+            ArrayList<Interval> intervals = new ArrayList<Interval>();
+            if(test.intervals != null)
+                intervals = test.intervals.getIntervalArrayList();
+            int progress = intervals.size();
+            holder.linearProgressIndicator.setProgress(progress);
+        } else {
+            holder.linearProgressIndicator.setMax(1);
+            holder.linearProgressIndicator.setProgress(1);
+            holder.linearProgressIndicator.setIndicatorColor(Color.RED);
+        }
+
+        if(!dstPort.isEmpty() || dstPort.equals("")){
+            holder.dstPort.setVisibility(GONE);
+        } else {
+            holder.dstPort.setVisibility(VISIBLE);
+        }
+        if(!bandwidth.isEmpty() || bandwidth.equals("")) {
+            holder.bandwidth.setVisibility(GONE);
+        } else {
+            holder.bandwidth.setVisibility(VISIBLE);
+        }
+        if(!duration.isEmpty() || duration.equals("")) {
+            holder.duration.setVisibility(GONE);
+        } else {
+            holder.duration.setVisibility(VISIBLE);
+        }
+        if(!interval.isEmpty() || interval.equals("")){
+            holder.interval.setVisibility(GONE);
+        } else {
+            holder.interval.setVisibility(VISIBLE);
+        }
+        if(!bytes.isEmpty() || bytes.equals("")) {
+            holder.bytes.setVisibility(GONE);
+        } else {
+            holder.bytes.setVisibility(VISIBLE);
+        }
+        if(!streams.isEmpty() || streams.equals("")){
+            holder.streams.setVisibility(GONE);
+        } else {
+            holder.streams.setVisibility(VISIBLE);
+        }
+        if(!srcPort.isEmpty() || srcPort.equals("")) {
+            holder.srcPort.setVisibility(GONE);
+        } else {
+            holder.srcPort.setVisibility(VISIBLE);
+        }
+
+        holder.metricViewUL.setMetricCalculator(test.metricUL);
+        holder.metricViewDL.setMetricCalculator(test.metricDL);
+
+        switch (test.input.getParameter().getDirection()){
+            case BIDIR:
+                holder.metricViewUL.setVisibility(VISIBLE);
+                holder.metricViewDL.setVisibility(VISIBLE);
+                if(holder.metricViewUL.getMetricCalculator() != null || holder.metricViewDL.getMetricCalculator() != null){
+                    holder.metricViewUL.getMetricCalculator().calcAll();
+                    holder.metricViewDL.getMetricCalculator().calcAll();
+                }
+                break;
+            case UP:
+                holder.metricViewUL.setVisibility(VISIBLE);
+                holder.metricViewDL.setVisibility(GONE);
+                if(holder.metricViewUL.getMetricCalculator() != null){
+                    holder.metricViewUL.getMetricCalculator().calcAll();
+                }
+                break;
+            case DOWN:
+                holder.metricViewUL.setVisibility(GONE);
+                holder.metricViewDL.setVisibility(VISIBLE);
+                if(holder.metricViewDL.getMetricCalculator() != null){
+                    holder.metricViewDL.getMetricCalculator().calcAll();
+                }
+                break;
+        }
+        if(test.result == 1) {
+            holder.metricViewUL.setVisibility(GONE);
+            holder.metricViewDL.setVisibility(GONE);
+            holder.errorView.setVisibility(VISIBLE);
+            String errorText = "Error!";
+            if(test.error != null)
+                errorText = test.error.getError();
+            holder.errorView.setText(errorText);
+        }
+
     }
     private Iperf3RunResult getItemByPosition(int position) {
         return iperf3RunResultDao.getRunResult(iperf3RunResultDao.getIDs().get(position));
@@ -197,106 +303,77 @@ public class Iperf3RecyclerViewAdapter
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView measurement;
-        public TextView timestamp;
-        public TextView iperf3State;
-        public ImageView runIcon;
-        public ImageView uploadIcon;
-        private final LinearLayout linearLayout;
-        private LinearLayout iPerf3Parameters;
+        private FlexboxLayout parameterFlexBoxLayout;
+        private LinearLayout host;
+        private LinearLayout dstPort;
+        private LinearLayout bandwidth;
+        private LinearLayout duration;
+        private LinearLayout interval;
+        private LinearLayout bytes;
+        private LinearLayout streams;
+        private LinearLayout srcPort;
+        private LinearLayout mode;
+        private LinearLayout protocol;
+        private LinearLayout direction;
+        private LayoutInflater li;
+        private LinearProgressIndicator linearProgressIndicator;
+        private MetricView metricViewDL;
+        private MetricView metricViewUL;
+        private TextView errorView;
+        private LinearLayout metricLL;
+        private void setupParameterFlexBox(){
+            parameterFlexBoxLayout = itemView.findViewById(R.id.parameter_iperf3_fl);
 
-        private LinearLayout firstRow(LinearLayout ll){
-            measurement.setLayoutParams(
-                Iperf3Utils.getLayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 8F));
+            host = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            dstPort = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            dstPort = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            bandwidth = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            duration = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            interval = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            bytes = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            streams = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            srcPort = (LinearLayout) li.inflate(R.layout.parameter_view, null);
 
+            mode = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            protocol = (LinearLayout) li.inflate(R.layout.parameter_view, null);
+            direction = (LinearLayout) li.inflate(R.layout.parameter_view, null);
 
-            runIcon.setLayoutParams(
-                Iperf3Utils.getLayoutParams(0, 80, 1F));
+            parameterFlexBoxLayout.addView(host);
+            parameterFlexBoxLayout.addView(dstPort);
+            parameterFlexBoxLayout.addView(bandwidth);
+            parameterFlexBoxLayout.addView(duration);
+            parameterFlexBoxLayout.addView(interval);
+            parameterFlexBoxLayout.addView(bytes);
+            parameterFlexBoxLayout.addView(streams);
+            parameterFlexBoxLayout.addView(srcPort);
+            parameterFlexBoxLayout.addView(mode);
+            parameterFlexBoxLayout.addView(protocol);
+            parameterFlexBoxLayout.addView(direction);
 
-            uploadIcon.setLayoutParams(
-                Iperf3Utils.getLayoutParams(0, 80, 1F));
-
-
-            ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.addView(measurement);
-            ll.addView(runIcon);
-            ll.addView(uploadIcon);
-            return ll;
         }
-        private LinearLayout secondRow(LinearLayout ll){
-            ll.setOrientation(LinearLayout.HORIZONTAL);
-            timestamp.setLayoutParams(
-                Iperf3Utils.getLayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1F));
-            ll.addView(timestamp);
-            return ll;
+        public void setupLinearProgressIndicator(){
+            linearProgressIndicator = itemView.findViewById(R.id.progress_indicator);
         }
-        private LinearLayout thirdRow(LinearLayout ll){
-            ll.setOrientation(LinearLayout.HORIZONTAL);
-            ll.addView(iPerf3Parameters);
-            iPerf3Parameters.setLayoutParams(
-                Iperf3Utils.getLayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 0.1F));
-            return ll;
+        public void setupMetricLinearLayout(){
+            metricLL = itemView.findViewById(R.id.metrics_iperf3_ll);
+            metricViewDL = new MetricView(context);
+            metricViewUL = new MetricView(context);
+            metricViewDL.setup("Download [Mbit/s]");
+            metricViewUL.setup("Upload [Mbit/s]");
+            errorView = new TextView(context);
+
+            metricLL.addView(metricViewDL);
+            metricLL.addView(metricViewUL);
+            metricLL.addView(errorView);
+            errorView.setVisibility(GONE);
         }
 
         public ViewHolder(View itemView) {
             super(itemView);
-            Log.d(TAG, "ViewHolder: " + itemView);
-            measurement = new TextView(context);
-            timestamp = new TextView(context);
-            iperf3State = new TextView(context);
-            runIcon = new ImageView(context);
-            runIcon.setPadding(0, 10, 0, 0);
-            uploadIcon = new ImageView(context);
-            uploadIcon.setPadding(0, 10, 0, 0);
-            iPerf3Parameters = new LinearLayout(context);
-            linearLayout = itemView.findViewById(R.id.iperf3_main_layout);
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
-            linearLayout.addView(firstRow(new LinearLayout(context)));
-            linearLayout.addView(secondRow(new LinearLayout(context)));
-            linearLayout.addView(thirdRow(new LinearLayout(context)));
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    int viewPosition = getLayoutPosition();
-                    Log.d(TAG, "onLongClick: " + v.toString());
-                    Log.d(TAG, "onLongClick: " + viewPosition);
-                    if (!selectedRuns.isEmpty()) {
-                        return true;
-                    }
-                    if (viewPosition == RecyclerView.NO_POSITION) {
-                        return false;
-                    }
-                    String uid = iperf3RunResultDao.getIDs().get(viewPosition);
-                    selectedRuns.put(uid, viewPosition);
-                    notifyItemChanged(viewPosition);
-                    uploadBtn.setVisibility(View.VISIBLE);
-                    return true;
-                }
-            });
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int viewPosition = getLayoutPosition();
-                    String uid = iperf3RunResultDao.getIDs().get(viewPosition);
-                    if (!selectedRuns.isEmpty() && selectedRuns.containsKey(uid)) {
-                        if (selectedRuns.size() == 1 && selectedRuns.containsKey(uid)) {
-                            uploadBtn.setVisibility(View.INVISIBLE);
-                        }
-                        selectedRuns.remove(uid);
-                        notifyItemChanged(viewPosition);
-                        return;
-                    } else if (!selectedRuns.isEmpty()) {
-                        selectedRuns.put(uid, viewPosition);
-                        notifyItemChanged(viewPosition);
-                        uploadBtn.setVisibility(View.VISIBLE);
-                        return;
-                    }
-                    Log.d(TAG, "onCreateView: CLICKED!");
-
-
-                }
-            });
-
+            li = LayoutInflater.from(context);
+            setupLinearProgressIndicator();
+            setupParameterFlexBox();
+            setupMetricLinearLayout();
         }
 
     }

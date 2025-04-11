@@ -135,119 +135,34 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             Log.i(TAG, "Starting "+TAG);
 
             RemoteViews notificationLayout = new RemoteViews(getApplicationContext().getPackageName(), R.layout.iperf3_notification);
-            notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
+            notificationLayout.setTextViewText(R.id.notification_title, "Running iPerf3 test...");
             notificationLayout.setViewVisibility(R.id.notification_throughput, GONE);
             notificationLayout.setViewVisibility(R.id.notification_direction, GONE);
 
 
             setForegroundAsync(createForegroundInfo(notificationLayout));
 
-            final int[] result = {-1};
+            int result = -1;
 
 
-            ScheduledExecutorService executorService = Executors.newScheduledThreadPool(2);
-            Runnable iperf3  = () -> {
-                result[0] = iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
-                Log.d(TAG, "JNI Thread: " + result[0]);
-            };
-
-            Runnable read = () -> {
-                Log.d(TAG, "startRemoteWork: starting reading thread...");
-                Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
-                MetricCalculator metricCalculatorUL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
-                MetricCalculator metricCalculatorDL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
-                iperf3Parser.addPropertyChangeListener(evt -> {
-                    switch (evt.getPropertyName()) {
-                        case "interval":
-                            Interval interval = (Interval) evt.getNewValue();
-                            Log.d(TAG, "Read Thread: interval: " + interval.toString());
-                            if(interval.getSum().getSender()){
-                                metricCalculatorUL.update(interval.getSum().getBits_per_second());
-                            } else {
-                                metricCalculatorDL.update(interval.getSum().getBits_per_second());
-                            }
-                            String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
-                            setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
-                            metricCalculatorUL.update(interval.getSum().getBits_per_second());
-                            notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
-                            notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
-                            notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
-                            notificationLayout.setViewVisibility(R.id.notification_throughput, VISIBLE);
-                            notificationLayout.setViewVisibility(R.id.notification_direction, VISIBLE);
+            result= iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
+            Log.d(TAG, "JNI Thread: " + result);
 
 
-                            if (interval.getSumBidirReverse() != null) {
-                                notificationLayout.setViewVisibility(R.id.notification_bidir_throughput, VISIBLE);
-                                notificationLayout.setViewVisibility(R.id.notification_bidir_direction, VISIBLE);
-                                notificationLayout.setTextViewText(R.id.notification_bidir_throughput, String.format("Throughput: %d Mbit/s", Math.round(interval.getSumBidirReverse().getBits_per_second() / 1e6)));
-                                notificationLayout.setTextViewText(R.id.notification_bidir_direction, String.format("Direction: %s", interval.getSumBidirReverse().getSumType()));
-                                metricCalculatorDL.update(interval.getSumBidirReverse().getBits_per_second());
-                            }
-
-                            setForegroundAsync(createForegroundInfo(notificationLayout));
-
-                            Intervals _intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
-                            if(_intervals == null){
-                                _intervals = new Intervals();
-                            }
-                            _intervals.addInterval(interval);
-                            iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
-                            break;
-                        case "end":
-                            Log.d(TAG, "Read Thread: end: " + evt.getNewValue().toString());
-                            setProgressAsync(new Data.Builder().putString("error", evt.getNewValue().toString()).build());
-                            iperf3RunResultDao.updateEnd(iperf3Input.getTestUUID(), evt.getNewValue().toString());
-                            iperf3Parser.close();
-                            break;
-                        case "error":
-                            Log.d(TAG, "Read Thread: error: " + evt.getNewValue());
-                            setProgressAsync(new Data.Builder().putString("error", evt.getNewValue().toString()).build());
-                            iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), 1);
-                            iperf3Parser.close();
-                            break;
-                        case "start":
-                            Log.d(TAG, "Read Thread: start: " + evt.getNewValue());
-                            Start start = (Start) evt.getNewValue();
-                            setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
-                            iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), evt.getNewValue().toString());
-                            break;
-                        default:
-                            Log.d(TAG, "Read Thread: unknown property: " + evt.getPropertyName());
-                            iperf3Parser.close();
-                            break;
-                    }
-                });
-                iperf3Parser.parse();
-                metricCalculatorDL.calcAll();
-                metricCalculatorUL.calcAll();
-                iperf3RunResultDao.updateMetricDL(iperf3RunResult.uid, metricCalculatorDL);
-                iperf3RunResultDao.updateMetricUL(iperf3RunResult.uid, metricCalculatorUL);
-                try {
-                    iperf3Parser.getRunnable().wait(iperf3Input.getParameter().getTime());
-                } catch (InterruptedException e) {
-                    Log.d(TAG, "startRemoteWork: "+e);
-                }
-                Log.d(TAG, "Read Thread: finished");
-            };
 
             Log.d(TAG, "startRemoteWork: schedule threads");
-            executorService.execute(iperf3);
-            executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
-            executorService.shutdown();
             long runTime = 10;
             if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
             runTime += 10;
             Log.d(TAG, "startRemoteWork: timeout: "+runTime);
 
             Log.d(TAG, "startRemoteWork: awating threads");
-            boolean taskFinished =  executorService.awaitTermination(runTime, TimeUnit.SECONDS);
-            iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), result[0]);
+            iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), result);
             Log.d(TAG, "startRemoteWork: threads awaited");
-            Log.d(TAG, "startRemoteWork: threads timeout: "+!taskFinished);
             Data.Builder output = new Data.Builder()
-                    .putInt("result", result[0])
+                    .putInt("result", result)
                     .putString("testUUID", iperf3Input.getTestUUID());
-            if (result[0] == 0) {
+            if (result == 0) {
                 return completer.set(Result.success(output.build()));
             }
             return completer.set(Result.failure(output
@@ -256,6 +171,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
 
 
     }
+
 
     @NonNull
     @Override

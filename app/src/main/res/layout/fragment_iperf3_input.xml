@@ -22,13 +22,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <com.google.android.material.progressindicator.LinearProgressIndicator
-            android:id="@+id/iperf3_progress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:layout_marginBottom="2dp"/>
-
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/input_card"
             android:layout_width="match_parent"

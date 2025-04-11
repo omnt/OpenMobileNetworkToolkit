@@ -77,10 +77,10 @@ public class Iperf3Input extends Inputs {
         return this.iperf3Parameter;
     }
 
-    public Data.Builder getInputAsDataBuilder(int i, String packageName) {
+    public Data.Builder getInputAsDataBuilder(int workerProcess, String packageName) {
         Data.Builder data = new Data.Builder();
         String serviceName = "";
-        switch (i){
+        switch (workerProcess){
             case 0:
                 serviceName = Iperf3ServiceWorkerOne.class.getName();
                 break;
@@ -101,10 +101,12 @@ public class Iperf3Input extends Inputs {
 
         data.putString(ARGUMENT_PACKAGE_NAME, componentName.getPackageName());
         data.putString(ARGUMENT_CLASS_NAME, componentName.getClassName());
-        data.putInt(NOTIFICATIONUMBER, i);
+        data.putInt(NOTIFICATIONUMBER, workerProcess);
         data.putString(Inputs.INPUT, new GsonBuilder().create().toJson(this, Iperf3Input.class));
         return data;
     }
+    
+    
 
     public Data.Builder getInputAsDataBuilder(int i) {
         Data.Builder data = new Data.Builder();

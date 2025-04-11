@@ -17,9 +17,11 @@ import androidx.room.TypeConverters;
 
 import java.util.List;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3ErrorConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Iperf3IntervalsConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.MetricConverter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 
 @Dao
@@ -70,6 +72,14 @@ public interface Iperf3RunResultDao {
     @Query("SELECT metricUL FROM iperf3_result_database WHERE uid = :uid")
     @TypeConverters({MetricConverter.class})
     MetricCalculator getMetricUL(String uid);
+
+    @Query("SELECT error FROM iperf3_result_database WHERE uid = :uid")
+    @TypeConverters({Iperf3ErrorConverter.class})
+    Error getError(String uid);
+
+    @Query("UPDATE iperf3_result_database SET error = :error WHERE uid = :uid")
+    @TypeConverters({Iperf3ErrorConverter.class})
+    void updateError(String uid, Error error);
 
 
 }

@@ -983,6 +983,7 @@ public class Iperf3Parameter extends Parameter {
         if(interval == 0.0){
             return 1.0;
         }
+
         return interval;
     }
 

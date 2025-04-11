@@ -4,15 +4,19 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkContinuation;
+import androidx.work.WorkManager;
 import androidx.work.multiprocess.RemoteWorkContinuation;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3MonitorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -20,9 +24,11 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 public class Iperf3Executor {
     private static final String TAG = "Iperf3Executor";
     private RemoteWorkManager remoteWorkManager;
+    private WorkManager workManager;
     private Context context;
     private SharedPreferencesGrouper spg;
-    private RemoteWorkContinuation workContinuation;
+    private RemoteWorkContinuation remoteWorkContinuation;
+    private WorkContinuation localWorkContinuation;
     @SuppressLint("EnqueueWork")
     public Iperf3Executor(Iperf3Input iperf3Input, Context context){
 
@@ -35,8 +41,13 @@ public class Iperf3Executor {
         this.context = context;
         this.spg = SharedPreferencesGrouper.getInstance(this.context);
         this.remoteWorkManager = RemoteWorkManager.getInstance(this.context);
+        this.workManager = WorkManager.getInstance(this.context);
         OneTimeWorkRequest iperf3ExecutorWorker = new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
                 .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName()).build())
+                .addTag(iperf3Input.getTestUUID())
+                .build();
+        OneTimeWorkRequest iperf3MonitorWorker = new OneTimeWorkRequest.Builder(Iperf3MonitorWorker.class)
+                .setInputData(iperf3Input.getInputAsDataBuilder(1, context.getPackageName()).build())
                 .addTag(iperf3Input.getTestUUID())
                 .build();
         OneTimeWorkRequest iPerf3ToLineProtocolWorker = new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
@@ -48,16 +59,15 @@ public class Iperf3Executor {
                 .addTag(iperf3Input.getTestUUID())
                 .build();
 
-        this.workContinuation = this.remoteWorkManager.beginWith(iperf3ExecutorWorker).then(iPerf3ToLineProtocolWorker);
+
+        this.remoteWorkContinuation = this.remoteWorkManager.beginWith(Arrays.asList(iperf3ExecutorWorker, iperf3MonitorWorker)).then(iPerf3ToLineProtocolWorker);
         if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)){
-            this.workContinuation = workContinuation.then(influxDB2xUploadWorker);
+            this.remoteWorkContinuation = remoteWorkContinuation.then(influxDB2xUploadWorker);
         }
-
-
     }
 
     public void execute(){
-        this.workContinuation.enqueue();
+        this.remoteWorkContinuation.enqueue();
     }
 
 }

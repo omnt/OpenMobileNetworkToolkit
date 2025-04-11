@@ -159,7 +159,9 @@ public class PingFragment extends Fragment {
         });
 
         rttMetric = new MetricView(new MetricCalculator(METRIC_TYPE.PING_RTT), ct);
+        rttMetric.setup("RTT [ms]");
         packetLossMetric = new MetricView(new MetricCalculator(METRIC_TYPE.PACKET_LOSS), ct);
+        packetLossMetric.setup("Packet Loss [%]");
         LinearLayout metricsLL = new LinearLayout(ct);
         metricsLL.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams foo1 = new LinearLayout.LayoutParams(
@@ -167,8 +169,8 @@ public class PingFragment extends Fragment {
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
         metricsLL.setLayoutParams(foo1);
-        metricsLL.addView(rttMetric.createMainLL("RTT [ms]"));
-        metricsLL.addView(packetLossMetric.createMainLL("Packet Loss [%]"));
+        metricsLL.addView(rttMetric);
+        metricsLL.addView(packetLossMetric);
 
         horizontalLL1.addView(metricsLL);
 

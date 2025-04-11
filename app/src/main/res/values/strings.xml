@@ -279,6 +279,11 @@
     <string name="notification_settings">Notification settings</string>
     <string name="device_name">Unique Device Name</string>
     <string name="IPERF3">iPerf3</string>
+    <string name="rerun">Rerun</string>
+    <string name="cancel">Cancel</string>
+    <string name="X">X</string>
+    <string name="state">State</string>
+    <string name="Parameter">Parameter</string>
 
 
 </resources>
