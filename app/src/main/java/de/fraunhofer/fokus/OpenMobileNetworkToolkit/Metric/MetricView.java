@@ -114,12 +114,15 @@ public class MetricView extends LinearLayout {
         if (metricCalculator == null) return;
 
         metricCalculator.update(value);
+        update();
+    }
 
+    public void update(){
         ((TextView) mean.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMean()));
         ((TextView) median.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMedian()));
         ((TextView) max.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMax()));
         ((TextView) min.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMin()));
-        ((TextView) last.getChildAt(1)).setText(metricCalculator.getFormattedString(value));
+        ((TextView) last.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getLast()));
     }
 
     public void setMetricCalculator(MetricCalculator metricCalculator) {

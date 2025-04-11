@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
@@ -21,6 +22,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import androidx.work.multiprocess.RemoteListenableWorker;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -51,7 +53,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
-public class Iperf3MonitorWorker extends Worker {
+public class Iperf3MonitorWorker extends RemoteListenableWorker {
     public static final String TAG = "Iperf3MonitorWorker";
 
     private final String channelId = "OMNT_notification_channel";
@@ -94,6 +96,30 @@ public class Iperf3MonitorWorker extends Worker {
 
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Result> startRemoteWork() {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            Log.d(TAG, "doWork: starting "+this.getClass().getCanonicalName());
+            iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -100);
+            executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
+            executorService.shutdown();
+            long runTime = 10;
+            if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
+            runTime += 1;
+            Log.d(TAG, "startRemoteWork: timeout: "+runTime);
+
+            Log.d(TAG, "startRemoteWork: awating threads");
+            try {
+                boolean taskFinished =  executorService.awaitTermination(runTime, TimeUnit.SECONDS);
+                Log.d(TAG, "doWork: task finished: "+taskFinished);
+            } catch (Exception e) {
+                Log.d(TAG, "doWork: "+e);
+            }
+            return Result.success();
+        });
+    }
+
     private ForegroundInfo createForegroundInfo(RemoteViews notificationLayout) {
 
 
@@ -127,9 +153,7 @@ public class Iperf3MonitorWorker extends Worker {
                         metricCalculatorDL.update(interval.getSum().getBits_per_second());
                     }
 
-
                     String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
-                    setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
                     metricCalculatorUL.update(interval.getSum().getBits_per_second());
                     notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
                     notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
@@ -145,7 +169,12 @@ public class Iperf3MonitorWorker extends Worker {
                         notificationLayout.setTextViewText(R.id.notification_bidir_direction, String.format("Direction: %s", interval.getSumBidirReverse().getSumType()));
                         metricCalculatorDL.update(interval.getSumBidirReverse().getBits_per_second());
                     }
+                    metricCalculatorDL.calcAll();
+                    metricCalculatorUL.calcAll();
+                    iperf3RunResultDao.updateMetricDL(iperf3Input.getTestUUID(), metricCalculatorDL);
+                    iperf3RunResultDao.updateMetricUL(iperf3Input.getTestUUID(), metricCalculatorUL);
 
+                    setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
                     setForegroundAsync(createForegroundInfo(notificationLayout));
 
                     Intervals _intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
@@ -183,36 +212,14 @@ public class Iperf3MonitorWorker extends Worker {
             }
         });
         iperf3Parser.parse();
-        metricCalculatorDL.calcAll();
-        metricCalculatorUL.calcAll();
-        iperf3RunResultDao.updateMetricDL(iperf3RunResult.uid, metricCalculatorDL);
-        iperf3RunResultDao.updateMetricUL(iperf3RunResult.uid, metricCalculatorUL);
         try {
-            iperf3Parser.getRunnable().wait(iperf3Input.getParameter().getTime());
-        } catch (InterruptedException e) {
+            iperf3Parser.getRunnable().wait(iperf3Input.getParameter().getTime()*1000);
+
+        } catch (Exception e) {
+            Log.d(TAG, "failed to wait!");
             Log.d(TAG, "startRemoteWork: "+e);
         }
         Log.d(TAG, "Read Thread: finished");
     };
 
-    @NonNull
-    @Override
-    public Result doWork() {
-        Log.d(TAG, "doWork: starting "+this.getClass().getCanonicalName());
-        executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
-        executorService.shutdown();
-        long runTime = 10;
-        if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
-        runTime += 1;
-        Log.d(TAG, "startRemoteWork: timeout: "+runTime);
-
-        Log.d(TAG, "startRemoteWork: awating threads");
-        try {
-            boolean taskFinished =  executorService.awaitTermination(runTime, TimeUnit.SECONDS);
-            Log.d(TAG, "doWork: task finished: "+taskFinished);
-        } catch (Exception e) {
-            Log.d(TAG, "doWork: "+e);
-        }
-        return Result.success();
-    }
 }

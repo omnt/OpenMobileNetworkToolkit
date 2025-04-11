@@ -55,6 +55,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAda
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Sum.Sum;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3MonitorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
@@ -174,7 +175,7 @@ public class Iperf3Fragment extends Fragment {
                         public void onSuccess(List<WorkInfo> result) {
 
                             for (WorkInfo workInfo : result) {
-                                if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
+                                if (workInfo.getTags().contains(Iperf3MonitorWorker.class.getCanonicalName())) {
                                     Log.d(TAG, "onSuccess" + workInfo.getState());
                                     Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
 
@@ -191,21 +192,7 @@ public class Iperf3Fragment extends Fragment {
                                         case ENQUEUED:
                                         case RUNNING:
                                             String line = workInfo.getProgress().getString("interval");
-                                            Log.d(TAG, "onSuccess: "+workInfo.getProgress().toString());
                                             Log.d(TAG, "onSuccess: "+line);
-                                            try {
-                                                if(line == null) throw new JSONException("line empty");
-                                                Interval interval = new Interval(line);
-
-
-
-                                                //int progess = Math.toIntExact(Math.round(jsonInterval.getJSONObject("data").getJSONObject("sum").getDouble("end")));
-
-                                                //Log.d(TAG, "onSuccess: "+progess);
-
-                                            } catch (JSONException e) {
-                                                Log.d(TAG, "onSuccess: "+e);
-                                            }
                                             adapter.notifyDataSetChanged();
                                             handler.postDelayed(runnable, 500);
                                             break;

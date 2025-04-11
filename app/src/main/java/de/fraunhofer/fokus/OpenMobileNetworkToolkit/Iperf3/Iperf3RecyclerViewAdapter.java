@@ -143,7 +143,8 @@ public class Iperf3RecyclerViewAdapter
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Iperf3RunResult test = getItemByPosition(position);
-
+        holder.metricViewDL.setVisibility(GONE);
+        holder.metricViewUL.setVisibility(GONE);
         holder.itemView.setTag(iperf3RunResultDao.getIDs().get(position));
         if (selectedRuns.containsKey(test.uid)) {
             holder.itemView.setBackgroundColor(
@@ -260,6 +261,8 @@ public class Iperf3RecyclerViewAdapter
                 if(holder.metricViewUL.getMetricCalculator() != null || holder.metricViewDL.getMetricCalculator() != null){
                     holder.metricViewUL.getMetricCalculator().calcAll();
                     holder.metricViewDL.getMetricCalculator().calcAll();
+                    holder.metricViewUL.update();
+                    holder.metricViewDL.update();
                 }
                 break;
             case UP:
@@ -267,6 +270,7 @@ public class Iperf3RecyclerViewAdapter
                 holder.metricViewDL.setVisibility(GONE);
                 if(holder.metricViewUL.getMetricCalculator() != null){
                     holder.metricViewUL.getMetricCalculator().calcAll();
+                    holder.metricViewUL.update();
                 }
                 break;
             case DOWN:
@@ -274,9 +278,11 @@ public class Iperf3RecyclerViewAdapter
                 holder.metricViewDL.setVisibility(VISIBLE);
                 if(holder.metricViewDL.getMetricCalculator() != null){
                     holder.metricViewDL.getMetricCalculator().calcAll();
+                    holder.metricViewDL.update();
                 }
                 break;
         }
+        holder.errorView.setVisibility(GONE);
         if(test.result == 1) {
             holder.metricViewUL.setVisibility(GONE);
             holder.metricViewDL.setVisibility(GONE);
