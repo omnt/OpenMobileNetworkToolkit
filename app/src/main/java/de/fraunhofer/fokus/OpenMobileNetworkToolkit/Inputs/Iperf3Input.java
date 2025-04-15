@@ -14,14 +14,12 @@ import androidx.work.OneTimeWorkRequest;
 import com.google.gson.GsonBuilder;
 
 
-import java.util.UUID;
-
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Iperf3ServiceWorkerFour;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Iperf3ServiceWorkerThree;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Iperf3ServiceWorkerTwo;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerFour;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerThree;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerTwo;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Iperf3ServiceWorkerOne;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerOne;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3UploadWorker;
 
@@ -77,26 +75,8 @@ public class Iperf3Input extends Inputs {
         return this.iperf3Parameter;
     }
 
-    public Data.Builder getInputAsDataBuilder(int workerProcess, String packageName) {
+    public Data.Builder getInputAsDataBuilder(int workerProcess, String packageName, String serviceName) {
         Data.Builder data = new Data.Builder();
-        String serviceName = "";
-        switch (workerProcess){
-            case 0:
-                serviceName = Iperf3ServiceWorkerOne.class.getName();
-                break;
-            case 1:
-                serviceName = Iperf3ServiceWorkerTwo.class.getName();
-                break;
-            case 2:
-                serviceName = Iperf3ServiceWorkerThree.class.getName();
-                break;
-            case 3:
-                serviceName = Iperf3ServiceWorkerFour.class.getName();
-                break;
-            default:
-                break;
-
-        }
         ComponentName componentName = new ComponentName(packageName, serviceName);
 
         data.putString(ARGUMENT_PACKAGE_NAME, componentName.getPackageName());

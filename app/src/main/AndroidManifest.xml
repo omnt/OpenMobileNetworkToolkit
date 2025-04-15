@@ -48,23 +48,40 @@
         android:theme="@style/Theme.OpenMobileNetworkToolkit"
         android:usesCleartextTraffic="true">
         <service
-            android:name=".Iperf3.Service.Iperf3ServiceWorkerOne"
+            android:name=".Iperf3.Service.Executor.Iperf3ServiceWorkerOne"
             android:exported="false"
             android:process=":iperf3Worker1">
         </service>
-
         <service
-            android:name=".Iperf3.Service.Iperf3ServiceWorkerTwo"
+            android:name=".Iperf3.Service.Executor.Iperf3ServiceWorkerTwo"
             android:exported="false"
             android:process=":iperf3Worker2" />
         <service
-            android:name=".Iperf3.Service.Iperf3ServiceWorkerThree"
+            android:name=".Iperf3.Service.Executor.Iperf3ServiceWorkerThree"
             android:exported="false"
             android:process=":iperf3Worker3" />
         <service
-            android:name=".Iperf3.Service.Iperf3ServiceWorkerFour"
+            android:name=".Iperf3.Service.Executor.Iperf3ServiceWorkerFour"
             android:exported="false"
             android:process=":iperf3Worker4" />
+
+        <service
+            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerOne"
+            android:exported="false"
+            android:process=":iperf3MonitorWorker1" />
+        <service
+            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerTwo"
+            android:exported="false"
+            android:process=":iperf3MonitorWorker2" />
+        <service
+            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerThree"
+            android:exported="false"
+            android:process=":iperf3MonitorWorker3" />
+        <service
+            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerFour"
+            android:exported="false"
+            android:process=":iperf3MonitorWorker4" />
+
 
         <provider
             android:name="androidx.startup.InitializationProvider"

@@ -1,3 +1,4 @@
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
@@ -7,6 +8,7 @@ import static android.view.View.VISIBLE;
 import android.app.Notification;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -31,7 +33,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +55,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Ip
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
@@ -69,11 +78,23 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     private RemoteWorkManager remoteWorkManager;
     private WorkQuery workQuery;
     private ScheduledExecutorService executorService;
+    private BufferedReader br = null;
+    private String pathToFile;
+    private File file;
+    private boolean isStopped;
+
     private RemoteViews notificationLayout;
+    private FileObserver fileObserver;
+
+    MetricCalculator metricCalculatorUL;
+    MetricCalculator metricCalculatorDL;
+
     public Iperf3MonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams){
         super(context, workerParams);
         Gson gson = new Gson();
         this.context = context;
+        metricCalculatorUL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
+        metricCalculatorDL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
         String iperf3InputString = getInputData().getString(Iperf3Input.INPUT);
         iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
         int notificationNumber = getInputData().getInt(Iperf3Input.NOTIFICATIONUMBER, 0);
@@ -94,29 +115,53 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
         notificationLayout.setViewVisibility(R.id.notification_throughput, GONE);
         notificationLayout.setViewVisibility(R.id.notification_direction, GONE);
 
-    }
 
+        this.pathToFile = iperf3Input.getParameter().getLogfile();
+        Log.d(TAG, "Iperf3MonitorWorker: pathToFile: "+this.pathToFile);
+        this.file = new File(this.pathToFile);
+
+
+
+
+        isStopped = false;
+
+    }
+    private Runnable fileObserverRunneable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                br = new BufferedReader(new FileReader(file));
+            } catch (FileNotFoundException ex) {
+                Log.d(TAG, "Iperf3MonitorWorker: file not found!"+ex);
+            }
+            fileObserver = new FileObserver(file) {
+                @Override
+                public void onEvent(int event, @NonNull String path) {
+                    Log.d(TAG, "onEvent: "+event+" "+path);
+                    if(event == FileObserver.MODIFY){
+                        Log.d(TAG, "onEvent: file modified");
+
+                        runnable.run();
+                    }
+                }
+            };
+            Log.d(TAG, "startRemoteWork: starting to watch with fileObserver!");
+            fileObserver.startWatching();
+        }
+    };
     @NonNull
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
             Log.d(TAG, "doWork: starting "+this.getClass().getCanonicalName());
             iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -100);
-            executorService.schedule(read, (long) (iperf3Input.getParameter().getInterval()+1), TimeUnit.SECONDS);
-            executorService.shutdown();
-            long runTime = 10;
-            if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
-            runTime += 1;
-            Log.d(TAG, "startRemoteWork: timeout: "+runTime);
+            Thread.sleep((long) (iperf3Input.getParameter().getInterval()*1000));
+            fileObserverRunneable.run();
+            Thread.sleep(iperf3Input.getParameter().getTime()*1000);
 
-            Log.d(TAG, "startRemoteWork: awating threads");
-            try {
-                boolean taskFinished =  executorService.awaitTermination(runTime, TimeUnit.SECONDS);
-                Log.d(TAG, "doWork: task finished: "+taskFinished);
-            } catch (Exception e) {
-                Log.d(TAG, "doWork: "+e);
-            }
-            return Result.success();
+            Log.d(TAG, "startRemoteWork: finished!");
+            br.close();
+            return completer.set(Result.success());
         });
     }
 
@@ -136,90 +181,167 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
         return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE);
     }
 
-    private Runnable read = () -> {
-        Log.d(TAG, "startRemoteWork: starting reading thread...");
-        Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
-        MetricCalculator metricCalculatorUL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
-        MetricCalculator metricCalculatorDL = new MetricCalculator(METRIC_TYPE.THROUGHPUT);
 
-        iperf3Parser.addPropertyChangeListener(evt -> {
-            switch (evt.getPropertyName()) {
-                case "interval":
-                    Interval interval = (Interval) evt.getNewValue();
-                    Log.d(TAG, "Read Thread: interval: " + interval.toString());
-                    if(interval.getSum().getSender()){
+
+    private final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+
+            String line = null;
+            Log.d(TAG, "run: Starting read thread");
+                Log.d(TAG, "run: Reading file");
+                try {
+                    line = br.readLine();
+                    Log.d(TAG, "run: got line!");
+                } catch (IOException e){
+                    Log.e(TAG, "run: File not found!");
+                    Log.d(TAG, "run: "+e);
+                    return;
+                }
+                if(line == null){
+                    Log.d(TAG, "run: line is null");
+                    return;
+                }
+                Log.d(TAG, "run: Reading line");
+
+                JSONObject obj = null;
+                try {
+                    obj = new JSONObject(line);
+                } catch (JSONException e) {
+                    Log.d(TAG, "run: parsing line as JSONObject failed");
+                    return;
+                }
+                String event = null;
+                try {
+                    event = obj.getString("event");
+                    Log.d(TAG, "run: got event: "+event);
+                } catch (JSONException e) {
+                    Log.d(TAG, "run: parsing event failed");
+                    return;
+                }
+                switch (event) {
+                    case "start":
+                        Log.d(TAG, "parse: Start");
+                        Start start = new Start();
+                        JSONObject startData = null;
+                        try {
+                            startData = obj.getJSONObject("data");
+                        } catch (JSONException e) {
+                            Log.e(TAG, "parse: getting start failed");
+                            Log.d(TAG, "parse: "+e);
+
+                        }
+                        try {
+                            start.parseStart(startData);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "parse: parsing start failed");
+                            Log.d(TAG, "parse: "+e);
+
+                        }
+                        setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
+                        iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), start.toString());
+
+
+                        break;
+                    case "interval":
+                        Log.d(TAG, "parse: Interval");
+                        Interval interval = new Interval();
+                        JSONObject intervalData = null;
+                        try {
+                            intervalData = obj.getJSONObject("data");
+                        } catch (JSONException e) {
+                            Log.e(TAG, "run: getting interval failed");
+                            Log.d(TAG, "parse: "+e);
+
+                        }
+                        try {
+                            interval.parse(intervalData);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "run: parsing interval failed");
+                            Log.d(TAG, "parse: "+e);
+
+                        }
+
+
+                        Log.d(TAG, "Read Thread: interval: " + interval.toString());
+                        if(interval.getSum().getSender()){
+                            metricCalculatorUL.update(interval.getSum().getBits_per_second());
+                        } else {
+                            metricCalculatorDL.update(interval.getSum().getBits_per_second());
+                        }
+
+                        String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
                         metricCalculatorUL.update(interval.getSum().getBits_per_second());
-                    } else {
-                        metricCalculatorDL.update(interval.getSum().getBits_per_second());
-                    }
-
-                    String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
-                    metricCalculatorUL.update(interval.getSum().getBits_per_second());
-                    notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
-                    notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
-                    notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
-                    notificationLayout.setViewVisibility(R.id.notification_throughput, VISIBLE);
-                    notificationLayout.setViewVisibility(R.id.notification_direction, VISIBLE);
+                        notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
+                        notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
+                        notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
+                        notificationLayout.setViewVisibility(R.id.notification_throughput, VISIBLE);
+                        notificationLayout.setViewVisibility(R.id.notification_direction, VISIBLE);
 
 
-                    if (interval.getSumBidirReverse() != null) {
-                        notificationLayout.setViewVisibility(R.id.notification_bidir_throughput, VISIBLE);
-                        notificationLayout.setViewVisibility(R.id.notification_bidir_direction, VISIBLE);
-                        notificationLayout.setTextViewText(R.id.notification_bidir_throughput, String.format("Throughput: %d Mbit/s", Math.round(interval.getSumBidirReverse().getBits_per_second() / 1e6)));
-                        notificationLayout.setTextViewText(R.id.notification_bidir_direction, String.format("Direction: %s", interval.getSumBidirReverse().getSumType()));
-                        metricCalculatorDL.update(interval.getSumBidirReverse().getBits_per_second());
-                    }
-                    metricCalculatorDL.calcAll();
-                    metricCalculatorUL.calcAll();
-                    iperf3RunResultDao.updateMetricDL(iperf3Input.getTestUUID(), metricCalculatorDL);
-                    iperf3RunResultDao.updateMetricUL(iperf3Input.getTestUUID(), metricCalculatorUL);
+                        if (interval.getSumBidirReverse() != null) {
+                            notificationLayout.setViewVisibility(R.id.notification_bidir_throughput, VISIBLE);
+                            notificationLayout.setViewVisibility(R.id.notification_bidir_direction, VISIBLE);
+                            notificationLayout.setTextViewText(R.id.notification_bidir_throughput, String.format("Throughput: %d Mbit/s", Math.round(interval.getSumBidirReverse().getBits_per_second() / 1e6)));
+                            notificationLayout.setTextViewText(R.id.notification_bidir_direction, String.format("Direction: %s", interval.getSumBidirReverse().getSumType()));
+                            metricCalculatorDL.update(interval.getSumBidirReverse().getBits_per_second());
+                        }
+                        metricCalculatorDL.calcAll();
+                        metricCalculatorUL.calcAll();
+                        iperf3RunResultDao.updateMetricDL(iperf3Input.getTestUUID(), metricCalculatorDL);
+                        iperf3RunResultDao.updateMetricUL(iperf3Input.getTestUUID(), metricCalculatorUL);
 
-                    setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
-                    setForegroundAsync(createForegroundInfo(notificationLayout));
+                        setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
+                        setForegroundAsync(createForegroundInfo(notificationLayout));
 
-                    Intervals _intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
-                    if(_intervals == null){
-                        _intervals = new Intervals();
-                    }
-                    _intervals.addInterval(interval);
-                    iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
-                    break;
-                case "end":
-                    Log.d(TAG, "Read Thread: end: " + evt.getNewValue().toString());
-                    setProgressAsync(new Data.Builder().putString("error", evt.getNewValue().toString()).build());
-                    iperf3RunResultDao.updateEnd(iperf3Input.getTestUUID(), evt.getNewValue().toString());
-                    iperf3Parser.close();
-                    break;
-                case "error":
-                    Log.d(TAG, "Read Thread: error: " + evt.getNewValue());
-                    setProgressAsync(new Data.Builder().putString("error", evt.getNewValue().toString()).build());
+                        Intervals _intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
+                        if(_intervals == null){
+                            _intervals = new Intervals();
+                        }
+                        _intervals.addInterval(interval);
+                        iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
 
-                    de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error error = (de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error) evt.getNewValue();
-                    iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), 1);
-                    iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
-                    iperf3Parser.close();
-                    break;
-                case "start":
-                    Log.d(TAG, "Read Thread: start: " + evt.getNewValue());
-                    Start start = (Start) evt.getNewValue();
-                    setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
-                    iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), evt.getNewValue().toString());
-                    break;
-                default:
-                    Log.d(TAG, "Read Thread: unknown property: " + evt.getPropertyName());
-                    iperf3Parser.close();
-                    break;
-            }
-        });
-        iperf3Parser.parse();
-        try {
-            iperf3Parser.getRunnable().wait(iperf3Input.getParameter().getTime()*1000);
 
-        } catch (Exception e) {
-            Log.d(TAG, "failed to wait!");
-            Log.d(TAG, "startRemoteWork: "+e);
+                        break;
+                    case "end":
+                        Log.d(TAG, "parse: End");
+                        //todo
+                        //End end = new End();
+                        //JSONObject endData = obj.getJSONObject("data");
+                        //end.parseEnd(endData);
+                        //support.firePropertyChange("interval", null, end);
+
+                        break;
+                    case "error":
+                        Log.d(TAG, "parse: Error");
+                        de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error error = new Error();
+                        String errorString = null;
+                        try {
+                            errorString = obj.getString("data");
+                        } catch (JSONException e) {
+                            Log.e(TAG, "run: getting error failed!");
+                            Log.d(TAG, "parse: "+e);
+                            return;
+                        }
+                        try {
+                            error.parse(errorString);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "run: parsing error failed!");
+                            Log.d(TAG, "parse: "+e);
+                            return;
+                        }
+
+                        setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
+
+                        iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), 1);
+                        iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
+                        break;
+                    default:
+                        Log.d(TAG, "parse: Unknown event");
+                        break;
+                }
+
         }
-        Log.d(TAG, "Read Thread: finished");
     };
 
 }

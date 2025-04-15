@@ -1,4 +1,4 @@
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor;
 
 import androidx.work.multiprocess.RemoteWorkerService;
 

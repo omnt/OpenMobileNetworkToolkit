@@ -15,6 +15,8 @@ import java.util.Arrays;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerOne;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerOne;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3MonitorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
@@ -43,19 +45,19 @@ public class Iperf3Executor {
         this.remoteWorkManager = RemoteWorkManager.getInstance(this.context);
         this.workManager = WorkManager.getInstance(this.context);
         OneTimeWorkRequest iperf3ExecutorWorker = new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
-                .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName()).build())
+                .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName(), Iperf3ServiceWorkerOne.class.getName()).build())
                 .addTag(iperf3Input.getTestUUID())
                 .build();
         OneTimeWorkRequest iperf3MonitorWorker = new OneTimeWorkRequest.Builder(Iperf3MonitorWorker.class)
-                .setInputData(iperf3Input.getInputAsDataBuilder(1, context.getPackageName()).build())
+                .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName(), Iperf3MonitorServiceWorkerOne.class.getName()).build())
                 .addTag(iperf3Input.getTestUUID())
                 .build();
         OneTimeWorkRequest iPerf3ToLineProtocolWorker = new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
-                .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName()).build())
+                .setInputData(iperf3Input.getInputAsDataBuilder(0).build())
                 .addTag(iperf3Input.getTestUUID())
                 .build();
         OneTimeWorkRequest influxDB2xUploadWorker = new OneTimeWorkRequest.Builder(InfluxDB2xUploadWorker.class)
-                .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName()).build())
+                .setInputData(iperf3Input.getInputAsDataBuilder(0).build())
                 .addTag(iperf3Input.getTestUUID())
                 .build();
 

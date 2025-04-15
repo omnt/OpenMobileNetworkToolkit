@@ -176,8 +176,9 @@ public class Iperf3Fragment extends Fragment {
 
                             for (WorkInfo workInfo : result) {
                                 if (workInfo.getTags().contains(Iperf3MonitorWorker.class.getCanonicalName())) {
-                                    Log.d(TAG, "onSuccess" + workInfo.getState());
-                                    Log.d(TAG, "onSuccess: " + workInfo.getState().isFinished());
+                                    Log.d(TAG, "onSuccess workInfo State: " + workInfo.getState());
+                                    Log.d(TAG, "onSuccess workInfo isFinished: " + workInfo.getState().isFinished());
+                                    Log.d(TAG, "onSuccess: workInfoTags: "+ workInfo.getTags());
 
                                     switch (workInfo.getState()) {
                                         case SUCCEEDED:

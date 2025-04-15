@@ -88,7 +88,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
         Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
-        iperf3Parser.parse();
+        //iperf3Parser.parse();
 
 
         long timestamp = Integer.toUnsignedLong( iperf3Parser.getStart().getTimestamp().getTimesecs())*1000;
