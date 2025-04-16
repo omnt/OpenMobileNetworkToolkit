@@ -31,6 +31,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/Parameter"
                 android:gravity="center"
+                android:textColor="@color/design_default_color_on_primary"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:padding="16dp" />
             <com.google.android.flexbox.FlexboxLayout

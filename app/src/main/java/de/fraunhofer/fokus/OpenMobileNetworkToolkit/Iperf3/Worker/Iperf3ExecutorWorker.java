@@ -104,8 +104,6 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
         iperf3RunResultDao = db.iperf3RunResultDao();
 
         notificationBuilder = new NotificationCompat.Builder(context, channelId);
-        iperf3RunResult = new Iperf3RunResult(iperf3Input.getTestUUID(), -1, false, iperf3Input, new java.sql.Timestamp(System.currentTimeMillis()));
-        iperf3RunResultDao.insert(iperf3RunResult);
 
     }
 
@@ -119,10 +117,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             Log.d(TAG, "startRemoteWork: tags: "+this.getTags());
             File logFile = new File(iperf3Input.getParameter().getLogfile());
             File rawPath = new File(Iperf3Parameter.rawDirPath);
-            if(logFile.exists() && !logFile.isDirectory()) {
-                //weird hack otherwise the worker gets enqueued two times
-                return completer.set(Result.success(new Data.Builder().putString("testUUID", iperf3Input.getTestUUID()).build()));
-            }
+
             if(!rawPath.exists()) {
                 rawPath.mkdirs();
             }
@@ -145,28 +140,23 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
             int result = -1;
 
 
-            result= iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
+            result = iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
             Log.d(TAG, "JNI Thread: " + result);
 
 
 
             Log.d(TAG, "startRemoteWork: schedule threads");
-            long runTime = 10;
-            if(iperf3Input.getParameter().getTime() != 0) runTime = iperf3Input.getParameter().getTime();
-            runTime += 10;
-            Log.d(TAG, "startRemoteWork: timeout: "+runTime);
 
-            Log.d(TAG, "startRemoteWork: awating threads");
             iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), result);
-            Log.d(TAG, "startRemoteWork: threads awaited");
             Data.Builder output = new Data.Builder()
                     .putInt("result", result)
                     .putString("testUUID", iperf3Input.getTestUUID());
+
+
             if (result == 0) {
                 return completer.set(Result.success(output.build()));
             }
-            return completer.set(Result.failure(output
-                    .build()));
+            return completer.set(Result.failure(output.build()));
         });
 
 

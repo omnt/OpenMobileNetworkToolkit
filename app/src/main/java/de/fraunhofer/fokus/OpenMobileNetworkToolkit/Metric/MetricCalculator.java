@@ -24,22 +24,18 @@ public class MetricCalculator {
     }
 
     public double getMedian() {
-        calcMedian();
         return median;
     }
 
     public double getMean() {
-        calcMean();
         return mean;
     }
 
     public double getMax() {
-        calcMax();
         return max;
     }
 
     public double getMin() {
-        calcMin();
         return min;
     }
 
@@ -48,6 +44,9 @@ public class MetricCalculator {
     }
 
     public void calcAll(){
+        if(meanList.isEmpty()){
+            return;
+        }
         calcMin();
         calcMax();
         calcMedian();

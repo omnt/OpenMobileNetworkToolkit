@@ -23,6 +23,8 @@
             android:id="@+id/text_parameter"
             android:text="@string/Parameter"
             android:textAppearance="?attr/textAppearanceCaption"
+
+            android:textColor="@color/design_default_color_on_primary"
             android:padding="10dp"/>
     </com.google.android.material.card.MaterialCardView>
 

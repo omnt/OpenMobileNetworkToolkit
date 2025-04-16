@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.ListenableWorker;
 import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
 import androidx.work.multiprocess.RemoteWorkManager;
@@ -40,6 +41,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.json.JSONException;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +52,7 @@ import java.util.function.Consumer;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Executor;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3RecyclerViewAdapter;
@@ -166,7 +170,7 @@ public class Iperf3Fragment extends Fragment {
             RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
 
             WorkQuery workQuery = WorkQuery.Builder
-                    .fromTags(Arrays.asList(uuid))
+                    .fromTags(Arrays.asList(iperf3Input.getTestUUID()))
                     .build();
             ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
             Futures.addCallback(
@@ -175,18 +179,36 @@ public class Iperf3Fragment extends Fragment {
                         public void onSuccess(List<WorkInfo> result) {
 
                             for (WorkInfo workInfo : result) {
-                                if (workInfo.getTags().contains(Iperf3MonitorWorker.class.getCanonicalName())) {
-                                    Log.d(TAG, "onSuccess workInfo State: " + workInfo.getState());
-                                    Log.d(TAG, "onSuccess workInfo isFinished: " + workInfo.getState().isFinished());
-                                    Log.d(TAG, "onSuccess: workInfoTags: "+ workInfo.getTags());
+                                Log.d(TAG, "onSuccess: workInfoTags: "+ workInfo.getTags());
+                                Log.d(TAG, "onSuccess workInfo State: " + workInfo.getState());
+                                Log.d(TAG, "onSuccess workInfo isFinished: " + workInfo.getState().isFinished());
 
+                                if (workInfo.getTags().contains(Iperf3MonitorWorker.class.getCanonicalName())) {
+                                    Log.d(TAG, "onSuccess: "+Iperf3MonitorWorker.class.getName()+" in state"+workInfo.getState());
                                     switch (workInfo.getState()) {
                                         case SUCCEEDED:
                                             adapter.notifyDataSetChanged();
                                             break;
                                         case CANCELLED:
                                         case FAILED:
-                                            iperf3RunResultDao.updateResult(uuid, 1);
+                                            adapter.notifyDataSetChanged();
+                                            break;
+                                        case BLOCKED:
+                                        case ENQUEUED:
+                                        case RUNNING:
+                                            adapter.notifyDataSetChanged();
+                                            break;
+                                    }
+                                } else if(workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())){
+                                    Log.d(TAG, "onSuccess: "+Iperf3ExecutorWorker.class.getName()+" in state"+workInfo.getState());
+                                    switch (workInfo.getState()) {
+                                        case SUCCEEDED:
+                                            adapter.notifyDataSetChanged();
+                                            break;
+                                        case CANCELLED:
+                                        case FAILED:
+                                            iperf3RunResultDao.updateResult(uuid, -1);
+                                            remoteWorkManager.cancelAllWorkByTag(iperf3Input.getTestUUID());
                                             adapter.notifyDataSetChanged();
                                             break;
                                         case BLOCKED:
@@ -231,6 +253,7 @@ public class Iperf3Fragment extends Fragment {
         bottomSheetBehavior.setPeekHeight(20);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         bottomSheetBehavior.setHideable(false);
+
     }
     private void setupDatabase(){
         iperf3ResultsDataBase = Iperf3ResultsDataBase.getDatabase(ct);
@@ -275,12 +298,33 @@ public class Iperf3Fragment extends Fragment {
                 iperf3Input.getParameter().setTestUUID(uuid);
                 iperf3Input.getParameter().updatePaths();
                 iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
+                File logFile = new File(iperf3Input.getParameter().getLogfile());
+                File rawPath = new File(Iperf3Parameter.rawDirPath);
+
+                if(!rawPath.exists()) {
+                    rawPath.mkdirs();
+                }
+                try {
+                    logFile.createNewFile();
+                } catch (Exception e) {
+                    Log.d(TAG, "startRemoteWork: "+e);
+                }
+
+
+
                 Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
                 iperf3Executor.execute();
                 Log.d(TAG, "onClick: "+iperf3Input.getParameter().getTime());
+
+
+                Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3Input.getTestUUID(), -100, false, iperf3Input, new java.sql.Timestamp(System.currentTimeMillis()));
+                iperf3RunResultDao.insert(iperf3RunResult);
+
                 handler.post(runnable); // start the first execution
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                 adapter.notifyDataSetChanged();
+
             }
         });
         //fab = view.findViewById(R.id.iperf3_influx_upload_button);

@@ -27,6 +27,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -145,29 +146,20 @@ public class Iperf3RecyclerViewAdapter
         Iperf3RunResult test = getItemByPosition(position);
         holder.metricViewDL.setVisibility(GONE);
         holder.metricViewUL.setVisibility(GONE);
-        holder.itemView.setTag(iperf3RunResultDao.getIDs().get(position));
-        if (selectedRuns.containsKey(test.uid)) {
-            holder.itemView.setBackgroundColor(
-                ContextCompat.getColor(context, R.color.forestgreen));
-        } else {
-            if(isNightMode(context))
-                holder.itemView.setBackgroundColor(
-                    ContextCompat.getColor(context, R.color.cardview_dark_background));
-            else
-                holder.itemView.setBackgroundColor(
-                    ContextCompat.getColor(context, R.color.ic_launcher_background));
 
-        }
+        holder.metricViewUL.setMetricCalculator(test.metricUL == null ? new MetricCalculator(METRIC_TYPE.THROUGHPUT) : test.metricUL);
+        holder.metricViewDL.setMetricCalculator(test.metricDL == null ? new MetricCalculator(METRIC_TYPE.THROUGHPUT) : test.metricDL);
+
+        holder.itemView.setTag(iperf3RunResultDao.getIDs().get(position));
 
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectedUUID = test.uid;
-                notifyDataSetChanged();
+        //        selectedUUID = test.uid;
+        //        notifyDataSetChanged();
             }
         });
-
         if(Objects.equals(selectedUUID, test.uid)){
             holder.itemView.setBackgroundColor(Color.parseColor("#567845"));
         }
@@ -197,22 +189,26 @@ public class Iperf3RecyclerViewAdapter
         ((TextView) holder.protocol.findViewById(R.id.text_parameter)).setText(protocol);
         ((TextView) holder.direction.findViewById(R.id.text_parameter)).setText(direction);
         holder.linearProgressIndicator.setIndicatorColor(Color.CYAN);
+        switch (test.result){
+            case 0:
+                holder.linearProgressIndicator.setIndicatorColor(Color.GREEN);
+                holder.linearProgressIndicator.setProgress(1);
+                holder.linearProgressIndicator.setMax(1);
+                break;
+            case -1:
+                holder.linearProgressIndicator.setMax(1);
+                holder.linearProgressIndicator.setProgress(1);
+                holder.linearProgressIndicator.setIndicatorColor(Color.RED);
+                break;
+            case -100:
+                holder.linearProgressIndicator.setMax(test.input.getParameter().getTime()-1);
+                ArrayList<Interval> intervals = new ArrayList<Interval>();
+                if(test.intervals != null)
+                    intervals = test.intervals.getIntervalArrayList();
+                int progress = intervals.size();
+                holder.linearProgressIndicator.setProgress(progress);
+                break;
 
-        if(test.result == 0){
-            holder.linearProgressIndicator.setIndicatorColor(Color.GREEN);
-            holder.linearProgressIndicator.setMax(1);
-            holder.linearProgressIndicator.setProgress(1);
-        } else if(test.result == -100) {
-            holder.linearProgressIndicator.setMax(test.input.getParameter().getTime()-1);
-            ArrayList<Interval> intervals = new ArrayList<Interval>();
-            if(test.intervals != null)
-                intervals = test.intervals.getIntervalArrayList();
-            int progress = intervals.size();
-            holder.linearProgressIndicator.setProgress(progress);
-        } else {
-            holder.linearProgressIndicator.setMax(1);
-            holder.linearProgressIndicator.setProgress(1);
-            holder.linearProgressIndicator.setIndicatorColor(Color.RED);
         }
 
         if(!dstPort.isEmpty() || dstPort.equals("")){
@@ -251,8 +247,6 @@ public class Iperf3RecyclerViewAdapter
             holder.srcPort.setVisibility(VISIBLE);
         }
 
-        holder.metricViewUL.setMetricCalculator(test.metricUL);
-        holder.metricViewDL.setMetricCalculator(test.metricDL);
 
         switch (test.input.getParameter().getDirection()){
             case BIDIR:
@@ -283,7 +277,7 @@ public class Iperf3RecyclerViewAdapter
                 break;
         }
         holder.errorView.setVisibility(GONE);
-        if(test.result == 1) {
+        if(test.result == -1) {
             holder.metricViewUL.setVisibility(GONE);
             holder.metricViewDL.setVisibility(GONE);
             holder.errorView.setVisibility(VISIBLE);
@@ -327,6 +321,8 @@ public class Iperf3RecyclerViewAdapter
         private MetricView metricViewUL;
         private TextView errorView;
         private LinearLayout metricLL;
+        private MaterialButton cancel;
+        private MaterialButton rerun;
         private void setupParameterFlexBox(){
             parameterFlexBoxLayout = itemView.findViewById(R.id.parameter_iperf3_fl);
 
@@ -377,6 +373,7 @@ public class Iperf3RecyclerViewAdapter
         public ViewHolder(View itemView) {
             super(itemView);
             li = LayoutInflater.from(context);
+            itemView.setBackgroundColor(context.getColor(R.color.material_dynamic_tertiary30));
             setupLinearProgressIndicator();
             setupParameterFlexBox();
             setupMetricLinearLayout();

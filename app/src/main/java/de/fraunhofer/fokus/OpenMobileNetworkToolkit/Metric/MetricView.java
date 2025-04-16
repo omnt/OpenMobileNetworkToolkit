@@ -1,5 +1,8 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric;
 
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
+
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -9,10 +12,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
-public class MetricView extends LinearLayout {
+public class MetricView extends CardView {
 
     private LinearLayout mean;
     private LinearLayout median;
@@ -42,17 +46,20 @@ public class MetricView extends LinearLayout {
     }
 
     private void init(Context context, @Nullable AttributeSet attrs) {
-        setOrientation(VERTICAL);
         // You may want to customize view via XML attributes if needed.
     }
 
     public void setup(String title) {
 
         removeAllViews();
+        LinearLayout cardView = new LinearLayout(getContext());
+        cardView.setOrientation(VERTICAL);
 
         directionName = new TextView(getContext());
         directionName.setText(title);
-        addView(directionName);
+        directionName.setTextAppearance(R.style.Base_TextAppearance_AppCompat_Light_Widget_PopupMenu_Large);
+        directionName.setTextColor(getContext().getColor(R.color.material_dynamic_secondary100));
+        cardView.addView(directionName);
 
         LinearLayout cardViewResult = new LinearLayout(getContext());
         cardViewResult.setOrientation(HORIZONTAL);
@@ -61,11 +68,11 @@ public class MetricView extends LinearLayout {
                 LayoutParams.WRAP_CONTENT
         ));
 
-        mean = createTile("mean");
-        median = createTile("median");
-        max = createTile("max");
-        min = createTile("min");
-        last = createTile("last");
+        mean = createTile("mean", 0, 10);
+        median = createTile("median", 10, 10);
+        max = createTile("max", 10, 10);
+        min = createTile("min", 10, 10);
+        last = createTile("last", 10, 0);
 
         cardViewResult.addView(mean);
         cardViewResult.addView(median);
@@ -73,37 +80,57 @@ public class MetricView extends LinearLayout {
         cardViewResult.addView(min);
         cardViewResult.addView(last);
 
-        addView(cardViewResult);
+        cardView.addView(cardViewResult);
+        addView(cardView);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
+        );
+        cardView.setPadding(20, 20, 20 ,20);
+
+
+        GradientDrawable gd = new GradientDrawable();
+        gd.setColor(getContext().getColor( R.color.material_dynamic_secondary30));
+        gd.setCornerRadius(10);
+//        gd.setStroke(2, 0xFF000000);
+        this.setBackground(gd);
+
+        params.setMargins(20 , 10, 20, 10);
+        this.setLayoutParams(params);
     }
 
-    private LinearLayout createTile(String key) {
+    private LinearLayout createTile(String key, int marginLeft, int marginRight) {
         Context ct = getContext();
         LinearLayout ll = new LinearLayout(ct);
         ll.setOrientation(VERTICAL);
         ll.setGravity(Gravity.CENTER);
 
         GradientDrawable gd = new GradientDrawable();
-        gd.setColor(ct.getColor(R.color.cardview_dark_background));
+        gd.setColor(ct.getColor(R.color.material_dynamic_primary100));
         gd.setCornerRadius(10);
         gd.setStroke(2, 0xFF000000);
         ll.setBackground(gd);
 
         LinearLayout.LayoutParams tileParams = new LinearLayout.LayoutParams(200, 150);
         tileParams.weight = 1;
-        tileParams.setMargins(10, 10, 10, 10);
+        tileParams.setMargins(marginLeft, 10, marginRight, 10);
         ll.setLayoutParams(tileParams);
 
         TextView keyView = new TextView(ct);
         keyView.setGravity(Gravity.CENTER);
-        keyView.setTypeface(null, Typeface.BOLD);
         keyView.setText(key);
         LinearLayout.LayoutParams keyViewParams = new LinearLayout.LayoutParams(200, 50);
         keyViewParams.setMargins(0, 0, 0, 10);
         keyView.setLayoutParams(keyViewParams);
-
+        keyView.setTypeface(null, Typeface.BOLD);
+        keyView.setTextAppearance(R.style.Base_TextAppearance_AppCompat_Medium);
+        keyView.setTextColor(ct.getColor(R.color.material_dynamic_primary10));
         TextView valueView = new TextView(ct);
         valueView.setGravity(Gravity.CENTER);
         valueView.setLayoutParams(new LinearLayout.LayoutParams(200, 50));
+        valueView.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
+        valueView.setTextColor(ct.getColor(R.color.material_dynamic_primary10));
+
 
         ll.addView(keyView);
         ll.addView(valueView);
@@ -118,6 +145,7 @@ public class MetricView extends LinearLayout {
     }
 
     public void update(){
+        metricCalculator.calcAll();
         ((TextView) mean.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMean()));
         ((TextView) median.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMedian()));
         ((TextView) max.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMax()));

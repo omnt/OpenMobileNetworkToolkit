@@ -5,7 +5,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UDP_STREAM extends Stream {
-    public int packets;
     public UDP_STREAM(){
         super();
     }

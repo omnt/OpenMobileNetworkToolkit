@@ -129,19 +129,24 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     private Runnable fileObserverRunneable = new Runnable() {
         @Override
         public void run() {
-            try {
-                br = new BufferedReader(new FileReader(file));
-            } catch (FileNotFoundException ex) {
-                Log.d(TAG, "Iperf3MonitorWorker: file not found!"+ex);
-            }
+
             fileObserver = new FileObserver(file) {
                 @Override
                 public void onEvent(int event, @NonNull String path) {
                     Log.d(TAG, "onEvent: "+event+" "+path);
                     if(event == FileObserver.MODIFY){
                         Log.d(TAG, "onEvent: file modified");
-
                         runnable.run();
+                    }
+                    if(event == FileObserver.CLOSE_WRITE){
+                        fileObserver.stopWatching();
+                        isStopped = true;
+                        try {
+                            br.close();
+                        } catch (IOException e) {
+                            Log.d(TAG, "onEvent: trying to close br failed!");
+                        }
+                        Log.d(TAG, "onEvent: file closed");
                     }
                 }
             };
@@ -149,19 +154,21 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
             fileObserver.startWatching();
         }
     };
+
+    private void block(){
+        while (!isStopped && !isStopped()){
+
+        }
+    }
     @NonNull
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
             Log.d(TAG, "doWork: starting "+this.getClass().getCanonicalName());
-            iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -100);
-            Thread.sleep((long) (iperf3Input.getParameter().getInterval()*1000));
             fileObserverRunneable.run();
-            Thread.sleep(iperf3Input.getParameter().getTime()*1000);
-
+            block();
             Log.d(TAG, "startRemoteWork: finished!");
-            br.close();
-            return completer.set(Result.success());
+           return completer.set(Result.success());
         });
     }
 
@@ -186,7 +193,16 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
-
+            if(br == null){
+                try {
+                    br = new BufferedReader(new FileReader(file));
+                    br.ready();
+                } catch (IOException ex) {
+                    Log.d(TAG, "Iperf3MonitorWorker: file not found!"+ex);
+                    br = null;
+                    return;
+                }
+            }
             String line = null;
             Log.d(TAG, "run: Starting read thread");
                 Log.d(TAG, "run: Reading file");
@@ -316,6 +332,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                         Log.d(TAG, "parse: Error");
                         de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error error = new Error();
                         String errorString = null;
+                        iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -1);
                         try {
                             errorString = obj.getString("data");
                         } catch (JSONException e) {
@@ -333,7 +350,6 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
 
                         setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
 
-                        iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), 1);
                         iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
                         break;
                     default:
