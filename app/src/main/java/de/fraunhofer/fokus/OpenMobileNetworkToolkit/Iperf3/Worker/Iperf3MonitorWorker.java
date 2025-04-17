@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -137,19 +138,11 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                     if(event == FileObserver.MODIFY){
                         Log.d(TAG, "onEvent: file modified");
                         runnable.run();
-                    }
-                    if(event == FileObserver.CLOSE_WRITE){
-                        fileObserver.stopWatching();
-                        isStopped = true;
-                        try {
-                            br.close();
-                        } catch (IOException e) {
-                            Log.d(TAG, "onEvent: trying to close br failed!");
-                        }
-                        Log.d(TAG, "onEvent: file closed");
+                        stopWatching();
                     }
                 }
             };
+            Log.d(TAG, "run: file "+file.getAbsolutePath()+" exists: "+file.exists());
             Log.d(TAG, "startRemoteWork: starting to watch with fileObserver!");
             fileObserver.startWatching();
         }
@@ -164,10 +157,174 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
+            try {
+                br = new BufferedReader(new FileReader(file));
+                br.ready();
+            } catch (IOException ex) {
+                Log.d(TAG, "Iperf3MonitorWorker: file not found!" + ex);
+            }
             Log.d(TAG, "doWork: starting "+this.getClass().getCanonicalName());
-            fileObserverRunneable.run();
-            block();
-            Log.d(TAG, "startRemoteWork: finished!");
+            Timestamp starTtime = new Timestamp(iperf3RunResultDao.getTimestampFromUid(iperf3Input.getTestUUID()));
+            while(true){
+                Timestamp newTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
+                long deltaInMillis = Math.abs(newTimestamp.getTime() - starTtime.getTime());
+                if(deltaInMillis > iperf3Input.getParameter().getTime()*1000){
+                    break;
+                }
+                String line = null;
+                try {
+                    while ((line = br.readLine()) != null) {
+                        JSONObject obj = null;
+                        try {
+                            obj = new JSONObject(line);
+                        } catch (JSONException e) {
+                            Log.d(TAG, "run: parsing line as JSONObject failed");
+                            break;
+                        }
+                        String event = null;
+                        try {
+                            event = obj.getString("event");
+                            Log.d(TAG, "run: got event: " + event);
+                        } catch (JSONException e) {
+                            Log.d(TAG, "run: parsing event failed");
+                            break;
+                        }
+                        switch (event) {
+                            case "start":
+                                Log.d(TAG, "parse: Start");
+                                Start start = new Start();
+                                JSONObject startData = null;
+                                try {
+                                    startData = obj.getJSONObject("data");
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "parse: getting start failed");
+                                    Log.d(TAG, "parse: " + e);
+
+                                }
+                                try {
+                                    start.parseStart(startData);
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "parse: parsing start failed");
+                                    Log.d(TAG, "parse: " + e);
+
+                                }
+                                setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
+                                iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), start.toString());
+
+
+                                break;
+                            case "interval":
+                                Log.d(TAG, "parse: Interval");
+                                Interval interval = new Interval();
+                                JSONObject intervalData = null;
+                                try {
+                                    intervalData = obj.getJSONObject("data");
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "run: getting interval failed");
+                                    Log.d(TAG, "parse: " + e);
+
+                                }
+                                try {
+                                    interval.parse(intervalData);
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "run: parsing interval failed");
+                                    Log.d(TAG, "parse: " + e);
+
+                                }
+
+
+                                Log.d(TAG, "Read Thread: interval: " + interval.toString());
+                                if (interval.getSum().getSender()) {
+                                    metricCalculatorUL.update(interval.getSum().getBits_per_second());
+                                } else {
+                                    metricCalculatorDL.update(interval.getSum().getBits_per_second());
+                                }
+
+                                String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
+                                metricCalculatorUL.update(interval.getSum().getBits_per_second());
+                                notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
+                                notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
+                                notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
+                                notificationLayout.setViewVisibility(R.id.notification_throughput, VISIBLE);
+                                notificationLayout.setViewVisibility(R.id.notification_direction, VISIBLE);
+
+
+                                if (interval.getSumBidirReverse() != null) {
+                                    notificationLayout.setViewVisibility(R.id.notification_bidir_throughput, VISIBLE);
+                                    notificationLayout.setViewVisibility(R.id.notification_bidir_direction, VISIBLE);
+                                    notificationLayout.setTextViewText(R.id.notification_bidir_throughput, String.format("Throughput: %d Mbit/s", Math.round(interval.getSumBidirReverse().getBits_per_second() / 1e6)));
+                                    notificationLayout.setTextViewText(R.id.notification_bidir_direction, String.format("Direction: %s", interval.getSumBidirReverse().getSumType()));
+                                    metricCalculatorDL.update(interval.getSumBidirReverse().getBits_per_second());
+                                }
+                                metricCalculatorDL.calcAll();
+                                metricCalculatorUL.calcAll();
+                                iperf3RunResultDao.updateMetricDL(iperf3Input.getTestUUID(), metricCalculatorDL);
+                                iperf3RunResultDao.updateMetricUL(iperf3Input.getTestUUID(), metricCalculatorUL);
+
+                                setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
+                                setForegroundAsync(createForegroundInfo(notificationLayout));
+
+                                Intervals _intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
+                                if (_intervals == null) {
+                                    _intervals = new Intervals();
+                                }
+                                _intervals.addInterval(interval);
+                                iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
+
+
+                                break;
+                            case "end":
+                                Log.d(TAG, "parse: End");
+                                //todo
+                                //End end = new End();
+                                //JSONObject endData = obj.getJSONObject("data");
+                                //end.parseEnd(endData);
+                                //support.firePropertyChange("interval", null, end);
+
+                                break;
+                            case "error":
+                                Log.d(TAG, "parse: Error");
+                                de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error error = new Error();
+                                String errorString = null;
+                                iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -1);
+                                try {
+                                    errorString = obj.getString("data");
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "run: getting error failed!");
+                                    Log.d(TAG, "parse: " + e);
+                                    break;
+                                }
+                                try {
+                                    error.parse(errorString);
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "run: parsing error failed!");
+                                    Log.d(TAG, "parse: " + e);
+                                    break;
+                                }
+
+                                setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
+
+                                iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
+                                break;
+                            default:
+                                Log.d(TAG, "parse: Unknown event");
+                                break;
+                        }
+                        Thread.sleep((long) (iperf3Input.getParameter().getInterval() * 1001));
+
+                    }
+                } catch (Exception e){
+                    Log.d(TAG, "run: error reading file: "+e);
+
+                }
+            }
+
+
+
+
+
+
+
            return completer.set(Result.success());
         });
     }
@@ -193,171 +350,17 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            if(br == null){
-                try {
-                    br = new BufferedReader(new FileReader(file));
-                    br.ready();
-                } catch (IOException ex) {
-                    Log.d(TAG, "Iperf3MonitorWorker: file not found!"+ex);
-                    br = null;
-                    return;
-                }
-            }
+
             String line = null;
             Log.d(TAG, "run: Starting read thread");
-                Log.d(TAG, "run: Reading file");
-                try {
-                    line = br.readLine();
-                    Log.d(TAG, "run: got line!");
-                } catch (IOException e){
-                    Log.e(TAG, "run: File not found!");
-                    Log.d(TAG, "run: "+e);
-                    return;
-                }
-                if(line == null){
-                    Log.d(TAG, "run: line is null");
-                    return;
-                }
-                Log.d(TAG, "run: Reading line");
+            try{
 
-                JSONObject obj = null;
-                try {
-                    obj = new JSONObject(line);
-                } catch (JSONException e) {
-                    Log.d(TAG, "run: parsing line as JSONObject failed");
-                    return;
-                }
-                String event = null;
-                try {
-                    event = obj.getString("event");
-                    Log.d(TAG, "run: got event: "+event);
-                } catch (JSONException e) {
-                    Log.d(TAG, "run: parsing event failed");
-                    return;
-                }
-                switch (event) {
-                    case "start":
-                        Log.d(TAG, "parse: Start");
-                        Start start = new Start();
-                        JSONObject startData = null;
-                        try {
-                            startData = obj.getJSONObject("data");
-                        } catch (JSONException e) {
-                            Log.e(TAG, "parse: getting start failed");
-                            Log.d(TAG, "parse: "+e);
+            }
+            catch (Exception e){
 
-                        }
-                        try {
-                            start.parseStart(startData);
-                        } catch (JSONException e) {
-                            Log.e(TAG, "parse: parsing start failed");
-                            Log.d(TAG, "parse: "+e);
-
-                        }
-                        setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
-                        iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), start.toString());
-
-
-                        break;
-                    case "interval":
-                        Log.d(TAG, "parse: Interval");
-                        Interval interval = new Interval();
-                        JSONObject intervalData = null;
-                        try {
-                            intervalData = obj.getJSONObject("data");
-                        } catch (JSONException e) {
-                            Log.e(TAG, "run: getting interval failed");
-                            Log.d(TAG, "parse: "+e);
-
-                        }
-                        try {
-                            interval.parse(intervalData);
-                        } catch (JSONException e) {
-                            Log.e(TAG, "run: parsing interval failed");
-                            Log.d(TAG, "parse: "+e);
-
-                        }
-
-
-                        Log.d(TAG, "Read Thread: interval: " + interval.toString());
-                        if(interval.getSum().getSender()){
-                            metricCalculatorUL.update(interval.getSum().getBits_per_second());
-                        } else {
-                            metricCalculatorDL.update(interval.getSum().getBits_per_second());
-                        }
-
-                        String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
-                        metricCalculatorUL.update(interval.getSum().getBits_per_second());
-                        notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
-                        notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
-                        notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
-                        notificationLayout.setViewVisibility(R.id.notification_throughput, VISIBLE);
-                        notificationLayout.setViewVisibility(R.id.notification_direction, VISIBLE);
-
-
-                        if (interval.getSumBidirReverse() != null) {
-                            notificationLayout.setViewVisibility(R.id.notification_bidir_throughput, VISIBLE);
-                            notificationLayout.setViewVisibility(R.id.notification_bidir_direction, VISIBLE);
-                            notificationLayout.setTextViewText(R.id.notification_bidir_throughput, String.format("Throughput: %d Mbit/s", Math.round(interval.getSumBidirReverse().getBits_per_second() / 1e6)));
-                            notificationLayout.setTextViewText(R.id.notification_bidir_direction, String.format("Direction: %s", interval.getSumBidirReverse().getSumType()));
-                            metricCalculatorDL.update(interval.getSumBidirReverse().getBits_per_second());
-                        }
-                        metricCalculatorDL.calcAll();
-                        metricCalculatorUL.calcAll();
-                        iperf3RunResultDao.updateMetricDL(iperf3Input.getTestUUID(), metricCalculatorDL);
-                        iperf3RunResultDao.updateMetricUL(iperf3Input.getTestUUID(), metricCalculatorUL);
-
-                        setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
-                        setForegroundAsync(createForegroundInfo(notificationLayout));
-
-                        Intervals _intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
-                        if(_intervals == null){
-                            _intervals = new Intervals();
-                        }
-                        _intervals.addInterval(interval);
-                        iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
-
-
-                        break;
-                    case "end":
-                        Log.d(TAG, "parse: End");
-                        //todo
-                        //End end = new End();
-                        //JSONObject endData = obj.getJSONObject("data");
-                        //end.parseEnd(endData);
-                        //support.firePropertyChange("interval", null, end);
-
-                        break;
-                    case "error":
-                        Log.d(TAG, "parse: Error");
-                        de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error error = new Error();
-                        String errorString = null;
-                        iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -1);
-                        try {
-                            errorString = obj.getString("data");
-                        } catch (JSONException e) {
-                            Log.e(TAG, "run: getting error failed!");
-                            Log.d(TAG, "parse: "+e);
-                            return;
-                        }
-                        try {
-                            error.parse(errorString);
-                        } catch (JSONException e) {
-                            Log.e(TAG, "run: parsing error failed!");
-                            Log.d(TAG, "parse: "+e);
-                            return;
-                        }
-
-                        setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
-
-                        iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
-                        break;
-                    default:
-                        Log.d(TAG, "parse: Unknown event");
-                        break;
-                }
-
+            }
         }
+
     };
 
 }

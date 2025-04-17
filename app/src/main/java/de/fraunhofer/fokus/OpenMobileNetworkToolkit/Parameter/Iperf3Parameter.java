@@ -1677,7 +1677,7 @@ public class Iperf3Parameter extends Parameter {
         }
         if (bitrate != null && !bitrate.trim().isEmpty()) {
             command.add("-b");
-            command.add(bitrate);
+            command.add(bitrate+"M");
         }
         if (pacingTimer != null && !pacingTimer.trim().isEmpty()) {
             command.add("--pacing-timer");

@@ -307,6 +307,7 @@ public class Iperf3Fragment extends Fragment {
                 }
                 try {
                     logFile.createNewFile();
+                    Log.d(TAG, "onClick: created File: "+logFile.toString());
                 } catch (Exception e) {
                     Log.d(TAG, "startRemoteWork: "+e);
                 }

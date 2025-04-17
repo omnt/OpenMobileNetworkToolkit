@@ -35,6 +35,9 @@ public interface Iperf3RunResultDao {
     @Query("SELECT * FROM iperf3_result_database WHERE uid = :comp_uid")
     Iperf3RunResult getRunResult(String comp_uid);
 
+    @Query("SELECT timestamp FROM iperf3_result_database WHERE uid = :comp_uid")
+    long getTimestampFromUid(String comp_uid);
+
     @Query("SELECT _intervals FROM iperf3_result_database WHERE uid = :comp_uid")
     @TypeConverters({Iperf3IntervalsConverter.class})
     Intervals getIntervals(String comp_uid);
