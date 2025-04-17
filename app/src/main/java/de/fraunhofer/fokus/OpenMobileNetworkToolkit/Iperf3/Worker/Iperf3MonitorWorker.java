@@ -241,8 +241,6 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                 }
                                 _intervals.addInterval(interval);
                                 iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
-
-
                                 break;
                             case "end":
                                 Log.d(TAG, "parse: End");
@@ -267,16 +265,16 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                 }
                                 try {
                                     error.parse(errorString);
+                                    Log.d(TAG, "startRemoteWork: got error!"+error);
+                                    setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
+                                    iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
                                 } catch (JSONException e) {
                                     Log.e(TAG, "run: parsing error failed!");
                                     Log.d(TAG, "parse: " + e);
                                     break;
                                 }
 
-                                setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
-
-                                iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
-                                break;
+                                return completer.set(Result.success());
                             default:
                                 Log.d(TAG, "parse: Unknown event");
                                 break;

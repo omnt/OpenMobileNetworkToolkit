@@ -14,6 +14,7 @@ import static android.view.View.VISIBLE;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -280,11 +281,13 @@ public class Iperf3RecyclerViewAdapter
         if(test.result == -1) {
             holder.metricViewUL.setVisibility(GONE);
             holder.metricViewDL.setVisibility(GONE);
-            holder.errorView.setVisibility(VISIBLE);
             String errorText = "Error!";
-            if(test.error != null)
+            test = iperf3RunResultDao.getRunResult(test.uid);
+            if(test.error != null){
                 errorText = test.error.getError();
+            }
             holder.errorView.setText(errorText);
+            holder.errorView.setVisibility(VISIBLE);
         }
 
     }
@@ -321,6 +324,7 @@ public class Iperf3RecyclerViewAdapter
         private MetricView metricViewUL;
         private TextView errorView;
         private LinearLayout metricLL;
+        private CardView cardViewError;
         private MaterialButton cancel;
         private MaterialButton rerun;
         private void setupParameterFlexBox(){
@@ -362,11 +366,36 @@ public class Iperf3RecyclerViewAdapter
             metricViewUL = new MetricView(context);
             metricViewDL.setup("Download [Mbit/s]");
             metricViewUL.setup("Upload [Mbit/s]");
-            errorView = new TextView(context);
 
+            errorView = new TextView(context);
+            errorView.setTextColor(context.getColor(R.color.material_dynamic_neutral0));
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            errorView.setLayoutParams(params);
+
+            cardViewError = new CardView(context);
+            LinearLayout.LayoutParams cardViewParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            cardViewParams.setMargins(10, 10, 10, 10);
+            errorView.setPadding(10, 10, 10, 10);
+            cardViewError.setLayoutParams(cardViewParams);
+            GradientDrawable gd = new GradientDrawable();
+            gd.setColor(context.getColor( R.color.material_dynamic_primary100));
+            gd.setCornerRadius(10);
+//        gd.setStroke(2, 0xFF000000);
+            cardViewError.setBackground(gd);
+
+
+
+            cardViewError.addView(errorView);
+            metricLL.addView(cardViewError);
             metricLL.addView(metricViewDL);
             metricLL.addView(metricViewUL);
-            metricLL.addView(errorView);
             errorView.setVisibility(GONE);
         }
 

@@ -50,6 +50,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/metrics_iperf3_ll"
             android:orientation="vertical">
+
+
         </LinearLayout>
         <!-- Buttons -->
         <RelativeLayout

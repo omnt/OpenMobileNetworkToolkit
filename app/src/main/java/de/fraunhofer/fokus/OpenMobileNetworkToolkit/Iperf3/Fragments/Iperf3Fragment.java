@@ -191,12 +191,23 @@ public class Iperf3Fragment extends Fragment {
                                             break;
                                         case CANCELLED:
                                         case FAILED:
+                                            try {
+                                                String error = workInfo.getProgress()
+                                                        .getString("error");
+                                                Log.d(TAG, "onSuccess: going sleeping");
+                                                Thread.sleep(1000); //todo handle better, is needed because write to db is to slow
+                                                Log.d(TAG, "onSuccess: "+iperf3RunResultDao.getRunResult(uuid).error);
+                                                Log.d(TAG, "onSuccess: woke up");
+                                            } catch (InterruptedException e) {
+
+                                            }
                                             adapter.notifyDataSetChanged();
                                             break;
                                         case BLOCKED:
                                         case ENQUEUED:
                                         case RUNNING:
                                             adapter.notifyDataSetChanged();
+                                            handler.postDelayed(runnable, 500);
                                             break;
                                     }
                                 } else if(workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())){
@@ -217,11 +228,12 @@ public class Iperf3Fragment extends Fragment {
                                             String line = workInfo.getProgress().getString("interval");
                                             Log.d(TAG, "onSuccess: "+line);
                                             adapter.notifyDataSetChanged();
-                                            handler.postDelayed(runnable, 500);
+
                                             break;
                                     }
                                 }
                             }
+                            adapter.notifyDataSetChanged();
                         }
 
                         public void onFailure(@NonNull Throwable thrown) {
