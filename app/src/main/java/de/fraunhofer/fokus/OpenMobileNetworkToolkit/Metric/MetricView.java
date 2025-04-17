@@ -119,15 +119,21 @@ public class MetricView extends CardView {
         TextView keyView = new TextView(ct);
         keyView.setGravity(Gravity.CENTER);
         keyView.setText(key);
-        LinearLayout.LayoutParams keyViewParams = new LinearLayout.LayoutParams(200, 50);
+        LinearLayout.LayoutParams keyViewParams = new LinearLayout.LayoutParams(200, 0);
+        keyViewParams.weight = 1;
         keyViewParams.setMargins(0, 0, 0, 10);
         keyView.setLayoutParams(keyViewParams);
         keyView.setTypeface(null, Typeface.BOLD);
         keyView.setTextAppearance(R.style.Base_TextAppearance_AppCompat_Medium);
         keyView.setTextColor(ct.getColor(R.color.material_dynamic_primary10));
+        keyView.setGravity(Gravity.CENTER);
+
+
         TextView valueView = new TextView(ct);
         valueView.setGravity(Gravity.CENTER);
-        valueView.setLayoutParams(new LinearLayout.LayoutParams(200, 50));
+        LinearLayout.LayoutParams valueViewParams = new LinearLayout.LayoutParams(200, 0);
+        valueViewParams.weight = 1;
+        valueView.setLayoutParams(valueViewParams);
         valueView.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
         valueView.setTextColor(ct.getColor(R.color.material_dynamic_primary10));
 

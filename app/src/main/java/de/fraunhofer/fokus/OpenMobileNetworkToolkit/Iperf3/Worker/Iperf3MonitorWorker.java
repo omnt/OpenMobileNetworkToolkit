@@ -115,48 +115,19 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
         notificationLayout.setTextViewText(R.id.notification_title, "Running iPerf3 test...");
         notificationLayout.setViewVisibility(R.id.notification_throughput, GONE);
         notificationLayout.setViewVisibility(R.id.notification_direction, GONE);
-
+        setForegroundAsync(createForegroundInfo(notificationLayout));
 
         this.pathToFile = iperf3Input.getParameter().getLogfile();
         Log.d(TAG, "Iperf3MonitorWorker: pathToFile: "+this.pathToFile);
         this.file = new File(this.pathToFile);
-
-
-
-
-        isStopped = false;
-
     }
-    private Runnable fileObserverRunneable = new Runnable() {
-        @Override
-        public void run() {
 
-            fileObserver = new FileObserver(file) {
-                @Override
-                public void onEvent(int event, @NonNull String path) {
-                    Log.d(TAG, "onEvent: "+event+" "+path);
-                    if(event == FileObserver.MODIFY){
-                        Log.d(TAG, "onEvent: file modified");
-                        runnable.run();
-                        stopWatching();
-                    }
-                }
-            };
-            Log.d(TAG, "run: file "+file.getAbsolutePath()+" exists: "+file.exists());
-            Log.d(TAG, "startRemoteWork: starting to watch with fileObserver!");
-            fileObserver.startWatching();
-        }
-    };
 
-    private void block(){
-        while (!isStopped && !isStopped()){
-
-        }
-    }
     @NonNull
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
+            setForegroundAsync(createForegroundInfo(notificationLayout));
             try {
                 br = new BufferedReader(new FileReader(file));
                 br.ready();
@@ -240,7 +211,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                     metricCalculatorDL.update(interval.getSum().getBits_per_second());
                                 }
 
-                                String megabitPerSecond = String.valueOf(interval.getSum().getBits_per_second() / 1e6);
+                                String megabitPerSecond = String.valueOf( Math.round(interval.getSum().getBits_per_second() / 1e6));
                                 metricCalculatorUL.update(interval.getSum().getBits_per_second());
                                 notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
                                 notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
@@ -347,20 +318,5 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
 
 
 
-    private final Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-
-            String line = null;
-            Log.d(TAG, "run: Starting read thread");
-            try{
-
-            }
-            catch (Exception e){
-
-            }
-        }
-
-    };
 
 }

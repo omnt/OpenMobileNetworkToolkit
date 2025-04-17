@@ -250,7 +250,7 @@ public class Iperf3Fragment extends Fragment {
 
     private void setupBottomSheet(){
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.standard_bottom_sheet));
-        bottomSheetBehavior.setPeekHeight(20);
+        bottomSheetBehavior.setPeekHeight(100);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         bottomSheetBehavior.setHideable(false);
 
