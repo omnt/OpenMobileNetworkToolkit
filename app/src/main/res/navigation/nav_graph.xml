@@ -98,16 +98,6 @@
             android:id="@+id/action_fragment_iperf3_input_to_runners_list"
             app:destination="@id/runners_list" />
     </fragment>
-    <fragment
-        android:id="@+id/runners_list"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ListFragment"
-        android:label="fragment_iperf3_runners_list"
-        tools:layout="@layout/fragment_iperf3_list">
-
-        <action
-            android:id="@+id/action_runners_list_to_fragment_iperf3_input"
-            app:destination="@id/fragment_iperf3_input" />
-    </fragment>
 
     <fragment
         android:id="@+id/flagSettingFragment"
