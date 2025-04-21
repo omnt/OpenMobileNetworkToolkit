@@ -192,8 +192,6 @@ public class Iperf3Fragment extends Fragment {
                                         case CANCELLED:
                                         case FAILED:
                                             try {
-                                                String error = workInfo.getProgress()
-                                                        .getString("error");
                                                 Log.d(TAG, "onSuccess: going sleeping");
                                                 Thread.sleep(1000); //todo handle better, is needed because write to db is to slow
                                                 Log.d(TAG, "onSuccess: "+iperf3RunResultDao.getRunResult(uuid).error);
