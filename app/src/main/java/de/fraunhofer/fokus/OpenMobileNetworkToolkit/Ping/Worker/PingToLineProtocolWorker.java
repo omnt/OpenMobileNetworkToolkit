@@ -11,7 +11,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -19,42 +18,25 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.google.gson.Gson;
-import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Scanner;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.LINEType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingParser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class PingToLineProtocolWorker extends Worker {

@@ -37,9 +37,10 @@ import java.util.LinkedList;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
@@ -54,7 +55,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     private SharedPreferencesGrouper spg;
     private Notification notification;
     private NotificationCompat.Builder notificationBuilder;
-
+    private Iperf3RunResultDao iperf3RunResultDao;
     private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
     private int notificationID;
     private Iperf3Input iperf3Input;
@@ -67,6 +68,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         notificationID = 200+getInputData().getInt(Iperf3Input.NOTIFICATIONUMBER, 0);
         spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
         setForegroundAsync(createForegroundInfo("Processing iPerf3 data"));
+        iperf3RunResultDao = Iperf3ResultsDataBase.getDatabase(getApplicationContext()).iperf3RunResultDao();
     }
     private ForegroundInfo createForegroundInfo(String progress) {
         notification = notificationBuilder
@@ -87,23 +89,21 @@ public class Iperf3ToLineProtocolWorker extends Worker {
     public Result doWork() {
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
-        Iperf3Parser iperf3Parser = new Iperf3Parser(iperf3Input.getParameter().getLogfile());
-        //iperf3Parser.parse();
+        Iperf3RunResult iperf3RunResult = iperf3RunResultDao.getRunResult(iperf3Input.getTestUUID());
 
-
-        long timestamp = Integer.toUnsignedLong( iperf3Parser.getStart().getTimestamp().getTimesecs())*1000;
+        long timestamp = Integer.toUnsignedLong( iperf3RunResult.start.getTimestamp().getTimesecs())*1000;
         Log.d(TAG, "doWork: "+timestamp);
 
         String role = "server";
-        if(iperf3Parser.getStart().getConnecting_to() != null){
+        if(iperf3RunResult.start.getConnecting_to() != null){
             role = "client";
         }
 
         LinkedList<Point> points = new LinkedList<Point>();
-        ArrayList<Interval> intervals = iperf3Parser.getIntervals().getIntervalArrayList();
+        ArrayList<Interval> intervals = iperf3RunResult.intervals.getIntervalArrayList();
         for (Interval interval: intervals) {
             long tmpTimestamp = timestamp + (long) (interval.getSum().getEnd() * 1000);
-            int intervalIdx = iperf3Parser.getIntervals().getIntervalArrayList().indexOf(interval);
+            int intervalIdx = intervals.indexOf(interval);
             for (Stream stream: interval.getStreams().getStreamArrayList()){
                 Point point = new Point("Iperf3");
 
@@ -120,17 +120,17 @@ public class Iperf3ToLineProtocolWorker extends Worker {
                 point.addTag("sender", String.valueOf(stream.getSender()));
                 point.addTag("role", role);
                 point.addTag("socket", String.valueOf(stream.getSocket()));
-                point.addTag("protocol", iperf3Parser.getStart().getTest_start().protocol);
+                point.addTag("protocol", iperf3RunResult.start.getTest_start().protocol);
                 point.addTag("interval", String.valueOf(iperf3Input.getParameter().getInterval()));
-                point.addTag("version", iperf3Parser.getStart().getVersion());
+                point.addTag("version", iperf3RunResult.start.getVersion());
                 point.addTag("reversed", String.valueOf(iperf3Input.getParameter().getReverse()));
                 point.addTag("oneOff", String.valueOf(iperf3Input.getParameter().getOneOff()));
-                point.addTag("connectingToHost", iperf3Parser
-                    .getStart()
+                point.addTag("connectingToHost", iperf3RunResult
+                    .start
                     .getConnecting_to()
                     .getHost());
-                point.addTag("connectingToPort", String.valueOf(iperf3Parser
-                    .getStart()
+                point.addTag("connectingToPort", String.valueOf(iperf3RunResult
+                    .start
                     .getConnecting_to()
                     .getPort()));
                 point.addTag("bandwidth", iperf3Input.getParameter().getBitrate());

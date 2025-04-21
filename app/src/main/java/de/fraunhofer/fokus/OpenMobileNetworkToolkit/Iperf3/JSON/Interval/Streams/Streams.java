@@ -71,4 +71,9 @@ public class Streams {
     public Stream getStream(int i) {
         return streams.get(i);
     }
+
+    public void setStreams(ArrayList<Stream> streams) {
+        this.streams.clear();
+        this.streams.addAll(streams);
+    }
 }

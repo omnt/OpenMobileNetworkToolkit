@@ -9,9 +9,6 @@ import android.app.Notification;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.FileObserver;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -20,15 +17,11 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
-import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.multiprocess.RemoteListenableWorker;
 import androidx.work.multiprocess.RemoteWorkManager;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 
@@ -37,25 +30,18 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;

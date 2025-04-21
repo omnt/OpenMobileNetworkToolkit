@@ -10,73 +10,36 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 
 import static com.google.common.reflect.Reflection.getPackageName;
 
 import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.FileObserver;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
-import androidx.work.ListenableWorker;
-import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
-import androidx.work.multiprocess.RemoteCoroutineWorker;
 import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.Buffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Intervals;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3LibLoader;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Parser;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interval;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.start.Start;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
-import kotlin.coroutines.Continuation;
 
 public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     public static final String TAG = "Iperf3ExecutorWorker";

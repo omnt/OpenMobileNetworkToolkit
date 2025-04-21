@@ -103,12 +103,12 @@ public class Interval {
     public String toString(){
         return new Gson().toJson(this);
     }
-public Interval(String line){
-    this.streams = new Streams();
-    Interval interval = new Gson().fromJson(line, Interval.class);
-    this.sum = interval.sum;
-    this.sumBidirReverse = interval.sumBidirReverse;
-}
+    public Interval(String line){
+        this.streams = new Streams();
+        Interval interval = new Gson().fromJson(line, Interval.class);
+        this.sum = interval.sum;
+        this.sumBidirReverse = interval.sumBidirReverse;
+    }
 
 
 }

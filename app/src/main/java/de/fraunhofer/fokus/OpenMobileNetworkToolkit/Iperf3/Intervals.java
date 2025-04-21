@@ -16,4 +16,8 @@ public class Intervals {
         return intervals;
     }
 
+    public void setIntervals(ArrayList<Interval> intervals) {
+        this.intervals.clear();
+        this.intervals.addAll(intervals);
+    }
 }

@@ -13,7 +13,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Iperf3LibLoader {
+public class
+Iperf3LibLoader {
 
     private static boolean done = false;
     private static final String TAG = "Iperf3LibLoader";

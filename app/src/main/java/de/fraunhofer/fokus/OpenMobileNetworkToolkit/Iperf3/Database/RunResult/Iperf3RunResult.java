@@ -2,6 +2,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
