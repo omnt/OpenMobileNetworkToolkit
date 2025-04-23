@@ -3,11 +3,14 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler;
 import android.content.Context;
 
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.multiprocess.RemoteWorkContinuation;
+import androidx.work.multiprocess.RemoteWorkManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
@@ -18,6 +21,7 @@ public class PingHandler extends Handler {
     public static final String TAG = "PingHandler";
     private ArrayList<PingInput> pingInputs = new ArrayList<>();
     private boolean isEnable = false;
+    private RemoteWorkContinuation workContinuation;
     @Override
     public void parsePayload(String payload) throws JSONException {
         pingInputs.clear();
@@ -36,7 +40,12 @@ public class PingHandler extends Handler {
             PingParameter pingParameter = new PingParameter(params, testUUID);
             if(pingParameter == null) continue;
             PingInput pingInput = new PingInput(pingParameter, testUUID, sequenceUUID, measurementUUUID,campaignUUID);
+            File logFile = new File(pingInput.getParameter().getLogfile());
+            if(logFile.exists()) {
+                logFile.delete();
+            }
             pingInputs.add(pingInput);
+
         }
 
     }
@@ -81,11 +90,14 @@ public class PingHandler extends Handler {
     }
     @Override
     public void preperareSequence(Context context) {
-        //TODO
+        workContinuation = RemoteWorkManager.getInstance(context).beginWith(getExecutorWorkRequests(context)).then(getToLineProtocolWorkRequests(context)).then(getUploadWorkRequests(context));
     }
     @Override
     public void enableSequence() {
-
+        if(workContinuation == null){
+            return;
+        }
+        workContinuation.enqueue();
     }
 
     @Override
