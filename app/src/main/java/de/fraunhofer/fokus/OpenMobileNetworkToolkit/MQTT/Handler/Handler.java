@@ -27,11 +27,15 @@ abstract public class Handler {
     }
     abstract public ArrayList<OneTimeWorkRequest> getExecutorWorkRequests(Context context);
 
+    abstract public ArrayList<OneTimeWorkRequest> getMonitorWorkRequests(Context context);
+
     abstract public ArrayList<OneTimeWorkRequest> getToLineProtocolWorkRequests(Context context);
 
     abstract public ArrayList<OneTimeWorkRequest> getUploadWorkRequests(Context context);
 
-    abstract public void enableSequence(Context context);
+    abstract public void preperareSequence(Context context);
+
+    abstract public void enableSequence();
 
     abstract public void disableSequence(Context context);
 }

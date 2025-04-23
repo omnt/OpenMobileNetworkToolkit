@@ -113,6 +113,8 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
+
+
             setForegroundAsync(createForegroundInfo(notificationLayout));
             try {
                 br = new BufferedReader(new FileReader(file));

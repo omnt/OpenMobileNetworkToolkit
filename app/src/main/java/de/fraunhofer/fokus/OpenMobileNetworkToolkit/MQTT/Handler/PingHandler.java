@@ -57,6 +57,12 @@ public class PingHandler extends Handler {
         }
         return executorWorkRequests;
     }
+
+    @Override
+    public ArrayList<OneTimeWorkRequest> getMonitorWorkRequests(Context context) {
+        return null;
+    }
+
     @Override
     public ArrayList<OneTimeWorkRequest> getToLineProtocolWorkRequests(Context context) {
         ArrayList<OneTimeWorkRequest> toLineProtocolWorkRequests = new ArrayList<>();
@@ -73,9 +79,12 @@ public class PingHandler extends Handler {
         }
         return uploadWorkRequests;
     }
-
     @Override
-    public void enableSequence(Context context) {
+    public void preperareSequence(Context context) {
+        //TODO
+    }
+    @Override
+    public void enableSequence() {
 
     }
 

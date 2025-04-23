@@ -118,6 +118,10 @@ public class Inputs implements Parcelable {
         return null;
     }
 
+    public OneTimeWorkRequest getWorkRequestMonitor(int i, String packageName) {
+        return null;
+    }
+
     public OneTimeWorkRequest getWorkRequestLineProtocol(int i, String packageName) {
         return null;
     }

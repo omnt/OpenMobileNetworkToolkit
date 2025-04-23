@@ -58,6 +58,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     private Iperf3RunResult iperf3RunResult;
     public Iperf3ExecutorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        Log.d(TAG, "Iperf3ExecutorWorker: called!");
         Gson gson = new Gson();
         String iperf3InputString = getInputData().getString(Iperf3Input.INPUT);
         iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
@@ -75,8 +76,6 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
-
-
             Log.d(TAG, "startRemoteWork: tags: "+this.getTags());
             File logFile = new File(iperf3Input.getParameter().getLogfile());
             File rawPath = new File(Iperf3Parameter.rawDirPath);
@@ -90,7 +89,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                 Log.d(TAG, "startRemoteWork: "+e);
                 return completer.set(Result.failure());
             }
-            Log.i(TAG, "Starting "+TAG);
+            Log.i(TAG, "startRemoteWork: "+TAG);
 
             RemoteViews notificationLayout = new RemoteViews(getApplicationContext().getPackageName(), R.layout.iperf3_notification);
             notificationLayout.setTextViewText(R.id.notification_title, "Running iPerf3 test...");
@@ -102,13 +101,11 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
 
             int result = -1;
 
-
+            Log.d(TAG, "startRemoteWork: about to call iPerf3 JNI!");
             result = iperf3Wrapper(iperf3Input.getParameter().getInputAsCommand(), getApplicationContext().getApplicationInfo().nativeLibraryDir);
-            Log.d(TAG, "JNI Thread: " + result);
+            Log.d(TAG, "startRemoteWork: JNI Thread: " + result);
 
 
-
-            Log.d(TAG, "startRemoteWork: schedule threads");
 
             iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), result);
             Data.Builder output = new Data.Builder()
@@ -117,8 +114,10 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
 
 
             if (result == 0) {
+                Log.d(TAG, "startRemoteWork: iperf3Wrapper: success");
                 return completer.set(Result.success(output.build()));
             }
+            Log.d(TAG, "startRemoteWork: iperf3Wrapper: failure");
             return completer.set(Result.failure(output.build()));
         });
 

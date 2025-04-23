@@ -5,6 +5,7 @@ import static androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE
 
 import android.content.ComponentName;
 import android.os.Parcel;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -14,6 +15,11 @@ import androidx.work.OneTimeWorkRequest;
 import com.google.gson.GsonBuilder;
 
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerFour;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerOne;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerThree;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerTwo;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3MonitorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerFour;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerThree;
@@ -75,14 +81,18 @@ public class Iperf3Input extends Inputs {
         return this.iperf3Parameter;
     }
 
+
     public Data.Builder getInputAsDataBuilder(int workerProcess, String packageName, String serviceName) {
         Data.Builder data = new Data.Builder();
         ComponentName componentName = new ComponentName(packageName, serviceName);
-
         data.putString(ARGUMENT_PACKAGE_NAME, componentName.getPackageName());
         data.putString(ARGUMENT_CLASS_NAME, componentName.getClassName());
         data.putInt(NOTIFICATIONUMBER, workerProcess);
         data.putString(Inputs.INPUT, new GsonBuilder().create().toJson(this, Iperf3Input.class));
+        Log.d(TAG, "getInputAsDataBuilder: ARGUMENT_PACKAGE_NAME: " + componentName.getPackageName());
+        Log.d(TAG, "getInputAsDataBuilder: ARGUMENT_CLASS_NAME: " + componentName.getClassName());
+        Log.d(TAG, "getInputAsDataBuilder: workerProcess: " + workerProcess);
+        Log.d(TAG, "getInputAsDataBuilder: testUUID: " + getTestUUID());
         return data;
     }
     
@@ -97,6 +107,23 @@ public class Iperf3Input extends Inputs {
 
     @Override
     public OneTimeWorkRequest getWorkRequestExecutor(int i, String packageName) {
+
+        String serviceName = "";
+        switch (i){
+            case 0:
+                serviceName = Iperf3ServiceWorkerOne.class.getName();
+                break;
+            case 1:
+                serviceName = Iperf3ServiceWorkerTwo.class.getName();
+                break;
+            case 2:
+                serviceName = Iperf3ServiceWorkerThree.class.getName();
+                break;
+            case 3:
+                serviceName = Iperf3ServiceWorkerFour.class.getName();
+                break;
+        }
+
         return new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
@@ -104,9 +131,38 @@ public class Iperf3Input extends Inputs {
                 .addTag(super.getCampaignUUID())
                 .addTag(Iperf3ExecutorWorker.TAG)
                 .addTag(getParameter().getiPerf3UUID())
-                .setInputData(getInputAsDataBuilder(i, packageName).build())
+                .setInputData(getInputAsDataBuilder(i, packageName, serviceName).build())
                 .build();
     }
+
+    @Override
+    public OneTimeWorkRequest getWorkRequestMonitor(int i, String packageName) {
+        String serviceName = "";
+        switch (i){
+            case 0:
+                serviceName = Iperf3MonitorServiceWorkerOne.class.getName();
+                break;
+            case 1:
+                serviceName = Iperf3MonitorServiceWorkerTwo.class.getName();
+                break;
+            case 2:
+                serviceName = Iperf3MonitorServiceWorkerThree.class.getName();
+                break;
+            case 3:
+                serviceName = Iperf3MonitorServiceWorkerFour.class.getName();
+                break;
+        }
+        return new OneTimeWorkRequest.Builder(Iperf3MonitorWorker.class)
+                .addTag(super.getTestUUID())
+                .addTag(super.getMeasurementUUID())
+                .addTag(super.getSequenceUUID())
+                .addTag(super.getCampaignUUID())
+                .addTag(Iperf3MonitorWorker.TAG)
+                .addTag(getParameter().getiPerf3UUID())
+                .setInputData(getInputAsDataBuilder(i, packageName, serviceName).build())
+                .build();
+    }
+
     @Override
     public OneTimeWorkRequest getWorkRequestLineProtocol(int i, String packageName) {
         return new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)

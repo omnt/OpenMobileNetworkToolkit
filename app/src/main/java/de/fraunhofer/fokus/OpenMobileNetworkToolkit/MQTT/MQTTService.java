@@ -27,6 +27,7 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
+import com.influxdb.client.domain.Run;
 
 import org.json.JSONObject;
 
@@ -344,7 +345,7 @@ public class MQTTService extends Service {
 
         if(topic.contains("/iperf3/command")){
             Log.d(TAG, "handleConfigMessage: Iperf3 Command: " + payload);
-            iperf3Handler = new Iperf3Handler();
+            iperf3Handler = new Iperf3Handler(context);
             try {
                 iperf3Handler.parsePayload(payload);
             } catch (Exception e) {
@@ -357,7 +358,7 @@ public class MQTTService extends Service {
             Log.d(TAG, "handleConfigMessage: Enable Iperf3: " + payload);
 
             if(iperf3Handler != null && parseBoolean(payload)){
-                iperf3Handler.enableSequence(getApplicationContext());
+                iperf3Handler.preperareSequence(getApplicationContext());
                 //TODO PUBLISH iperf3 sequence enabled
             } else if(iperf3Handler != null && !parseBoolean(payload)){
                 iperf3Handler.disableSequence(getApplicationContext());
@@ -382,7 +383,7 @@ public class MQTTService extends Service {
             Log.d(TAG, "handleConfigMessage: Enable Ping: " + payload);
 
             if(pingHandler != null && parseBoolean(payload)){
-                pingHandler.enableSequence(getApplicationContext());
+                pingHandler.preperareSequence(getApplicationContext());
                 //TODO PUBLISH ping sequence enabled
             } else if(pingHandler != null && !parseBoolean(payload)){
                 pingHandler.disableSequence(getApplicationContext());
@@ -449,44 +450,26 @@ public class MQTTService extends Service {
     }
 
     private void executeWork() {
-        ArrayList<OneTimeWorkRequest> oneTimeWorkExecutorRequests = new ArrayList<>();
-        ArrayList<OneTimeWorkRequest> oneTimeWorkLineProtocolRequests = new ArrayList<>();
-        ArrayList<OneTimeWorkRequest> oneTimeWorkUploadRequests = new ArrayList<>();
-
-        RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(context);
-
-        if (iperf3Handler != null && isEnabled) {
-            oneTimeWorkExecutorRequests.addAll(iperf3Handler.getExecutorWorkRequests(context));
-            oneTimeWorkLineProtocolRequests.addAll(iperf3Handler.getToLineProtocolWorkRequests(context));
-            oneTimeWorkUploadRequests.addAll(iperf3Handler.getUploadWorkRequests(context));
-        } else {
-            Log.d(TAG, "executeWork: Iperf3 Handler is either null or not enabled");
-        }
-
-        if (pingHandler != null && isEnabled) {
-            oneTimeWorkExecutorRequests.addAll(pingHandler.getExecutorWorkRequests(context));
-            oneTimeWorkLineProtocolRequests.addAll(pingHandler.getToLineProtocolWorkRequests(context));
-            oneTimeWorkUploadRequests.addAll(pingHandler.getUploadWorkRequests(context));
-        } else {
-            Log.d(TAG, "executeWork: Ping Handler is either null or not enabled");
-        }
-
-        enqueueWorkRequests(remoteWorkManager, oneTimeWorkExecutorRequests, oneTimeWorkLineProtocolRequests, oneTimeWorkUploadRequests);
-    }
-
-    private void enqueueWorkRequests(RemoteWorkManager remoteWorkManager,
-                                     ArrayList<OneTimeWorkRequest> executorRequests,
-                                     ArrayList<OneTimeWorkRequest> lineProtocolRequests,
-                                     ArrayList<OneTimeWorkRequest> uploadRequests) {
-
-
-        Log.d(TAG, "enqueueWorkRequests: Enqueueing work Executor requests "+executorRequests.size());
-        Log.d(TAG, "enqueueWorkRequests: Enqueueing work LineProtocol requests "+lineProtocolRequests.size());
-        Log.d(TAG, "enqueueWorkRequests: Enqueueing work Upload requests "+uploadRequests.size());
-        remoteWorkManager.beginWith(executorRequests)
-                .then(lineProtocolRequests)
-                .then(uploadRequests)
-               .enqueue();
+        new Runnable(){
+            @Override
+            public void run() {
+                if (iperf3Handler != null && isEnabled) {
+                    iperf3Handler.enableSequence();
+                } else {
+                    Log.d(TAG, "executeWork: Iperf3 Handler is either null or not enabled");
+                }
+            }
+        }.run();
+        new Runnable(){
+            @Override
+            public void run() {
+                if (pingHandler != null && isEnabled) {
+                    pingHandler.enableSequence();
+                } else {
+                    Log.d(TAG, "executeWork: Ping Handler is either null or not enabled");
+                }
+            }
+        }.run();
 
         CustomEventListener listener = new CustomEventListener() {
             @Override
@@ -502,9 +485,8 @@ public class MQTTService extends Service {
 
             }
         };
-        startWorkInfoChecker(remoteWorkManager, executorRequests, listener);
-        //startWorkInfoChecker(remoteWorkManager, lineProtocolRequests,  listener);
-        //startWorkInfoChecker(remoteWorkManager, uploadRequests, listener);
+        //startWorkInfoChecker(RemoteWorkManager.getInstance(context), iperf3Handler.getExecutorWorkRequests(context), listener);
+        //TODO
     }
 
     private void startWorkInfoChecker(RemoteWorkManager remoteWorkManager, ArrayList<OneTimeWorkRequest> workRequests, CustomEventListener listener) {

@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import androidx.work.multiprocess.RemoteWorkContinuation;
 import androidx.work.multiprocess.RemoteWorkManager;
 
@@ -14,19 +15,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 
 public class Iperf3Handler extends Handler {
     private final String TAG = "Iperf3Handler";
-    private ArrayList<Iperf3Input> iperf3Inputs = new ArrayList<>();
+    private ArrayList<Iperf3Input> iperf3Inputs;
     private boolean isEnable = false;
+    private ArrayList<RemoteWorkContinuation> continuations;
+    private Iperf3RunResultDao iperf3RunResultDao;
     @Override
     public void parsePayload(String payload) throws JSONException {
-        iperf3Inputs.clear();
+        iperf3Inputs = new ArrayList<>();
         JSONArray tests = new JSONArray(payload);
         for (int i = 0; i < tests.length(); i++) {
             JSONObject test = tests.getJSONObject(i);
@@ -42,7 +50,16 @@ public class Iperf3Handler extends Handler {
             Iperf3Parameter iperf3Parameter = new Iperf3Parameter(params, testUUID);
             if(iperf3Parameter == null) continue;
             Iperf3Input iperf3Input = new Iperf3Input(iperf3Parameter, testUUID, sequenceUUID, measurementUUUID,campaignUUID);
+            iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
             iperf3Inputs.add(iperf3Input);
+
+            Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3Input.getTestUUID(), -100, false, iperf3Input, new java.sql.Timestamp(System.currentTimeMillis()));
+            iperf3RunResultDao.insert(iperf3RunResult);
+            File logFile = new File(iperf3Input.getParameter().getLogfile());
+            if(logFile.exists()) {
+                logFile.delete();
+            }
+
         }
     }
 
@@ -53,8 +70,9 @@ public class Iperf3Handler extends Handler {
         }
         return testUUIDs;
     }
-    public Iperf3Handler() {
+    public Iperf3Handler(Context context) {
         super();
+        iperf3RunResultDao = Iperf3ResultsDataBase.getDatabase(context).iperf3RunResultDao();
     }
     @Override
     public ArrayList<OneTimeWorkRequest> getExecutorWorkRequests(Context context) {
@@ -64,6 +82,15 @@ public class Iperf3Handler extends Handler {
         }
         return executorWorkRequests;
     }
+    @Override
+    public ArrayList<OneTimeWorkRequest> getMonitorWorkRequests(Context context) {
+        ArrayList<OneTimeWorkRequest> monitorWorkRequests = new ArrayList<>();
+        for(Iperf3Input iperf3Input : iperf3Inputs) {
+            monitorWorkRequests.add(iperf3Input.getWorkRequestMonitor(iperf3Inputs.indexOf(iperf3Input), context.getPackageName()));
+        }
+        return monitorWorkRequests;
+    }
+
 
 
 
@@ -84,36 +111,44 @@ public class Iperf3Handler extends Handler {
         return uploadWorkRequests;
     }
 
-
-
     @Override
-    public void enableSequence(Context context){
+    public void preperareSequence(Context context){
+        continuations = new ArrayList<>();
+        Log.d(TAG, "enableSequence: called!");
         if(iperf3Inputs.isEmpty()) {
             Log.e(TAG, "No iperf3 tests to run");
             return;
         };
 
-        WorkManager.getInstance(context);
         ArrayList<ArrayList<OneTimeWorkRequest>> workRequestss = new ArrayList<>();
         RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(context);
         for(Iperf3Input iperf3Input: iperf3Inputs){
+            remoteWorkManager.cancelAllWorkByTag(iperf3Input.getTestUUID());
             ArrayList<OneTimeWorkRequest> workRequests = new ArrayList<>();
-            workRequests.add(iperf3Input.getWorkRequestExecutor(iperf3Inputs.indexOf(iperf3Input), context.getPackageName()));
-//            workRequests.add(iperf3Input.getWorkRequestLineProtocol());
-//            workRequests.add(iperf3Input.getWorkRequestUpload());
+            int i = iperf3Inputs.indexOf(iperf3Input);
+            workRequests.add(iperf3Input.getWorkRequestExecutor(i, context.getPackageName()));
+            workRequests.add(iperf3Input.getWorkRequestMonitor(i, context.getPackageName()));
+            workRequests.add(iperf3Input.getWorkRequestLineProtocol(i, context.getPackageName()));
+            workRequests.add(iperf3Input.getWorkRequestUpload(i, context.getPackageName()));
             workRequestss.add(workRequests);
-
+            Log.d(TAG, "enableSequence: workRequests size: "+workRequests.size());
         }
 
-        ArrayList<RemoteWorkContinuation> continuations = new ArrayList<>();
 
+        Log.d(TAG, "enableSequence: workRequestss size: "+workRequestss.size());
         for(ArrayList<OneTimeWorkRequest> workRequests: workRequestss){
-            RemoteWorkContinuation remoteWorkContinuation = remoteWorkManager.beginWith(workRequests.get(0));//.then(workRequests.get(1)).then(workRequests.get(2));
+            RemoteWorkContinuation remoteWorkContinuation = remoteWorkManager.beginWith(workRequests.subList(0, 2)).then(workRequests.get(2)).then(workRequests.get(3));
             continuations.add(remoteWorkContinuation);
         }
-        RemoteWorkContinuation mainRemoteWorkContinuation = RemoteWorkContinuation.combine(continuations);
-        mainRemoteWorkContinuation.enqueue();
+        Log.d(TAG, "enableSequence: continuations size: "+continuations.size());
+    }
 
+    @Override
+    public void enableSequence(){
+
+        for(RemoteWorkContinuation continuation: continuations){
+            continuation.enqueue();
+        }
     }
 
     @Override
