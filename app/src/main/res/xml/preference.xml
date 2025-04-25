@@ -22,22 +22,33 @@
             app:allowDividerAbove="false"
             app:allowDividerBelow="false"
             app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/notification_settings"
+        app:iconSpaceReserved="false">
+
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="enable_radio_notification"
-            app:summary="@string/enablle_radio_notification_summary"
-            app:title="@string/enablle_radio_notification" />
-
+            app:summary="@string/enable_radio_notification_summary"
+            app:title="@string/enable_radio_notification" />
     </PreferenceCategory>
+
     <PreferenceCategory
         android:title="@string/app_settings"
         app:iconSpaceReserved="false">
 
-    </PreferenceCategory>
+    <EditTextPreference
+        android:icon="@drawable/baseline_android_24"
+        app:key="device_name"
+        app:title="@string/device_name"
+        app:useSimpleSummaryProvider="true"
+        />
     <Preference
         android:icon="@drawable/ic_baseline_code_24"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"
         app:key="log_settings"
+        app:dependency="device_name"
         app:title="Logging" />
     <Preference
         android:icon="@drawable/baseline_cell_tower_24"
@@ -57,8 +68,17 @@
         app:key="reset_modem"
         app:title="Reboot Modem" />
     <Preference
+        android:icon="@drawable/mqtt"
+        app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MQTTSettingsFragment"
+        app:key="mqtt_settings"
+        app:dependency="device_name"
+        app:title="MQTT Settings" />
+    <Preference
         android:icon="@drawable/ic_action_share_blue"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SharedPreferencesIOFragment"
         app:key="shared_preferences_io"
         app:title="Config" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

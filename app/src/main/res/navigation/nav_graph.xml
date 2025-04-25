@@ -53,6 +53,7 @@
             app:destination="@id/HomeFragment" />
 
     </fragment>
+
     <fragment
         android:id="@+id/about_fragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.AboutFragment"
@@ -86,7 +87,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragment_iperf3_input"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3Fragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Fragments.Iperf3Fragment"
         android:label="fragment_iperf3_input"
         tools:layout="@layout/fragment_iperf3_input">
 
@@ -96,16 +97,6 @@
         <action
             android:id="@+id/action_fragment_iperf3_input_to_runners_list"
             app:destination="@id/runners_list" />
-    </fragment>
-    <fragment
-        android:id="@+id/runners_list"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3ListFragment"
-        android:label="fragment_iperf3_runners_list"
-        tools:layout="@layout/fragment_iperf3_list">
-
-        <action
-            android:id="@+id/action_runners_list_to_fragment_iperf3_input"
-            app:destination="@id/fragment_iperf3_input" />
     </fragment>
 
     <fragment
@@ -124,6 +115,16 @@
         tools:layout="@xml/preference_logging">
         <action
             android:id="@+id/action_loggingSettingsFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mqttSettingsFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MQTTSettingsFragment"
+        android:label="MQTTSettingsFragment"
+        tools:layout="@xml/preference_mqtt">
+        <action
+            android:id="@+id/action_mqttSettingsFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
     </fragment>
     <fragment

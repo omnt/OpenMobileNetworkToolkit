@@ -6,22 +6,25 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter;
 
 import androidx.room.ProvidedTypeConverter;
 import androidx.room.TypeConverter;
 
 import com.google.gson.Gson;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error;
+
+
 @ProvidedTypeConverter
-public class Iperf3InputConverter {
+public class Iperf3ErrorConverter {
     @TypeConverter
-    public Iperf3Fragment.Iperf3Input StringToIperf3Input(String string) {
-        return new Gson().fromJson(string, Iperf3Fragment.Iperf3Input.class);
+    public Error fromJSONString(String string) {
+        return new Gson().fromJson(string, Error.class);
     }
 
     @TypeConverter
-    public String Iperf3InputToString(Iperf3Fragment.Iperf3Input example) {
+    public String toJSONString(Error example) {
         return new Gson().toJson(example);
     }
 }

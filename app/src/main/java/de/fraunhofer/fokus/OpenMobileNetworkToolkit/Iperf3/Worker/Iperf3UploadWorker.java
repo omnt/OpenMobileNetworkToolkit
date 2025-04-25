@@ -6,7 +6,7 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
-package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
+package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -25,16 +27,18 @@ import java.util.stream.Collectors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 
 public class Iperf3UploadWorker extends Worker {
-    private static final String TAG = "Iperf3UploadWorker";
+    public static final String TAG = "Iperf3UploadWorker";
     InfluxdbConnection influx;
-    private final String iperf3LineProtocolFile;
-
+    private Iperf3Input iperf3Input;
 
     public Iperf3UploadWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
-        iperf3LineProtocolFile = getInputData().getString("iperf3LineProtocolFile");
+        Gson gson = new Gson();
+        String iperf3InputString = getInputData().getString(Iperf3Input.INPUT);
+        iperf3Input = gson.fromJson(iperf3InputString, Iperf3Input.class);
     }
     private void setup(){
         influx = InfluxdbConnections.getRicInstance(getApplicationContext());
@@ -61,17 +65,17 @@ public class Iperf3UploadWorker extends Worker {
         }
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader(iperf3LineProtocolFile));
+            br = new BufferedReader(new FileReader(iperf3Input.getParameter().getLineProtocolFile()));
         } catch (FileNotFoundException | NullPointerException e) {
             Log.d(TAG,e.toString());
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());
         try {
-            Log.d(TAG, String.format("doWork: uploading %s", iperf3LineProtocolFile));
+            Log.d(TAG, String.format("doWork: uploading %s", iperf3Input.getParameter().getLineProtocolFile()));
             influx.writeRecords(points);
         } catch (IOException e) {
-            Log.d(TAG, String.format("doWork: upload of %s failed!", iperf3LineProtocolFile));
+            Log.d(TAG, String.format("doWork: upload of %s failed!", iperf3Input.getParameter().getLineProtocolFile()));
             return Result.failure(output);
         }
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  SPDX-FileCopyrightText: 2025 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2025 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2025 Fraunhofer FOKUS
+  ~
+  ~  SPDX-License-Identifier: BSD-3-Clause-Clear
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="MQTT Service"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="enable_mqtt"
+            app:summary="@string/enable_mqtt"
+            app:dependency="mqtt_host"
+            app:title="@string/enable_logging" />
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="enable_mqtt_on_boot"
+            app:summary="@string/enable_mqtt_on_boot"
+            app:title="@string/start_logging_on_boot" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:key="mqtt_credentials"
+        app:title="MQTT Credentials">
+
+        <EditTextPreference
+            android:dialogTitle="@string/mqtt_host_dialog_title"
+            app:iconSpaceReserved="false"
+            app:key="mqtt_host"
+
+            app:title="@string/mqtt_host"
+            android:hint="@string/mqtt_host_hint"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:dialogTitle="@string/mqtt_client_username_dialog_title"
+            app:iconSpaceReserved="false"
+            app:key="mqtt_client_username"
+            app:dependency="enable_mqtt"
+            app:summary="@string/mqtt_client_username_summary"
+            app:title="@string/mqtt_client_user_name_title" />
+
+        <EditTextPreference
+            android:dialogTitle="@string/mqtt_client_password_dialog_title"
+            app:dependency="enable_mqtt"
+            app:iconSpaceReserved="false"
+            app:key="mqtt_client_password"
+            app:title="@string/mqtt_client_password"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

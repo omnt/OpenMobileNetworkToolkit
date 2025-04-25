@@ -6,7 +6,8 @@ public enum SPType {
     ping_sp,
     carrier_sp,
     mobile_network_sp,
-    default_sp;
+    default_sp,
+    mqtt_sp;
 
 
     public String toString() {
@@ -16,6 +17,7 @@ public enum SPType {
             case logging_sp:
             case ping_sp:
             case carrier_sp:
+            case mqtt_sp:
             case mobile_network_sp:
                 return super.toString();
             default:
@@ -37,12 +39,15 @@ public enum SPType {
             case logging_sp:
             case ping_sp:
             case carrier_sp:
+
             case default_sp:
                 return name.substring(0,1).toUpperCase() + name.substring(1);
             case mobile_network_sp:
                 return "Mobile Network";
             case iperf3_sp:
                 return "iPerf3";
+            case mqtt_sp:
+                return "MQTT";
             default:
                 return null;
         }

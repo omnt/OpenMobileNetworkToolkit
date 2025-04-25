@@ -148,6 +148,21 @@
     <string name="action_android_ims">Android IMS</string>>
     <string name="influx_wifi_data">Log WiFi information</string>>
 
+
+    <!-- MQTT Preferences -->
+    <string name="mqtt_client_username_summary">MQTT Username</string>
+    <string name="enable_mqtt">Enable MQTT</string>
+    <string name="enable_mqtt_on_boot">Enable MQTT on boot</string>
+    <string name="mqtt_client_username_dialog_title">Username provided by your MQTT-Broker</string>
+    <string name="mqtt_client_user_name_title">MQTT Client Username</string>
+    <string name="mqtt_client_password_dialog_title">Password provided by your MQTT-Broker</string>
+    <string name="mqtt_client_password">MQTT Client Password</string>
+    <string name="mqtt_host_dialog_title">MQTT-Broker Address, including Port</string>
+    <string name="mqtt_host">MQTT-Broker Address</string>
+    <string name="mqtt_host_hint">tcp://192.168.213.89:1883</string>
+    <string name="mqtt_service_running">MQTT Service</string>
+
+
     <!-- -->
 
     <!-- SharedPreferences Identifier -->
@@ -254,12 +269,21 @@
     <string name="standard">Standard</string>
     <string name="channel_bandwidth">Channel Bandwidth</string>
     <string name="wifi_security_type">Security Type</string>
-    <string name="enablle_radio_notification_summary">Serving Cell Parameter: PCI, RSRP...</string>
-    <string name="enablle_radio_notification">Enable Cell Notification</string>
+    <string name="enable_radio_notification_summary">Serving Cell Parameter: PCI, RSRP...</string>
+    <string name="enable_radio_notification">Enable Cell Notification</string>
     <string name="cell_notifcation">Serving Cell</string>
     <string name="ping_title">ICMP / Ping</string>
     <string name="special_codes_title">Special Codes</string>
     <string name="subscriptions_title">Subscriptions\n</string>
     <string name="about_title">About</string>
+    <string name="notification_settings">Notification settings</string>
+    <string name="device_name">Unique Device Name</string>
+    <string name="IPERF3">iPerf3</string>
+    <string name="rerun">Rerun</string>
+    <string name="cancel">Cancel</string>
+    <string name="X">X</string>
+    <string name="state">State</string>
+    <string name="Parameter">Parameter</string>
+
 
 </resources>

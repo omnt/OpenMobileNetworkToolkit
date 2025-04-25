@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "OpenMobileNetworkToolkit"
 include ':app'
+include ':model'

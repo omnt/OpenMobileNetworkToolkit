@@ -18,17 +18,13 @@ public class PingParser {
 
     private final PropertyChangeSupport support;
     private PropertyChangeListener listener;
-    private PingParser(BufferedReader br) {
+    public PingParser(BufferedReader br) {
         this.br = br;
         this.lines = new ArrayList<>();
         support = new PropertyChangeSupport(this);
     }
 
-    public static PingParser getInstance(BufferedReader br){
-        if (instance == null) instance = new PingParser(br);
-        if(br != null); instance.setBr(br);
-        return instance;
-    }
+
     private LINEType getLineType(String line){
         if (line.contains("bytes from")) {
             return LINEType.RTT;

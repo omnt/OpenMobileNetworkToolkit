@@ -370,7 +370,7 @@ public class LoggingService extends Service {
         }
 
         if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_influx_log", false)) {
-            setupLocalFile();
+            //TODO
         }
 
         setupNotification();
@@ -609,7 +609,9 @@ public class LoggingService extends Service {
         public void run() {
             if (ic == null) return;
             boolean newInfluxConnectionStatus = ic.ping();
-            Log.d(TAG, "run: monitorInfluxDBConnectionStatus: "+newInfluxConnectionStatus);
+            if(!newInfluxConnectionStatus) {
+                Log.d(TAG, "InfluxDB not reachable");
+            }
             if(newInfluxConnectionStatus != influxConnectionStatus) {
                 influxConnectionStatus = newInfluxConnectionStatus;
                 updateNotification();

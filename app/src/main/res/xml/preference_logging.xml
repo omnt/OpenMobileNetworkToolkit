@@ -74,7 +74,6 @@
 
         <EditTextPreference
             android:dialogTitle="@string/influx_org_dialog_title"
-            app:dependency="enable_influx"
             app:iconSpaceReserved="false"
             app:key="influx_org"
             app:title="@string/influx_org"
@@ -82,7 +81,6 @@
 
         <EditTextPreference
             android:dialogTitle="@string/influx_token_dialog_title"
-            app:dependency="enable_influx"
             app:iconSpaceReserved="false"
             app:key="influx_token"
             app:title="@string/influx_token"
@@ -90,7 +88,6 @@
 
         <EditTextPreference
             android:dialogTitle="@string/influx_bucket_dialog_title"
-            app:dependency="enable_influx"
             app:iconSpaceReserved="false"
             app:key="influx_bucket"
             app:title="@string/influx_bucket"

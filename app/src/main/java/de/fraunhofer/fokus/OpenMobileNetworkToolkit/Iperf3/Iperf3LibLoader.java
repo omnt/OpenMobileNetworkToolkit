@@ -13,7 +13,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Iperf3LibLoader {
+public class
+Iperf3LibLoader {
 
     private static boolean done = false;
     private static final String TAG = "Iperf3LibLoader";
@@ -24,10 +25,11 @@ public class Iperf3LibLoader {
         "iperf3.12",
         "iperf3.15",
         "iperf3.16",
-        "iperf3.17.1"
+        "iperf3.17.1",
+        "iperf3.18"
     );
 
-    protected static synchronized void load() {
+    public static synchronized void load() {
         if (done) {
             return;
         }
