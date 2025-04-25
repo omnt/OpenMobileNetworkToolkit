@@ -25,6 +25,8 @@
 
 -keep class * extends android.app.Activity
 -keep class com.influxdb.**
+-keepnames class com.hivemq.** { *; }
+-keep class com.hivemq.** { *; }
 
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
