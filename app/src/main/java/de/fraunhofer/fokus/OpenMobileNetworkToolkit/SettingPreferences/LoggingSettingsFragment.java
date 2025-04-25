@@ -16,6 +16,7 @@ import android.util.Log;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
 import androidx.preference.SwitchPreferenceCompat;
 
 import java.util.Objects;
@@ -107,5 +108,15 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
 
     }
 
-
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        PreferenceScreen prefScreen = getPreferenceScreen();
+        if (prefScreen != null) {
+            SharedPreferences prefsSharedPref = prefScreen.getSharedPreferences();
+            if (prefsSharedPref != null) {
+                prefsSharedPref.unregisterOnSharedPreferenceChangeListener(this);
+            }
+        }
+    }
 }

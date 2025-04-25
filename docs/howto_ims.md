@@ -8,6 +8,9 @@ It is possible to activate IMS on PLMN IDs such as 999xx using OMNT. To achieve 
 * Add the APN in `Access point names`. (Name: *ims*, APN: *ims*, APN type: *ims*, APN protocol: *IPv4*, APN roaming protocol: *IPv4*). After that, save it and leave the **internet** APN selected.
 
 2. Disable SQN checking on SIM cards. (See the *Disabling / Enabling SQN validation* section of the sysmoISIM user manuals)
+
+**WARNING:** This step disables a major security feature of the 3G/4G/5G authentication and key agreement. It is necessary when using separate HSS instances for CN and IMS (e.g., [Open5GS-HSS](https://github.com/open5gs/open5gs/tree/main/src/hss) for CN and [PyHSS](https://github.com/nickvsnetworking/pyhss) for IMS). Without SQN check, there is no protection against authentication replay attacks. Only use if you really know what you’re doing, and only in a lab. It is provided here because it is recommended in [Step 23 of Open5GS's VoLTE tutorial](https://open5gs.org/open5gs/docs/tutorial/02-VoLTE-setup/).
+
 ```bash
 # Add '--pcsc-shared' flag if the card status includes 'Shared Mode'
 # p: Card reader number in the 'pcsc_scan' output

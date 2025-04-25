@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.icu.text.SimpleDateFormat;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -41,7 +42,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
@@ -49,6 +49,7 @@ public class PingService extends Service {
     private static final String TAG = "PingService";
     private FileOutputStream ping_stream;
     private Handler pingLogging;
+    private HandlerThread pingLoggingHandleThread;
     private WorkManager wm;
     private Context context;
     private ArrayList<OneTimeWorkRequest> pingWRs;
@@ -129,9 +130,41 @@ public class PingService extends Service {
             return;
         }
         spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", true).apply();
-        pingLogging = new Handler(Objects.requireNonNull(Looper.myLooper()));
+        pingLoggingHandleThread = new HandlerThread("PingLoggingHandlerThread");
+        pingLoggingHandleThread.start();
+        pingLogging = new Handler(Objects.requireNonNull(pingLoggingHandleThread.getLooper()));
+        PingParser pingParser = PingParser.getInstance(null);
+        propertyChangeListener = pingParser.getListener();
+        if(propertyChangeListener != null){
+            pingParser.removePropertyChangeListener(propertyChangeListener);
+        }
+        propertyChangeListener = new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                PingInformation pi = (PingInformation) evt.getNewValue();
 
+                Point point = pi.getPoint();
+                point.addTags(dp.getTagsMap());
+                Log.d(TAG, "propertyChange: "+point.toLineProtocol());
+                try {
+                    ping_stream.write((point.toLineProtocol() + "\n").getBytes());
+                } catch (IOException e) {
+                    Log.d(TAG,e.toString());
+                }
 
+                if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
+                    try {
+                        influx.writePoints(List.of(point));
+                    } catch (IOException e) {
+                        Log.d(TAG,e.toString());
+                    }
+                }
+
+            }
+        };
+
+        pingParser.addPropertyChangeListener(propertyChangeListener);
+        pingParser.setListener(propertyChangeListener);
         pingLogging.post(pingUpdate);
     }
     public void parsePingCommand() {
@@ -201,6 +234,15 @@ public class PingService extends Service {
     private void stopPing(){
 
         if (pingLogging != null )pingLogging.removeCallbacks(pingUpdate);
+        if (pingLoggingHandleThread != null) {
+            pingLoggingHandleThread.quitSafely();
+            try {
+                pingLoggingHandleThread.join();
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Exception happened!! "+e, e);
+            }
+            pingLoggingHandleThread = null;
+        }
         try {
             if (ping_stream != null) ping_stream.close();
         } catch (IOException e) {
