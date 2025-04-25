@@ -190,28 +190,7 @@ public class PingService extends Service {
                 .putString("input", spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "8.8.8.8"))
                 .build();
 
-            Observer observer = new Observer() {
-                @Override
-                public void onChanged(Object o) {
-                    WorkInfo workInfo = (WorkInfo) o;
-                    WorkInfo.State state = workInfo.getState();
-                    switch (state){
-                        case RUNNING:
-                        case ENQUEUED:
-                            return;
-                        case CANCELLED:
-                            try {
-                                ping_stream.close();
-                            } catch (IOException e) {
-                                Log.d(TAG,e.toString());
-                            }
-                            pingLogging.removeCallbacks(pingUpdate);
-                            return;
-                    }
 
-                    pingLogging.postDelayed(pingUpdate, 200);
-                }
-            };
 
         }
     };
