@@ -133,11 +133,6 @@ public class PingService extends Service {
         pingLoggingHandleThread = new HandlerThread("PingLoggingHandlerThread");
         pingLoggingHandleThread.start();
         pingLogging = new Handler(Objects.requireNonNull(pingLoggingHandleThread.getLooper()));
-        PingParser pingParser = PingParser.getInstance(null);
-        propertyChangeListener = pingParser.getListener();
-        if(propertyChangeListener != null){
-            pingParser.removePropertyChangeListener(propertyChangeListener);
-        }
         propertyChangeListener = new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -163,8 +158,6 @@ public class PingService extends Service {
             }
         };
 
-        pingParser.addPropertyChangeListener(propertyChangeListener);
-        pingParser.setListener(propertyChangeListener);
         pingLogging.post(pingUpdate);
     }
     public void parsePingCommand() {
@@ -196,13 +189,7 @@ public class PingService extends Service {
             Data data = new Data.Builder()
                 .putString("input", spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "8.8.8.8"))
                 .build();
-            OneTimeWorkRequest pingWR =
-                new OneTimeWorkRequest.Builder(PingWorker.class)
-                    .setInputData(data)
-                    .addTag("Ping").build();
-            pingWRs.add(pingWR);
 
-            wm.beginWith(pingWR).enqueue();
             Observer observer = new Observer() {
                 @Override
                 public void onChanged(Object o) {
@@ -222,12 +209,10 @@ public class PingService extends Service {
                             return;
                     }
 
-                    wm.getWorkInfoByIdLiveData(pingWR.getId()).removeObserver(this);
-                    pingWRs.remove(pingWR);
                     pingLogging.postDelayed(pingUpdate, 200);
                 }
             };
-            wm.getWorkInfoByIdLiveData(pingWR.getId()).observeForever(observer);
+
         }
     };
 
