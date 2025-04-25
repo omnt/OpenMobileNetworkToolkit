@@ -27,13 +27,14 @@
 -keep class com.influxdb.**
 -keepnames class com.hivemq.** { *; }
 -keep class com.hivemq.** { *; }
+-keep class  io.netty.** { *; }
+-keepclassmembernames class io.netty.** { *; }
+-keepclassmembers class org.jctools.** { *; }
 
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
     public static *** v(...);
 }
 
--keepclassmembernames class io.netty.** { *; }
--keepclassmembers class org.jctools.** { *; }
 
 
