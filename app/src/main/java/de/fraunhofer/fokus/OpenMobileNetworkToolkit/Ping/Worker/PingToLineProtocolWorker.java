@@ -104,11 +104,15 @@ public class PingToLineProtocolWorker extends Worker {
             pingInformations.add(pi);
         }
         scanner.close();
-        try {
-            Files.createFile(Paths.get(pingInput.getPingParameter().getLineProtocolFile()));
-        } catch (IOException e) {
-            Log.d(TAG, "doWork: "+e.toString());
-            return Result.failure(output.putString("error", "File not created").build());
+        File lineprotocolfile = new File(pingInput.getPingParameter().getLineProtocolFile());
+        if(lineprotocolfile.exists()){
+            lineprotocolfile.delete();
+            try {
+                lineprotocolfile.createNewFile();
+            } catch (IOException e) {
+                Log.e(TAG, "doWork: could not create LP File!", e);
+                return Result.failure(output.putString("error", "LP-File not created").build());
+            }
         }
         FileOutputStream pingStream = null;
         try {
