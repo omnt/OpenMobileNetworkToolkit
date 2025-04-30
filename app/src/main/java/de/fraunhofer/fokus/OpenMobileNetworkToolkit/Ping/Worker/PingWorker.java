@@ -55,7 +55,7 @@ public class PingWorker extends Worker {
     private NotificationManager notificationManager;
     private final String channelId = "OMNT_notification_channel";
     private NotificationCompat.Builder notificationBuilder;
-    private float rtt; // round-trip time
+    private double rtt; // round-trip time
     private PingInput pingInput;
     private Notification notification;
     public PingWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -127,7 +127,8 @@ public class PingWorker extends Worker {
                 Matcher matcher = pattern.matcher(line);
                 if (matcher.find()) {
                     try {
-                        rtt = Float.parseFloat(Objects.requireNonNull(matcher.group(1)));
+                        rtt = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
+                        setProgressAsync(new Data.Builder().putDouble(LINE, rtt).build());
                         Log.d(TAG, "Updated RTT: " + rtt);
                         new Runnable() {
                             @Override
@@ -139,8 +140,7 @@ public class PingWorker extends Worker {
                         Log.e(TAG, "Error parsing RTT value: " + e.toString());
                     }
                 }
-                // Optionally, report progress with the output line.
-                setProgressAsync(output.putString(LINE, line).build());
+
             }
 
             pingStream.close();

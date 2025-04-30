@@ -15,9 +15,13 @@ public class Application extends android.app.Application implements Configuratio
     @NonNull
     @Override
     public Configuration getWorkManagerConfiguration() {
-        return new Configuration.Builder()
-                .setDefaultProcessName(getPackageName())
-                .setMinimumLoggingLevel(android.util.Log.DEBUG)
-                .build();
+        Configuration.Builder configurationBuilder = new Configuration.Builder()
+                .setDefaultProcessName(getPackageName());
+
+
+        if(BuildConfig.DEBUG) {
+            return configurationBuilder.setMinimumLoggingLevel(android.util.Log.DEBUG).build();
+        }
+        return configurationBuilder.setMinimumLoggingLevel(android.util.Log.ERROR).build();
     }
 }

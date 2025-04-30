@@ -25,21 +25,36 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.FileOutputStream;
+import java.util.List;
+import java.util.UUID;
 
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class PingFragment extends Fragment {
     private final String TAG = "PingFragment";
+    private final String LAST_UUID = "LAST_UUID";
     private Switch aSwitch;
     private MaterialButtonToggleGroup toggleGroup;
     private LinearLayout verticalLL;
@@ -51,6 +66,7 @@ public class PingFragment extends Fragment {
     private SharedPreferencesGrouper spg;
     private MetricView rttMetric;
     private MetricView packetLossMetric;
+    private WorkManager workManager;
 
     public PingFragment() {
     }
@@ -60,21 +76,27 @@ public class PingFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+    private void startWorker() {
+        String uuid = UUID.randomUUID().toString();
+        PingParameter pingParameter = new PingParameter(input.getText().toString(), uuid);
+        PingInput pingInput = new PingInput(pingParameter, uuid);
+        String gson = new Gson().toJson(pingInput, PingInput.class);
+        Data data = new Data.Builder()
+                .putString(PingInput.INPUT, gson)
+                .build();
+        OneTimeWorkRequest pingWR = new OneTimeWorkRequest.Builder(PingWorker.class)
+                .setInputData(data)
+                .addTag(uuid)
+                .build();
+        spg.getSharedPreference(SPType.ping_sp).edit().putString(LAST_UUID, pingWR.getId().toString()).apply();
+        registerObserver();
+        workManager.enqueue(pingWR);
 
-    private void startPingService() {
-        input.setEnabled(false);
-        Intent pingStart = new Intent(ct, PingService.class);
-        ct.startService(pingStart);
-        rttMetric.getMetricCalculator().resetMetric();
-        packetLossMetric.getMetricCalculator().resetMetric();
     }
 
-    private void stopPingService() {
-        input.setEnabled(true);
-        Intent pingStart = new Intent(ct, PingService.class);
-        ct.stopService(pingStart);
-    }
+    private void stopWorker(){
 
+    }
 
     private void saveTextInputToSharedPreferences(EditText field, String name) {
         field.addTextChangedListener(new TextWatcher() {
@@ -99,6 +121,39 @@ public class PingFragment extends Fragment {
         input.setEnabled(!ping_running);
     }
 
+    private void registerObserver(){
+
+        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(LAST_UUID, null);
+        if(lastUUID != null) {
+            UUID lastUUIDUUID = UUID.fromString(lastUUID);
+            LiveData<WorkInfo> liveData =  workManager.getWorkInfoByIdLiveData(lastUUIDUUID);
+            liveData.observe(getViewLifecycleOwner(), workInfo -> {
+                if(workInfo == null) return;
+                Log.d(TAG, "registerObserver: workInfo-State: "+workInfo.getState());
+                switch (workInfo.getState()){
+                    case FAILED:
+                        break;
+                    case BLOCKED:
+                        break;
+                    case CANCELLED:
+                        break;
+                    case ENQUEUED:
+                        break;
+                    case RUNNING:
+                        double rtt = workInfo.getOutputData().getDouble(PingWorker.LINE, 0);
+                        Log.d(TAG, "registerObserver: current RTT:"+rtt);
+                        rttMetric.update(rtt);
+                        break;
+                    case SUCCEEDED:
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+
+    }
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -106,7 +161,7 @@ public class PingFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_ping, container, false);
         ct = requireContext();
         spg = SharedPreferencesGrouper.getInstance(ct);
-
+        workManager = WorkManager.getInstance(ct);
         verticalLL = v.findViewById(R.id.ping_vertical_ll);
         horizontalLL1 = verticalLL.findViewById(R.id.ping_horizontal1_ll);
 
@@ -142,17 +197,16 @@ public class PingFragment extends Fragment {
             if (!isChecked) return;
             switch (checkedId) {
                 case R.id.ping_start:
-                    startPingService();
                     v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
-
+                    startWorker();
                     break;
                 case R.id.ping_stop:
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
                     v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
-                    stopPingService();
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                    stopWorker();
                     break;
             }
 
@@ -173,6 +227,10 @@ public class PingFragment extends Fragment {
         metricsLL.addView(packetLossMetric);
 
         horizontalLL1.addView(metricsLL);
+
+        registerObserver();
+
+
 
         //ToDO
         /*
