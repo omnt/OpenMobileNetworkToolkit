@@ -87,8 +87,10 @@ public class PingFragment extends Fragment {
         OneTimeWorkRequest pingWR = new OneTimeWorkRequest.Builder(PingWorker.class)
                 .setInputData(data)
                 .addTag(uuid)
+                .addTag(PingWorker.TAG)
                 .build();
         spg.getSharedPreference(SPType.ping_sp).edit().putString(LAST_UUID, pingWR.getId().toString()).apply();
+        rttMetric.getMetricCalculator().resetMetric();
         registerObserver();
         workManager.enqueue(pingWR);
 
@@ -96,6 +98,12 @@ public class PingFragment extends Fragment {
 
     private void stopWorker(){
 
+        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(LAST_UUID, "");
+        if(lastUUID.equals("")) {
+            Log.d(TAG, "stopWorker: no worker to stop!");
+            return;
+        }
+        workManager.cancelWorkById(UUID.fromString(lastUUID));
     }
 
     private void saveTextInputToSharedPreferences(EditText field, String name) {
@@ -140,7 +148,7 @@ public class PingFragment extends Fragment {
                     case ENQUEUED:
                         break;
                     case RUNNING:
-                        double rtt = workInfo.getOutputData().getDouble(PingWorker.LINE, 0);
+                        double rtt = workInfo.getProgress().getDouble(PingWorker.LINE, 0);
                         Log.d(TAG, "registerObserver: current RTT:"+rtt);
                         rttMetric.update(rtt);
                         break;

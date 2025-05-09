@@ -48,7 +48,6 @@ public class PingWorker extends Worker {
     public static final String REASON = "reason";
     public static final String LINE = "line";
     public static final String TAG = "PingWorker";
-
     private int notificationID = 102;
     private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
     private final Context ct;
@@ -129,6 +128,7 @@ public class PingWorker extends Worker {
                     try {
                         rtt = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
                         setProgressAsync(new Data.Builder().putDouble(LINE, rtt).build());
+
                         Log.d(TAG, "Updated RTT: " + rtt);
                         new Runnable() {
                             @Override
@@ -140,9 +140,12 @@ public class PingWorker extends Worker {
                         Log.e(TAG, "Error parsing RTT value: " + e.toString());
                     }
                 }
+                if(this.isStopped()){
+                    break;
+                }
 
             }
-
+            process.destroy();
             pingStream.close();
             reader.close();
 
