@@ -450,6 +450,11 @@ public class MQTTService extends Service {
         startForeground(3, builder.build());
         setupSharedPreferences();
         createClient();
+        if(client == null){
+            Log.e(TAG, "onStartCommand: Client is null");
+            spg.getSharedPreference(SPType.mqtt_sp).edit().putBoolean("enable_mqtt", false).apply();
+            return START_NOT_STICKY;
+        }
         connectClient();
 
         subscribeToAllTopics();

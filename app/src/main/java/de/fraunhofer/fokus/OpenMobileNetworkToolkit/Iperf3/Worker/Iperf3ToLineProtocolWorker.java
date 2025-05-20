@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,6 +46,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Interva
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.Stream;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.TCP.TCP_UL_STREAM;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Interval.Streams.UDP.UDP_DL_STREAM;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
@@ -184,7 +186,18 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             }
 
         }
-
+        File path = new File(Iperf3Parameter.lineProtocolDirPath);
+        if(!path.exists()){
+            path.mkdirs();
+        }
+        File iperf3File = new File(iperf3Input.getParameter().getLineProtocolFile());
+        if (!iperf3File.exists()) {
+            try {
+                iperf3File.createNewFile();
+            } catch (IOException e) {
+                Log.e(TAG, "doWork: ", e);
+            }
+        }
 
         FileOutputStream iperf3Stream = null;
         try {
