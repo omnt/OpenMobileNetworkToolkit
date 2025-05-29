@@ -13,17 +13,21 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.CellInfo;
 import android.telephony.TelephonyManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -469,6 +473,27 @@ public class DetailFragment extends Fragment {
                 TextView tv = (TextView) title.getChildAt(0);
                 tv.setTypeface(Typeface.DEFAULT_BOLD);
                 tl.addView(title);
+
+                int levelPercent = getSignalLevelPercent(signalStrengthInformation);
+                int color = getColorForSignalPercent(levelPercent);
+                String qualityText = getSignalQualityDescription(levelPercent);
+
+                TextView signalLabel = new TextView(context);
+                signalLabel.setText("Signal Strength: " + levelPercent + "% (" + qualityText + ")");
+                signalLabel.setGravity(Gravity.CENTER_HORIZONTAL);
+                signalLabel.setPadding(0, 5, 0, 5);
+                tl.addView(signalLabel);
+
+                ProgressBar signalBar = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
+                signalBar.setMax(100);
+                signalBar.setProgress(levelPercent);
+                signalBar.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+                TableRow.LayoutParams params = new TableRow.LayoutParams(
+                        TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
+                params.setMargins(0, 10, 0, 10);
+                signalBar.setLayoutParams(params);
+                tl.addView(signalBar);
+
                 populateCellTable(signalStrengthInformation, tl, false);
 
             }
@@ -640,6 +665,72 @@ public class DetailFragment extends Fragment {
             tl.addView(rowBuilder("No WiFi information available", ""));
         }
         return cardView_from_table_builder("Wifi Information", tl);
+    }
+
+    private int getSignalLevelPercent(CellInformation info) {
+        switch (info.getCellType()) {
+            case LTE: {
+                LTEInformation lte = (LTEInformation) info;
+                int rsrp = lte.getRsrp();
+                if (rsrp >= -85) return 100;
+                else if (rsrp >= -95) return 75;
+                else if (rsrp >= -105) return 50;
+                else if (rsrp >= -115) return 25;
+                else return 10;
+            }
+
+            case NR: {
+                NRInformation nr = (NRInformation) info;
+                int ssRsrp = nr.getSsrsrp();
+                if (ssRsrp >= -80) return 100;
+                else if (ssRsrp >= -90) return 75;
+                else if (ssRsrp >= -100) return 50;
+                else if (ssRsrp >= -110) return 25;
+                else return 10;
+            }
+
+            case GSM: {
+                GSMInformation gsm = (GSMInformation) info;
+                int rssi = gsm.getRssi();
+                if (rssi >= -65) return 100;
+                else if (rssi >= -75) return 75;
+                else if (rssi >= -85) return 50;
+                else if (rssi >= -95) return 25;
+                else return 10;
+            }
+
+            case CDMA:
+            default:
+                return mapSignalLevelToPercent(info.getLevel());
+        }
+    }
+
+
+    private int mapSignalLevelToPercent(int level) {
+        switch (level) {
+            case 4: return 100;
+            case 3: return 75;
+            case 2: return 50;
+            case 1: return 25;
+            case 0: return 10;
+            default: return 0;
+        }
+    }
+
+    private int getColorForSignalPercent(int percent) {
+        if (percent >= 90) return Color.parseColor("#4CAF50"); // Green
+        if (percent >= 70) return Color.parseColor("#8BC34A"); // Light Green
+        if (percent >= 50) return Color.parseColor("#FFC107"); // Amber
+        if (percent >= 25) return Color.parseColor("#FF9800"); // Orange
+        return Color.parseColor("#F44336"); // Red
+    }
+
+    private String getSignalQualityDescription(int percent) {
+        if (percent >= 90) return "Excellent";
+        if (percent >= 70) return "Good";
+        if (percent >= 50) return "Fair";
+        if (percent >= 25) return "Poor";
+        return "Very Weak";
     }
 
     @Override
