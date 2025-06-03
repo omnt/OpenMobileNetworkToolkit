@@ -43,6 +43,7 @@ public abstract class Iperf3ResultsDataBase extends RoomDatabase {
                         .addTypeConverter(new Iperf3ErrorConverter())
                         .allowMainThreadQueries()
                         .enableMultiInstanceInvalidation()
+                        .fallbackToDestructiveMigration(true)
                         .build();
                 }
             }

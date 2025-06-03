@@ -70,6 +70,16 @@ public class PingWorker extends Worker {
 
         notificationManager = (NotificationManager) ct.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(ct, channelId);
+
+        File rawPath = new File(PingParameter.rawDirPath);
+        if(!rawPath.exists()){
+            if(!rawPath.mkdirs()){
+                Log.e(TAG, "Error creating rawDirPath directory: " + PingParameter.rawDirPath);
+            }
+        }
+
+
+
         setForegroundAsync(createForegroundInfo(""));
     }
 

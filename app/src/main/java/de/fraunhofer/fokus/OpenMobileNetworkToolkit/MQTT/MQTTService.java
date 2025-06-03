@@ -110,7 +110,7 @@ public class MQTTService extends Service {
                 .identifier(deviceName)
                 .serverAddress(address)
                 .automaticReconnect()
-                .initialDelay(200, TimeUnit.MILLISECONDS)
+                .initialDelay(5, TimeUnit.SECONDS)
                 .maxDelay(30, TimeUnit.SECONDS)
                 .applyAutomaticReconnect()
                 .addConnectedListener(context -> {

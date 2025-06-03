@@ -21,6 +21,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -250,6 +251,31 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 }
             }
         }, SPType.mqtt_sp);
+
+        Intent intent = getIntent();
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            String mqtt_broker_address = intent.getStringExtra("mqtt_broker_address");
+            String device_name = intent.getStringExtra("device_name");
+            if(device_name != null){
+                spg.getSharedPreference(SPType.default_sp).edit()
+                        .putString("device_name", device_name)
+                        .apply();
+            }
+            if(mqtt_broker_address != null){
+                spg.getSharedPreference(SPType.mqtt_sp).edit()
+                        .putBoolean("enable_mqtt", true)
+                        .putString("mqtt_host", mqtt_broker_address)
+                        .apply();
+                context.startForegroundService(mqttServiceIntent);
+            }
+
+
+        }
+
+
+
+
+
 
         getAppSignature();
         gv.setGit_hash(getString(R.string.git_hash));
