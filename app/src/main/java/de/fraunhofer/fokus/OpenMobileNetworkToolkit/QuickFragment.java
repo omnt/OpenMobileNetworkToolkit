@@ -28,7 +28,7 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.List;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.WCDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
@@ -184,49 +184,48 @@ public class QuickFragment extends Fragment {
                         15, R.color.radio_green);
                 mainLL.addView(lteView);
                 break;
-            case CDMA:
-                CDMAInformation cdma = (CDMAInformation) cellInformation;
-                View cdmaView = inflater.inflate(R.layout.quickview_cdma, null, false);
-                LinearLayout cdmaLL = cdmaView.findViewById(R.id.quickview_cdma);
-
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_pci),
+            case WCDMA:
+                WCDMAInformation cdma = (WCDMAInformation) cellInformation;
+                View wcdmaView = inflater.inflate(R.layout.quickview_wcdma, null, false);
+                LinearLayout wcdmaLL = wcdmaView.findViewById(R.id.quickview_wcdma);
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_pci),
                         cdma.getPciString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_tac),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_tac),
                         cdma.getTacString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_mnc),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_mnc),
                         cdma.getMnc(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_cellType),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_cellType),
                         cdma.getCellType().toString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_ci),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_ci),
                         cdma.getCiString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
 
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_dbm),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_dbm),
                         cdma.getCmdaDbmString(),
                         -120, R.color.radio_red,
                         -70, R.color.radio_green);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_ecio),
-                        cdma.getEvdoEcioString(),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_EcNo),
+                        cdma.getCmdaEcnoString(),
                         0, R.color.radio_green,
                         20, R.color.radio_red);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_evdo_dbm),
-                        cdma.getEvdoDbmString(),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_level),
+                        cdma.getLevelString(),
                         -120, R.color.radio_red,
                         -70, R.color.radio_green);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_evdo_snr),
-                        cdma.getEvdoSnrString(),
+                modifyTextView( wcdmaLL.findViewById(R.id.quickview_wcdma_asu_level),
+                        cdma.getAsuLevelString(),
                         0, R.color.radio_red,
                         20, R.color.radio_green);
-                mainLL.addView(cdmaView);
+                mainLL.addView(wcdmaView);
                 break;
             case UMTS:
                 //mainLL.addView(cellInformation.createQuickView(context));

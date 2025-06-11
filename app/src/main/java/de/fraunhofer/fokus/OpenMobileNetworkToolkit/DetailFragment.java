@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.WCDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
@@ -416,8 +416,8 @@ public class DetailFragment extends Fragment {
                 }, displayNull);
 
                 break;
-            case CDMA:
-                CDMAInformation cdma = (CDMAInformation) signalStrength;
+            case WCDMA:
+                WCDMAInformation cdma = (WCDMAInformation) signalStrength;
                 addRows(tl, new String[][]{
                         {getString(R.string.alphaLong), String.valueOf(cdma.getAlphaLong())},
                         {getString(R.string.cellType), String.valueOf(cdma.getCellType())},
@@ -428,11 +428,10 @@ public class DetailFragment extends Fragment {
                 addDivider(tl);
 
                 addRows(tl, new String[][]{
-                        {getString(R.string.cmdaDbm), String.valueOf(cdma.getCmdaDbm())},
-                        {getString(R.string.cmdaEcio), String.valueOf(cdma.getCmdaEcio())},
-                        {getString(R.string.evdoDbm), String.valueOf(cdma.getEvdoDbm())},
-                        {getString(R.string.evdoEcio), String.valueOf(cdma.getEvdoEcio())},
-                        {getString(R.string.evdoSnr), String.valueOf(cdma.getEvdoSnr())},
+                        {getString(R.string.wcmdaDbm), String.valueOf(cdma.getDbm())},
+                        {getString(R.string.wcmdaEcNo), String.valueOf(cdma.getEcNo())},
+                        {getString(R.string.wcdmaLevel), String.valueOf(cdma.getLevel())},
+                        {getString(R.string.wcmdaAsuLevel), String.valueOf(cdma.getAsuLevel())},
                 }, displayNull);
 
                 break;

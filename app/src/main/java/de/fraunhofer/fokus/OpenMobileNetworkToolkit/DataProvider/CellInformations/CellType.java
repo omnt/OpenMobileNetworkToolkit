@@ -13,6 +13,6 @@ public enum CellType {
     NR,
     UMTS,
     GSM,
-    CDMA,
+    WCDMA,
     UNKNOWN
 }

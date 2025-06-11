@@ -30,15 +30,15 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Looper;
 import android.telephony.CellInfo;
-import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoNr;
+import android.telephony.CellInfoWcdma;
 import android.telephony.CellSignalStrength;
-import android.telephony.CellSignalStrengthCdma;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import android.telephony.CellSignalStrengthNr;
+import android.telephony.CellSignalStrengthWcdma;
 import android.telephony.PhysicalChannelConfig;
 import android.telephony.SignalStrength;
 import android.telephony.SubscriptionInfo;
@@ -70,14 +70,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.WCDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -245,7 +244,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         if (tm.hasCarrierPrivileges()) {
             try {
                 di.setIMEI(tm.getImei());
-                if (pm.hasSystemFeature(PackageManager.FEATURE_TELEPHONY_CDMA)) di.setMEID(tm.getMeid());
                 di.setSimSerial(tm.getSimSerialNumber());
                 di.setSubscriberId(tm.getSubscriberId());
                 di.setNetworkAccessIdentifier(tm.getNai());
@@ -347,8 +345,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             if (ci instanceof CellInfoLte) {
                 cim = new LTEInformation((CellInfoLte) ci, ts_);
             }
-            if (ci instanceof CellInfoCdma) {
-                cim = new CDMAInformation((CellInfoCdma) ci, ts_);
+            if (ci instanceof CellInfoWcdma) {
+                cim = new WCDMAInformation((CellInfoWcdma) ci, ts_);
             }
             if (ci instanceof CellInfoGsm) {
                 cim = new GSMInformation((CellInfoGsm) ci, ts_);
@@ -425,8 +423,8 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                 LTEInformation lte = (LTEInformation) ci_;
                 point = lte.getPoint(point);
             }
-            if (ci_.getCellType().equals(CellType.CDMA)) {
-                CDMAInformation cdma = (CDMAInformation) ci_;
+            if (ci_.getCellType().equals(CellType.WCDMA)) {
+                WCDMAInformation cdma = (WCDMAInformation) ci_;
                 point = cdma.getPoint(point);
             }
             if (ci_.getCellType().equals(CellType.GSM)) {
@@ -515,9 +513,9 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                 CellSignalStrengthLte ssLTE = (CellSignalStrengthLte) ss;
                 signalStrengthInformation = new LTEInformation(ts_, ssLTE);
             }
-            if (ss instanceof CellSignalStrengthCdma) {
-                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
-                signalStrengthInformation = new CDMAInformation(ts_, ssCdma);
+            if (ss instanceof CellSignalStrengthWcdma) {
+                CellSignalStrengthWcdma ssWcdma = (CellSignalStrengthWcdma) ss;
+                signalStrengthInformation = new WCDMAInformation(ts_, ssWcdma);
             }
             if (ss instanceof CellSignalStrengthGsm) {
                 CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;
@@ -570,10 +568,13 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                 addOnlyAvailablePoint(point, "RSSI", ssLTE.getRssi());
                 addOnlyAvailablePoint(point, "RSSNR", ssLTE.getRssnr());
             }
-            if (ss instanceof CellSignalStrengthCdma) {
-                CellSignalStrengthCdma ssCdma = (CellSignalStrengthCdma) ss;
-                addOnlyAvailablePoint(point, "Level", ssCdma.getLevel());
-                addOnlyAvailablePoint(point, "EvoDbm", ssCdma.getEvdoDbm());
+            if (ss instanceof CellSignalStrengthWcdma) {
+                CellSignalStrengthWcdma ssWcdma = (CellSignalStrengthWcdma) ss;
+                addOnlyAvailablePoint(point, "Level", ssWcdma.getLevel());
+                addOnlyAvailablePoint(point, "AsuLevel", ssWcdma.getAsuLevel());
+                addOnlyAvailablePoint(point, "EcNo", ssWcdma.getEcNo());
+                addOnlyAvailablePoint(point, "Dbm", ssWcdma.getDbm());
+
             }
             if (ss instanceof CellSignalStrengthGsm) {
                 CellSignalStrengthGsm ssGSM = (CellSignalStrengthGsm) ss;

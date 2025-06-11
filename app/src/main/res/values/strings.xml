@@ -179,11 +179,8 @@
 
     <!-- CellInformation -->
     <string name="bsic">BSIC</string>
-    <string name="cmdaDbm">CMDA dBm</string>
-    <string name="cmdaEcio">CMDA Ec/Io</string>
-    <string name="evdoDbm">EVDO dBm</string>
-    <string name="evdoEcio">EVDO Ec/Io</string>
-    <string name="evdoSnr">EVDO SNR</string>
+    <string name="wcmdaDbm">WCMDA dBm</string>
+    <string name="wcmdaEcNo">WCMDA EcNo</string>
     <string name="cellType">Type</string>
     <string name="alphaLong">Alpha Long</string>
     <string name="bands">Bands</string>
@@ -284,6 +281,8 @@
     <string name="X">X</string>
     <string name="state">State</string>
     <string name="Parameter">Parameter</string>
+    <string name="wcdmaLevel">Level</string>
+    <string name="wcmdaAsuLevel">AsuLevel\n</string>
 
 
 </resources>
