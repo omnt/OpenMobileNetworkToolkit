@@ -14,7 +14,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.net.Network;
 import android.os.Build;
@@ -36,6 +35,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.BlendModeColorFilterCompat;
+import androidx.core.graphics.BlendModeCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -45,13 +46,14 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.WCDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.WCDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.LocationInformation;
@@ -478,7 +480,7 @@ public class DetailFragment extends Fragment {
                 String qualityText = getSignalQualityDescription(levelPercent);
 
                 TextView signalLabel = new TextView(context);
-                signalLabel.setText("Signal Strength: " + levelPercent + "% (" + qualityText + ")");
+                signalLabel.setText(String.format(Locale.US,"%s%d%% (%s)", getString(R.string.signal_strength), levelPercent, qualityText));
                 signalLabel.setGravity(Gravity.CENTER_HORIZONTAL);
                 signalLabel.setPadding(0, 5, 0, 5);
                 tl.addView(signalLabel);
@@ -486,11 +488,8 @@ public class DetailFragment extends Fragment {
                 ProgressBar signalBar = new ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal);
                 signalBar.setMax(100);
                 signalBar.setProgress(levelPercent);
-                signalBar.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
-                TableRow.LayoutParams params = new TableRow.LayoutParams(
-                        TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
-                params.setMargins(0, 10, 0, 10);
-                signalBar.setLayoutParams(params);
+                signalBar.getProgressDrawable().setColorFilter(BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP));
+                signalBar.setPadding(25,0,25,0);
                 tl.addView(signalBar);
 
                 populateCellTable(signalStrengthInformation, tl, false);
@@ -668,7 +667,7 @@ public class DetailFragment extends Fragment {
 
     private int getSignalLevelPercent(CellInformation info) {
         switch (info.getCellType()) {
-            case LTE: {
+            case LTE:
                 LTEInformation lte = (LTEInformation) info;
                 int rsrp = lte.getRsrp();
                 if (rsrp >= -85) return 100;
@@ -676,9 +675,8 @@ public class DetailFragment extends Fragment {
                 else if (rsrp >= -105) return 50;
                 else if (rsrp >= -115) return 25;
                 else return 10;
-            }
 
-            case NR: {
+            case NR:
                 NRInformation nr = (NRInformation) info;
                 int ssRsrp = nr.getSsrsrp();
                 if (ssRsrp >= -80) return 100;
@@ -686,9 +684,8 @@ public class DetailFragment extends Fragment {
                 else if (ssRsrp >= -100) return 50;
                 else if (ssRsrp >= -110) return 25;
                 else return 10;
-            }
 
-            case GSM: {
+            case GSM:
                 GSMInformation gsm = (GSMInformation) info;
                 int rssi = gsm.getRssi();
                 if (rssi >= -65) return 100;
@@ -696,9 +693,10 @@ public class DetailFragment extends Fragment {
                 else if (rssi >= -85) return 50;
                 else if (rssi >= -95) return 25;
                 else return 10;
-            }
 
-            case CDMA:
+            case UMTS:
+            case UNKNOWN:
+            case WCDMA:
             default:
                 return mapSignalLevelToPercent(info.getLevel());
         }
