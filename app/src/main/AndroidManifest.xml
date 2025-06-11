@@ -81,8 +81,6 @@
             android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerFour"
             android:exported="false"
             android:process=":iperf3MonitorWorker4" />
-
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -93,11 +91,6 @@
                 android:name="androidx.work.WorkManagerInitializer"
                 android:value="androidx.startup"
                 tools:node="remove" />
-        </provider>
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove">
         </provider>
         <provider
             android:name="androidx.startup.InitializationProvider"
