@@ -21,9 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.work.Data;
@@ -40,6 +42,7 @@ import org.json.JSONObject;
 
 import java.io.FileOutputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
@@ -67,6 +70,7 @@ public class PingFragment extends Fragment {
     private MetricView rttMetric;
     private MetricView packetLossMetric;
     private WorkManager workManager;
+    private ImageButton repeatButton;
 
     public PingFragment() {
     }
@@ -162,6 +166,13 @@ public class PingFragment extends Fragment {
 
     }
 
+    private void setupRepeatButton(){
+        boolean isRepeat = spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false);
+        int color = ContextCompat.getColor(requireContext(),
+                isRepeat ? R.color.design_default_color_primary : R.color.design_default_color_on_secondary);
+        repeatButton.setColorFilter(color);
+    }
+
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -177,23 +188,33 @@ public class PingFragment extends Fragment {
         input = verticalLL.findViewById(R.id.ping_input);
         input.setText(spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "-w 5 8.8.8.8"));
         input.setEnabled(!PingService.isRunning());
+        repeatButton = v.findViewById(R.id.ping_repeat_button);
+        setupRepeatButton();
+        repeatButton.setOnClickListener(view -> {
+            Log.d(TAG, "onCreateView: Repeat button clicked");
+            boolean isRepeat = spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false);
+            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("repeat_ping", !isRepeat).apply();
+            setupRepeatButton();
+
+        });
+
         saveTextInputToSharedPreferences(input, "ping_input");
         boolean pingRunning = spg.getSharedPreference(SPType.ping_sp).getBoolean("ping_running", false);
         if (pingRunning && PingService.isRunning()) {
-            v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+            v.findViewById(R.id.ping_start).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
         } else {
-            v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+            v.findViewById(R.id.ping_stop).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
         }
         spg.setListener((sharedPreferences, key) -> {
             if (key != null && key.equals("ping_running")) {
                 boolean isRunning = sharedPreferences.getBoolean("ping_running", false);
                 handleInput(isRunning);
                 if (isRunning) {
-                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_start).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
                 } else {
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
                 }
 
             }
@@ -205,14 +226,14 @@ public class PingFragment extends Fragment {
             if (!isChecked) return;
             switch (checkedId) {
                 case R.id.ping_start:
-                    v.findViewById(R.id.ping_start).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_start).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
                     startWorker();
                     break;
                 case R.id.ping_stop:
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
                     stopWorker();
                     break;

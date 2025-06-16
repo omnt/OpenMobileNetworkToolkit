@@ -284,6 +284,7 @@
     <string name="X">X</string>
     <string name="state">State</string>
     <string name="Parameter">Parameter</string>
+    <string name="ping_repeat_button">if enabled, ping will repeat, until disabled</string>
 
 
 </resources>

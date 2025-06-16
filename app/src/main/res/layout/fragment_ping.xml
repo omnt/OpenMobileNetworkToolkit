@@ -97,6 +97,8 @@
                 <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/ping_repeat_button"
+                    android:contentDescription="@string/ping_repeat_button"
                     android:src="@drawable/repeat_24px"
                     android:background="@android:color/transparent"
                     android:layout_gravity="center">
