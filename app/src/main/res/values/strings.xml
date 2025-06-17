@@ -283,7 +283,11 @@
     <string name="Parameter">Parameter</string>
     <string name="wcdmaLevel">Level</string>
     <string name="wcmdaAsuLevel">AsuLevel\n</string>
-    <string name="signal_strength">"Signal Strength: "</string>
+    <string name="signal_strength">"Signal Strength Level: "</string>
+    <string name="excellent">Excellent</string>
+    <string name="good">Good</string>
+    <string name="fair">Fair</string>
+    <string name="poor">Poor</string>
 
 
 </resources>
