@@ -9,67 +9,38 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.icu.text.SimpleDateFormat;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import com.influxdb.client.write.Point;
+import com.google.gson.Gson;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.UUID;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnections;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingToLineProtocolWorker;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class PingService extends Service {
     private static final String TAG = "PingService";
-    private FileOutputStream ping_stream;
-    private Handler pingLogging;
-    private HandlerThread pingLoggingHandleThread;
-    private WorkManager wm;
-    private Context context;
-    private ArrayList<OneTimeWorkRequest> pingWRs;
+    public static final String PING_INTENT_COMMAND = "ping_intent_command";
+    public static final String PING_INTENT_ENABLE = "ping_intent_enable";
+    public static final String PING_LAST_UUID = "ping_last_uuid";
     private SharedPreferencesGrouper spg;
-    NotificationCompat.Builder builder;
-    DataProvider dp;
-    InfluxdbConnection influx;
-    private static boolean isRunning = false;
-    private String pingCommand;
-    private PropertyChangeListener propertyChangeListener;
-    HashMap<String, String> parsedCommand = new HashMap<>();
-
+    private WorkManager workManager;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -78,160 +49,113 @@ public class PingService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy: Stop logging service");
-        stopPing();
-    }
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: Start logging service");
-        GlobalVars gv = GlobalVars.getInstance();
-        // setup class variables
-        dp = gv.get_dp();
-        context = getApplicationContext();
-        spg = SharedPreferencesGrouper.getInstance(context);
-        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) influx = InfluxdbConnections.getRicInstance(context);
-        wm = WorkManager.getInstance(context);
-        wm.cancelAllWorkByTag("Ping");
-        if(intent == null) return START_NOT_STICKY;
-        pingWRs = new ArrayList<>();
-
-        setupPing();
-        isRunning = true;
-        return START_STICKY;
     }
 
 
-    private void setupPing(){
-        Log.d(TAG, "starting Ping Service...");
-
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath() + "/omnt/ping/";
-        try {
-            Files.createDirectories(Paths.get(path));
-        } catch (IOException e) {
-            Toast.makeText(context, "could not create /omnt/ping Dir!", Toast.LENGTH_SHORT).show();
-            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
-            Log.d(TAG, "setupPing: could not create /omnt/ping Dir!");
-            return;
-        }
-
-        // create the log file
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US);
-        Date now = new Date();
-        String filename = path + formatter.format(now) + ".txt";
-        Log.d(TAG, "logfile: " + filename);
-        File logfile = new File(filename);
-        try {
-            logfile.createNewFile();
-        } catch (IOException e) {
-            Toast.makeText(context, "could not create logfile "+filename, Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "setupPing: could not create logfile");
-            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
-            return;
-        }
-
-        // get an output stream
-        try {
-            ping_stream = new FileOutputStream(logfile);
-        } catch (FileNotFoundException e) {
-            Toast.makeText(context, "could not create output stream", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "setupPing: could not create output stream");
-            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
-            return;
-        }
-        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", true).apply();
-        pingLoggingHandleThread = new HandlerThread("PingLoggingHandlerThread");
-        pingLoggingHandleThread.start();
-        pingLogging = new Handler(Objects.requireNonNull(pingLoggingHandleThread.getLooper()));
-        propertyChangeListener = new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                PingInformation pi = (PingInformation) evt.getNewValue();
-
-                Point point = pi.getPoint();
-                point.addTags(dp.getTagsMap());
-                Log.d(TAG, "propertyChange: "+point.toLineProtocol());
-                try {
-                    ping_stream.write((point.toLineProtocol() + "\n").getBytes());
-                } catch (IOException e) {
-                    Log.d(TAG,e.toString());
-                }
-
-                if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false) && influx.getWriteApi() != null) {
-                    try {
-                        influx.writePoints(List.of(point));
-                    } catch (IOException e) {
-                        Log.d(TAG,e.toString());
-                    }
-                }
-
-            }
-        };
-
-        pingLogging.post(pingUpdate);
-    }
-    public void parsePingCommand() {
-
-        String[] commandParts = pingCommand.split("\\s+");
-
-        String previousPart = null;
-        for (String part : commandParts) {
-            switch (part) {
-                case "ping":
-                    parsedCommand.put("command", part);
-                    break;
-                case "-w":
-                    if (previousPart != null) {
-                        parsedCommand.put("timeout", previousPart);
-                    }
-                    break;
-                default:
-                    parsedCommand.put("target", part);
-                    break;
-            }
-            previousPart = part;
-        }
-    }
-
-    private final Runnable pingUpdate = new Runnable() {
-        @Override
-        public void run() {
-            Data data = new Data.Builder()
-                .putString("input", spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "8.8.8.8"))
+    private void startWorker(String command) {
+        String uuid = UUID.randomUUID().toString();
+        PingParameter pingParameter = new PingParameter(command, uuid);
+        PingInput pingInput = new PingInput(pingParameter, uuid);
+        String gson = new Gson().toJson(pingInput, PingInput.class);
+        Data data = new Data.Builder()
+                .putString(PingInput.INPUT, gson)
+                .build();
+        OneTimeWorkRequest pingWR = new OneTimeWorkRequest.Builder(PingWorker.class)
+                .setInputData(data)
+                .addTag(uuid)
+                .addTag(PingWorker.TAG)
+                .build();
+        OneTimeWorkRequest pingToLineProtocolWR = new OneTimeWorkRequest.Builder(PingToLineProtocolWorker.class)
+                .setInputData(data)
+                .addTag(uuid)
+                .addTag(PingToLineProtocolWorker.TAG)
                 .build();
 
 
-
+        spg.getSharedPreference(SPType.ping_sp).edit().putString(PING_LAST_UUID, pingWR.getId().toString()).apply();
+        registerObserver(command);
+        WorkContinuation workContinuation = workManager.beginWith(pingWR).then(pingToLineProtocolWR);
+        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)){
+            OneTimeWorkRequest influxDB2xUploadWorker = new OneTimeWorkRequest.Builder(InfluxDB2xUploadWorker.class)
+                    .setInputData(data)
+                    .addTag(uuid)
+                    .addTag(InfluxDB2xUploadWorker.TAG)
+                    .build();
+            workContinuation = workContinuation.then(influxDB2xUploadWorker);
         }
-    };
+        workContinuation.enqueue();
 
-    private void stopPing(){
-
-        if (pingLogging != null )pingLogging.removeCallbacks(pingUpdate);
-        if (pingLoggingHandleThread != null) {
-            pingLoggingHandleThread.quitSafely();
-            try {
-                pingLoggingHandleThread.join();
-            } catch (InterruptedException e) {
-                Log.e(TAG, "Exception happened!! "+e, e);
-            }
-            pingLoggingHandleThread = null;
-        }
-        try {
-            if (ping_stream != null) ping_stream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        for (OneTimeWorkRequest wr : pingWRs){
-            wm.cancelWorkById(wr.getId());
-
-        }
-
-        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping", false).apply();
-        pingWRs = new ArrayList<>();
     }
-    public static boolean isRunning() {
-        return isRunning;
+    private void stopWorker(){
+        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(PING_LAST_UUID, "");
+        if(lastUUID.equals("")) {
+            Log.d(TAG, "stopWorker: no worker to stop!");
+            return;
+        }
+        workManager.cancelWorkById(UUID.fromString(lastUUID));
     }
+
+
+    private void registerObserver(String command){
+        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(PING_LAST_UUID, null);
+        if(lastUUID != null) {
+            UUID lastUUIDUUID = UUID.fromString(lastUUID);
+            LiveData<WorkInfo> liveData =  workManager.getWorkInfoByIdLiveData(lastUUIDUUID);
+            Observer<WorkInfo> observer = workInfo -> {
+                if(workInfo == null) return;
+                Log.d(TAG, "registerObserver: workInfo-State: "+workInfo.getState());
+                switch (workInfo.getState()){
+                    case SUCCEEDED:
+                    case FAILED:
+                        if(spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false)){
+                            Log.d(TAG, "registerObserver: Repeat ping");
+                            startWorker(command);
+                        } else {
+                            Log.d(TAG, "registerObserver: Stop ping service");
+                            stopSelf();
+                        }
+//                        liveData.removeObserver(observer);
+//                        liveData.removeObservers();
+
+                        break;
+                    case CANCELLED:
+                    case ENQUEUED:
+                    case BLOCKED:
+                    case RUNNING:
+                        break;
+                    default:
+                        break;
+                }
+            };
+            liveData.observeForever(observer);
+        }
+
+    }
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand: Start ping service");
+        spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
+        workManager = WorkManager.getInstance(getApplicationContext());
+        String command = intent.getStringExtra(PING_INTENT_COMMAND);
+        boolean isEnabled = intent.getBooleanExtra(PING_INTENT_ENABLE, false);
+        if(!isEnabled){
+            stopWorker();
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(PING_LAST_UUID, "");
+        if(!lastUUID.isEmpty()){
+            stopWorker();
+        }
+
+        startWorker(command);
+
+
+        return START_STICKY;
+    }
+
 
 
 }
