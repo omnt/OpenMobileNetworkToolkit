@@ -288,6 +288,9 @@
     <string name="good">Good</string>
     <string name="fair">Fair</string>
     <string name="poor">Poor</string>
+    <string name="channel_bandwidth_short">Ch Bw</string>
+    <string name="frequency_short">Freq</string>
+    <string name="wifi_security_type_short">Sec Type</string>
 
 
 </resources>
