@@ -40,6 +40,10 @@ import java.util.regex.Pattern;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingParser;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class PingWorker extends Worker {
@@ -47,6 +51,11 @@ public class PingWorker extends Worker {
     public static final String PING = "ping";
     public static final String REASON = "reason";
     public static final String LINE = "line";
+    public static final String RTT = "rtt";
+    public static final String PACKET_LOSS = "packetLoss";
+    public static final String UNREACHABLE = "unreachable";
+    public static final String TIMEOUT = "timeout";
+
     public static final String TAG = "PingWorker";
     private int notificationID = 102;
     private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
@@ -120,36 +129,50 @@ public class PingWorker extends Worker {
         Log.d(TAG, "doWork: executing " + String.join(" ", command));
         int result = -1;
         try {
-            String timeRegex = "time=(\\d+(?:\\.\\d+)?)\\s*ms";
-            Pattern pattern = Pattern.compile(timeRegex);
 
 
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             FileOutputStream pingStream = new FileOutputStream(pingInput.getPingParameter().getLogfile(), true);
-
+            PingParser pingParser = new PingParser();
             String line;
             while ((line = reader.readLine()) != null) {
                 Log.d(TAG, "doWork: "+line);
                 pingStream.write((line + "\n").getBytes());
-                Matcher matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    try {
-                        rtt = Double.parseDouble(Objects.requireNonNull(matcher.group(1)));
-                        setProgressAsync(new Data.Builder().putDouble(LINE, rtt).build());
-
-                        Log.d(TAG, "Updated RTT: " + rtt);
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                setForegroundAsync(createForegroundInfo( rtt + " ms"));
-                            }
-                        }.run();
-                    } catch (NumberFormatException e) {
-                        Log.e(TAG, "Error parsing RTT value: " + e.toString());
-                    }
+                pingParser.addLine(line);
+                PingInformation pingInformation = pingParser.getLastPingInformation();
+                Data.Builder progressOutput = new Data.Builder();
+                if(line == null || pingInformation == null){
+                    Log.w(TAG, "doWork: Line or PingInformation is null, skipping line");
+                    continue;
                 }
+                switch (pingInformation.getLineType()){
+                    case RTT:
+                        rtt = ((RTTLine)pingInformation).getRtt();
+                        progressOutput.putDouble(RTT, rtt);
+
+                        setProgressAsync(progressOutput.build());
+                        setForegroundAsync(createForegroundInfo(((RTTLine) pingInformation).getHost()+": " + rtt + " ms"));
+                        Log.d(TAG, "doWork: RTT: " + rtt);
+                        break;
+                    case UNREACHABLE:
+                        Log.e(TAG, "doWork: Unreachable destination");
+                        return Result.failure(progressOutput.putString(REASON, "Unreachable destination").build());
+                    case TIMEOUT:
+                        Log.w(TAG, "doWork: Request timeout");
+                        progressOutput.putString(REASON, "Request timeout");
+                        break;
+                    case PACKET_LOSS:
+                        double packetLoss = ((PacketLossLine)pingInformation).getPacketLoss();
+                        setProgressAsync(new Data.Builder().putDouble(PACKET_LOSS, packetLoss).build());
+                        Log.d(TAG, "doWork: Packet Loss: " + packetLoss);
+                        break;
+                    case UNKNOWN:
+                        Log.w(TAG, "doWork: Unknown line type");
+                        break;
+                }
+
                 if(this.isStopped()){
                     break;
                 }

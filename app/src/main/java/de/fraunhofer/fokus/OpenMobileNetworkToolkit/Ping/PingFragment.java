@@ -8,6 +8,8 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
+import static android.view.View.INVISIBLE;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -54,6 +56,9 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
@@ -127,15 +132,25 @@ public class PingFragment extends Fragment {
                         @Override
                         public void onChanged(WorkInfo workInfo) {
                             if (workInfo == null) return;
-
+                            Data progress = workInfo.getProgress();
                             Log.d(TAG, "registerObserver: workInfo-State: " + workInfo.getState());
+                            double rtt = progress.getDouble(PingWorker.RTT, -1.0);
+                            if(rtt != -1.0) {
+                                rttMetric.update(rtt);
+                            }
+
+                            double packetLoss = progress.getDouble(PingWorker.PACKET_LOSS, -1.0);
+
+                            if(packetLoss != -1.0) {
+                                packetLossMetric.setVisibility(View.VISIBLE);
+                                Log.d(TAG, "onChanged: Packet Loss: " + packetLoss);
+                                packetLossMetric.update(packetLoss);
+                            }
+
                             switch (workInfo.getState()) {
                                 case RUNNING:
-                                    double rtt = workInfo.getProgress().getDouble(PingWorker.LINE, 0);
-                                    Log.d(TAG, "registerObserver: current RTT: " + rtt);
-                                    rttMetric.update(rtt);
-                                    break;
                                 case SUCCEEDED:
+                                    break;
                                 case FAILED:
                                 case CANCELLED:
                                     liveData.removeObserver(this);  // Optionally clean up
@@ -221,7 +236,8 @@ public class PingFragment extends Fragment {
                     startIntent.putExtra(PingService.PING_INTENT_ENABLE, true);
                     ct.startService(startIntent);
                     registerObserver();
-
+                    rttMetric.getMetricCalculator().resetMetric();
+                    packetLossMetric.getMetricCalculator().resetMetric();
                     break;
                 case R.id.ping_stop:
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
@@ -249,29 +265,8 @@ public class PingFragment extends Fragment {
         metricsLL.setLayoutParams(foo1);
         metricsLL.addView(rttMetric);
         metricsLL.addView(packetLossMetric);
-
+        packetLossMetric.setVisibility(INVISIBLE);
         horizontalLL1.addView(metricsLL);
-
-
-
-
-        //ToDO
-        /*
-        PingParser pingParser = PingParser;
-        pingParser.addPropertyChangeListener(evt -> {
-            PingInformation pi = (PingInformation) evt.getNewValue();
-            switch (pi.getLineType()) {
-                case RTT:
-                    rttMetric.update(((RTTLine) pi).getRtt());
-                    break;
-                case PACKET_LOSS:
-                    packetLossMetric.update(((PacketLossLine) pi).getPacketLoss());
-                    //packetLossMetric.setVisibility(View.VISIBLE);
-                    break;
-            }
-        });
-        */
-        //packetLossMetric.setVisibility(View.INVISIBLE);
         return v;
     }
 

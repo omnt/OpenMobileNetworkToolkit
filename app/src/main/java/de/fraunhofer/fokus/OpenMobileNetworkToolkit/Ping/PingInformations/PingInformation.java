@@ -18,7 +18,6 @@ public class PingInformation {
     private final String line;
     private LINEType lineType;
     private Double unixTimestamp;
-    private DataProvider dp;
     public PingInformation(String line) {
         this.line = line;
     }
