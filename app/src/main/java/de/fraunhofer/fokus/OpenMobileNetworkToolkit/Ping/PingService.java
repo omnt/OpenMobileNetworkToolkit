@@ -49,11 +49,14 @@ public class PingService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy: Stop logging service");
+        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+        stopWorker();
     }
 
 
     private void startWorker(String command) {
         String uuid = UUID.randomUUID().toString();
+
         PingParameter pingParameter = new PingParameter(command, uuid);
         PingInput pingInput = new PingInput(pingParameter, uuid);
         String gson = new Gson().toJson(pingInput, PingInput.class);
@@ -70,7 +73,6 @@ public class PingService extends Service {
                 .addTag(uuid)
                 .addTag(PingToLineProtocolWorker.TAG)
                 .build();
-
 
         spg.getSharedPreference(SPType.ping_sp).edit().putString(PING_LAST_UUID, pingWR.getId().toString()).apply();
         registerObserver(command);
@@ -133,16 +135,25 @@ public class PingService extends Service {
     }
 
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Start ping service");
         spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
         workManager = WorkManager.getInstance(getApplicationContext());
+        if(intent == null){
+            Log.d(TAG, "onStartCommand: Intent is null, stopping service");
+            workManager.cancelAllWorkByTag(PingWorker.TAG);
+            stopSelf();
+            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+            return START_NOT_STICKY;
+        }
         String command = intent.getStringExtra(PING_INTENT_COMMAND);
         boolean isEnabled = intent.getBooleanExtra(PING_INTENT_ENABLE, false);
         if(!isEnabled){
             stopWorker();
             stopSelf();
+            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
             return START_NOT_STICKY;
         }
         String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(PING_LAST_UUID, "");

@@ -36,7 +36,7 @@ public class RTTLine extends PingInformation{
             // Group 3 = hostname, Group 4 = optional IP
             String hostname = matcher.group(3).trim();
             String ip = matcher.group(4);
-            host = ip;
+            host = (ip != null) ? ip : hostname;
             rtt = Double.parseDouble(matcher.group(7));
         }
 

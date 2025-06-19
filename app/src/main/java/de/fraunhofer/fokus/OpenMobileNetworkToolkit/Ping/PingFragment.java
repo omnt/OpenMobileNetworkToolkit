@@ -10,7 +10,10 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import static android.view.View.INVISIBLE;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +31,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -81,6 +85,9 @@ public class PingFragment extends Fragment {
     private MetricView packetLossMetric;
     private WorkManager workManager;
     private ImageButton repeatButton;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
+    private Observer<WorkInfo> observer;
+    private LiveData<WorkInfo> workInfoLiveData;
 
     public PingFragment() {
     }
@@ -116,65 +123,90 @@ public class PingFragment extends Fragment {
         input.setEnabled(!ping_running);
     }
 
-    private void registerObserver() {
-        SharedPreferences.OnSharedPreferenceChangeListener listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (PingService.PING_LAST_UUID.equals(key)) {
-                    String uuidStr = sharedPreferences.getString(PingService.PING_LAST_UUID, null);
-                    if (uuidStr == null) return;
 
-                    UUID lastUUIDUUID = UUID.fromString(uuidStr);
-                    Log.d(TAG, "registerObserver: lastUUID changed: " + lastUUIDUUID);
+    private void checkLastUUID(String uuidStr) {
+        if (uuidStr == null || !isAdded() || getView() == null) return;
 
-                    LiveData<WorkInfo> liveData = workManager.getWorkInfoByIdLiveData(lastUUIDUUID);
-                    Observer<WorkInfo> observer = new Observer<WorkInfo>() {
-                        @Override
-                        public void onChanged(WorkInfo workInfo) {
-                            if (workInfo == null) return;
-                            Data progress = workInfo.getProgress();
-                            Log.d(TAG, "registerObserver: workInfo-State: " + workInfo.getState());
-                            double rtt = progress.getDouble(PingWorker.RTT, -1.0);
-                            if(rtt != -1.0) {
-                                rttMetric.update(rtt);
-                            }
+        UUID lastUUIDUUID = UUID.fromString(uuidStr);
+        Log.d(TAG, "registerObserver: lastUUID changed: " + lastUUIDUUID);
+        if(workInfoLiveData != null){
+            workInfoLiveData.removeObserver(observer);
+        }
 
-                            double packetLoss = progress.getDouble(PingWorker.PACKET_LOSS, -1.0);
+        workInfoLiveData = workManager.getWorkInfoByIdLiveData(lastUUIDUUID);
+        observer = workInfo -> {
+            if (workInfo == null) return;
+            Data progress = workInfo.getProgress();
+            Log.d(TAG, "registerObserver: workInfo-State: " + workInfo.getState());
+            double rtt = progress.getDouble(PingWorker.RTT, -1.0);
+            if(rtt != -1.0) {
+                rttMetric.update(rtt);
+            }
 
-                            if(packetLoss != -1.0) {
-                                packetLossMetric.setVisibility(View.VISIBLE);
-                                Log.d(TAG, "onChanged: Packet Loss: " + packetLoss);
-                                packetLossMetric.update(packetLoss);
-                            }
+            double packetLoss = progress.getDouble(PingWorker.PACKET_LOSS, -1.0);
 
-                            switch (workInfo.getState()) {
-                                case RUNNING:
-                                case SUCCEEDED:
-                                    break;
-                                case FAILED:
-                                case CANCELLED:
-                                    liveData.removeObserver(this);  // Optionally clean up
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    };
+            if(packetLoss != -1.0) {
+                packetLossMetric.setVisibility(View.VISIBLE);
+                Log.d(TAG, "onChanged: Packet Loss: " + packetLoss);
+                packetLossMetric.update(packetLoss);
+            }
 
-                    liveData.observe(getViewLifecycleOwner(), observer);
-                }
+            switch (workInfo.getState()) {
+                case RUNNING:
+                case SUCCEEDED:
+                    break;
+                case FAILED:
+                case CANCELLED:
+                    workInfoLiveData.removeObserver(observer);  // Optionally clean up
+                    break;
+                default:
+                    break;
+            }
+        };
+        workInfoLiveData.observe(getViewLifecycleOwner(), observer);
+
+    }
+    private void setupRepeatButton(){
+        boolean isRepeat = spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false);
+        int color = ContextCompat.getColor(ct,
+                isRepeat ? R.color.design_default_color_primary : R.color.design_default_color_on_secondary);
+        repeatButton.setColorFilter(color);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: PingFragment resumed");
+        spg.getSharedPreference(SPType.ping_sp).registerOnSharedPreferenceChangeListener(listener);
+        checkLastUUID(spg.getSharedPreference(SPType.ping_sp).getString(PingService.PING_LAST_UUID, null));
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: PingFragment destroyed");
+        spg.getSharedPreference(SPType.ping_sp).unregisterOnSharedPreferenceChangeListener(listener);
+        workInfoLiveData.removeObserver(observer);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated: PingFragment view created");
+        listener = (sharedPreferences, key) -> {
+            Log.d(TAG, "registerObserver: key changed: " + key);
+            if (PingService.PING_LAST_UUID.equals(key)) {
+                String uuidStr = sharedPreferences.getString(PingService.PING_LAST_UUID, null);
+                Log.d(TAG, "registerObserver: lastUUID changed "+uuidStr);
+                checkLastUUID(uuidStr);
+
             }
         };
 
         spg.getSharedPreference(SPType.ping_sp).registerOnSharedPreferenceChangeListener(listener);
-    }
 
-
-    private void setupRepeatButton(){
-        boolean isRepeat = spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false);
-        int color = ContextCompat.getColor(requireContext(),
-                isRepeat ? R.color.design_default_color_primary : R.color.design_default_color_on_secondary);
-        repeatButton.setColorFilter(color);
+        checkLastUUID(spg.getSharedPreference(SPType.ping_sp).getString(PingService.PING_LAST_UUID, null));
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -203,48 +235,45 @@ public class PingFragment extends Fragment {
         saveTextInputToSharedPreferences(input, "ping_input");
         boolean pingRunning = spg.getSharedPreference(SPType.ping_sp).getBoolean("ping_running", false);
         if (pingRunning) {
-            v.findViewById(R.id.ping_start).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
+            v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
         } else {
-            v.findViewById(R.id.ping_stop).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
+            v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
         }
         spg.setListener((sharedPreferences, key) -> {
             if (key != null && key.equals("ping_running")) {
                 boolean isRunning = sharedPreferences.getBoolean("ping_running", false);
                 handleInput(isRunning);
                 if (isRunning) {
-                    v.findViewById(R.id.ping_start).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
                 } else {
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
                 }
 
             }
         }, SPType.ping_sp);
-
         input.setEnabled(!pingRunning);
         toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             Log.d(TAG, "onButtonChecked: " + checkedId);
             if (!isChecked) return;
             switch (checkedId) {
                 case R.id.ping_start:
-                    v.findViewById(R.id.ping_start).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
                     Intent startIntent = new Intent(ct, PingService.class);
                     startIntent.putExtra(PingService.PING_INTENT_COMMAND, input.getText().toString());
                     startIntent.putExtra(PingService.PING_INTENT_ENABLE, true);
                     ct.startService(startIntent);
-                    registerObserver();
                     rttMetric.getMetricCalculator().resetMetric();
                     packetLossMetric.getMetricCalculator().resetMetric();
                     break;
                 case R.id.ping_stop:
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(requireContext().getResources().getColor(R.color.purple_500, null));
+                    v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
                     spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
                     Intent stopIntent = new Intent(ct, PingService.class);
-                    stopIntent.setAction(PingService.PING_INTENT_COMMAND);
                     stopIntent.putExtra(PingService.PING_INTENT_ENABLE, false);
                     ct.startService(stopIntent);
                     break;
@@ -267,6 +296,7 @@ public class PingFragment extends Fragment {
         metricsLL.addView(packetLossMetric);
         packetLossMetric.setVisibility(INVISIBLE);
         horizontalLL1.addView(metricsLL);
+
         return v;
     }
 

@@ -95,7 +95,7 @@ public class PingWorker extends Worker {
     private ForegroundInfo createForegroundInfo(String progress) {
         notification = notificationBuilder
                 .setContentTitle("Ping")
-                .setContentText(pingInput.getPingParameter().getDestination()+": "+progress)
+                .setContentText(progress)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .setColor(Color.WHITE)
