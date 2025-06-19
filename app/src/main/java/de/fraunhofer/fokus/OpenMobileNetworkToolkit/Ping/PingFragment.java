@@ -249,8 +249,9 @@ public class PingFragment extends Fragment {
                 } else {
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
                     v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
+                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                    toggleGroup.check(R.id.ping_stop);
                 }
-
             }
         }, SPType.ping_sp);
         input.setEnabled(!pingRunning);
