@@ -169,7 +169,7 @@ public class PingFragment extends Fragment {
     private void setupRepeatButton(){
         boolean isRepeat = spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false);
         int color = ContextCompat.getColor(ct,
-                isRepeat ? R.color.design_default_color_primary : R.color.design_default_color_on_secondary);
+                isRepeat ? R.color.design_default_color_primary : R.color.material_dynamic_secondary40);
         repeatButton.setColorFilter(color);
     }
 
