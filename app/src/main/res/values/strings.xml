@@ -248,6 +248,7 @@
     <string name="enterprise_1">Enterprise 1</string>
     <string name="enterprise_2">Enterprise 2</string>
     <string name="enterprise_3">Enterprise 3</string>
+    <string name="filter_string">filter string</string>
 
 
 </resources>
