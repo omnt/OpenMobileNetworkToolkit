@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/quickViewMainLL"
-    android:id="@+id/quickview_cdma">
+    android:id="@+id/quickview_wifi">
 
     <androidx.cardview.widget.CardView
         android:layout_height="wrap_content"
@@ -27,71 +27,55 @@
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_cellType"
+                            android:id="@+id/quickview_wifi_cellType"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!--MNC-->
+                <!--SSID-->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/mnc">
+                            android:text="@string/ssid">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_mnc"
+                            android:id="@+id/quickview_wifi_ssid"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!-- CI -->
+                <!-- BSSID -->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/ci">
+                            android:text="@string/bssid">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_ci"
+                            android:id="@+id/quickview_wifi_bssid"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!-- PCI -->
+                <!-- Security Type -->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/pci">
+                            android:text="@string/wifi_security_type_short">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_pci"
-                            android:text="@string/na">
-                        </com.google.android.material.textview.MaterialTextView>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-                <!-- TAC -->
-                <androidx.cardview.widget.CardView
-                    style="@style/quickViewChildCardViewStyle">
-                    <LinearLayout
-                        style="@style/quickViewChildCardViewLL">
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/quickViewTextViewTitle"
-                            android:text="@string/tac">
-                        </com.google.android.material.textview.MaterialTextView>
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_tac"
+                            android:id="@+id/quickview_wifi_security_type"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
@@ -102,82 +86,66 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:tag="row_2">
-                <!-- cmda Dbm -->
+                <!-- RSSI -->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/cmdaDbm">
+                            android:text="@string/rssi">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_dbm"
+                            android:id="@+id/quickview_wifi_rssi"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!--cmda Ecio-->
+                <!--Channel Bandwidth-->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/cmdaEcio">
+                            android:text="@string/channel_bandwidth_short">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_ecio"
+                            android:id="@+id/quickview_wifi_bandwidth"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!--evdo Dbm-->
+                <!--Frequency-->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/evdoDbm">
+                            android:text="@string/frequency_short">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_evdo_dbm"
+                            android:id="@+id/quickview_wifi_frequency"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-                <!--evdo Ecio-->
+                <!-- Standard -->
                 <androidx.cardview.widget.CardView
                     style="@style/quickViewChildCardViewStyle">
                     <LinearLayout
                         style="@style/quickViewChildCardViewLL">
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewTitle"
-                            android:text="@string/evdoEcio">
+                            android:text="@string/standard">
                         </com.google.android.material.textview.MaterialTextView>
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_evdo_ecio"
-                            android:text="@string/na">
-                        </com.google.android.material.textview.MaterialTextView>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-                <!--evdo Snr-->
-                <androidx.cardview.widget.CardView
-                    style="@style/quickViewChildCardViewStyle">
-                    <LinearLayout
-                        style="@style/quickViewChildCardViewLL">
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/quickViewTextViewTitle"
-                            android:text="@string/evdoSnr">
-                        </com.google.android.material.textview.MaterialTextView>
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/quickViewTextViewValue"
-                            android:id="@+id/quickview_cdma_evdo_snr"
+                            android:id="@+id/quickview_wifi_standard"
                             android:text="@string/na">
                         </com.google.android.material.textview.MaterialTextView>
                     </LinearLayout>

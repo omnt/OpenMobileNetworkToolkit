@@ -161,18 +161,6 @@ public class NetworkInformation extends Information {
             case TelephonyManager.NETWORK_TYPE_UMTS:
                 dataNetworkTypeString = "UMTS";
                 break;
-            case TelephonyManager.NETWORK_TYPE_CDMA:
-                dataNetworkTypeString = "CDMA";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EVDO_0:
-                dataNetworkTypeString = "EVDO 0";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EVDO_A:
-                dataNetworkTypeString = "EVDO A";
-                break;
-            case TelephonyManager.NETWORK_TYPE_1xRTT:
-                dataNetworkTypeString = "1xRTT";
-                break;
             case TelephonyManager.NETWORK_TYPE_HSDPA:
                 dataNetworkTypeString = "HSDPA";
                 break;
@@ -182,14 +170,8 @@ public class NetworkInformation extends Information {
             case TelephonyManager.NETWORK_TYPE_HSPA:
                 dataNetworkTypeString = "HSPA";
                 break;
-            case TelephonyManager.NETWORK_TYPE_EVDO_B:
-                dataNetworkTypeString = "EVDO B";
-                break;
             case TelephonyManager.NETWORK_TYPE_LTE:
                 dataNetworkTypeString = "LTE";
-                break;
-            case TelephonyManager.NETWORK_TYPE_EHRPD:
-                dataNetworkTypeString = "EHRPD";
                 break;
             case TelephonyManager.NETWORK_TYPE_HSPAP:
                 dataNetworkTypeString = "HSPAP";

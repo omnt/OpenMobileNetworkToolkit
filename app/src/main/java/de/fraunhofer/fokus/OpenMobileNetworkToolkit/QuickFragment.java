@@ -28,12 +28,13 @@ import com.google.android.material.textview.MaterialTextView;
 import java.util.List;
 import java.util.Objects;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.CellInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.GSMInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.LTEInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.NRInformation;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.CellInformations.WCDMAInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.WifiInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
@@ -53,7 +54,6 @@ public class QuickFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +63,6 @@ public class QuickFragment extends Fragment {
         spg = SharedPreferencesGrouper.getInstance(context);
         updateUIHandler = new Handler(Objects.requireNonNull(Looper.myLooper()));
     }
-
 
     /**
      * Determine the text size of the textview based on the length of the value
@@ -128,6 +127,48 @@ public class QuickFragment extends Fragment {
                 Integer.toHexString(context.getColor(maxColor)).substring(2)));
     }
 
+    /**
+     * add wifi information to the view
+     * @param wifiInformation the wifi information
+     */
+    private void addWiFiInformationToView(WifiInformation wifiInformation){
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View wifiView = inflater.inflate(R.layout.quickview_wifi, null, false);
+        LinearLayout wifiLL = wifiView.findViewById(R.id.quickview_wifi);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_cellType),
+                "WiFi",
+                Integer.MAX_VALUE, -1,
+                Integer.MAX_VALUE, -1);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_ssid),
+                wifiInformation.getSsid(),
+                Integer.MAX_VALUE, -1,
+                Integer.MAX_VALUE, -1);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_bssid),
+                wifiInformation.getBssid(),
+                Integer.MAX_VALUE, -1,
+                Integer.MAX_VALUE, -1);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_standard),
+                wifiInformation.getStandardString(),
+                Integer.MAX_VALUE, -1,
+                Integer.MAX_VALUE, -1);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_security_type),
+                wifiInformation.getSecurityTypeString(),
+                Integer.MAX_VALUE, -1,
+                Integer.MAX_VALUE, -1);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_frequency),
+                String.valueOf(wifiInformation.getFrequency()),
+                Integer.MAX_VALUE, -1,
+                Integer.MAX_VALUE, -1);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_rssi),
+                String.valueOf(wifiInformation.getRssi()),
+                -90, R.color.radio_red,
+                -30, R.color.radio_green);
+        modifyTextView(wifiLL.findViewById(R.id.quickview_wifi_bandwidth),
+                wifiInformation.getChannelBandwithString(),
+                Integer.MAX_VALUE, -1,
+                Integer.MAX_VALUE, -1);
+        mainLL.addView(wifiView);
+    }
 
     /**
      * Add the cell information to the view
@@ -141,92 +182,91 @@ public class QuickFragment extends Fragment {
                 LTEInformation lte = (LTEInformation) cellInformation;
                 View lteView = inflater.inflate(R.layout.quickview_lte, null, false);
                 LinearLayout lteLL = lteView.findViewById(R.id.quickview_lte);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_cellType),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_cellType),
                         lte.getCellType().toString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_plmn),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_plmn),
                         lte.getMcc() + lte.getMnc(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_ci),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_ci),
                         lte.getCiString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_pci),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_pci),
                         lte.getPciString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_tac),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_tac),
                         lte.getTacString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
 
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_rsrp),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_rsrp),
                         lte.getRsrpString(),
                         -140, R.color.radio_red,
                         -43, R.color.radio_green);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_rsrq),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_rsrq),
                         lte.getRsrqString(),
                         -34, R.color.radio_red,
                         -3, R.color.radio_green);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_rssi),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_rssi),
                         lte.getRssiString(),
                         -113, R.color.radio_red,
                         -51, R.color.radio_green);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_rssnr),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_rssnr),
                         lte.getRssnrString(),
                         -20, R.color.radio_red,
                         30, R.color.radio_green);
-                modifyTextView( lteLL.findViewById(R.id.quickview_lte_cqi),
+                modifyTextView(lteLL.findViewById(R.id.quickview_lte_cqi),
                         lte.getCqiString(),
                         0, R.color.radio_red,
                         15, R.color.radio_green);
                 mainLL.addView(lteView);
                 break;
-            case CDMA:
-                CDMAInformation cdma = (CDMAInformation) cellInformation;
-                View cdmaView = inflater.inflate(R.layout.quickview_cdma, null, false);
-                LinearLayout cdmaLL = cdmaView.findViewById(R.id.quickview_cdma);
-
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_pci),
+            case WCDMA:
+                WCDMAInformation cdma = (WCDMAInformation) cellInformation;
+                View wcdmaView = inflater.inflate(R.layout.quickview_wcdma, null, false);
+                LinearLayout wcdmaLL = wcdmaView.findViewById(R.id.quickview_wcdma);
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_pci),
                         cdma.getPciString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_tac),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_tac),
                         cdma.getTacString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_mnc),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_mnc),
                         cdma.getMnc(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_cellType),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_cellType),
                         cdma.getCellType().toString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_ci),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_ci),
                         cdma.getCiString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
 
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_dbm),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_dbm),
                         cdma.getCmdaDbmString(),
                         -120, R.color.radio_red,
                         -70, R.color.radio_green);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_ecio),
-                        cdma.getEvdoEcioString(),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_EcNo),
+                        cdma.getCmdaEcnoString(),
                         0, R.color.radio_green,
                         20, R.color.radio_red);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_evdo_dbm),
-                        cdma.getEvdoDbmString(),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_level),
+                        cdma.getLevelString(),
                         -120, R.color.radio_red,
                         -70, R.color.radio_green);
-                modifyTextView( cdmaLL.findViewById(R.id.quickview_cdma_evdo_snr),
-                        cdma.getEvdoSnrString(),
+                modifyTextView(wcdmaLL.findViewById(R.id.quickview_wcdma_asu_level),
+                        cdma.getAsuLevelString(),
                         0, R.color.radio_red,
                         20, R.color.radio_green);
-                mainLL.addView(cdmaView);
+                mainLL.addView(wcdmaView);
                 break;
             case UMTS:
                 //mainLL.addView(cellInformation.createQuickView(context));
@@ -235,32 +275,32 @@ public class QuickFragment extends Fragment {
                 GSMInformation gsm = (GSMInformation) cellInformation;
                 View gsmView = inflater.inflate(R.layout.quickview_gsm, null, false);
                 LinearLayout gsmLL = gsmView.findViewById(R.id.quickview_gsm);
-                modifyTextView( gsmLL.findViewById(R.id.quickview_gsm_cellType),
+                modifyTextView(gsmLL.findViewById(R.id.quickview_gsm_cellType),
                         gsm.getCellType().toString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( gsmLL.findViewById(R.id.quickview_gsm_plmn),
+                modifyTextView(gsmLL.findViewById(R.id.quickview_gsm_plmn),
                         gsm.getMcc() + gsm.getMnc(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( gsmLL.findViewById(R.id.quickview_gsm_ci),
+                modifyTextView(gsmLL.findViewById(R.id.quickview_gsm_ci),
                         gsm.getCiString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( gsmLL.findViewById(R.id.quickview_gsm_lac),
+                modifyTextView(gsmLL.findViewById(R.id.quickview_gsm_lac),
                         gsm.getLacString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( gsmLL.findViewById(R.id.quickview_gsm_bsic),
+                modifyTextView(gsmLL.findViewById(R.id.quickview_gsm_bsic),
                         gsm.getBsicString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
 
-                modifyTextView( gsmLL.findViewById(R.id.quickview_gsm_rssi),
+                modifyTextView(gsmLL.findViewById(R.id.quickview_gsm_rssi),
                         gsm.getRssiString(),
                         -40, R.color.radio_green,
                         -110, R.color.radio_red);
-                modifyTextView( gsmLL.findViewById(R.id.quickview_gsm_ber),
+                modifyTextView(gsmLL.findViewById(R.id.quickview_gsm_ber),
                         gsm.getBitErrorRateString(),
                         0, R.color.radio_green,
                         7, R.color.radio_red);
@@ -270,36 +310,36 @@ public class QuickFragment extends Fragment {
                 NRInformation nr = (NRInformation) cellInformation;
                 View nrView = inflater.inflate(R.layout.quickview_nr, null, false);
                 LinearLayout nrLL = nrView.findViewById(R.id.quickview_nr);
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_cellType),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_cellType),
                         nr.getCellType().toString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_plmn),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_plmn),
                         nr.getPlmn(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_ci),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_ci),
                         nr.getCiString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_pci),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_pci),
                         nr.getPciString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_tac),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_tac),
                         nr.getTacString(),
                         Integer.MAX_VALUE, -1,
                         Integer.MAX_VALUE, -1);
 
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_ssrsrp),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_ssrsrp),
                         nr.getSsrsrpString(),
                         -140, R.color.radio_red,
                         -51, R.color.radio_green);
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_ssrsrq),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_ssrsrq),
                         nr.getSsrsrqString(),
                         -43, R.color.radio_red,
                         20, R.color.radio_green);
-                modifyTextView( nrLL.findViewById(R.id.quickview_nr_sssinr),
+                modifyTextView(nrLL.findViewById(R.id.quickview_nr_sssinr),
                         nr.getSssinrString(),
                         -23, R.color.radio_red,
                         40, R.color.radio_green);
@@ -339,6 +379,10 @@ public class QuickFragment extends Fragment {
                 if(!neighborCells.isEmpty()){
                     neighborCells.forEach(cellInformation -> addCellInformationToView(cellInformation));
                 }
+            }
+            WifiInformation wi = dp.getWifiInformation();
+            if (wi != null) {
+                addWiFiInformationToView(wi);
             }
             updateUIHandler.postDelayed(updateUI, 500);
         }

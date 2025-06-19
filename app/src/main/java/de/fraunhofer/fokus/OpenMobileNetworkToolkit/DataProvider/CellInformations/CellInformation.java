@@ -48,8 +48,8 @@ public class CellInformation extends Information {
                 return "cell_information_lte.json";
             case NR:
                 return "cell_information_nr.json";
-            case CDMA:
-                return "cell_information_cdma.json";
+            case WCDMA:
+                return "cell_information_wcdma.json";
             case UNKNOWN:
                 return "cell_information_unknown.json";
             default:
