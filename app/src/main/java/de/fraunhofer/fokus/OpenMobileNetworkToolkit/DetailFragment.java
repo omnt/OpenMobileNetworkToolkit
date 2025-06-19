@@ -547,7 +547,7 @@ public class DetailFragment extends Fragment {
             case 3:
                 return Color.parseColor("#FBFB43"); // Yellow
             case 2:
-                return Color.parseColor("#F7NA30"); // Orange
+                return Color.parseColor("#FFA500"); // Orange
             case 1:
             default:
                 return Color.parseColor("#EC031D"); // Red
