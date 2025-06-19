@@ -23,7 +23,7 @@ public enum InfluxdbWriteApiStatus {
             case WriteSuccess: return "WriteSuccess";
             case WriteErrorEvent: return "WriteErrorEvent";
             case WriteRetriableErrorEvent: return "WriteRetriableErrorEvent";
-            case Unknown:;
+            case Unknown:
             default: return "Unknown";
         }
     }
@@ -34,7 +34,7 @@ public enum InfluxdbWriteApiStatus {
             case "writesuccess": return WriteSuccess;
             case "writeerrorevent": return WriteErrorEvent;
             case "writeeetriableerrorevent": return WriteRetriableErrorEvent;
-            case "unknown": return Unknown;
+            case "unknown":
             default: return Unknown;
         }
     }

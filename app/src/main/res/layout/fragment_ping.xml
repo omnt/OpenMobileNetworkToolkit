@@ -13,8 +13,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.Material3.DayNight"
-    tools:context=".Ping.PingFragment"
-    android:id="@+id/fragment_ping">
+    tools:context=".Ping.PingFragment">
 
     <LinearLayout
         android:id="@+id/ping_vertical_ll"
@@ -25,7 +24,6 @@
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <TextView
-            android:id="@+id/ping_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

@@ -140,7 +140,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
                     NetworkInformation.getAccessNetworkType(AccessNetworkConstants.AccessNetworkType.UTRAN));
         }
 
-        CharSequence[] cs = list.toArray(new CharSequence[list.size()]);
+        CharSequence[] cs = list.toArray(new CharSequence[0]);
 
         if (selectNetworkType != null) {
             selectNetworkType.setEntries(cs);

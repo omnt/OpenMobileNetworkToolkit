@@ -18,7 +18,6 @@
         android:padding="16dp">
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/input_card"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:cardElevation="2dp"
@@ -32,9 +31,7 @@
                 android:orientation="vertical"
                 android:padding="8dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_ip_layout"
-                    style="@style/iperf3TextInputLayout">
+                <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/iperf3_ip"
@@ -44,7 +41,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_port_layout"
                     style="@style/iperf3TextInputLayout"
                     android:layout_marginBottom="4dp">
 
@@ -56,7 +52,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_bandwidth_layout"
                     style="@style/iperf3TextInputLayout"
                     app:suffixText="Mb">
 
@@ -68,7 +63,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_duration_layout"
                     style="@style/iperf3TextInputLayout"
                     app:suffixText="s">
 
@@ -80,7 +74,6 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_interval_layout"
                     style="@style/iperf3TextInputLayout"
                     app:suffixText="s">
 
@@ -91,9 +84,7 @@
                         android:inputType="numberDecimal" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_bytes_layout"
-                    style="@style/iperf3TextInputLayout">
+                <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/iperf3_bytes"
@@ -102,9 +93,7 @@
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_streams_layout"
-                    style="@style/iperf3TextInputLayout">
+                <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/iperf3_streams"
@@ -113,9 +102,7 @@
                         android:inputType="number" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/iperf3_cport_layout"
-                    style="@style/iperf3TextInputLayout">
+                <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/iperf3_cport"
@@ -249,12 +236,10 @@
             android:orientation="vertical">
 
             <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-                android:id="@+id/drag_handle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/iperf3_influx_upload_button"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentEnd="true"
@@ -272,7 +257,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/iperf3_run_linearlayout"
                 android:orientation="vertical">
 
             </LinearLayout>

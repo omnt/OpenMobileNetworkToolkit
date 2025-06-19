@@ -59,7 +59,7 @@ public class CarrierSettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button btn_read = requireView().findViewById(R.id.button_read_carrier_settings);
-        btn_read.setOnClickListener(this::read_settings);
+        btn_read.setOnClickListener(view1 -> read_settings());
 
         CardView cv = requireView().findViewById(R.id.carrier_settings_card_view);
         cv.setRadius(15);
@@ -73,7 +73,8 @@ public class CarrierSettingsFragment extends Fragment {
     /**
     * Convert a persistent bundle to a string map. It seems there is no nice way to this.
     * Nested bundles will be flattened to string
-    */
+     * @noinspection ResultOfMethodCallIgnored
+     */
     private Map<String, String> bundle_to_map(PersistableBundle bundle) {
         Map<String, String> map = new HashMap<>();
         for (String key : bundle.keySet()) {
@@ -110,7 +111,7 @@ public class CarrierSettingsFragment extends Fragment {
         return map;
     }
 
-    private void read_settings(View view) {
+    private void read_settings() {
         CardView cv = requireView().findViewById(R.id.carrier_settings_card_view);
         cv.removeAllViews();
         TableLayout tl = new TableLayout(context);

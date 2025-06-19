@@ -7,15 +7,6 @@
   -->
 
 <resources>
-    <string-array name="iperf_protocol">
-        <item>TCP</item>
-        <item>UDP</item>
-    </string-array>
-
-    <string-array name="iperf_mode">
-        <item>Client</item>
-        <item>Server</item>
-    </string-array>
 
     <string-array name="nr_availability">
         <item>SA</item>

@@ -9,12 +9,9 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
-
-import androidx.preference.PreferenceManager;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -55,7 +52,6 @@ public class InfluxdbConnections {
     //todo Remote setting are currently hardcoded and should be generated
     public static InfluxdbConnection getLicInstance(Context context) {
         if (lic == null) {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
             String url = "http://127.0.0.1:8086";
             String org = "omnt";
             String bucket = "omnt";

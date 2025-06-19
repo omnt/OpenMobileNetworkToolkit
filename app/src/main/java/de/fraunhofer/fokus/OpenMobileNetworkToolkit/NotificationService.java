@@ -39,9 +39,7 @@ public class NotificationService extends Service {
     NotificationCompat.Builder builder;
     private Handler notificationHandler;
     private HandlerThread notificationHandlerThread;
-    private SharedPreferencesGrouper spg;
 
-    private GlobalVars gv;
     private DataProvider dp;
 
     @Nullable
@@ -82,10 +80,10 @@ public class NotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        gv = GlobalVars.getInstance();
+        GlobalVars gv = GlobalVars.getInstance();
         dp = gv.get_dp();
         nm = getSystemService(NotificationManager.class);
-        spg = SharedPreferencesGrouper.getInstance(this);
+        SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(this);
         spg.setListener((prefs, key) -> {
             if (prefs.getBoolean("enable_radio_notification", false)) {
                 setupNotificationUpdate();

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
   ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
   ~  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
@@ -144,21 +143,21 @@
             app:iconSpaceReserved="false"
             app:key="influx_throughput_data"
             app:title="@string/influx_throughput_data" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"
             android:title="@string/influx_wifi_data"
             app:iconSpaceReserved="false"
             app:key="log_wifi_data" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"
             android:title="@string/influx_battery_data"
             app:iconSpaceReserved="false"
             app:key="influx_battery_data" />
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"

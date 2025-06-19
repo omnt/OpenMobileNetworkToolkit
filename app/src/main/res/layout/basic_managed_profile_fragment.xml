@@ -22,7 +22,6 @@
         android:paddingTop="@dimen/activity_vertical_margin">
 
         <ImageView
-            android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -48,13 +47,11 @@
             />
 
         <Button
-            android:id="@+id/set_chrome_restrictions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/set_chrome_restrictions" />
 
         <Button
-            android:id="@+id/clear_chrome_restrictions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/clear_chrome_restrictions" />

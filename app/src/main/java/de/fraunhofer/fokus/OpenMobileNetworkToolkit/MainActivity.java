@@ -75,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     Intent notificationServiceIntent;
     NavController navController;
     private Handler requestCellInfoUpdateHandler;
-    private HandlerThread requestCellInfoUpdateHandlerThread;
     private GlobalVars gv;
     /**
      * Runnable to handle Cell Info Updates
@@ -521,7 +520,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     }
 
     private void initHandlerAndHandlerThread() {
-        requestCellInfoUpdateHandlerThread = new HandlerThread("RequestCellInfoUpdateHandlerThread");
+        HandlerThread requestCellInfoUpdateHandlerThread = new HandlerThread("RequestCellInfoUpdateHandlerThread");
         requestCellInfoUpdateHandlerThread.start();
         requestCellInfoUpdateHandler = new Handler(Objects.requireNonNull(requestCellInfoUpdateHandlerThread.getLooper()));
         requestCellInfoUpdateHandler.post(requestCellInfoUpdate);

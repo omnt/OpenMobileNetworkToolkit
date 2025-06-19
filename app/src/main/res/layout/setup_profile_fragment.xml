@@ -30,7 +30,6 @@
             />
 
         <RadioButton
-            android:id="@+id/setup_managed_profile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="true"

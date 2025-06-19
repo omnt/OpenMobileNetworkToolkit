@@ -68,9 +68,7 @@ public class InfluxdbConnection {
                 .retryInterval(500)
                 .exponentialBase(4)
                 .build());
-            writeApi.listenEvents(BackpressureEvent.class, value -> {
-                Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to backpressure");
-            });
+            writeApi.listenEvents(BackpressureEvent.class, value -> Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to backpressure"));
             writeApi.listenEvents(WriteSuccessEvent.class, value -> {
                 //Log.d(TAG, "open_write_api: Write to InfluxDBv2 was successful");
                 if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
@@ -138,11 +136,11 @@ public class InfluxdbConnection {
 
     /**
      * Write string records to the queue
+     *
      * @param points String list of records
-     * @return not yet useful
      * @throws IOException if record cant be written
      */
-    public boolean writeRecords(List<String> points) throws IOException {
+    public void writeRecords(List<String> points) throws IOException {
         new Thread(() -> {
             try {
                 if (influxDBClient != null && ping()) {
@@ -160,16 +158,13 @@ public class InfluxdbConnection {
                 Log.d(TAG,e.toString());
             }
         }).start();
-        return true;
     }
 
     /**
-     *
      * @param points influx points to write
-     * @return true if no exception happen
      * @throws IOException if points cant be written
      */
-    public boolean writePoints(List<Point> points) throws IOException {
+    public void writePoints(List<Point> points) throws IOException {
         new Thread(() -> {
             try {
                 if (influxDBClient != null && ping()) {
@@ -188,7 +183,6 @@ public class InfluxdbConnection {
                 Log.d(TAG,e.toString());
             }
         }).start();
-        return true;
     }
 
     /**
@@ -218,9 +212,8 @@ public class InfluxdbConnection {
 
     /**
      * If we can reach the influxDB call flush on the write API
-     * @return true if flush was successful
      */
-    public boolean flush() {
+    public void flush() {
         new Thread(() -> {
             try {
                 if (ping()) {
@@ -228,10 +221,9 @@ public class InfluxdbConnection {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "flush: Error while flushing write API");
-                Log.d(TAG, "flush: \n"+e.toString());
+                Log.d(TAG, "flush: \n"+ e);
             }
         }).start();
-        return true;
     }
 
     public WriteApi getWriteApi() {

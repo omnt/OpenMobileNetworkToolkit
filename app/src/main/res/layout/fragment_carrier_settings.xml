@@ -7,15 +7,11 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/carrier_settings_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/carrier_settings_fragment_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -45,11 +41,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="10"
             android:autofillHints="filter string"
-            android:hint="filter string"></EditText>
+            android:hint="filter string" />
     </LinearLayout>
 
     <ScrollView
-        android:id="@+id/carrier_settings_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="16dp" >

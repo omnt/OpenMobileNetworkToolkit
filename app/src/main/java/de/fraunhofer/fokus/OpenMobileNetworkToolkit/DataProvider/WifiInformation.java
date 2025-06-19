@@ -96,8 +96,6 @@ public class WifiInformation extends Information {
 
     public String getWifiSecurityTypeString(int type) {
         switch (type) {
-            case WifiInfo.SECURITY_TYPE_UNKNOWN:
-                return "Unknown";
             case WifiInfo.SECURITY_TYPE_OPEN:
                 return "Open";
             case WifiInfo.SECURITY_TYPE_WEP:
@@ -124,6 +122,7 @@ public class WifiInformation extends Information {
                 return "Passpoint R1 R2";
             case WifiInfo.SECURITY_TYPE_PASSPOINT_R3:
                 return "Passpoint R3";
+            case WifiInfo.SECURITY_TYPE_UNKNOWN:
             default:
                 return "Unknown";
         }
@@ -135,8 +134,6 @@ public class WifiInformation extends Information {
 
     public String getWifiStandardString(int standard) {
         switch (standard) {
-            case WIFI_STANDARD_UNKNOWN:
-                return "Unknown";
             case WIFI_STANDARD_LEGACY:
                 return "Legacy";
             case WIFI_STANDARD_11N:
@@ -149,6 +146,7 @@ public class WifiInformation extends Information {
                 return "11ad";
             case WIFI_STANDARD_11BE:
                 return "11be";
+            case WIFI_STANDARD_UNKNOWN:
             default:
                 return "Unknown";
         }

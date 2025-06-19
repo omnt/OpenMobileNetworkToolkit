@@ -28,22 +28,27 @@ public class BuildInformation extends Information {
         super(timeStamp);
     }
 
+    /** @noinspection SameReturnValue*/
     public String getBuildType() {
         return BuildConfig.BUILD_TYPE;
     }
 
+    /** @noinspection SameReturnValue*/
     public int getVersionCode() {
         return BuildConfig.VERSION_CODE;
     }
 
+    /** @noinspection SameReturnValue*/
     public String getVersionName() {
         return BuildConfig.VERSION_NAME;
     }
 
+    /** @noinspection SameReturnValue*/
     public String getApplicationId() {
         return BuildConfig.APPLICATION_ID;
     }
 
+    /** @noinspection SameReturnValue*/
     public boolean isDebug() {
         return BuildConfig.DEBUG;
     }

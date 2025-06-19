@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 
-import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
@@ -28,7 +27,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 public class LoggingSettingsFragment extends PreferenceFragmentCompat
     implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String TAG = "PreferenceSettings";
-    SwitchPreferenceCompat enable_influx_switch;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {

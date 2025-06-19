@@ -103,7 +103,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     private ArrayList<CellInformation> ssi = new ArrayList<>();
     private WifiInformation wi = null;
     private LocationManager lm;
-    private PackageManager pm;
     private final BuildInformation buildInformation = new BuildInformation();
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
@@ -114,7 +113,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         ct = context;
         spg = SharedPreferencesGrouper.getInstance(ct);
         permission_phone_state = gv.isPermission_phone_state();
-        pm = ct.getPackageManager();
         // we can only relay on some APIs if this is a phone.
         if (gv.isFeature_telephony()) {
             cm = (ConnectivityManager) ct.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -420,7 +418,10 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                 point = nr.getPoint(point);
             }
             if (ci_.getCellType().equals(CellType.LTE)) {
-                LTEInformation lte = (LTEInformation) ci_;
+                LTEInformation lte = null;
+                if (ci_ instanceof LTEInformation) {
+                    lte = (LTEInformation) ci_;
+                }
                 point = lte.getPoint(point);
             }
             if (ci_.getCellType().equals(CellType.WCDMA)) {
@@ -428,7 +429,10 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
                 point = cdma.getPoint(point);
             }
             if (ci_.getCellType().equals(CellType.GSM)) {
-                GSMInformation gsm = (GSMInformation) ci_;
+                GSMInformation gsm = null;
+                if (ci_ instanceof GSMInformation) {
+                    gsm = (GSMInformation) ci_;
+                }
                 point = gsm.getPoint(point);
             }
             points.add(point);

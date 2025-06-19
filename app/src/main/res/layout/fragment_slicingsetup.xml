@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~  SPDX-FileCopyrightText: 2023 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
-  ~  SPDX-FileCopyrightText: 2023 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
-  ~  SPDX-FileCopyrightText: 2023 Fraunhofer FOKUS
+  ~  SPDX-FileCopyrightText: 2025 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2025 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2025 Fraunhofer FOKUS
   ~
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
@@ -24,21 +24,22 @@
         android:layout_marginBottom="8dp"
         android:orientation="vertical">
 
-
         <TextView
             android:id="@+id/slicing_fragment_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:text="Slicing setup"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="@string/slicing_setup"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/slicing_fragment_warning"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:text="Slicing is a 5G SA only feature. It requires configuration on your core network. This is still under developemnt" />
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="@string/slicing_is_a_5g_sa_only_feature_it_requires_configuration_on_your_core_network_this_is_still_under_developemnt" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ENTERPRISE1"
@@ -46,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:text="Enterprise 1" />
+            android:text="@string/enterprise_1" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ENTERPRISE2"
@@ -54,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:text="Enterprise 2" />
+            android:text="@string/enterprise_2" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_ENTERPRISE3"
@@ -62,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:text="Enterprise 3" />
+            android:text="@string/enterprise_3" />
 
         <ScrollView
             android:id="@+id/scrollView2"

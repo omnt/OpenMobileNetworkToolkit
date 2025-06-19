@@ -6,7 +6,7 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.OpenMobileNetworkToolkit" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color. -->

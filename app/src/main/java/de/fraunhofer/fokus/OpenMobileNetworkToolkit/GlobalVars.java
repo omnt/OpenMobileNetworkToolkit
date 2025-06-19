@@ -27,18 +27,18 @@ public class GlobalVars {
     public static final String SSSINR = "SSSINR";
 
     // these values a taken from the android 16 defaults
-    public int[] GSM_RSSI_Threasholds = {-107,-103,-97,-89};
-    public int[] NR_SSRSRP_Threasholds = {-110,-90,-80,-65};
-    public int[] NR_SSRSRQ_Threasholds = {-31,-19,-7,-6};
-    public int[] NR_SSINR_Threasholds = {-5,5,15,30};
-    public int[] LTE_RSRP_Thresholds = {-128,-118,-108,-98};
-    public int[] LTE_RSRQ_Threasholds = {-20,-17,-14,-11};
-    public int[] LTE_RSSNR_Threasholds = {-3,1,5,13};
-    public int[] NTN_LTE_RSRP_Thresholds = {-128,-118,-108,-98};
-    public int[] NTN_LTE_RSSNR_Threasholds = {-3,1,5,13};
-    public int[] NTN_LTE_RSRQ_Threasholds = {-20,-17,-14,-11};
-    public int[] WCDMA_ECNO_Threasholds = {-24,-14,-6,1};
-    public int[] WCDMA_RSCP_Threasholds = {-115,-105,-95,-85};
+    public final int[] GSM_RSSI_Threasholds = {-107,-103,-97,-89};
+    public final int[] NR_SSRSRP_Threasholds = {-110,-90,-80,-65};
+    public final int[] NR_SSRSRQ_Threasholds = {-31,-19,-7,-6};
+    public final int[] NR_SSINR_Threasholds = {-5,5,15,30};
+    public final int[] LTE_RSRP_Thresholds = {-128,-118,-108,-98};
+    public final int[] LTE_RSRQ_Threasholds = {-20,-17,-14,-11};
+    public final int[] LTE_RSSNR_Threasholds = {-3,1,5,13};
+    public final int[] NTN_LTE_RSRP_Thresholds = {-128,-118,-108,-98};
+    public final int[] NTN_LTE_RSSNR_Threasholds = {-3,1,5,13};
+    public final int[] NTN_LTE_RSRQ_Threasholds = {-20,-17,-14,-11};
+    public final int[] WCDMA_ECNO_Threasholds = {-24,-14,-6,1};
+    public final int[] WCDMA_RSCP_Threasholds = {-115,-105,-95,-85};
 
     public static final String INFLUX_WRITE_STATUS = "influxdb_write_status";
     private static GlobalVars instance;

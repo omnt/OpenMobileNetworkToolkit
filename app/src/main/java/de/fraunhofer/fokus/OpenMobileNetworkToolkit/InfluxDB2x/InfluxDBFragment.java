@@ -53,12 +53,12 @@ public class InfluxDBFragment extends Fragment {
         warning.setText(
             "This feature is still under development \n and requires a InfluxDB running on the phone");
 
-        setupBtn.setOnClickListener(this::setupInfluxDB);
+        setupBtn.setOnClickListener(view1 -> setupInfluxDB());
         //showLastEntries(view);
         return view;
     }
 
-    private void showLastEntries(View view) {
+    private void showLastEntries() {
         try {
             InfluxDBClient influxDBClient =
                 InfluxDBClientFactory.create("http://127.0.0.1:8086", "1234567890".toCharArray(),
@@ -77,7 +77,7 @@ public class InfluxDBFragment extends Fragment {
                 TextView header = new TextView(getContext());
                 TextView content = new TextView(getContext());
                 content.setPadding(0, 0, 15, 0);
-                Boolean first = true;
+                boolean first = true;
                 for (FluxRecord fluxRecord : records) {
                     //content.append(fluxRecord.getTime().toString());
                     if (first) {
@@ -99,7 +99,7 @@ public class InfluxDBFragment extends Fragment {
         //logView.setText(res.listIterator().next().getRecords().listIterator().next().getTable().toString());
     }
 
-    private void setupInfluxDB(View view) {
+    private void setupInfluxDB() {
         try {
             InfluxDBClient influxDBClient =
                 InfluxDBClientFactory.create("http://127.0.0.1:8086", "blank".toCharArray(), "OMNT",

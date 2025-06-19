@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Existing styles -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryDark">@color/purple_700</item>
-        <item name="colorAccent">@color/teal_200</item>
-    </style>
 
     <style name="CustomUnifiedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="backgroundTint">@android:color/transparent</item>
@@ -15,43 +10,6 @@
         <item name="cornerRadius">10dp</item>
     </style>
 
-
-    <style name="BottomSheetStyle" parent="Widget.MaterialComponents.BottomSheet.Modal">
-
-        <item name="android:background">?attr/colorSurface</item>
-        <item name="elevation">16dp</item>
-
-
-        <item name="shapeAppearanceOverlay">@style/BottomSheetShape</item>
-    </style>
-
-
-    <style name="BottomSheetShape">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item>
-    </style>
-
-
-    <style name="BottomSheetDragHandleStyle">
-        <item name="android:layout_width">10dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">4dp</item>
-        <item name="android:layout_marginBottom">4dp</item>
-        <item name="bottomSheetDragHandleStyle">@style/Widget.MaterialComponents.BottomSheet.DragHandle</item>
-    </style>
-    <style name="Widget.MaterialComponents.BottomSheet.DragHandle" parent="Widget.Material3.BottomSheet.DragHandle">
-        <item name="tint">@color/debug_gray</item>
-
-        <item name="android:alpha">0.3</item>
-    </style>
-
-    <style name="CustomDividerStyle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:background">?attr/colorPrimary</item>
-        <item name="android:layout_marginStart">40dp</item>
-        <item name="android:layout_marginEnd">40dp</item>
-    </style>
 
     <style name="quickViewChildCardViewStyle">
         <item name="android:layout_width">wrap_content</item>

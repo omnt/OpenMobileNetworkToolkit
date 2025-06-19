@@ -16,8 +16,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -31,7 +31,7 @@ public class HomeFragment extends Fragment {
         TabLayout tabLayout = view.findViewById(R.id.home_tab_layout);
         ViewPager2 viewPager = view.findViewById(R.id.home_pager);
 
-        HomePagerAdapter adapter = new HomePagerAdapter((FragmentActivity) getActivity());
+        HomePagerAdapter adapter = new HomePagerAdapter(getActivity());
         viewPager.setAdapter(adapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {

@@ -8,7 +8,6 @@
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/special_codes_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -18,7 +17,6 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/special_codes_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -46,7 +44,6 @@
                     android:text="@string/action_android" />
 
                 <TextView
-                    android:id="@+id/tv_android_testing"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
@@ -64,7 +61,6 @@
                     android:text="@string/action_android_ims" />
 
                 <TextView
-                    android:id="@+id/tv_android_ims"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
@@ -82,7 +78,6 @@
                     android:text="@string/action_mediatek" />
 
                 <TextView
-                    android:id="@+id/tv_mediatek_ims"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
@@ -100,7 +95,6 @@
                     android:text="@string/action_sony" />
 
                 <TextView
-                    android:id="@+id/tv_sony_service"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
@@ -118,7 +112,6 @@
                     android:text="@string/action_nokia" />
 
                 <TextView
-                    android:id="@+id/tv_nokia_enable_sa"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
@@ -136,7 +129,6 @@
                     android:text="@string/action_samsung" />
 
                 <TextView
-                    android:id="@+id/tv_samsung_ims"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
@@ -154,7 +146,6 @@
                     android:text="@string/action_huawei" />
 
                 <TextView
-                    android:id="@+id/tv_huawei_projects"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
@@ -173,7 +164,6 @@
                     android:text="@string/action_xiaomi" />
 
                 <TextView
-                    android:id="@+id/tv_xiaomi"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
