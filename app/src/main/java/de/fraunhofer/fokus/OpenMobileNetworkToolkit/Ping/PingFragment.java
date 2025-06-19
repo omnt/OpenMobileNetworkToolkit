@@ -10,10 +10,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import static android.view.View.INVISIBLE;
 
-import static androidx.core.content.ContextCompat.getSystemService;
-
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,39 +28,27 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.gson.Gson;
-
-import org.json.JSONObject;
 
 import java.io.FileOutputStream;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -96,6 +81,15 @@ public class PingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        NavController navController = NavHostFragment.findNavController(this);
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                navController.navigate(R.id.HomeFragment);
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+
     }
 
 

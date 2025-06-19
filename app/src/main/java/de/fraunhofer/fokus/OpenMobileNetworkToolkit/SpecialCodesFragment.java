@@ -20,9 +20,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 public class SpecialCodesFragment extends Fragment {
     TelephonyManager tm;
@@ -83,6 +86,15 @@ public class SpecialCodesFragment extends Fragment {
             tm = GlobalVars.getInstance().getTm();
             cp = tm.hasCarrierPrivileges();
         }
+        NavController navController = NavHostFragment.findNavController(this);
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                navController.navigate(R.id.HomeFragment);
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+
     }
 
     @Override

@@ -30,9 +30,6 @@
             android:id="@+id/action_HomeFragment_to_iperf3Fragment"
             app:destination="@id/fragment_iperf3_input" />
         <action
-            android:id="@+id/action_HomeFragment_to_influxDBFragment"
-            app:destination="@id/influxDBFragment" />
-        <action
             android:id="@+id/action_HomeFragment_to_specialCodeFragment"
             app:destination="@id/specialCodesFragment" />
         <action
@@ -50,6 +47,12 @@
         <action
             android:id="@+id/action_HomeFragment_self"
             app:destination="@id/HomeFragment" />
+        <action
+            android:id="@+id/action_HomeFragment_to_basicManagedProfileFragment2"
+            app:destination="@id/basicManagedProfileFragment2" />
+        <action
+            android:id="@+id/action_HomeFragment_to_workProfileActivity"
+            app:destination="@id/workProfileActivity" />
 
     </fragment>
 
@@ -140,14 +143,12 @@
         <action
             android:id="@+id/action_settingsFragment_to_HomeFragment"
             app:destination="@id/HomeFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/influxDBFragment"
-        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxDBFragment"
-        android:label="InfluxDBFragment">
         <action
-            android:id="@+id/action_influxDBFragment_to_HomeFragment"
-            app:destination="@id/HomeFragment" />
+            android:id="@+id/action_settingsFragment_to_fragment_shared_preferences_io2"
+            app:destination="@id/fragment_shared_preferences_io" />
+        <action
+            android:id="@+id/action_settingsFragment_to_mqttSettingsFragment2"
+            app:destination="@id/mqttSettingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/specialCodesFragment"
@@ -180,7 +181,20 @@
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesIOFragment"
         android:label="SharedPreferencesIO" >
         <action
-            android:id="@+id/action_SharedPreferencesIO_to_HomeFragment"
+            android:id="@+id/action_fragment_shared_preferences_io_to_settingsFragment2"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/basicManagedProfileFragment2"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.BasicManagedProfileFragment"
+        android:label="BasicManagedProfileFragment" >
+        <action
+            android:id="@+id/action_basicManagedProfileFragment2_to_HomeFragment"
             app:destination="@id/HomeFragment" />
     </fragment>
+    <activity
+        android:id="@+id/workProfileActivity"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity"
+        android:label="setup_profile_fragment"
+        tools:layout="@layout/setup_profile_fragment" />
 </navigation>

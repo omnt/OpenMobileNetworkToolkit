@@ -21,7 +21,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -481,9 +480,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case R.id.workprofilemanagement:
                 Intent work_profile = new Intent(this, WorkProfileActivity.class);
                 startActivity(work_profile);
-            case R.id.influxDBMenu:
-                navController.navigate(R.id.influxDBFragment);
-                break;
             case R.id.special_codes:
                 navController.navigate(R.id.specialCodesFragment);
                 break;

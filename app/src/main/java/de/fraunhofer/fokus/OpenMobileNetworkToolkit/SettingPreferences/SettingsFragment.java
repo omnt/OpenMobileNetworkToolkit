@@ -14,6 +14,9 @@ import android.os.Bundle;
 import android.telephony.SubscriptionInfo;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -77,6 +80,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 button.setEnabled(false);
             }
         }
+
+        NavController navController = NavHostFragment.findNavController(this);
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                navController.navigate(R.id.HomeFragment);
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     @Override
