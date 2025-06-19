@@ -45,37 +45,65 @@
                 android:hint="Ping Command"
                 tools:ignore="LabelFor,RtlSymmetry" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/ping_toggle_group"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="16dp"
-            app:singleSelection="true"
-            app:selectionRequired="true">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ping_start"
-                style="@style/CustomUnifiedButton"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:weightSum="8">
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Start"
-                android:textColor="@color/purple_200"
-                app:strokeColor="@color/purple_200" />
+                android:layout_marginRight="10dp"
+                android:layout_weight="7">
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/ping_toggle_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ping_stop"
-                style="@style/CustomUnifiedButton"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/ping_start"
+                        style="@style/CustomUnifiedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Start"
+                        android:textColor="@color/purple_200"
+                        app:strokeColor="@color/purple_200" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/ping_stop"
+                        style="@style/CustomUnifiedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Stop"
+                        android:textColor="@color/purple_200"
+                        app:strokeColor="@color/purple_200" />
+
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Stop"
-                android:textColor="@color/purple_200"
-                app:strokeColor="@color/purple_200" />
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ping_repeat_button"
+                    android:contentDescription="@string/ping_repeat_button"
+                    android:src="@drawable/repeat_24px"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center">
+                </ImageButton>
+            </LinearLayout>
 
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
+        </LinearLayout>
         <LinearLayout
             android:id="@+id/ping_horizontal1_ll"
             android:layout_width="match_parent"

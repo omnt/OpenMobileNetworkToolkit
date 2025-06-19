@@ -20,16 +20,11 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingIn
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 
 public class PingParser {
-    private static PingParser instance = null;
-    private BufferedReader br;
+
     private final ArrayList<PingInformation> lines;
 
-    private final PropertyChangeSupport support;
-    private PropertyChangeListener listener;
-    public PingParser(BufferedReader br) {
-        this.br = br;
+    public PingParser() {
         this.lines = new ArrayList<>();
-        support = new PropertyChangeSupport(this);
     }
 
 
@@ -46,53 +41,39 @@ public class PingParser {
             return LINEType.UNKNOWN;
         }
     }
-    public void parse(){
-        String line;
-        try {
-            while((line = this.br.readLine()) != null){
-                PingInformation pi = null;
-                switch (getLineType(line)){
-                    case RTT:
-                        pi = new RTTLine(line);
-                    case UNREACHABLE:
-                        //TDODO
-                        break;
-                    case TIMEOUT:
-                        //TODO
-                        break;
-                    case PACKET_LOSS:
-                        pi = new PacketLossLine(line);
-                        break;
-                    case UNKNOWN:
-                        break;
-                }
-                if(pi == null) continue;
-                pi.parse();
-                this.lines.add(pi);
-                support.firePropertyChange("ping", null, pi);
-            }
-        } catch (IOException e){
 
+    public void addLine(String line) {
+        PingInformation pi = null;
+        LINEType lineType = getLineType(line);
+        switch (lineType){
+            case RTT:
+                pi = new RTTLine(line);
+                break;
+            case UNREACHABLE:
+                //TODO
+                break;
+            case TIMEOUT:
+                //TODO
+                break;
+            case PACKET_LOSS:
+                pi = new PacketLossLine(line);
+                break;
+            case UNKNOWN:
+                break;
+        }
+        if(pi != null){
+            pi.parse();
+            pi.setLineType(lineType);
+            lines.add(pi);
         }
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener listener){
-        support.addPropertyChangeListener(listener);
+    public PingInformation getLastPingInformation() {
+        if (lines.isEmpty()) {
+            return null;
+        }
+        return lines.get(lines.size() - 1);
     }
-    public void setListener(PropertyChangeListener listener){
-        this.listener = listener;
-    }
-    public PropertyChangeListener getListener(){
-        return this.listener;
-    }
-    public void removePropertyChangeListener(PropertyChangeListener listener){
-        support.removePropertyChangeListener(listener);
-    }
-
-    public void setBr(BufferedReader br){
-        this.br = br;
-    }
-
 
 }
 

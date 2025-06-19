@@ -29,6 +29,10 @@ public class PingInput extends Inputs {
         super(in);
 
     }
+    public PingInput(PingParameter pingParameter, String testUUID){
+        super(testUUID, "","","", pingParameter);
+        this.pingParameter = pingParameter;
+    }
     public PingInput(PingParameter pingParameter,
                        String testUUID,
                        String sequenceUUID,

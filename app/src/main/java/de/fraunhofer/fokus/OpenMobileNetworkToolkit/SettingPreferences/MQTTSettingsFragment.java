@@ -25,7 +25,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class MQTTSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "MQTTSettingsFragment";
-    SwitchPreferenceCompat enable_mqtt_switch;
+    SwitchPreferenceCompat _switch;
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
@@ -33,7 +33,7 @@ public class MQTTSettingsFragment extends PreferenceFragmentCompat implements Sh
         setPreferencesFromResource(R.xml.preference_mqtt, rootKey);
         Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
                 .registerOnSharedPreferenceChangeListener(this);
-        enable_mqtt_switch = findPreference("enable_mqtt");
+        _switch = findPreference("enable_mqtt");
 
 
     }

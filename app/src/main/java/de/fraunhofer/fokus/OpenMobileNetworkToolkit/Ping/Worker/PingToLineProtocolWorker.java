@@ -33,6 +33,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformati
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.LINEType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
@@ -52,6 +53,13 @@ public class PingToLineProtocolWorker extends Worker {
         String iperf3InputString = getInputData().getString(PingInput.INPUT);
         pingInput = gson.fromJson(iperf3InputString, PingInput.class);
         spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
+
+        File lineProtocolDirPath = new File(PingParameter.lineProtocolDirPath);
+        if(!lineProtocolDirPath.exists()){
+            if(!lineProtocolDirPath.mkdirs()){
+                Log.e(TAG, "Error creating lineProtocolDirPath directory: " + PingParameter.lineProtocolDirPath);
+            }
+        }
     }
 
 

@@ -233,6 +233,7 @@
     <string name="rerun">Rerun</string>
     <string name="X">X</string>
     <string name="Parameter">Parameter</string>
+    <string name="ping_repeat_button">if enabled, ping will repeat, until disabled</string>
     <string name="wcdmaLevel">Level</string>
     <string name="wcmdaAsuLevel">AsuLevel\n</string>
     <string name="signal_strength">"Signal Strength Level: "</string>

@@ -98,6 +98,43 @@ public class PingParameter extends Parameter {
 
         return command.toArray(new String[0]);
     }
+    private void setupDirs(){
+
+        try {
+            Files.createDirectories(Paths.get(rawDirPath));
+            Files.createDirectories(Paths.get(lineProtocolDirPath));
+        } catch (IOException e) {
+            Log.d(TAG, "Could not create directories.");
+        }
+
+    }
+    public PingParameter(String stringParameter, String  testUUID) {
+        super(rawDirPath + testUUID + ".txt", lineProtocolDirPath + testUUID + ".txt");
+        this.testUUID = testUUID;
+        String[] parts = stringParameter.split(" ");
+        for (int i = 0; i < parts.length; i++) {
+            switch (parts[i]) {
+                case "-c":
+                    count = Integer.parseInt(parts[i + 1]);
+                    break;
+                case "-W":
+                    timeoutMillis = Integer.parseInt(parts[i + 1]);
+                    break;
+                case "-s":
+                    packetSize = Integer.parseInt(parts[i + 1]);
+                    break;
+                case "-i":
+                    intervalMillis = Long.parseLong(parts[i + 1]);
+                    break;
+                case "-w":
+                    deadline = Integer.parseInt(parts[i + 1]);
+                    break;
+                default:
+                    destination = parts[i];
+            }
+        }
+    }
+
     public PingParameter(JSONObject parameter, String  testUUID) {
         super(rawDirPath + testUUID + ".txt", lineProtocolDirPath + testUUID + ".txt");
         this.testUUID = testUUID;
@@ -138,15 +175,7 @@ public class PingParameter extends Parameter {
             Log.d(TAG, e.toString());
             Log.i(TAG, "no deadline set.");
         }
-
-        try {
-            Files.createDirectories(Paths.get(rawDirPath));
-            Files.createDirectories(Paths.get(lineProtocolDirPath));
-        } catch (IOException e) {
-            Log.d(TAG, "Could not create directories.");
-        }
-
-
+        setupDirs();
     }
 
     protected PingParameter(Parcel in) {

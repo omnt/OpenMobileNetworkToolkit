@@ -22,7 +22,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.Converter.Me
 
 @Database(
     entities = {Iperf3RunResult.class},
-    version = 3
+    version = 4
 )
 
 public abstract class Iperf3ResultsDataBase extends RoomDatabase {
@@ -43,6 +43,7 @@ public abstract class Iperf3ResultsDataBase extends RoomDatabase {
                         .addTypeConverter(new Iperf3ErrorConverter())
                         .allowMainThreadQueries()
                         .enableMultiInstanceInvalidation()
+                        .fallbackToDestructiveMigration(true)
                         .build();
                 }
             }
