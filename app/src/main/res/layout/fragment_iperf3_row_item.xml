@@ -60,22 +60,22 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
                 android:layout_marginEnd="8dp"
                 android:text="@string/rerun"
-                android:layout_alignParentLeft="true"
-                style="@style/Widget.Material3.Button.ElevatedButton"
-                />
+                android:visibility="gone" />
 
 
             <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Material3.Button.ElevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:text="@string/X"
-                style="@style/Widget.Material3.Button.ElevatedButton"
-                />
+                android:visibility="gone" />
         </RelativeLayout>
 
     </LinearLayout>
