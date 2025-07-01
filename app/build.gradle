@@ -60,8 +60,8 @@ android {
         applicationId "de.fraunhofer.fokus.OpenMobileNetworkToolkit"
         minSdk 31
         targetSdk 36
-        versionCode 6
-        versionName "0.6"
+        versionCode 7
+        versionName "0.7"
         resValue("string", "git_hash", getGitHash())
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
