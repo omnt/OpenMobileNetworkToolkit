@@ -26,7 +26,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 
 public class LoggingSettingsFragment extends PreferenceFragmentCompat
     implements SharedPreferences.OnSharedPreferenceChangeListener {
-    public static final String TAG = "PreferenceSettings";
+    public static final String TAG = "LoggingSettingsFragment";
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
