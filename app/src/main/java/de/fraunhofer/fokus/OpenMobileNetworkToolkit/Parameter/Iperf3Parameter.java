@@ -89,6 +89,9 @@ public class Iperf3Parameter extends Parameter {
     public static final String MODE = "mode";
     public static final String PROTOCOL = "protocol";
     public static final String IPERF3UUID = "iperf3UUID";
+    public static final String LENGTH ="length";
+
+
 
     private static final String TAG = "Iperf3Parameter";
 
@@ -454,7 +457,7 @@ public class Iperf3Parameter extends Parameter {
             Log.d(TAG, "interval is not set. Defaulting to iPerf3 default interval.");
         }
         try {
-            this.length = jsonObject.getInt(BYTES);
+            this.length = jsonObject.getInt(LENGTH);
         } catch (JSONException e) {
             Log.d(TAG, "Length not set.");
         }

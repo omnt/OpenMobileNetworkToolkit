@@ -147,13 +147,20 @@ public class PingWorker extends Worker {
                     Log.w(TAG, "doWork: Line or PingInformation is null, skipping line");
                     continue;
                 }
+
                 switch (pingInformation.getLineType()){
                     case RTT:
                         rtt = ((RTTLine)pingInformation).getRtt();
+
                         progressOutput.putDouble(RTT, rtt);
+                        progressOutput.putString(RTT, new Gson().toJson((RTTLine)pingInformation));
+
 
                         setProgressAsync(progressOutput.build());
                         setForegroundAsync(createForegroundInfo(((RTTLine) pingInformation).getHost()+": " + rtt + " ms"));
+
+
+
                         Log.d(TAG, "doWork: RTT: " + rtt);
                         break;
                     case UNREACHABLE:

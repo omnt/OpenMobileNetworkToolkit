@@ -8,6 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 
 import android.annotation.SuppressLint;
@@ -42,6 +43,8 @@ import androidx.work.WorkManager;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textview.MaterialTextView;
+import com.google.gson.Gson;
 
 import java.io.FileOutputStream;
 import java.util.UUID;
@@ -49,6 +52,7 @@ import java.util.UUID;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -73,6 +77,8 @@ public class PingFragment extends Fragment {
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
     private Observer<WorkInfo> observer;
     private LiveData<WorkInfo> workInfoLiveData;
+
+    private MaterialTextView pingTextView;
 
     public PingFragment() {
     }
@@ -132,10 +138,19 @@ public class PingFragment extends Fragment {
             if (workInfo == null) return;
             Data progress = workInfo.getProgress();
             Log.d(TAG, "registerObserver: workInfo-State: " + workInfo.getState());
-            double rtt = progress.getDouble(PingWorker.RTT, -1.0);
-            if(rtt != -1.0) {
-                rttMetric.update(rtt);
+            String rtt = progress.getString(PingWorker.RTT);
+            if(rtt != null) {
+                RTTLine rttLine = new Gson().fromJson(rtt, RTTLine.class);
+                rttMetric.update(rttLine.getRtt());
+                StringBuilder sb = new StringBuilder();
+                sb.append("Host: ").append(rttLine.getHost()).append(" ");
+                sb.append("Seq: ").append(rttLine.getIcmpSeq()).append(" ");
+                sb.append("TTL: ").append(rttLine.getTtl()).append(" ");
+                sb.append("RTT: ").append(rttLine.getRtt()).append(" ms");
+                pingTextView.setText(sb.toString()+"\n"+pingTextView.getText());
+
             }
+
 
             double packetLoss = progress.getDouble(PingWorker.PACKET_LOSS, -1.0);
 
@@ -213,7 +228,7 @@ public class PingFragment extends Fragment {
         workManager = WorkManager.getInstance(ct);
         verticalLL = v.findViewById(R.id.ping_vertical_ll);
         horizontalLL1 = verticalLL.findViewById(R.id.ping_horizontal1_ll);
-
+        pingTextView = v.findViewById(R.id.ping_output);
         toggleGroup = verticalLL.findViewById(R.id.ping_toggle_group);
         input = verticalLL.findViewById(R.id.ping_input);
         input.setText(spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "-w 5 8.8.8.8"));
@@ -240,6 +255,7 @@ public class PingFragment extends Fragment {
                 if (isRunning) {
                     v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
+                    pingTextView.setText("");
                 } else {
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
                     v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
@@ -289,8 +305,12 @@ public class PingFragment extends Fragment {
         metricsLL.setLayoutParams(foo1);
         metricsLL.addView(rttMetric);
         metricsLL.addView(packetLossMetric);
-        packetLossMetric.setVisibility(INVISIBLE);
-        horizontalLL1.addView(metricsLL);
+        packetLossMetric.setVisibility(GONE);
+        LinearLayout foobar= v.findViewById(R.id.ping_metric);
+        foobar.addView(metricsLL);
+
+
+//        horizontalLL1.addView(metricsLL);
 
         return v;
     }
