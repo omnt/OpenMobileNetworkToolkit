@@ -7,14 +7,14 @@
   -->
 
 <resources>
-    <string name="app_name">OpenMobileNetworkToolkit</string>
+    <string name="app_name" translatable="false">OpenMobileNetworkToolkit</string>
     <string name="action_android">Android Testing</string>
-    <string name="action_samsung">Samsung IMS</string>
-    <string name="action_sony">Sony Service</string>
-    <string name="action_nokia">Nokia enable SA</string>
-    <string name="action_huawei">Huawei Project</string>
-    <string name="action_mediatek">Mediatek IMS</string>
-    <string name="action_iperf3">iPerf3</string>
+    <string name="action_samsung" translatable="false">Samsung IMS</string>
+    <string name="action_sony" translatable="false">Sony Service</string>
+    <string name="action_nokia" translatable="false">Nokia enable SA</string>
+    <string name="action_huawei" translatable="false">Huawei Project</string>
+    <string name="action_mediatek" translatable="false">Mediatek IMS</string>
+    <string name="action_iperf3" translatable="false">iPerf3</string>
     <string name="execute_iperf_command">Send</string>
     <string name="loggin_notifaction">Logging Service</string>
     <string name="appinfo">This app is provided by NGNI a department of Fraunhofer FOKUS. \n\nhttps://www.fokus.fraunhofer.de/go/ngni \n\nThis software is licensed under BSD 3-Clause Clear License https://spdx.org/licenses/BSD-3-Clause-Clear.html \n\nAuthors: \n\nPeter Hasse \nMohsin Nisar \nJohann Hackler</string>
@@ -257,6 +257,7 @@
     <string name="log_wifi_data_summary">This will log WifiInformation data to InfluxDB. Like SSID, BSSID, RSSI, Frequency, LinkSpeed, and WifiStandard.</string>
     <string name="influx_battery_data_summary">This will log BatteryInformation data to InfluxDB. Like BatteryLevel and Charging Status.</string>
     <string name="influx_ip_address_data_summary">This will log IPAddressInformation data to InfluxDB. Like IPv4 and IPv6 addresses, and the interface name.</string>
+    <string name="open_for_link_to_documentation">Click here for Android Doc</string>
 
 
 </resources>
