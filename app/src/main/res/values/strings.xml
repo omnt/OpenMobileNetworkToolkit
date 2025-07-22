@@ -249,6 +249,14 @@
     <string name="enterprise_2">Enterprise 2</string>
     <string name="enterprise_3">Enterprise 3</string>
     <string name="filter_string">filter string</string>
+    <string name="influx_network_data_summary">This will log NetworkInformation to InfluxDB. Like NetworkOperatorName, SimOperatorName, DataNetworkType.</string>
+    <string name="log_signal_data_summary">This will log SignalStrength to InfluxDB. Like RSRP, RSRQ from the SignalStrength API.</string>
+    <string name="influx_cell_data_summary">This will log CellInformation to InfluxDB. Like CellId, MCC, MNC, PCI, but also RSRP, RSRQ from the CellInformation API.</string>
+    <string name="log_neighbour_cells_summary">This will log neighbour CellInformation data to InfluxDB. Like CellId, MCC, MNC, PCI, but also RSRP, RSRQ from the CellInformation API.</string>
+    <string name="influx_throughput_data_summary">This will log InterfaceThroughput data to InfluxDB. Like download and upload throughput, what the phone thinks what is currently possible.</string>
+    <string name="log_wifi_data_summary">This will log WifiInformation data to InfluxDB. Like SSID, BSSID, RSSI, Frequency, LinkSpeed, and WifiStandard.</string>
+    <string name="influx_battery_data_summary">This will log BatteryInformation data to InfluxDB. Like BatteryLevel and Charging Status.</string>
+    <string name="influx_ip_address_data_summary">This will log IPAddressInformation data to InfluxDB. Like IPv4 and IPv6 addresses, and the interface name.</string>
 
 
 </resources>

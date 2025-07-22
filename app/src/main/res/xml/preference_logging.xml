@@ -118,50 +118,63 @@
             app:title="@string/tags"
             app:useSimpleSummaryProvider="true" />
 
-
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="influx_network_data"
+            app:summary="@string/influx_network_data_summary"
             app:title="@string/influx_network_data" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="log_signal_data"
+            app:summary="@string/log_signal_data_summary"
             app:title="@string/log_signal_data" />
 
         <SwitchPreferenceCompat
+
             app:iconSpaceReserved="false"
             app:key="influx_cell_data"
+            app:summary="@string/influx_cell_data_summary"
             app:title="@string/influx_cell_data" />
 
         <SwitchPreferenceCompat
+
             app:dependency="influx_cell_data"
             app:iconSpaceReserved="false"
             app:key="log_neighbour_cells"
+            app:summary="@string/log_neighbour_cells_summary"
             app:title="@string/log_neighbour_cells" />
         <SwitchPreferenceCompat
+
             app:iconSpaceReserved="false"
             app:key="influx_throughput_data"
+            app:summary="@string/influx_throughput_data_summary"
             app:title="@string/influx_throughput_data" />
         <SwitchPreferenceCompat
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"
             android:title="@string/influx_wifi_data"
+            app:summary="@string/log_wifi_data_summary"
             app:iconSpaceReserved="false"
             app:key="log_wifi_data" />
         <SwitchPreferenceCompat
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"
             android:title="@string/influx_battery_data"
+            app:summary="@string/influx_battery_data_summary"
             app:iconSpaceReserved="false"
             app:key="influx_battery_data" />
         <SwitchPreferenceCompat
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"
             android:title="@string/influx_ip_address_data"
+            app:summary="@string/influx_ip_address_data_summary"
             app:iconSpaceReserved="false"
             app:key="influx_ip_address_data" />
     </PreferenceCategory>
