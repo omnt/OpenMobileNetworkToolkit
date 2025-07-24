@@ -51,7 +51,7 @@ public class PingParameter extends Parameter {
         return packetSize;
     }
 
-    public long getIntervalMillis() {
+    public double getIntervalMillis() {
         return intervalMillis;
     }
 
@@ -64,7 +64,7 @@ public class PingParameter extends Parameter {
     private int count;
     private int timeoutMillis;
     private int packetSize;
-    private long intervalMillis;
+    private double intervalMillis;
     private Network network;
     private int deadline;
     private String testUUID;
@@ -124,7 +124,7 @@ public class PingParameter extends Parameter {
                     packetSize = Integer.parseInt(parts[i + 1]);
                     break;
                 case "-i":
-                    intervalMillis = Long.parseLong(parts[i + 1]);
+                    intervalMillis = Double.parseDouble(parts[i + 1]);
                     break;
                 case "-w":
                     deadline = Integer.parseInt(parts[i + 1]);
@@ -164,7 +164,7 @@ public class PingParameter extends Parameter {
             Log.i(TAG, "no packet size set.");
         }
         try {
-            intervalMillis = parameter.getLong(INTERVAL);
+            intervalMillis = parameter.getDouble(INTERVAL);
         } catch (JSONException e) {
             Log.d(TAG, e.toString());
             Log.i(TAG, "no interval set.");
@@ -184,7 +184,7 @@ public class PingParameter extends Parameter {
         count = in.readInt();
         timeoutMillis = in.readInt();
         packetSize = in.readInt();
-        intervalMillis = in.readLong();
+        intervalMillis = in.readDouble();
         network = in.readParcelable(Network.class.getClassLoader());
     }
 
@@ -212,7 +212,7 @@ public class PingParameter extends Parameter {
         dest.writeInt(count);
         dest.writeInt(timeoutMillis);
         dest.writeInt(packetSize);
-        dest.writeLong(intervalMillis);
+        dest.writeDouble(intervalMillis);
         dest.writeParcelable(network, flags);
     }
 
