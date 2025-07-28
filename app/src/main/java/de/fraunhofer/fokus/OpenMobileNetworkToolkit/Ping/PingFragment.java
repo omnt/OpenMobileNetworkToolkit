@@ -10,6 +10,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -52,6 +53,7 @@ import java.util.UUID;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.METRIC_TYPE;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricView;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
@@ -79,6 +81,7 @@ public class PingFragment extends Fragment {
     private LiveData<WorkInfo> workInfoLiveData;
 
     private MaterialTextView pingTextView;
+    private int counter = 0;
 
     public PingFragment() {
     }
@@ -140,7 +143,9 @@ public class PingFragment extends Fragment {
             Log.d(TAG, "registerObserver: workInfo-State: " + workInfo.getState());
             String rtt = progress.getString(PingWorker.RTT);
             if(rtt != null) {
+                Log.d(TAG, "checkLastUUID: got RTT line");
                 RTTLine rttLine = new Gson().fromJson(rtt, RTTLine.class);
+                Log.d(TAG, "checkLastUUID: got ICMP-SEQ: "+rttLine.getIcmpSeq());
                 rttMetric.update(rttLine.getRtt());
                 StringBuilder sb = new StringBuilder();
                 sb.append("Host: ").append(rttLine.getHost()).append(" ");
@@ -148,25 +153,39 @@ public class PingFragment extends Fragment {
                 sb.append("TTL: ").append(rttLine.getTtl()).append(" ");
                 sb.append("RTT: ").append(rttLine.getRtt()).append(" ms");
                 pingTextView.setText(sb.toString()+"\n"+pingTextView.getText());
-
+                counter++;
+                if(counter > 1e4){
+                    pingTextView.setText("");
+                    rttMetric.getMetricCalculator().resetMetric();
+                    packetLossMetric.getMetricCalculator().resetMetric();
+                    counter = 0;
+                }
             }
 
-
-            double packetLoss = progress.getDouble(PingWorker.PACKET_LOSS, -1.0);
-
-            if(packetLoss != -1.0) {
-                packetLossMetric.setVisibility(View.VISIBLE);
-                Log.d(TAG, "onChanged: Packet Loss: " + packetLoss);
-                packetLossMetric.update(packetLoss);
+            String packetLoss = progress.getString(PingWorker.PACKET_LOSS);
+            if(packetLoss != null){
+                Log.d(TAG, "checkLastUUID: got PACKETLOSS line");
+                PacketLossLine packetLossLine = new Gson().fromJson(packetLoss,PacketLossLine.class);
+                packetLossMetric.update(packetLossLine.getPacketLoss());
+                packetLossMetric.setVisibility(VISIBLE);
             }
+
 
             switch (workInfo.getState()) {
                 case RUNNING:
                 case SUCCEEDED:
                     break;
                 case FAILED:
+                    Log.e(TAG, "checkLastUUID: Work failed: " + workInfo.getOutputData().getString(PingWorker.REASON));
+                    pingTextView.setText(workInfo.getOutputData().getString(PingWorker.REASON));
+                    rttMetric.getMetricCalculator().resetMetric();
+                    packetLossMetric.getMetricCalculator().resetMetric();
+                    packetLossMetric.setVisibility(GONE);
+                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                    toggleGroup.check(R.id.ping_stop);
+                    break;
                 case CANCELLED:
-                    workInfoLiveData.removeObserver(observer);  // Optionally clean up
+//                    workInfoLiveData.removeObserver(observer);  // Optionally clean up
                     break;
                 default:
                     break;

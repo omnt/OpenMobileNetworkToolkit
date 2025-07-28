@@ -43,7 +43,7 @@ public class PingParameter extends Parameter {
         return count;
     }
 
-    public int getTimeoutMillis() {
+    public double getTimeoutMillis() {
         return timeoutMillis;
     }
 
@@ -62,7 +62,7 @@ public class PingParameter extends Parameter {
 
     private String destination;
     private int count;
-    private int timeoutMillis;
+    private double timeoutMillis;
     private int packetSize;
     private double intervalMillis;
     private Network network;
@@ -118,7 +118,7 @@ public class PingParameter extends Parameter {
                     count = Integer.parseInt(parts[i + 1]);
                     break;
                 case "-W":
-                    timeoutMillis = Integer.parseInt(parts[i + 1]);
+                    timeoutMillis = Double.parseDouble(parts[i + 1]);
                     break;
                 case "-s":
                     packetSize = Integer.parseInt(parts[i + 1]);
@@ -182,7 +182,7 @@ public class PingParameter extends Parameter {
         super(in);
         destination = in.readString();
         count = in.readInt();
-        timeoutMillis = in.readInt();
+        timeoutMillis = in.readDouble();
         packetSize = in.readInt();
         intervalMillis = in.readDouble();
         network = in.readParcelable(Network.class.getClassLoader());
@@ -210,7 +210,7 @@ public class PingParameter extends Parameter {
         super.writeToParcel(dest, flags);
         dest.writeString(destination);
         dest.writeInt(count);
-        dest.writeInt(timeoutMillis);
+        dest.writeDouble(timeoutMillis);
         dest.writeInt(packetSize);
         dest.writeDouble(intervalMillis);
         dest.writeParcelable(network, flags);

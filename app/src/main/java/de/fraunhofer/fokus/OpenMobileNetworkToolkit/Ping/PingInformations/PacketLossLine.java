@@ -51,4 +51,11 @@ public class PacketLossLine extends PingInformation{
                 .time(System.currentTimeMillis(), WritePrecision.MS);
         //ping does not provide timestamp for packet loss line
     }
+    @Override
+    public String toString() {
+        return "PacketLossLine{" +
+                "packetLoss=" + packetLoss +
+                ", packetsTransmitted=" + packetsTransmitted +
+                ", packetsReceived=" + packetsReceived + '}';
+    }
 }
