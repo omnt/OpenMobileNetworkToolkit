@@ -264,7 +264,7 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         headerLayout.setPadding(16, 16, 16, 16); // Add padding
 
         TextView typeTextView = new TextView(context);
-        typeTextView.setText(type.toReadable());
+        typeTextView.setText(type.toString().replace("_", " "));
         typeTextView.setTextSize(18);
         typeTextView.setTypeface(typeTextView.getTypeface(), Typeface.BOLD);
         typeTextView.setTextColor(context.getColor(R.color.design_default_color_primary));

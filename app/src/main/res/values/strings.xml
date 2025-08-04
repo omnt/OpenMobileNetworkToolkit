@@ -104,7 +104,7 @@
     <string name="exit">Exit\n</string>
     <string name="action_xiaomi">xiaomi</string>
     <string name="carrier_settings_summary">Applied on SIM / network change</string>
-    <string name="show_neighbour_cells">Show neighbour cells\n</string>
+    <string name="show_neighbour_cells">Show neighbour cells</string>
     <string name="home_screen_settings">Home screen settings</string>
     <string name="app_settings">App settings</string>
     <string name="action_android_ims">Android IMS</string>>
@@ -258,6 +258,26 @@
     <string name="influx_battery_data_summary">This will log BatteryInformation data to InfluxDB. Like BatteryLevel and Charging Status.</string>
     <string name="influx_ip_address_data_summary">This will log IPAddressInformation data to InfluxDB. Like IPv4 and IPv6 addresses, and the interface name.</string>
     <string name="open_for_link_to_documentation">Click here for Android Doc</string>
+    <string name="influx_preference_summary">This configures a remote InfluxDB instance to log data to.</string>
+    <string name="local_logging_preference_summary">This configures a local InfluxDB instance, running on the Device, to log data to. EXPERIMENTAL</string>
+    <string name="logging_service_summary">This configures the logging Service of OMNT.</string>
+    <string name="influx_url_summary">Influx URL, it can either be http://IP:8086, https://IP:8086, or any hostname.</string>
+    <string name="influx_org_summary">Influx ORG Name, or ID.</string>
+    <string name="influx_token_summary">Influx TOKEN</string>
+    <string name="influx_bucket_summary">Influx Bucket Name or ID.</string>
+    <string name="mqtt_summary">Enables MQTT Services for OMNT.</string>
+    <string name="mqtt_credentials_summary">Section to set Credentials for MQTT.</string>
+    <string name="mqtt_host_summary">MQTT Broker Address</string>
+    <string name="mqtt_client_password_summary">MQTT Client Password.</string>
+    <string name="radio_setting_documentation_summary">Opens Link to Android Doc.</string>
+    <string name="access_networktype_summary">Select Network Type</string>
+    <string name="prefernce_show_neighbour_cells_summary">Shows Neighbour cells only when connected to a Network and is announced by the network.</string>
+    <string name="device_name_summary">Set unique device name.</string>
+    <string name="log_settings_summary">Configure the Logging Parameter.</string>
+    <string name="mobile_network_settings_summary">Configure Mobile Network Settings, only if the App has Carrier Permissions.</string>
+    <string name="reset_modem_summary">Reboots the modem, only possible when OMNT has Carrier Permissions.</string>
+    <string name="mqtt_settings_summary">Configure MQTT for OMNT.</string>
+    <string name="shared_preferences_io_summary">Import/Export Config of OMNT.</string>
 
 
 </resources>

@@ -21,43 +21,42 @@ public enum SPType {
     public String toString() {
         switch(this){
             case default_sp:
-                return "preferences";
+                return "Default_Settings";
             case logging_sp:
+                return "Logging_Settings";
             case ping_sp:
+                return "Ping_Settings";
             case carrier_sp:
+                return "Carrier_Settings";
             case mqtt_sp:
+                return "MQTT_Settings";
             case mobile_network_sp:
-                return super.toString();
+                return "Mobile_Network_Settings";
+            case iperf3_sp:
+                return "iPerf3_Settings";
             default:
                 return "";
         }
     }
     public static SPType fromString(String text) {
-        for (SPType b : SPType.values()) {
-            if (b.toString().equalsIgnoreCase(text)) {
-                return b;
-            }
+        switch (text){
+            case "Default_Settings":
+                return default_sp;
+            case "Logging_Settings":
+                return logging_sp;
+            case "Ping_Settings":
+                return ping_sp;
+            case "Carrier_Settings":
+                return carrier_sp;
+            case "MQTT_Settings":
+                return mqtt_sp;
+            case "Mobile_Network_Settings":
+                return mobile_network_sp;
+            case "iPerf3 Settings":
+                return iperf3_sp;
         }
         return null;
     }
 
-    public String toReadable(){
-        String name = this.name().split("_")[0];
-        switch(this){
-            case logging_sp:
-            case ping_sp:
-            case carrier_sp:
 
-            case default_sp:
-                return name.substring(0,1).toUpperCase() + name.substring(1);
-            case mobile_network_sp:
-                return "Mobile Network";
-            case iperf3_sp:
-                return "iPerf3";
-            case mqtt_sp:
-                return "MQTT";
-            default:
-                return null;
-        }
-    }
 }

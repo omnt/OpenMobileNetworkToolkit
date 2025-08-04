@@ -14,17 +14,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="MQTT Service"
+        android:summary="@string/mqtt_summary"
         app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="enable_mqtt"
+            android:defaultValue="false"
             app:summary="@string/enable_mqtt"
             app:dependency="mqtt_host"
             app:title="@string/enable_logging" />
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="enable_mqtt_on_boot"
+            android:defaultValue="false"
             app:summary="@string/enable_mqtt_on_boot"
             app:title="@string/start_logging_on_boot" />
     </PreferenceCategory>
@@ -32,15 +35,16 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:key="mqtt_credentials"
+        android:summary="@string/mqtt_credentials_summary"
         app:title="MQTT Credentials">
 
         <EditTextPreference
             android:dialogTitle="@string/mqtt_host_dialog_title"
             app:iconSpaceReserved="false"
             app:key="mqtt_host"
-
+            android:defaultValue="@string/mqtt_host_hint"
             app:title="@string/mqtt_host"
-            android:hint="@string/mqtt_host_hint"
+            android:summary="@string/mqtt_host_summary"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
@@ -48,6 +52,7 @@
             app:iconSpaceReserved="false"
             app:key="mqtt_client_username"
             app:dependency="enable_mqtt"
+            android:defaultValue="USERNAME"
             app:summary="@string/mqtt_client_username_summary"
             app:title="@string/mqtt_client_user_name_title" />
 
@@ -56,7 +61,9 @@
             app:dependency="enable_mqtt"
             app:iconSpaceReserved="false"
             app:key="mqtt_client_password"
+            android:defaultValue="PASSWORD"
             app:title="@string/mqtt_client_password"
+            android:summary="@string/mqtt_client_password_summary"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>

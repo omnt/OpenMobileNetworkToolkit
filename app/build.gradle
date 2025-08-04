@@ -5,6 +5,8 @@
  * SPDX-License-Identifier: apache2
  */
 
+import groovy.xml.Namespace
+
 plugins {
     id 'com.android.application'
     id 'androidx.navigation.safeargs'
@@ -169,6 +171,156 @@ dependencies {
     implementation "com.squareup.moshi:moshi-adapters:1.15.2"
 }
 
-configurations.implementation {
-    exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+
+
+
+task generatePrefsDoc {
+    def resXmlDir = file("$projectDir/src/main/res/xml")
+    def stringsFile = file("$projectDir/src/main/res/values/strings.xml")
+    def arraysFile = file("$projectDir/src/main/res/values/arrays.xml")
+    def outputFile = file("$projectDir/../docs/preferences.md")
+
+    doLast {
+        def parseStringsXml = { File xmlFile ->
+            def parser = new XmlSlurper()
+            def root = parser.parse(xmlFile)
+            def map = [:]
+            root.string.each { s ->
+                def name = s.@name.toString()
+                def value = s.text().trim()
+                map[name] = value
+            }
+            return map
+        }
+
+        def parseArraysXml = { File xmlFile ->
+            if (!xmlFile.exists()) return [:]
+            def parser = new XmlSlurper()
+            def root = parser.parse(xmlFile)
+            def map = [:]
+            root.array.each { arr ->
+                def name = arr.@name.toString()
+                def items = arr.item.collect { it.text().trim() }
+                map[name] = items
+            }
+            return map
+        }
+
+        def stringsMap = stringsFile.exists() ? parseStringsXml(stringsFile) : [:]
+        def arraysMap = arraysFile.exists() ? parseArraysXml(arraysFile) : [:]
+
+        def resolveRef = { String ref ->
+            if (!ref) return ""
+            if (ref.startsWith("@string/")) {
+                def key = ref.substring(8)
+                return stringsMap.get(key, ref)
+            } else if (ref.startsWith("@array/")) {
+                def key = ref.substring(7)
+                def arr = arraysMap.get(key)
+                return arr ? arr.join(", ") : ref
+            }
+            return ref
+        }
+
+        def getAttrValue = { attrs, List<String> possibleKeys ->
+            for (k in possibleKeys) {
+                if (attrs.containsKey(k)) {
+                    return attrs[k]
+                }
+            }
+            return null
+        }
+
+        def md = new StringBuilder("# Preferences Documentation\n\n")
+
+        resXmlDir.eachFile { xmlFile ->
+            if (xmlFile.name.toLowerCase().startsWith("preference") && xmlFile.name.endsWith(".xml")) {
+                def logicalName = xmlFile.name
+                    .replaceFirst(/^preference_/, '')
+                    .replaceFirst(/\.xml$/, '')
+                    .replaceAll(/_/, ' ')
+                    .capitalize()
+                md.append("# ${logicalName}\n\n")
+
+                def xml = new XmlSlurper(false, false).parse(xmlFile)
+
+                def categories = [:]  // categoryName -> [summary, list of prefs]
+
+                def processPrefs
+                processPrefs = { node, categoryName = null ->
+                    def attrs = node.attributes()
+
+                    if (node.name() == "PreferenceCategory") {
+                        def catTitleRaw = getAttrValue(attrs, ['android:title', 'app:title', 'title'])
+                        def catSummaryRaw = getAttrValue(attrs, ['android:summary', 'app:summary', 'summary'])
+                        def catTitle = resolveRef(catTitleRaw) ?: "Unnamed Category"
+                        def catSummary = resolveRef(catSummaryRaw) ?: ""
+
+                        if (!categories.containsKey(catTitle)) {
+                            categories[catTitle] = [summary: catSummary, prefs: []]
+                        }
+
+                        node.children().each { child ->
+                            processPrefs(child, catTitle)
+                        }
+                    } else if (node.name() == "PreferenceScreen") {
+                        node.children().each { child ->
+                            processPrefs(child, categoryName)
+                        }
+                    } else {
+                        def keyRaw = getAttrValue(attrs, ['android:key', 'app:key', 'key'])
+                        if (keyRaw) {
+                            def titleRaw = getAttrValue(attrs, ['android:title', 'app:title', 'title'])
+                            def summaryRaw = getAttrValue(attrs, ['android:summary', 'app:summary', 'summary'])
+                            def defaultValueRaw = getAttrValue(attrs, ['android:defaultValue', 'app:defaultValue', 'defaultValue'])
+
+                            def title = resolveRef(titleRaw)
+                            def summary = resolveRef(summaryRaw)
+                            def defaultValue = resolveRef(defaultValueRaw)
+
+                            if (categoryName == null) {
+                                categoryName = "General Preferences"
+                                if (!categories.containsKey(categoryName)) {
+                                    categories[categoryName] = [summary: "", prefs: []]
+                                }
+                            }
+
+                            categories[categoryName].prefs << [
+                                    key: keyRaw,
+                                    title: title,
+                                    summary: summary,
+                                    defaultValue: defaultValue
+                            ]
+                        }
+                    }
+                }
+
+                processPrefs(xml)
+
+                categories.each { catName, info ->
+                    md.append("## ${catName}\n\n")
+                    if (info.summary) {
+                        md.append("_${info.summary}_\n\n")
+                    }
+
+                    md.append("| Key | Title | Summary | Default Value |\n")
+                    md.append("| --- | ----- | ------- | ------------- |\n")
+                    info.prefs.each { p ->
+                        def escTitle = p.title?.replaceAll("\\|", "\\\\|") ?: ""
+                        def escSummary = p.summary?.replaceAll("\\|", "\\\\|") ?: ""
+                        def escDefault = p.defaultValue ? "`${p.defaultValue.replaceAll("\\|", "\\\\|")}`" : ""
+                        md.append("| **${p.key}** | ${escTitle} | ${escSummary} | ${escDefault} |\n")
+                    }
+                    md.append("\n")
+                }
+            }
+        }
+
+        outputFile.parentFile.mkdirs()
+        outputFile.text = md.toString()
+        println "Preferences Markdown generated at: ${outputFile.path}"
+    }
 }
+
+
+

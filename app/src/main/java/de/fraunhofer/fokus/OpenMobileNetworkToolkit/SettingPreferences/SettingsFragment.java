@@ -40,7 +40,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
         pfm.setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
         pfm.setSharedPreferencesMode(Context.MODE_PRIVATE);
-        setPreferencesFromResource(R.xml.preference, rootKey);
+        setPreferencesFromResource(R.xml.preference_main, rootKey);
 
         ListPreference sub_select = pfm.findPreference("select_subscription");
         if (sub_select != null) {
