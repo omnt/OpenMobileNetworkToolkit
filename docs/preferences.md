@@ -1,8 +1,8 @@
 # Preferences Documentation
 
-# Logging
+## Logging
 
-## Logging Service
+### Logging Service
 
 _This configures the logging Service of OMNT._
 
@@ -12,7 +12,7 @@ _This configures the logging Service of OMNT._
 | **start_logging_on_boot** | Start on boot | Start the logging service on device boot | `false` |
 | **logging_interval** | Interval | Logging interval in milliseconds | `1000` |
 
-## Local logging
+### Local logging
 
 _This configures a local InfluxDB instance, running on the Device, to log data to. EXPERIMENTAL_
 
@@ -21,7 +21,7 @@ _This configures a local InfluxDB instance, running on the Device, to log data t
 | **enable_local_influx_log** | InfluxDB log | Log to a local Influx 2.x database | `fals` |
 | **enable_local_file_log** | Log file | Log to a local file | `false` |
 
-## Remote logging
+### Remote logging
 
 _This configures a remote InfluxDB instance to log data to._
 
@@ -33,7 +33,7 @@ _This configures a remote InfluxDB instance to log data to._
 | **influx_token** | Influx Token | Influx TOKEN | `TOKEN` |
 | **influx_bucket** | InfluxDB bucket | Influx Bucket Name or ID. | `BUCKET_NAME` |
 
-## Logging content
+### Logging content
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
@@ -49,21 +49,21 @@ _This configures a remote InfluxDB instance to log data to._
 | **influx_battery_data** | Log battery information | This will log BatteryInformation data to InfluxDB. Like BatteryLevel and Charging Status. | `false` |
 | **influx_ip_address_data** | Log IP addresses | This will log IPAddressInformation data to InfluxDB. Like IPv4 and IPv6 addresses, and the interface name. | `false` |
 
-# Main
+## Main
 
-## Home screen settings
+### Home screen settings
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
-| **show_neighbour_cells** | Show neighbour cells | Shows Neighbour cells only when connected to a Network and is announced by the network. | `false` |
+| **show_neighbour_cells** | Show neighbour cells | Shows neighbour cells only when connected to a network and is announced by the network. | `false` |
 
-## Notification settings
+### Notification settings
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
 | **enable_radio_notification** | Enable Cell Notification | Serving Cell Parameter: PCI, RSRP... | `false` |
 
-## App settings
+### App settings
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
@@ -75,9 +75,9 @@ _This configures a remote InfluxDB instance to log data to._
 | **mqtt_settings** | MQTT Settings | Configure MQTT for OMNT. |  |
 | **shared_preferences_io** | Config | Import/Export Config of OMNT. |  |
 
-# Mqtt
+## Mqtt
 
-## MQTT Service
+### MQTT Service
 
 _Enables MQTT Services for OMNT._
 
@@ -86,7 +86,7 @@ _Enables MQTT Services for OMNT._
 | **enable_mqtt** | Enable | Enable MQTT | `false` |
 | **enable_mqtt_on_boot** | Start on boot | Enable MQTT on boot | `false` |
 
-## MQTT Credentials
+### MQTT Credentials
 
 _Section to set Credentials for MQTT._
 
@@ -96,9 +96,9 @@ _Section to set Credentials for MQTT._
 | **mqtt_client_username** | MQTT Client Username | MQTT Username | `USERNAME` |
 | **mqtt_client_password** | MQTT Client Password | MQTT Client Password. | `PASSWORD` |
 
-# Mobile network
+## Mobile network
 
-## Radio Settings
+### Radio Settings
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
@@ -107,7 +107,7 @@ _Section to set Credentials for MQTT._
 | **add_plmn** | Set PLMN |  |  |
 | **persist_boot** | Persist until reboot |  |  |
 
-## Carrier Settings
+### Carrier Settings
 
 _Applied on SIM / network change_
 
@@ -115,7 +115,7 @@ _Applied on SIM / network change_
 | --- | ----- | ------- | ------------- |
 | **apply_cs_settings** | Apply carrier settings now |  |  |
 
-## Android 12 API 31 (S)
+### Android 12 API 31 (S)
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
@@ -125,7 +125,7 @@ _Applied on SIM / network change_
 | **switch_KEY_HIDE_ENABLE_2G** | HIDE_ENABLE_2G |  | `false` |
 | **switch_KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL** | RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL |  | `true` |
 
-## Android 11 API 30 (R)
+### Android 11 API 30 (R)
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
@@ -141,7 +141,7 @@ _Applied on SIM / network change_
 | **edit_text_KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY** | APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY |  |  |
 | **switch_KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL** | CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL |  | `true` |
 
-## Android 10 API 29 (Q)
+### Android 10 API 29 (Q)
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
@@ -180,7 +180,7 @@ _Applied on SIM / network change_
 | **list_KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT** | CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT |  | `1` |
 | **switch_KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL** | ALLOW_EMERGENCY_VIDEO_CALLS_BOOL |  | `false` |
 
-## Android 8 API 27 (0_MR1)
+### Android 8 API 27 (0_MR1)
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |

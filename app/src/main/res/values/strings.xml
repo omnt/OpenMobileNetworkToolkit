@@ -271,7 +271,7 @@
     <string name="mqtt_client_password_summary">MQTT Client Password.</string>
     <string name="radio_setting_documentation_summary">Opens Link to Android Doc.</string>
     <string name="access_networktype_summary">Select Network Type</string>
-    <string name="prefernce_show_neighbour_cells_summary">Shows Neighbour cells only when connected to a Network and is announced by the network.</string>
+    <string name="prefernce_show_neighbour_cells_summary">Shows neighbour cells only when connected to a network and is announced by the network.</string>
     <string name="device_name_summary">Set unique device name.</string>
     <string name="log_settings_summary">Configure the Logging Parameter.</string>
     <string name="mobile_network_settings_summary">Configure Mobile Network Settings, only if the App has Carrier Permissions.</string>

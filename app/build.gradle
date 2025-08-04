@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: apache2
  */
 
+
 import groovy.xml.Namespace
 
 plugins {
@@ -177,6 +178,7 @@ tasks.register('generatePrefsDoc') {
     def stringsFile = file("$projectDir/src/main/res/values/strings.xml")
     def arraysFile = file("$projectDir/src/main/res/values/arrays.xml")
     def outputFile = file("$projectDir/../docs/preferences.md")
+    def jsonOutputFile = file("$projectDir/../docs/config.json")
 
     doLast {
         def parseStringsXml = { File xmlFile ->
@@ -184,9 +186,7 @@ tasks.register('generatePrefsDoc') {
             def root = parser.parse(xmlFile)
             def map = [:]
             root.string.each { s ->
-                def name = s.@name.toString()
-                def value = s.text().trim()
-                map[name] = value
+                map[s.@name.toString()] = s.text().trim()
             }
             return map
         }
@@ -198,8 +198,7 @@ tasks.register('generatePrefsDoc') {
             def map = [:]
             root.array.each { arr ->
                 def name = arr.@name.toString()
-                def items = arr.item.collect { it.text().trim() }
-                map[name] = items
+                map[name] = arr.item.collect { it.text().trim() }
             }
             return map
         }
@@ -220,8 +219,8 @@ tasks.register('generatePrefsDoc') {
             return ref
         }
 
-        def getAttrValue = { attrs, List<String> possibleKeys ->
-            for (k in possibleKeys) {
+        def getAttrValue = { attrs, List<String> keys ->
+            for (k in keys) {
                 if (attrs.containsKey(k)) {
                     return attrs[k]
                 }
@@ -230,6 +229,7 @@ tasks.register('generatePrefsDoc') {
         }
 
         def md = new StringBuilder("# Preferences Documentation\n\n")
+        def jsonList = [] // full JSON list to serialize
 
         resXmlDir.eachFile { xmlFile ->
             if (xmlFile.name.toLowerCase().startsWith("preference") && xmlFile.name.endsWith(".xml")) {
@@ -238,16 +238,36 @@ tasks.register('generatePrefsDoc') {
                         .replaceFirst(/\.xml$/, '')
                         .replaceAll(/_/, ' ')
                         .capitalize()
-                md.append("# ${logicalName}\n\n")
+
+                md.append("## ${logicalName}\n\n")
 
                 def xml = new XmlSlurper(false, false).parse(xmlFile)
+                def categories = [:]
 
-                def categories = [:]  // categoryName -> [summary, list of prefs]
 
                 def processPrefs
                 processPrefs = { node, categoryName = null ->
                     def attrs = node.attributes()
-
+                    def prefType
+                    switch (node.name()) {
+                        case "SwitchPreferenceCompat":
+                        case "SwitchPreference":
+                        case "CheckBoxPreference":
+                            prefType = "boolean"
+                            break
+                        case "EditTextPreference":
+                        case "ListPreference":
+                            prefType = "string"
+                            break
+                        case "SeekBarPreference":
+                            prefType = "int"
+                            break
+                        case "MultiSelectListPreference":
+                            prefType = "set"
+                            break
+                        default:
+                            prefType = "string"
+                    }
                     if (node.name() == "PreferenceCategory") {
                         def catTitleRaw = getAttrValue(attrs, ['android:title', 'app:title', 'title'])
                         def catSummaryRaw = getAttrValue(attrs, ['android:summary', 'app:summary', 'summary'])
@@ -287,7 +307,8 @@ tasks.register('generatePrefsDoc') {
                                     key         : keyRaw,
                                     title       : title,
                                     summary     : summary,
-                                    defaultValue: defaultValue
+                                    defaultValue: defaultValue,
+                                    type        : prefType
                             ]
                         }
                     }
@@ -295,8 +316,13 @@ tasks.register('generatePrefsDoc') {
 
                 processPrefs(xml)
 
+                def jsonEntry = [
+                        setting: logicalName.toLowerCase().replaceAll(" ", "_"),
+                        categories: []
+                ]
+
                 categories.each { catName, info ->
-                    md.append("## ${catName}\n\n")
+                    md.append("### ${catName}\n\n")
                     if (info.summary) {
                         md.append("_${info.summary}_\n\n")
                     }
@@ -310,14 +336,37 @@ tasks.register('generatePrefsDoc') {
                         md.append("| **${p.key}** | ${escTitle} | ${escSummary} | ${escDefault} |\n")
                     }
                     md.append("\n")
+
+                    jsonEntry.categories << [
+                            name: catName.replaceAll(" ", "_").toLowerCase(),
+                            preferences: info.prefs.collect { p -> [key: p.key, value: null, type: p.type] }
+                    ]
                 }
+
+                jsonList << jsonEntry
             }
         }
 
         outputFile.parentFile.mkdirs()
         outputFile.text = md.toString()
+
+        jsonList.add([
+                metadata: [
+                        version: android.defaultConfig.versionName,
+                        code   : android.defaultConfig.versionCode,
+                        gitHash: getGitHash()
+                ]
+        ])
+        def json = groovy.json.JsonOutput.prettyPrint(
+                groovy.json.JsonOutput.toJson(jsonList)
+        )
+
+
+        jsonOutputFile.text = json
+
         println "Preferences Markdown generated at: ${outputFile.path}"
+        println "Preferences JSON generated at: ${jsonOutputFile.path}"
     }
 }
 
-preBuild.dependsOn(generatePrefsDoc)
+preBuild.dependsOn(tasks.named("generatePrefsDoc"))
