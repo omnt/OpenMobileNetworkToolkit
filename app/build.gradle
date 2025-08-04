@@ -172,9 +172,7 @@ dependencies {
 }
 
 
-
-
-task generatePrefsDoc {
+tasks.register('generatePrefsDoc') {
     def resXmlDir = file("$projectDir/src/main/res/xml")
     def stringsFile = file("$projectDir/src/main/res/values/strings.xml")
     def arraysFile = file("$projectDir/src/main/res/values/arrays.xml")
@@ -236,10 +234,10 @@ task generatePrefsDoc {
         resXmlDir.eachFile { xmlFile ->
             if (xmlFile.name.toLowerCase().startsWith("preference") && xmlFile.name.endsWith(".xml")) {
                 def logicalName = xmlFile.name
-                    .replaceFirst(/^preference_/, '')
-                    .replaceFirst(/\.xml$/, '')
-                    .replaceAll(/_/, ' ')
-                    .capitalize()
+                        .replaceFirst(/^preference_/, '')
+                        .replaceFirst(/\.xml$/, '')
+                        .replaceAll(/_/, ' ')
+                        .capitalize()
                 md.append("# ${logicalName}\n\n")
 
                 def xml = new XmlSlurper(false, false).parse(xmlFile)
@@ -286,9 +284,9 @@ task generatePrefsDoc {
                             }
 
                             categories[categoryName].prefs << [
-                                    key: keyRaw,
-                                    title: title,
-                                    summary: summary,
+                                    key         : keyRaw,
+                                    title       : title,
+                                    summary     : summary,
                                     defaultValue: defaultValue
                             ]
                         }
@@ -322,5 +320,4 @@ task generatePrefsDoc {
     }
 }
 
-
-
+preBuild.dependsOn(generatePrefsDoc)
