@@ -12,7 +12,9 @@ import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 
@@ -41,6 +43,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
@@ -95,7 +98,18 @@ public class PingWorker extends Worker {
     }
 
     private ForegroundInfo createForegroundInfo(String progress) {
-        notification = notificationBuilder
+        Intent intent = new Intent(this.ct, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("navigateToFragment", "PingFragment"); // Identifier for your fragment
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this.ct,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        Notification notification = notificationBuilder
                 .setContentTitle("Ping")
                 .setContentText(progress)
                 .setOngoing(true)
@@ -103,9 +117,12 @@ public class PingWorker extends Worker {
                 .setColor(Color.WHITE)
                 .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_DEFAULT)
+                .setContentIntent(pendingIntent) // 👈 attach pending intent here
                 .build();
+
         return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE);
     }
+
 
 
     @NonNull
