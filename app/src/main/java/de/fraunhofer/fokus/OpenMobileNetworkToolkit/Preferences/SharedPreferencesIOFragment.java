@@ -114,6 +114,19 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getParentFragmentManager().setFragmentResultListener("qr_scan_request", this, (requestKey, bundle) -> {
+            String scannedText = bundle.getString("scanned_qr");
+            if (scannedText != null) {
+                Log.d("OriginalFragment", "Got scanned QR: " + scannedText);
+                clearConfig();
+                importPreferenceFromText(scannedText);
+            }
+        });
+    }
+
     private void clearConfig() {
         ClearPreferencesFragment fragment = new ClearPreferencesFragment();
         fragment.setClearPreferencesListener(this);
@@ -224,7 +237,16 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         return keys;
     }
 
-
+    private void importPreferenceFromText(String jsonString) {
+        try {
+            List<String> keys = getKeysFromJson(jsonString);
+            MultiSelectDialogFragment dialogFragment = getMultiSelectDialogFragment(jsonString, keys);
+            dialogFragment.show(getParentFragmentManager(), "multiSelectDialog");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to import Config", e);
+            showToast("Failed to import Config");
+        }
+    }
     private void importPreferencesFromFile(Uri uri) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(context.getContentResolver().openInputStream(uri)))) {
             StringBuilder stringBuilder = new StringBuilder();

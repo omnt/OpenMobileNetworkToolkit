@@ -31,6 +31,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.zxing.BarcodeFormat;
@@ -136,9 +138,16 @@ public class ScannerFragment extends Fragment {
                             try {
                                 Result result = barcodeReader.decode(bitmap);
                                 Log.d("ZXing", "Scanned: " + result.getText());
-                                // TODO: Handle result on main thread
+
+                                requireActivity().runOnUiThread(() -> {
+                                    Bundle bundleResult = new Bundle();
+                                    bundleResult.putString("scanned_qr", result.getText());
+                                    getParentFragmentManager().setFragmentResult("qr_scan_request", bundleResult);
+                                    NavHostFragment.findNavController(this).popBackStack();
+                                });
+
                             } catch (NotFoundException e) {
-                                // No QR code found
+                                // No QR code found, ignore
                             } finally {
                                 image.close();
                             }
@@ -149,6 +158,7 @@ public class ScannerFragment extends Fragment {
                         image.close();
                     }
                 });
+
 
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
