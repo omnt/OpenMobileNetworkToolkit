@@ -37,8 +37,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
         PreferenceManager pfm = getPreferenceManager();
-        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
-        pfm.setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.default_sp));
+        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.MAIN));
+        pfm.setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.MAIN));
         pfm.setSharedPreferencesMode(Context.MODE_PRIVATE);
         setPreferencesFromResource(R.xml.preference_main, rootKey);
 

@@ -97,7 +97,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
         ct = requireContext();
         plmnId = ct.getString(R.string.select_plmn);
         accessNetworkType = ct.getString(R.string.access_networktype);
-        preferences = SharedPreferencesGrouper.getInstance(ct).getSharedPreference(SPType.mobile_network_sp);
+        preferences = SharedPreferencesGrouper.getInstance(ct).getSharedPreference(SPType.MOBILE_NETWORK);
         tm = gv.getTm();
         pm = gv.getPm();
         int sdk_version = Build.VERSION.SDK_INT;
@@ -186,7 +186,7 @@ public class MobileNetworkSettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         gv = GlobalVars.getInstance();
-        getPreferenceManager().setSharedPreferencesName(SharedPreferencesGrouper.getInstance(requireContext()).getSharedPreferenceIdentifier(SPType.carrier_sp));
+        getPreferenceManager().setSharedPreferencesName(SharedPreferencesGrouper.getInstance(requireContext()).getSharedPreferenceIdentifier(SPType.MOBILE_NETWORK));
         setPreferencesFromResource(R.xml.preference_mobile_network, rootKey);
         Preference button = getPreferenceManager().findPreference("apply_cs_settings");
         if (button != null) {

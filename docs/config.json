@@ -161,32 +161,7 @@
                         "type": "string"
                     },
                     {
-                        "key": "log_settings",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
-                        "key": "mobile_network_settings",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
                         "key": "select_subscription",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
-                        "key": "reset_modem",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
-                        "key": "mqtt_settings",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
-                        "key": "shared_preferences_io",
                         "value": null,
                         "type": "string"
                     }
@@ -241,11 +216,6 @@
                 "name": "radio_settings",
                 "preferences": [
                     {
-                        "key": "doc",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
                         "key": "select_network_type",
                         "value": null,
                         "type": "string"
@@ -259,16 +229,6 @@
                         "key": "persist_boot",
                         "value": null,
                         "type": "boolean"
-                    }
-                ]
-            },
-            {
-                "name": "carrier_settings",
-                "preferences": [
-                    {
-                        "key": "apply_cs_settings",
-                        "value": null,
-                        "type": "string"
                     }
                 ]
             },
@@ -553,7 +513,7 @@
         "metadata": {
             "version": "0.7",
             "code": 7,
-            "gitHash": "6637f6d"
+            "gitHash": "9d3ed7b"
         }
     }
 ]

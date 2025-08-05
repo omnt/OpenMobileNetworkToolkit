@@ -178,7 +178,8 @@ tasks.register('generatePrefsDoc') {
     def stringsFile = file("$projectDir/src/main/res/values/strings.xml")
     def arraysFile = file("$projectDir/src/main/res/values/arrays.xml")
     def outputFile = file("$projectDir/../docs/preferences.md")
-    def jsonOutputFile = file("$projectDir/../docs/config.json")
+    def jsonOutputFileDoc = file("$projectDir/../docs/config.json")
+    def jsonOutputFileResources = file("$projectDir/src/main/res/raw/config.json")
 
     doLast {
         def parseStringsXml = { File xmlFile ->
@@ -306,6 +307,7 @@ tasks.register('generatePrefsDoc') {
                             categories[categoryName].prefs << [
                                     key         : keyRaw,
                                     title       : title,
+                                    nodeName   : node.name(),
                                     summary     : summary,
                                     defaultValue: defaultValue,
                                     type        : prefType
@@ -336,11 +338,16 @@ tasks.register('generatePrefsDoc') {
                         md.append("| **${p.key}** | ${escTitle} | ${escSummary} | ${escDefault} |\n")
                     }
                     md.append("\n")
-
-                    jsonEntry.categories << [
-                            name: catName.replaceAll(" ", "_").toLowerCase(),
-                            preferences: info.prefs.collect { p -> [key: p.key, value: null, type: p.type] }
-                    ]
+                    jsonEntry.categories += info.prefs
+                            .findAll { p -> p.nodeName != "Preference" && p.key?.trim() }
+                            .groupBy { catName.replaceAll(" ", "_").toLowerCase() }
+                            .collect { cat, prefs ->
+                                [
+                                        name: cat,
+                                        preferences: prefs.collect { p -> [key: p.key, value: null, type: p.type] }
+                                ]
+                            }
+                            .findAll { it.preferences }
                 }
 
                 jsonList << jsonEntry
@@ -362,10 +369,11 @@ tasks.register('generatePrefsDoc') {
         )
 
 
-        jsonOutputFile.text = json
+        jsonOutputFileDoc.text = json
+        jsonOutputFileResources.text = json
 
         println "Preferences Markdown generated at: ${outputFile.path}"
-        println "Preferences JSON generated at: ${jsonOutputFile.path}"
+        println "Preferences JSON generated at: ${jsonOutputFileDoc.path}"
     }
 }
 

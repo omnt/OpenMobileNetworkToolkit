@@ -19,12 +19,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
-import com.influxdb.client.domain.Run;
 
 import java.util.Objects;
 
@@ -91,7 +88,7 @@ public class NotificationService extends Service {
                 stopNotificationUpdate();
             }
 
-        }, SPType.default_sp);
+        }, SPType.MAIN);
         setupNotification();
         startForeground(4, builder.build());
 

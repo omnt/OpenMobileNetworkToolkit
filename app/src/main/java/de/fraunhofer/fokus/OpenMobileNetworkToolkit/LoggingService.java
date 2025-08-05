@@ -159,7 +159,7 @@ public class LoggingService extends Service {
         s.append(getText(R.string.loggin_notifaction)).append("\n");
         s.append("Logging to...\n");
 
-        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false))
+        if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_local_file_log", false))
             s.append("File\n");
 
         if(ic == null) {
@@ -262,7 +262,7 @@ public class LoggingService extends Service {
     }
 
     private void handleWriteApiEvent(InfluxdbWriteApiStatus status, String message) {
-        if (!spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) return;
+        if (!spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)) return;
 
         // Check if status has changed
         if (currentInfluxdbWriteApiStatus == status &&
@@ -288,7 +288,7 @@ public class LoggingService extends Service {
         dp = gv.get_dp();
         nm = getSystemService(NotificationManager.class);
         spg = SharedPreferencesGrouper.getInstance(this);
-        interval = Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000"));
+        interval = Integer.parseInt(spg.getSharedPreference(SPType.LOGGING).getString("logging_interval", "1000"));
 
 
 
@@ -298,11 +298,11 @@ public class LoggingService extends Service {
             if(Objects.equals(key, "enable_logging")) {
                 if (prefs.getBoolean(key, false)) {
                     Log.d(TAG, "onSharedPreferenceChanged: " + prefs.getBoolean(key, false));
-                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+                    if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)) {
                         // enable influx when enable_logging is enabled
                         setupRemoteInfluxDB();
                     }
-                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false)){
+                    if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_local_file_log", false)){
                         // enable local file log when enable_logging is enabled
                         setupLocalFile();
                         updateNotification();
@@ -321,7 +321,7 @@ public class LoggingService extends Service {
                         Toast.makeText(getApplicationContext(), "Please fill all Influx Settings", Toast.LENGTH_LONG).show();
                         prefs.edit().putBoolean("enable_influx", false).apply();
                     } else {
-                        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                        if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_logging", false)) {
                             // only enable influx log, when enable_logging is also enabled
                             setupRemoteInfluxDB();
                             updateNotification();
@@ -329,7 +329,7 @@ public class LoggingService extends Service {
 
                     }
                 } else {
-                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                    if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_logging", false)) {
                         // only stop influx log, when enable_logging is also enabled
                         stopRemoteInfluxDB();
                         updateNotification();
@@ -338,13 +338,13 @@ public class LoggingService extends Service {
                 }
             } else if (Objects.equals(key, "enable_local_file_log")) {
                 if (prefs.getBoolean(key, false)) {
-                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                    if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_logging", false)) {
                         // only enable file log, when enable_logging is also enabled
                         setupLocalFile();
                         updateNotification();
                     }
                 } else {
-                    if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+                    if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_logging", false)) {
                         // only stop file log, when enable_logging is also enabled
                         stopLocalFile();
                         updateNotification();
@@ -357,19 +357,19 @@ public class LoggingService extends Service {
                     stopLocalInfluxDB();
                 }
             } else if (Objects.equals(key, "logging_interval")) {
-                interval = Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000"));
+                interval = Integer.parseInt(spg.getSharedPreference(SPType.LOGGING).getString("logging_interval", "1000"));
             }
-        }, SPType.logging_sp);
+        }, SPType.LOGGING);
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+        if (spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)) {
             setupRemoteInfluxDB();
         }
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false)) {
+        if (spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_local_file_log", false)) {
             setupLocalFile();
         }
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_influx_log", false)) {
+        if (spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_local_influx_log", false)) {
             //TODO
         }
 
@@ -385,14 +385,14 @@ public class LoggingService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: Stop logging service");
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+        if (spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)) {
             stopRemoteInfluxDB();
         }
 
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_file_log", false)) {
+        if (spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_local_file_log", false)) {
             stopLocalFile();
         }
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_local_influx_log", false)) {
+        if (spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_local_influx_log", false)) {
             stopLocalInfluxDB();
         }
 
@@ -410,7 +410,7 @@ public class LoggingService extends Service {
         if (dp != null) {
             Map<String, String> tags_map = dp.getTagsMap();
 
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_network_data", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("influx_network_data", false)) {
                 Point p = dp.getNetworkInformationPoint();
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
@@ -421,7 +421,7 @@ public class LoggingService extends Service {
                 }
             }
 
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_throughput_data", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("influx_throughput_data", false)) {
                 Point p = dp.getNetworkCapabilitiesPoint();
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
@@ -432,7 +432,7 @@ public class LoggingService extends Service {
                 }
             }
 
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_signal_data", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("log_signal_data", false)) {
                 Point p = dp.getSignalStrengthPoint();
                 if (p.hasFields()) {
                     p.time(time, WritePrecision.MS);
@@ -443,7 +443,7 @@ public class LoggingService extends Service {
                 }
             }
 
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("log_wifi_data", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("log_wifi_data", false)) {
                 WifiInformation wifiInformation = dp.getWifiInformation();
                 if (wifiInformation != null) {
                     Point p = wifiInformation.getWifiInformationPoint();
@@ -457,7 +457,7 @@ public class LoggingService extends Service {
                 }
             }
 
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_cell_data", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("influx_cell_data", false)) {
                 List<Point> ps = dp.getCellInformationPoint();
                 for (Point p : ps) {
                     if (p.hasFields()) {
@@ -470,7 +470,7 @@ public class LoggingService extends Service {
                 logPoints.addAll(ps);
             }
 
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_ip_address_data", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("influx_ip_address_data", false)) {
                 List<Point> ps = dp.getNetworkInterfaceInformationPoints();
                 for (Point p : ps) {
                     if (p.hasFields()) {
@@ -483,7 +483,7 @@ public class LoggingService extends Service {
                 logPoints.addAll(ps);
             }
 
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("influx_battery_data", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("influx_battery_data", false)) {
                 Point bp = dp.getBatteryInformationPoint();
                 bp.time(time, WritePrecision.MS);
                 bp.addTags(tags_map);

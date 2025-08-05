@@ -9,54 +9,36 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences;
 
 public enum SPType {
-    logging_sp,
-    iperf3_sp,
-    ping_sp,
-    carrier_sp,
-    mobile_network_sp,
-    default_sp,
-    mqtt_sp;
+    LOGGING,
+    IPERF3,
+    PING,
+    CARRIER,
+    MOBILE_NETWORK,
+    MAIN,
+    MQTT;
 
 
     public String toString() {
         switch(this){
-            case default_sp:
-                return "Default_Settings";
-            case logging_sp:
-                return "Logging_Settings";
-            case ping_sp:
-                return "Ping_Settings";
-            case carrier_sp:
-                return "Carrier_Settings";
-            case mqtt_sp:
-                return "MQTT_Settings";
-            case mobile_network_sp:
-                return "Mobile_Network_Settings";
-            case iperf3_sp:
-                return "iPerf3_Settings";
+            case MAIN:
+                return "main";
+            case LOGGING:
+                return "logging";
+            case MQTT:
+                return "mqtt";
+            case MOBILE_NETWORK:
+                return "mobile_network";
+            case PING:
+                return "ping";
+            case IPERF3:
+                return "iperf3";
+            case CARRIER:
+                return "carrier";
             default:
                 return "";
         }
     }
-    public static SPType fromString(String text) {
-        switch (text){
-            case "Default_Settings":
-                return default_sp;
-            case "Logging_Settings":
-                return logging_sp;
-            case "Ping_Settings":
-                return ping_sp;
-            case "Carrier_Settings":
-                return carrier_sp;
-            case "MQTT_Settings":
-                return mqtt_sp;
-            case "Mobile_Network_Settings":
-                return mobile_network_sp;
-            case "iPerf3 Settings":
-                return iperf3_sp;
-        }
-        return null;
-    }
+
 
 
 }

@@ -71,19 +71,19 @@ public class InfluxdbConnection {
             writeApi.listenEvents(BackpressureEvent.class, value -> Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to backpressure"));
             writeApi.listenEvents(WriteSuccessEvent.class, value -> {
                 //Log.d(TAG, "open_write_api: Write to InfluxDBv2 was successful");
-                if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+                if ( spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 0, 255, 0));
                 }
             });
             writeApi.listenEvents(WriteErrorEvent.class, value -> {
                 Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to error");
-                if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+                if ( spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
                 }
             });
             writeApi.listenEvents(WriteRetriableErrorEvent.class, value -> {
                 Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to retriable error");
-                if ( spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)) {
+                if ( spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)) {
                     gv.getLog_status().setColorFilter(Color.argb(255, 255, 0, 0));
                 }
             });
