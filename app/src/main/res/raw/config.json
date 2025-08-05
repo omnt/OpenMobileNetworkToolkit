@@ -1,0 +1,519 @@
+[
+    {
+        "setting": "logging",
+        "categories": [
+            {
+                "name": "logging_service",
+                "preferences": [
+                    {
+                        "key": "enable_logging",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "start_logging_on_boot",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "logging_interval",
+                        "value": null,
+                        "type": "string"
+                    }
+                ]
+            },
+            {
+                "name": "local_logging",
+                "preferences": [
+                    {
+                        "key": "enable_local_influx_log",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "enable_local_file_log",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "remote_logging",
+                "preferences": [
+                    {
+                        "key": "enable_influx",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "influx_URL",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "influx_org",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "influx_token",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "influx_bucket",
+                        "value": null,
+                        "type": "string"
+                    }
+                ]
+            },
+            {
+                "name": "logging_content",
+                "preferences": [
+                    {
+                        "key": "fake_location",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "measurement_name",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "tags",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "influx_network_data",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "log_signal_data",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "influx_cell_data",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "log_neighbour_cells",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "influx_throughput_data",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "log_wifi_data",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "influx_battery_data",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "influx_ip_address_data",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "setting": "main",
+        "categories": [
+            {
+                "name": "home_screen_settings",
+                "preferences": [
+                    {
+                        "key": "show_neighbour_cells",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "notification_settings",
+                "preferences": [
+                    {
+                        "key": "enable_radio_notification",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "app_settings",
+                "preferences": [
+                    {
+                        "key": "device_name",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "select_subscription",
+                        "value": null,
+                        "type": "string"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "setting": "mqtt",
+        "categories": [
+            {
+                "name": "mqtt_service",
+                "preferences": [
+                    {
+                        "key": "enable_mqtt",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "enable_mqtt_on_boot",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "mqtt_credentials",
+                "preferences": [
+                    {
+                        "key": "mqtt_host",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "mqtt_client_username",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "mqtt_client_password",
+                        "value": null,
+                        "type": "string"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "setting": "mobile_network",
+        "categories": [
+            {
+                "name": "radio_settings",
+                "preferences": [
+                    {
+                        "key": "select_network_type",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "add_plmn",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "persist_boot",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "android_12_api_31_(s)",
+                "preferences": [
+                    {
+                        "key": "edit_text_EPDG_STATIC_ADDRESS",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "multi_select_KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY",
+                        "value": null,
+                        "type": "set"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_TTY_HCO_VCO_WITH_RTT_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_ENABLE_2G",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_RTT_UPGRADE_SUPPORTED_FOR_DOWNGRADED_VT_CALL_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "android_11_api_30_(r)",
+                "preferences": [
+                    {
+                        "key": "switch_KEY_ALLOW_VIDEO_CALLING_FALLBACK_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_DEFAULT_WFC_IMS_ENABLED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_LTE_PLUS_DATA_ICON_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_WORLD_MODE_ENABLED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_RCS_PROVISIONING_REQUIRED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_SHOW_IMS_REGISTRATION_STATUS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_EDITABLE_WFC_MODE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_EDITABLE_WFC_ROAMING_MODE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "edit_text_KEY_READ_ONLY_APN_FIELDS_STRING_ARRAY",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "edit_text_KEY_APN_SETTINGS_DEFAULT_APN_TYPES_STRING_ARRAY",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_ALLOW_DEFLECT_IMS_CALL_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "android_10_api_29_(q)",
+                "preferences": [
+                    {
+                        "key": "switch_KEY_FORCE_HOME_NETWORK_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_PREFER_2G_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_SETTINGS_ENABLE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_ALLOW_TURNOFF_IMS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_EDITABLE_ENHANCED_4G_LTE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_VOLTE_AVAILABLE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_VOLTE_PROVISIONING_REQUIRED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_VOLTE_PROVISIONED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_VT_AVAILABLE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_VOLTE_TTY_SUPPORTED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_ENHANCED_4G_LTE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_CARRIER_NETWORK_SETTINGS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_IMS_APN_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_PREFERRED_NETWORK_TYPE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_PRESET_APN_DETAILS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_HIDE_SIM_LOCK_SETTINGS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_ALLOW_ADDING_APNS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_APN_EXPAND_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_WFC_SUPPORTS_WIFI_ONLY_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_IMS_GBA_REQUIRED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_REQUIRE_ENTITLEMENT_CHECKS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "list_KEY_VOLTE_REPLACEMENT_RAT_INT9",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_USE_IMS_FIRST_FOR_EMERGENCY_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_AUTO_RETRY_ENABLED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_WORLD_PHONE_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_SUPPORT_PAUSE_IMS_VIDEO_CALLS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_UT_PROVISIONING_REQUIRED_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_ENHANCED_4G_LTE_ON_BY_DEFAULT_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "switch_KEY_SUPPORT_EMERGENCY_SMS_OVER_IMS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "list_KEY_CARRIER_DEFAULT_WFC_IMS_MODE_INT",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "list_KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_MODE_INT",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "switch_KEY_ALLOW_EMERGENCY_VIDEO_CALLS_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "android_8_api_27_(0_mr1)",
+                "preferences": [
+                    {
+                        "key": "switch_KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "metadata": {
+            "version": "0.7",
+            "code": 7,
+            "gitHash": "9d3ed7b"
+        }
+    }
+]
