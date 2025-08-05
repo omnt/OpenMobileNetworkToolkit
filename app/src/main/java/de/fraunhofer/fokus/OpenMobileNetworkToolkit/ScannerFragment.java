@@ -74,7 +74,7 @@ public class ScannerFragment extends Fragment {
                 isGranted -> {
                     if (isGranted) {
                         Log.d("ScannerFragment", "Camera permission granted. Starting camera...");
-                        startCamera(); // call your camera setup here
+                        startCamera();
                     } else {
                         Log.e("ScannerFragment", "Camera permission denied.");
                         Toast.makeText(getContext(), "Camera permission is required to scan QR codes.", Toast.LENGTH_LONG).show();

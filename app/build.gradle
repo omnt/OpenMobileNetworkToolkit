@@ -174,8 +174,7 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:$camerax_version"
     implementation "androidx.camera:camera-view:$camerax_version"
 
-    // ZXing core (you'll copy this manually later for F-Droid compatibility)
-    implementation 'com.google.zxing:core:3.5.3' // only for local dev
+    implementation 'com.google.zxing:core:3.5.3'
 }
 
 configurations.implementation {
