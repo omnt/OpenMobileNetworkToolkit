@@ -52,7 +52,7 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PW }}
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Build Release APK
+      - name: Build Debug APK
         env:
           ENCODED_STRING: ${{ secrets.KEYSTORE }}
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PW }}
