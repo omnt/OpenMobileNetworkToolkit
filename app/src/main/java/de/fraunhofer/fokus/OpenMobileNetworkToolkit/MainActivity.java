@@ -269,7 +269,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
 
         }
-
+        String target = getIntent().getStringExtra("navigateToFragment");
+        if (target != null && target.equals("PingFragment")) {
+            navController.navigate(R.id.ping_fragment);
+        }
 
 
 

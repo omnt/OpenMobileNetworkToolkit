@@ -95,6 +95,7 @@ public class PingService extends Service {
             return;
         }
         workManager.cancelWorkById(UUID.fromString(lastUUID));
+        workManager.cancelAllWorkByTag(PingWorker.TAG);
     }
 
 
