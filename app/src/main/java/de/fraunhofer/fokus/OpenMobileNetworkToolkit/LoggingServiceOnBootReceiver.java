@@ -22,8 +22,8 @@ public class LoggingServiceOnBootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             spg = SharedPreferencesGrouper.getInstance(context);
-            if (spg.getSharedPreference(SPType.logging_sp).getBoolean("start_logging_on_boot", false) &&
-                spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+            if (spg.getSharedPreference(SPType.LOGGING).getBoolean("start_logging_on_boot", false) &&
+                spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_logging", false)) {
                 Intent serviceIntent = new Intent(context, LoggingService.class);
                 context.startService(serviceIntent);
             }

@@ -112,7 +112,7 @@ public class PingFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                spg.getSharedPreference(SPType.ping_sp).edit().putString(name, field.getText().toString()).apply();
+                spg.getSharedPreference(SPType.PING).edit().putString(name, field.getText().toString()).apply();
             }
 
             @Override
@@ -195,7 +195,7 @@ public class PingFragment extends Fragment {
 
     }
     private void setupRepeatButton(){
-        boolean isRepeat = spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false);
+        boolean isRepeat = spg.getSharedPreference(SPType.PING).getBoolean("repeat_ping", false);
         int color = ContextCompat.getColor(ct,
                 isRepeat ? R.color.design_default_color_primary : R.color.material_dynamic_secondary40);
         repeatButton.setColorFilter(color);
@@ -205,8 +205,8 @@ public class PingFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: PingFragment resumed");
-        spg.getSharedPreference(SPType.ping_sp).registerOnSharedPreferenceChangeListener(listener);
-        checkLastUUID(spg.getSharedPreference(SPType.ping_sp).getString(PingService.PING_LAST_UUID, null));
+        spg.getSharedPreference(SPType.PING).registerOnSharedPreferenceChangeListener(listener);
+        checkLastUUID(spg.getSharedPreference(SPType.PING).getString(PingService.PING_LAST_UUID, null));
 
     }
 
@@ -214,7 +214,7 @@ public class PingFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: PingFragment destroyed");
-        spg.getSharedPreference(SPType.ping_sp).unregisterOnSharedPreferenceChangeListener(listener);
+        spg.getSharedPreference(SPType.PING).unregisterOnSharedPreferenceChangeListener(listener);
         workInfoLiveData.removeObserver(observer);
     }
 
@@ -232,9 +232,9 @@ public class PingFragment extends Fragment {
             }
         };
 
-        spg.getSharedPreference(SPType.ping_sp).registerOnSharedPreferenceChangeListener(listener);
+        spg.getSharedPreference(SPType.PING).registerOnSharedPreferenceChangeListener(listener);
 
-        checkLastUUID(spg.getSharedPreference(SPType.ping_sp).getString(PingService.PING_LAST_UUID, null));
+        checkLastUUID(spg.getSharedPreference(SPType.PING).getString(PingService.PING_LAST_UUID, null));
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -250,18 +250,18 @@ public class PingFragment extends Fragment {
         pingTextView = v.findViewById(R.id.ping_output);
         toggleGroup = verticalLL.findViewById(R.id.ping_toggle_group);
         input = verticalLL.findViewById(R.id.ping_input);
-        input.setText(spg.getSharedPreference(SPType.ping_sp).getString("ping_input", "-w 5 8.8.8.8"));
+        input.setText(spg.getSharedPreference(SPType.PING).getString("ping_input", "-w 5 8.8.8.8"));
         repeatButton = v.findViewById(R.id.ping_repeat_button);
         setupRepeatButton();
         repeatButton.setOnClickListener(view -> {
             Log.d(TAG, "onCreateView: Repeat button clicked");
-            boolean isRepeat = spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false);
-            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("repeat_ping", !isRepeat).apply();
+            boolean isRepeat = spg.getSharedPreference(SPType.PING).getBoolean("repeat_ping", false);
+            spg.getSharedPreference(SPType.PING).edit().putBoolean("repeat_ping", !isRepeat).apply();
             setupRepeatButton();
         });
 
         saveTextInputToSharedPreferences(input, "ping_input");
-        boolean pingRunning = spg.getSharedPreference(SPType.ping_sp).getBoolean("ping_running", false);
+        boolean pingRunning = spg.getSharedPreference(SPType.PING).getBoolean("ping_running", false);
         if (pingRunning) {
             v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
         } else {
@@ -278,11 +278,11 @@ public class PingFragment extends Fragment {
                 } else {
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
                     v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
-                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
                     toggleGroup.check(R.id.ping_stop);
                 }
             }
-        }, SPType.ping_sp);
+        }, SPType.PING);
         input.setEnabled(!pingRunning);
         toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             Log.d(TAG, "onButtonChecked: " + checkedId);
@@ -291,7 +291,7 @@ public class PingFragment extends Fragment {
                 case R.id.ping_start:
                     v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
                     v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
-                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", true).apply();
+                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", true).apply();
                     Intent startIntent = new Intent(ct, PingService.class);
                     startIntent.putExtra(PingService.PING_INTENT_COMMAND, input.getText().toString());
                     startIntent.putExtra(PingService.PING_INTENT_ENABLE, true);
@@ -302,7 +302,7 @@ public class PingFragment extends Fragment {
                 case R.id.ping_stop:
                     v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
                     v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
-                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
                     Intent stopIntent = new Intent(ct, PingService.class);
                     stopIntent.putExtra(PingService.PING_INTENT_ENABLE, false);
                     ct.startService(stopIntent);

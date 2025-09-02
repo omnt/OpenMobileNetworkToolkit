@@ -24,7 +24,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.multiprocess.RemoteWorkManager;
@@ -35,9 +34,6 @@ import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
-import com.influxdb.client.domain.Run;
-
-import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -78,7 +74,7 @@ public class MQTTService extends Service {
 
     private void setupSharedPreferences(){
         spg = SharedPreferencesGrouper.getInstance(context);
-        mqttSP = spg.getSharedPreference(SPType.mqtt_sp);
+        mqttSP = spg.getSharedPreference(SPType.MQTT);
         mqttSP.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
             if(key == null) return;
             if (key.equals("mqtt_host")) {
@@ -138,7 +134,7 @@ public class MQTTService extends Service {
 
     private void createNotification(){
         StringBuilder s = new StringBuilder();
-        String address = spg.getSharedPreference(SPType.mqtt_sp).getString("mqtt_host", "None");
+        String address = spg.getSharedPreference(SPType.MQTT).getString("mqtt_host", "None");
         if(address.equals("None")){
             s.append("MQTT Host: None\n");
         } else {
@@ -243,50 +239,50 @@ public class MQTTService extends Service {
         // config logging service
         if(topic.contains("/logging/enable")){
             Log.d(TAG, "handleConfigMessage: Enable Logging: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("enable_logging", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("enable_logging", parseBoolean(payload)).apply();
             return;
         }
 
         if(topic.contains("/logging/start_on_boot")){
             Log.d(TAG, "handleConfigMessage: Start on Boot: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("start_logging_on_boot", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("start_logging_on_boot", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/logging/notification_update_enabled")){
             Log.d(TAG, "handleConfigMessage: Notification Update: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("enable_notification_update", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("enable_notification_update", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/logging/interval_ms")){
             Log.d(TAG, "handleConfigMessage: Logging Interval: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putString("logging_interval", payload).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putString("logging_interval", payload).apply();
             return;
         }
 
         // config influxdv_v2 parameter
         if(topic.contains("/influxv2/enabled")){
             Log.d(TAG, "handleConfigMessage: Enable Influx: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("enable_influx", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("enable_influx", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/influxv2/address")){
             Log.d(TAG, "handleConfigMessage: Influx Address: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putString("influx_URL", payload).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putString("influx_URL", payload).apply();
             return;
         }
         if(topic.contains("/influxv2/token")){
             Log.d(TAG, "handleConfigMessage: Influx Token received!");
-            spg.getSharedPreference(SPType.logging_sp).edit().putString("influx_token", payload).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putString("influx_token", payload).apply();
             return;
         }
         if(topic.contains("/influxv2/bucket")){
             Log.d(TAG, "handleConfigMessage: Influx Bucket: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putString("influx_bucket", payload).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putString("influx_bucket", payload).apply();
             return;
         }
         if(topic.contains("/influxv2/org")){
             Log.d(TAG, "handleConfigMessage: Influx Org: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putString("influx_org", payload).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putString("influx_org", payload).apply();
             return;
         }
         if(topic.contains("/influxv2/tags")){
@@ -300,54 +296,54 @@ public class MQTTService extends Service {
         // config log file
         if(topic.contains("/file/enabled")){
             Log.d(TAG, "handleConfigMessage: Enable Local File Log: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("enable_local_file_log", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("enable_local_file_log", parseBoolean(payload)).apply();
             return;
         }
 
         // config logging content
         if(topic.contains("/content/measurement_name")){
             Log.d(TAG, "handleConfigMessage: Measurement Name: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putString("measurement_name", payload).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putString("measurement_name", payload).apply();
             return;
         }
         if(topic.contains("/content/network_information")){
             Log.d(TAG, "handleConfigMessage: Network Information: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("influx_network_data", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("influx_network_data", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/content/signal_information")){
             Log.d(TAG, "handleConfigMessage: Signal Information: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("log_signal_data", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("log_signal_data", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/content/cell_information")){
             Log.d(TAG, "handleConfigMessage: Cell Information: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("influx_cell_data", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("influx_cell_data", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/content/neighbour_cells")){
             Log.d(TAG, "handleConfigMessage: Neighbour Cells: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("log_neighbour_cells", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("log_neighbour_cells", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/content/throughput_information")){
             Log.d(TAG, "handleConfigMessage: Throughput Information: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("influx_throughput_data", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("influx_throughput_data", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/content/wifi_information")){
             Log.d(TAG, "handleConfigMessage: Wifi Information: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("log_wifi_data", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("log_wifi_data", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/content/battery_information")){
             Log.d(TAG, "handleConfigMessage: Battery Information: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("influx_battery_data", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("influx_battery_data", parseBoolean(payload)).apply();
             return;
         }
         if(topic.contains("/content/ip_information")){
             Log.d(TAG, "handleConfigMessage: IP Information: " + payload);
-            spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("influx_ip_address_data", parseBoolean(payload)).apply();
+            spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("influx_ip_address_data", parseBoolean(payload)).apply();
             return;
         }
 
@@ -445,14 +441,14 @@ public class MQTTService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Start MQTT service");
         context = getApplicationContext();
-        mqttSP = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.mqtt_sp);
-        deviceName = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.default_sp).getString("device_name", "null").strip();
+        mqttSP = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.MQTT);
+        deviceName = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.MAIN).getString("device_name", "null").strip();
         startForeground(3, builder.build());
         setupSharedPreferences();
         createClient();
         if(client == null){
             Log.e(TAG, "onStartCommand: Client is null");
-            spg.getSharedPreference(SPType.mqtt_sp).edit().putBoolean("enable_mqtt", false).apply();
+            spg.getSharedPreference(SPType.MQTT).edit().putBoolean("enable_mqtt", false).apply();
             return START_NOT_STICKY;
         }
         connectClient();

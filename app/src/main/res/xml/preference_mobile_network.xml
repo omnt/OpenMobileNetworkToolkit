@@ -16,6 +16,7 @@
             app:iconSpaceReserved="false">
                 <Preference
                     app:key="doc"
+                    android:summary="@string/radio_setting_documentation_summary"
                     app:title="@string/open_for_link_to_documentation"
                     app:iconSpaceReserved="false"
                     >
@@ -29,6 +30,7 @@
                 <DropDownPreference
                     android:key="select_network_type"
                     android:title="@string/access_networktype"
+                    android:defaultValue=""
                     app:iconSpaceReserved="false" />
                 <EditTextPreference
                     android:key="add_plmn"

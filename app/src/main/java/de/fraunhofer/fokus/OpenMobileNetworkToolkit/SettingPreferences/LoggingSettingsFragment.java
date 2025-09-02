@@ -31,7 +31,7 @@ public class LoggingSettingsFragment extends PreferenceFragmentCompat
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
-        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.logging_sp));
+        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.LOGGING));
         setPreferencesFromResource(R.xml.preference_logging, rootKey);
         Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
             .registerOnSharedPreferenceChangeListener(this);

@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     }
                 });
             }
-            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(spg.getSharedPreference(SPType.logging_sp).getString("logging_interval", "1000")));
+            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(spg.getSharedPreference(SPType.LOGGING).getString("logging_interval", "1000")));
         }
     };
     private Context context;
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 // make sure the subscription in the app settings exists in the current subscription list.
                 // if it is not in the subscription list change it to the first one of the current list
                 boolean valid_subscription = false;
-                String pref_subscription_str = spg.getSharedPreference(SPType.default_sp).getString("select_subscription","99999");
+                String pref_subscription_str = spg.getSharedPreference(SPType.MAIN).getString("select_subscription","99999");
                 for (SubscriptionInfo info : dp.getSubscriptions()) {
                     if (Integer.parseInt(pref_subscription_str) == info.getSubscriptionId()) {
                         valid_subscription = true;
@@ -160,10 +160,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     }
                 }
                 if (!valid_subscription) {
-                    spg.getSharedPreference(SPType.default_sp).edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
+                    spg.getSharedPreference(SPType.MAIN).edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
                 }
                 // switch the telephony manager to a new one according to the app settings
-                tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.default_sp).getString("select_subscription", "0")));
+                tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.MAIN).getString("select_subscription", "0")));
 
                 // update reference to tm
                 gv.setTm(tm);
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             // if the location API on android is disabled and we don't want a fake location make a popup
-            if (!lm.isLocationEnabled() && !spg.getSharedPreference(SPType.logging_sp).getBoolean("fake_location", false)) {
+            if (!lm.isLocationEnabled() && !spg.getSharedPreference(SPType.LOGGING).getBoolean("fake_location", false)) {
                 new AlertDialog.Builder(MainActivity.this)
                         .setTitle(R.string.dialog_no_location_title)
                         .setMessage(R.string.dialog_no_location)
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             getApplicationContext().startActivity(intent);
                         })
-                        .setNegativeButton(R.string.dialog_no_location_fake, (dialog, which) -> spg.getSharedPreference(SPType.logging_sp).edit().putBoolean("fake_location", true).apply())
+                        .setNegativeButton(R.string.dialog_no_location_fake, (dialog, which) -> spg.getSharedPreference(SPType.LOGGING).edit().putBoolean("fake_location", true).apply())
                         .setIcon(android.R.drawable.ic_dialog_map)
                         .show();
             }
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         initHandlerAndHandlerThread();
 
         loggingServiceIntent = new Intent(this, LoggingService.class);
-        if (spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_logging", false)) {
+        if (spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_logging", false)) {
             Log.d(TAG, "Start logging service");
             context.startForegroundService(loggingServiceIntent);
         }
@@ -216,10 +216,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     context.stopService(loggingServiceIntent);
                 }
             }
-        }, SPType.logging_sp);
+        }, SPType.LOGGING);
 
         notificationServiceIntent = new Intent(context, NotificationService.class);
-        if(spg.getSharedPreference(SPType.default_sp).getBoolean("enable_radio_notification", false)){
+        if(spg.getSharedPreference(SPType.MAIN).getBoolean("enable_radio_notification", false)){
             context.startService(notificationServiceIntent);
         }
         spg.setListener((prefs, key) -> {
@@ -230,10 +230,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     context.stopService(notificationServiceIntent);
                 }
             }
-        }, SPType.default_sp);
+        }, SPType.MAIN);
 
         mqttServiceIntent = new Intent(this, MQTTService.class);
-        if (spg.getSharedPreference(SPType.mqtt_sp).getBoolean("enable_mqtt", false)) {
+        if (spg.getSharedPreference(SPType.MQTT).getBoolean("enable_mqtt", false)) {
             Log.d(TAG, "Start MQTT service");
             context.startService(mqttServiceIntent);
         }
@@ -248,19 +248,19 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                     context.stopService(mqttServiceIntent);
                 }
             }
-        }, SPType.mqtt_sp);
+        }, SPType.MQTT);
 
         Intent intent = getIntent();
         if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             String mqtt_broker_address = intent.getStringExtra("mqtt_broker_address");
             String device_name = intent.getStringExtra("device_name");
             if(device_name != null){
-                spg.getSharedPreference(SPType.default_sp).edit()
+                spg.getSharedPreference(SPType.MAIN).edit()
                         .putString("device_name", device_name)
                         .apply();
             }
             if(mqtt_broker_address != null){
-                spg.getSharedPreference(SPType.mqtt_sp).edit()
+                spg.getSharedPreference(SPType.MQTT).edit()
                         .putBoolean("enable_mqtt", true)
                         .putString("mqtt_host", mqtt_broker_address)
                         .apply();

@@ -375,7 +375,7 @@ public class QuickFragment extends Fragment {
             } else {
                 cellInformationList.forEach(cellInformation -> addCellInformationToView(cellInformation));
             }
-            if (spg.getSharedPreference(SPType.default_sp).getBoolean("show_neighbour_cells", false)) {
+            if (spg.getSharedPreference(SPType.MAIN).getBoolean("show_neighbour_cells", false)) {
                 if(!neighborCells.isEmpty()){
                     neighborCells.forEach(cellInformation -> addCellInformationToView(cellInformation));
                 }

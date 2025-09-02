@@ -13,16 +13,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:title="Logging Service"
+        android:summary="@string/logging_service_summary"
         app:iconSpaceReserved="false">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="enable_logging"
             app:summary="@string/enable_logging_summary"
+            android:defaultValue="false"
             app:title="@string/enable_logging" />
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="start_logging_on_boot"
+            android:defaultValue="false"
             app:summary="@string/start_logging_on_boot_summary"
             app:title="@string/start_logging_on_boot" />
         <EditTextPreference
@@ -38,16 +41,19 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:key="local_log_category"
+        android:summary="@string/local_logging_preference_summary"
         app:title="Local logging">
 
         <SwitchPreferenceCompat
             app:enabled="false"
             app:iconSpaceReserved="false"
             app:key="enable_local_influx_log"
+            android:defaultValue="fals"
             app:summary="@string/enable_local_log_summary"
             app:title="@string/enable_local_log" />
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
+            android:defaultValue="false"
             app:key="enable_local_file_log"
             app:summary="@string/enable_local_file_summary"
             app:title="@string/enable_local_file_log" />
@@ -56,11 +62,13 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:key="influx_category"
+        android:summary="@string/influx_preference_summary"
         app:title="Remote logging">
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="enable_influx"
+            android:defaultValue="false"
             app:summary="@string/enable_influx_summary"
             app:title="@string/enable_influx" />
 
@@ -69,6 +77,8 @@
             app:iconSpaceReserved="false"
             app:key="influx_URL"
             app:title="@string/influx_url"
+            android:defaultValue="http://IP:8086"
+            app:summary="@string/influx_url_summary"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
@@ -76,6 +86,8 @@
             app:iconSpaceReserved="false"
             app:key="influx_org"
             app:title="@string/influx_org"
+            android:summary="@string/influx_org_summary"
+            android:defaultValue="ORG"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
@@ -83,13 +95,17 @@
             app:iconSpaceReserved="false"
             app:key="influx_token"
             app:title="@string/influx_token"
+            android:summary="@string/influx_token_summary"
+            android:defaultValue="TOKEN"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             android:dialogTitle="@string/influx_bucket_dialog_title"
             app:iconSpaceReserved="false"
             app:key="influx_bucket"
+            android:summary="@string/influx_bucket_summary"
             app:title="@string/influx_bucket"
+            android:defaultValue="BUCKET_NAME"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
@@ -101,6 +117,7 @@
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="fake_location"
+            android:defaultValue="false"
             app:summary="@string/fake_location_summary"
             app:title="@string/fake_location" />
 
@@ -108,6 +125,7 @@
         <EditTextPreference
             app:iconSpaceReserved="false"
             app:key="measurement_name"
+            android:defaultValue="omnt"
             app:title="@string/measurement"
             app:useSimpleSummaryProvider="true" />
 
@@ -116,42 +134,44 @@
             app:key="tags"
             app:summary="@string/tags_summary"
             app:title="@string/tags"
+            android:defaultValue=""
             app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="influx_network_data"
+            android:defaultValue="false"
             app:summary="@string/influx_network_data_summary"
             app:title="@string/influx_network_data" />
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="log_signal_data"
+            android:defaultValue="false"
             app:summary="@string/log_signal_data_summary"
             app:title="@string/log_signal_data" />
 
         <SwitchPreferenceCompat
-
             app:iconSpaceReserved="false"
             app:key="influx_cell_data"
+            android:defaultValue="true"
             app:summary="@string/influx_cell_data_summary"
             app:title="@string/influx_cell_data" />
 
         <SwitchPreferenceCompat
-
             app:dependency="influx_cell_data"
             app:iconSpaceReserved="false"
             app:key="log_neighbour_cells"
+            android:defaultValue="false"
             app:summary="@string/log_neighbour_cells_summary"
             app:title="@string/log_neighbour_cells" />
         <SwitchPreferenceCompat
-
             app:iconSpaceReserved="false"
             app:key="influx_throughput_data"
+            android:defaultValue="false"
             app:summary="@string/influx_throughput_data_summary"
             app:title="@string/influx_throughput_data" />
         <SwitchPreferenceCompat
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="false"

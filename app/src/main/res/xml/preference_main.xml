@@ -18,6 +18,7 @@
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="show_neighbour_cells"
+            android:summary="@string/prefernce_show_neighbour_cells_summary"
             android:title="@string/show_neighbour_cells"
             app:allowDividerAbove="false"
             app:allowDividerBelow="false"
@@ -30,6 +31,7 @@
         <SwitchPreferenceCompat
             app:iconSpaceReserved="false"
             app:key="enable_radio_notification"
+            android:defaultValue="false"
             app:summary="@string/enable_radio_notification_summary"
             app:title="@string/enable_radio_notification" />
     </PreferenceCategory>
@@ -41,6 +43,8 @@
     <EditTextPreference
         android:icon="@drawable/baseline_android_24"
         app:key="device_name"
+        android:defaultValue="OMNT0001"
+        android:summary="@string/device_name_summary"
         app:title="@string/device_name"
         app:useSimpleSummaryProvider="true"
         />
@@ -48,12 +52,14 @@
         android:icon="@drawable/ic_baseline_code_24"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.LoggingSettingsFragment"
         app:key="log_settings"
+        android:summary="@string/log_settings_summary"
         app:dependency="device_name"
         app:title="Logging" />
     <Preference
         android:icon="@drawable/baseline_cell_tower_24"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MobileNetworkSettingsFragment"
         app:key="mobile_network_settings"
+        android:summary="@string/mobile_network_settings_summary"
         app:title="Mobile Network" />
     <ListPreference
         android:layout_width="wrap_content"
@@ -66,17 +72,20 @@
     <Preference
         android:icon="@drawable/baseline_restart_alt_24"
         app:key="reset_modem"
+        android:summary="@string/reset_modem_summary"
         app:title="Reboot Modem" />
     <Preference
         android:icon="@drawable/mqtt"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.MQTTSettingsFragment"
         app:key="mqtt_settings"
+        android:summary="@string/mqtt_settings_summary"
         app:dependency="device_name"
         app:title="MQTT Settings" />
     <Preference
         android:icon="@drawable/ic_action_share_blue"
         app:fragment="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SharedPreferencesIOFragment"
         app:key="shared_preferences_io"
+        android:summary="@string/shared_preferences_io_summary"
         app:title="Config" />
 
     </PreferenceCategory>

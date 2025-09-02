@@ -49,7 +49,7 @@ public class PingService extends Service {
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy: Stop logging service");
-        spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+        spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
         stopWorker();
     }
 
@@ -74,10 +74,10 @@ public class PingService extends Service {
                 .addTag(PingToLineProtocolWorker.TAG)
                 .build();
 
-        spg.getSharedPreference(SPType.ping_sp).edit().putString(PING_LAST_UUID, pingWR.getId().toString()).apply();
+        spg.getSharedPreference(SPType.PING).edit().putString(PING_LAST_UUID, pingWR.getId().toString()).apply();
         registerObserver(command);
         WorkContinuation workContinuation = workManager.beginWith(pingWR).then(pingToLineProtocolWR);
-        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)){
+        if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)){
             OneTimeWorkRequest influxDB2xUploadWorker = new OneTimeWorkRequest.Builder(InfluxDB2xUploadWorker.class)
                     .setInputData(data)
                     .addTag(uuid)
@@ -89,7 +89,7 @@ public class PingService extends Service {
 
     }
     private void stopWorker(){
-        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(PING_LAST_UUID, "");
+        String lastUUID = spg.getSharedPreference(SPType.PING).getString(PING_LAST_UUID, "");
         if(lastUUID.equals("")) {
             Log.d(TAG, "stopWorker: no worker to stop!");
             return;
@@ -100,7 +100,7 @@ public class PingService extends Service {
 
 
     private void registerObserver(String command){
-        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(PING_LAST_UUID, null);
+        String lastUUID = spg.getSharedPreference(SPType.PING).getString(PING_LAST_UUID, null);
         if(lastUUID != null) {
             UUID lastUUIDUUID = UUID.fromString(lastUUID);
             LiveData<WorkInfo> liveData =  workManager.getWorkInfoByIdLiveData(lastUUIDUUID);
@@ -110,7 +110,7 @@ public class PingService extends Service {
                 switch (workInfo.getState()){
                     case SUCCEEDED:
                     case FAILED:
-                        if(spg.getSharedPreference(SPType.ping_sp).getBoolean("repeat_ping", false)){
+                        if(spg.getSharedPreference(SPType.PING).getBoolean("repeat_ping", false)){
                             Log.d(TAG, "registerObserver: Repeat ping");
                             startWorker(command);
                         } else {
@@ -146,7 +146,7 @@ public class PingService extends Service {
             Log.d(TAG, "onStartCommand: Intent is null, stopping service");
             workManager.cancelAllWorkByTag(PingWorker.TAG);
             stopSelf();
-            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+            spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
             return START_NOT_STICKY;
         }
         String command = intent.getStringExtra(PING_INTENT_COMMAND);
@@ -154,10 +154,10 @@ public class PingService extends Service {
         if(!isEnabled){
             stopWorker();
             stopSelf();
-            spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+            spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
             return START_NOT_STICKY;
         }
-        String lastUUID = spg.getSharedPreference(SPType.ping_sp).getString(PING_LAST_UUID, "");
+        String lastUUID = spg.getSharedPreference(SPType.PING).getString(PING_LAST_UUID, "");
         if(!lastUUID.isEmpty()){
             stopWorker();
         }

@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +49,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MultiSelectDialogFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ClearPreferencesListener;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SharedPreferencesIOFragment extends Fragment implements ClearPreferencesListener {
@@ -154,6 +154,8 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         LinearLayout preferencesLayout = new LinearLayout(context);
         preferencesLayout.setOrientation(LinearLayout.VERTICAL);
         for (Map.Entry<SPType, SharedPreferences> spEntry : SharedPreferencesGrouper.getInstance(context).getAllSharedPreferences().entrySet()) {
+            SPType spType = spEntry.getKey();
+            if(spType.equals(SPType.IPERF3) || spType.equals(SPType.PING) || spType.equals(SPType.CARRIER)) continue;
             preferencesLayout.addView(generateSharedPreferencesView(spEntry.getKey(), spEntry.getValue()));
         }
 
@@ -194,13 +196,12 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
     private List<String> getKeysFromJson(String jsonString) {
         List<String> keys = new ArrayList<>();
         try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            Iterator<String> iter = jsonObject.keys();
-            while (iter.hasNext()) {
-                String current = iter.next();
-                if (SPType.fromString(current) != null) {
-                    keys.add(current);
-                }
+            JSONArray jsonArray = new JSONArray(jsonString);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject setting = jsonArray.getJSONObject(i);
+                if(setting.has("metadata")) continue;
+                String settingString = setting.getString("setting");
+                keys.add(settingString);
             }
 
         } catch (Exception e) {
@@ -231,12 +232,17 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
     private @NonNull MultiSelectDialogFragment getMultiSelectDialogFragment(String jsonString, List<String> keys) {
         MultiSelectDialogFragment.OnMultiSelectListener listener = selectedItems -> {
             try {
-                JSONObject jsonObject = new JSONObject(jsonString);
-                JSONObject filteredJsonObject = new JSONObject();
-                for (String key : selectedItems) {
-                    filteredJsonObject.put(key, jsonObject.get(key));
+                JSONArray jsonArray = new JSONArray(jsonString);
+                JSONArray filteredjsonArray = new JSONArray();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    if(jsonObject.has("metadata")) continue;
+                    String setting = jsonObject.getString("setting");
+                    if(!selectedItems.contains(setting)) continue;
+                    filteredjsonArray.put(jsonObject);
+
                 }
-                SharedPreferencesIO.importPreferences(context, filteredJsonObject.toString());
+                SharedPreferencesIO.importPreferences(context, filteredjsonArray.toString());
                 onPreferenceChanged();
                 showToast("Config imported");
             } catch (Exception e) {
@@ -264,7 +270,7 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         headerLayout.setPadding(16, 16, 16, 16); // Add padding
 
         TextView typeTextView = new TextView(context);
-        typeTextView.setText(type.toReadable());
+        typeTextView.setText(type.toString().replace("_", " "));
         typeTextView.setTextSize(18);
         typeTextView.setTypeface(typeTextView.getTypeface(), Typeface.BOLD);
         typeTextView.setTextColor(context.getColor(R.color.design_default_color_primary));

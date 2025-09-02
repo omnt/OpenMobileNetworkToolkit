@@ -23,3 +23,4 @@
         * [Set subscription](settings/set_subscrption.md)
         * [Reboot Modem](settings/reboot_modem.md)
     
+* Auto generated [Preferences](./preferences.md)

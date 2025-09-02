@@ -133,7 +133,7 @@
         android:id="@+id/settingsFragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.SettingsFragment"
         android:label="SettingsFragment"
-        tools:layout="@xml/preference">
+        tools:layout="@xml/preference_main">
         <action
             android:id="@+id/action_settingsFragment2_to_flagSettingFragment"
             app:destination="@id/flagSettingFragment" />

@@ -10,7 +10,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -29,7 +28,7 @@ public class MQTTSettingsFragment extends PreferenceFragmentCompat implements Sh
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         SharedPreferencesGrouper spg = SharedPreferencesGrouper.getInstance(requireContext());
-        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.mqtt_sp));
+        getPreferenceManager().setSharedPreferencesName(spg.getSharedPreferenceIdentifier(SPType.MQTT));
         setPreferencesFromResource(R.xml.preference_mqtt, rootKey);
         Objects.requireNonNull(getPreferenceScreen().getSharedPreferences())
                 .registerOnSharedPreferenceChangeListener(this);

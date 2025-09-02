@@ -11,7 +11,6 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
-import androidx.work.Constraints;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
@@ -19,9 +18,7 @@ import androidx.work.multiprocess.RemoteWorkContinuation;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
@@ -73,7 +70,7 @@ public class Iperf3Executor {
 
 
         this.remoteWorkContinuation = this.remoteWorkManager.beginWith(Arrays.asList(iperf3ExecutorWorker, iperf3MonitorWorker)).then(iPerf3ToLineProtocolWorker);
-        if(spg.getSharedPreference(SPType.logging_sp).getBoolean("enable_influx", false)){
+        if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)){
             this.remoteWorkContinuation = remoteWorkContinuation.then(influxDB2xUploadWorker);
         }
     }
