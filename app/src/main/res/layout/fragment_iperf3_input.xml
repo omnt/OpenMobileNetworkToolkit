@@ -101,7 +101,7 @@
                     <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/iperf3_streams"
+                            android:id="@+id/iperf3_parallel"
                             style="@style/iperf3TextInputEditText"
                             android:hint="Streams"
                             android:inputType="number" />

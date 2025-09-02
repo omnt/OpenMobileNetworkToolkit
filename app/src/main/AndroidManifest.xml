@@ -146,6 +146,19 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Receiver.JsonConfigReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.CONFIG_JSON" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.Receiver.FileConfigReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.CONFIG_FILE" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.MainActivity"

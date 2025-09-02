@@ -74,7 +74,7 @@ public class Iperf3Fragment extends Fragment {
     private TextInputEditText duration;
     private TextInputEditText interval;
     private TextInputEditText bytes;
-    private TextInputEditText streams;
+    private TextInputEditText parallel;
     private TextInputEditText cport;
 
 
@@ -151,7 +151,7 @@ public class Iperf3Fragment extends Fragment {
         duration.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setTime(Integer.parseInt("0"+s)), Iperf3Parameter.TIME));
         interval.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setInterval(Double.parseDouble("0"+s)), Iperf3Parameter.INTERVAL));
         bytes.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setBytes(s), Iperf3Parameter.BYTES));
-        streams.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setParallel(Integer.parseInt("0"+s)), Iperf3Parameter.PARALLEL));
+        parallel.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setParallel(Integer.parseInt("0"+s)), Iperf3Parameter.PARALLEL));
         cport.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setCport(Integer.parseInt("0"+s) ), Iperf3Parameter.CPORT));
     }
 
@@ -256,7 +256,7 @@ public class Iperf3Fragment extends Fragment {
         setTextFromSharedPreferences(duration, Iperf3Parameter.TIME);
         setTextFromSharedPreferences(interval, Iperf3Parameter.INTERVAL);
         setTextFromSharedPreferences(bytes, Iperf3Parameter.BYTES);
-        setTextFromSharedPreferences(streams, Iperf3Parameter.STREAMS);
+        setTextFromSharedPreferences(parallel, Iperf3Parameter.PARALLEL);
         setTextFromSharedPreferences(cport, Iperf3Parameter.CPORT);
     }
 
@@ -347,7 +347,7 @@ public class Iperf3Fragment extends Fragment {
         duration = view.findViewById(R.id.iperf3_duration);
         interval = view.findViewById(R.id.iperf3_interval);
         bytes = view.findViewById(R.id.iperf3_bytes);
-        streams = view.findViewById(R.id.iperf3_streams);
+        parallel = view.findViewById(R.id.iperf3_parallel);
         cport = view.findViewById(R.id.iperf3_cport);
 
 

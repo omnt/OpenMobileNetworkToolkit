@@ -125,3 +125,25 @@ An example of a config file is shown below:
     }
 }
 ```
+
+## Config File via Intent
+
+You can also pass the config file via an Intent to the App.
+Either via JSON directly or as a path to the config file.
+
+
+### Config via JSON
+```bash
+adb shell am broadcast \
+  -a de.fraunhofer.fokus.OpenMobileNetworkToolkit.CONFIG_JSON \
+  -n de.fraunhofer.fokus.OpenMobileNetworkToolkit/.Receiver.JsonConfigReceiver \
+  -e jsonData '{}'
+```
+
+### Config via File Path
+```bash
+adb shell am broadcast \
+  -a de.fraunhofer.fokus.OpenMobileNetworkToolkit.CONFIG_FILE \
+  -n de.fraunhofer.fokus.OpenMobileNetworkToolkit/.Receiver.FileConfigReceiver
+  -e filePath 'PATH_TO_YOUR_CONFIG_FILE' 
+```
