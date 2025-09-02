@@ -9,7 +9,6 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
@@ -181,7 +180,7 @@ public class PingFragment extends Fragment {
                     rttMetric.getMetricCalculator().resetMetric();
                     packetLossMetric.getMetricCalculator().resetMetric();
                     packetLossMetric.setVisibility(GONE);
-                    spg.getSharedPreference(SPType.ping_sp).edit().putBoolean("ping_running", false).apply();
+                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
                     toggleGroup.check(R.id.ping_stop);
                     break;
                 case CANCELLED:
