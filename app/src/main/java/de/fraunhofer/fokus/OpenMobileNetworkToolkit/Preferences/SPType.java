@@ -20,8 +20,6 @@ public enum SPType {
 
     public String toString() {
         switch(this){
-            case MAIN:
-                return "main";
             case LOGGING:
                 return "logging";
             case MQTT:
@@ -34,8 +32,9 @@ public enum SPType {
                 return "iperf3";
             case CARRIER:
                 return "carrier";
+            case MAIN:
             default:
-                return "";
+                return "main";
         }
     }
 

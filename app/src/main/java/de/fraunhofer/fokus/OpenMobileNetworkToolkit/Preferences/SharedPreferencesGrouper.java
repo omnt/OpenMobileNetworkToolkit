@@ -30,8 +30,8 @@ public class SharedPreferencesGrouper {
     private final SharedPreferences iperf3SP;
     private final SharedPreferences mobileNetworkSP;
     private final SharedPreferences mqttSP;
-    private final SharedPreferences defaultSP;
     private final SharedPreferences pingSP;
+    private final SharedPreferences mainSP;
     private final Context ct;
     private ConcurrentHashMap <SPType, Set<SharedPreferences.OnSharedPreferenceChangeListener>> spMap = new ConcurrentHashMap<>();
     public String getSharedPreferenceIdentifier(SPType key)  {
@@ -53,7 +53,7 @@ public class SharedPreferencesGrouper {
         pingSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.PING), Context.MODE_PRIVATE);
         mqttSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.MQTT), Context.MODE_PRIVATE);
         mobileNetworkSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.MOBILE_NETWORK), Context.MODE_PRIVATE);
-        defaultSP = PreferenceManager.getDefaultSharedPreferences(ct);
+        mainSP = ct.getSharedPreferences(getSharedPreferenceIdentifier(SPType.MAIN), Context.MODE_PRIVATE);
     }
 
     public static SharedPreferencesGrouper getInstance(Context ct) {
@@ -84,8 +84,9 @@ public class SharedPreferencesGrouper {
             case MQTT:
                 sp = mqttSP;
                 break;
+            case MAIN:
             default:
-                sp = defaultSP;
+                sp = mainSP;
                 break;
         }
         return sp;
