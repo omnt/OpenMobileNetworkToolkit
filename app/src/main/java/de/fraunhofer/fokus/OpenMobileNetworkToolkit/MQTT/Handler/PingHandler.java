@@ -30,6 +30,12 @@ public class PingHandler extends Handler {
     private ArrayList<PingInput> pingInputs = new ArrayList<>();
     private boolean isEnable = false;
     private RemoteWorkContinuation workContinuation;
+    private ArrayList<OneTimeWorkRequest> executorWorkRequests;
+    private ArrayList<OneTimeWorkRequest> toLineProtocolWorkRequests;
+    private ArrayList<OneTimeWorkRequest> uploadWorkRequests;
+
+
+
     @Override
     public void parsePayload(String payload) throws JSONException {
         pingInputs.clear();
@@ -68,7 +74,8 @@ public class PingHandler extends Handler {
 
     @Override
     public ArrayList<OneTimeWorkRequest> getExecutorWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> executorWorkRequests = new ArrayList<>();
+        if(executorWorkRequests != null && !executorWorkRequests.isEmpty()) return executorWorkRequests;
+        executorWorkRequests = new ArrayList<>();
         for(PingInput pingInput : pingInputs) {
             executorWorkRequests.add(pingInput.getWorkRequestExecutor(pingInputs.indexOf(pingInput), context.getPackageName()));
         }
@@ -82,7 +89,8 @@ public class PingHandler extends Handler {
 
     @Override
     public ArrayList<OneTimeWorkRequest> getToLineProtocolWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> toLineProtocolWorkRequests = new ArrayList<>();
+        if(toLineProtocolWorkRequests != null && !toLineProtocolWorkRequests.isEmpty()) return toLineProtocolWorkRequests;
+        toLineProtocolWorkRequests = new ArrayList<>();
         for(PingInput pingInput : pingInputs) {
             toLineProtocolWorkRequests.add(pingInput.getWorkRequestLineProtocol(pingInputs.indexOf(pingInput), context.getPackageName()));
         }
@@ -90,7 +98,8 @@ public class PingHandler extends Handler {
     }
     @Override
     public ArrayList<OneTimeWorkRequest> getUploadWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> uploadWorkRequests = new ArrayList<>();
+        if(uploadWorkRequests != null && !uploadWorkRequests.isEmpty()) return uploadWorkRequests;
+        uploadWorkRequests = new ArrayList<>();
         for(PingInput pingInput : pingInputs) {
             uploadWorkRequests.add(pingInput.getWorkRequestUpload(pingInputs.indexOf(pingInput), context.getPackageName()));
         }

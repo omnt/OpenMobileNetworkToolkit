@@ -40,6 +40,12 @@ public class Iperf3Handler extends Handler {
     private boolean isEnable = false;
     private ArrayList<RemoteWorkContinuation> continuations;
     private Iperf3RunResultDao iperf3RunResultDao;
+    private ArrayList<OneTimeWorkRequest> executorWorkRequests;
+    private ArrayList<OneTimeWorkRequest> monitorWorkRequests;
+    private ArrayList<OneTimeWorkRequest> lineProtocolWorkRequests;
+    private ArrayList<OneTimeWorkRequest> uploadWorkRequests;
+
+
     @Override
     public void parsePayload(String payload) throws JSONException {
         iperf3Inputs = new ArrayList<>();
@@ -84,7 +90,8 @@ public class Iperf3Handler extends Handler {
     }
     @Override
     public ArrayList<OneTimeWorkRequest> getExecutorWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> executorWorkRequests = new ArrayList<>();
+        if(executorWorkRequests != null && !executorWorkRequests.isEmpty()) return executorWorkRequests;
+        executorWorkRequests = new ArrayList<>();
         for(Iperf3Input iperf3Input : iperf3Inputs) {
             executorWorkRequests.add(iperf3Input.getWorkRequestExecutor(iperf3Inputs.indexOf(iperf3Input), context.getPackageName()));
         }
@@ -92,19 +99,17 @@ public class Iperf3Handler extends Handler {
     }
     @Override
     public ArrayList<OneTimeWorkRequest> getMonitorWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> monitorWorkRequests = new ArrayList<>();
+        if(monitorWorkRequests != null && !monitorWorkRequests.isEmpty()) return monitorWorkRequests;
+        monitorWorkRequests = new ArrayList<>();
         for(Iperf3Input iperf3Input : iperf3Inputs) {
             monitorWorkRequests.add(iperf3Input.getWorkRequestMonitor(iperf3Inputs.indexOf(iperf3Input), context.getPackageName()));
         }
         return monitorWorkRequests;
     }
-
-
-
-
     @Override
     public ArrayList<OneTimeWorkRequest> getToLineProtocolWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> lineProtocolWorkRequests = new ArrayList<>();
+        if(lineProtocolWorkRequests != null && !lineProtocolWorkRequests.isEmpty()) return lineProtocolWorkRequests;
+        lineProtocolWorkRequests = new ArrayList<>();
         for(Iperf3Input iperf3Input : iperf3Inputs) {
             lineProtocolWorkRequests.add(iperf3Input.getWorkRequestLineProtocol(iperf3Inputs.indexOf(iperf3Input), context.getPackageName()));
         }
@@ -112,7 +117,8 @@ public class Iperf3Handler extends Handler {
     }
     @Override
     public ArrayList<OneTimeWorkRequest> getUploadWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> uploadWorkRequests = new ArrayList<>();
+        if(uploadWorkRequests != null && !uploadWorkRequests.isEmpty()) return uploadWorkRequests;
+        uploadWorkRequests = new ArrayList<>();
         for(Iperf3Input iperf3Input : iperf3Inputs) {
             uploadWorkRequests.add(iperf3Input.getWorkRequestUpload(iperf3Inputs.indexOf(iperf3Input), context.getPackageName()));
         }

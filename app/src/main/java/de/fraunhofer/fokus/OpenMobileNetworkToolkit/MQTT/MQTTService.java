@@ -604,22 +604,34 @@ public class MQTTService extends Service {
             }
         }.run();
 
-        CustomEventListener listener = new CustomEventListener() {
-            @Override
-            public void onChange(HashMap<UUID, WorkInfo> workInfos) {
-                for (WorkInfo info : workInfos.values()) {
-                    WorkInfo.State state = info.getState();
-                    Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
-                    Data data = info.getOutputData();
-                    Log.i(TAG, "onChange: "+data.toString());
+        CustomEventListener listenerIperf3 = workInfos -> {
+            Log.d(TAG, "onChange: Iperf3 WorkInfo changed");
+            for (WorkInfo info : workInfos.values()) {
+                WorkInfo.State state = info.getState();
+                Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
+                Data data = info.getOutputData();
+                Log.i(TAG, "onChange: "+data.toString());
 
-                    publishToTopic("device/"+deviceName+"/campaign/status", String.valueOf(state.ordinal()), false);
-                }
-
+                publishToTopic("device/"+deviceName+"/campaign/status/iperf3", state.toString(), false);
             }
+
         };
-        //startWorkInfoChecker(RemoteWorkManager.getInstance(context), iperf3Handler.getExecutorWorkRequests(context), listener);
-        //TODO
+
+        CustomEventListener listenerPing = workInfos -> {
+            Log.d(TAG, "onChange: Ping WorkInfo changed");
+            for (WorkInfo info : workInfos.values()) {
+                WorkInfo.State state = info.getState();
+                Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
+                Data data = info.getOutputData();
+                Log.i(TAG, "onChange: "+data.toString());
+
+                publishToTopic("device/"+deviceName+"/campaign/status/ping", state.toString(), false);
+            }
+
+        };
+//        startWorkInfoChecker(RemoteWorkManager.getInstance(context), pingHandler.getExecutorWorkRequests(context), listenerPing);
+        startWorkInfoChecker(RemoteWorkManager.getInstance(context), iperf3Handler.getExecutorWorkRequests(context), listenerIperf3);
+
     }
 
     private void startWorkInfoChecker(RemoteWorkManager remoteWorkManager, ArrayList<OneTimeWorkRequest> workRequests, CustomEventListener listener) {

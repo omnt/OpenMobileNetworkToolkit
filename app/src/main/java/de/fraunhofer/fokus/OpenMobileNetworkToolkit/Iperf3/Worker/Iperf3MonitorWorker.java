@@ -280,7 +280,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                     }
                 } catch (Exception e){
                     Log.d(TAG, "run: error reading file: "+e);
-
+                    return completer.set(Result.failure());
                 }
             }
 

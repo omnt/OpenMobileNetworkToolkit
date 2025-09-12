@@ -57,7 +57,9 @@ public class RemoteWorkInfoChecker implements Runnable {
         Futures.addCallback(future, new com.google.common.util.concurrent.FutureCallback<List<WorkInfo>>() {
             @Override
             public void onSuccess(List<WorkInfo> workInfos) {
-                Log.d(TAG, "onSuccess: WorkInfos: " + workInfos.size());
+
+                Log.d(TAG, "onSuccess: WorkInfos size: " + workInfos.size());
+                Log.d(TAG, "onSuccess: WorkInfos: " + workIds.toString());
                 for (WorkInfo workInfo : workInfos) {
                     Log.d(TAG, "onSuccess: WorkInfo: " + workInfo.getId() + " State: " + workInfo.getState());
                     update(workInfo);
@@ -80,6 +82,8 @@ public class RemoteWorkInfoChecker implements Runnable {
 
     @Override
     public void run() {
+        Log.d(TAG, "run: running...");
+        Log.d(TAG, "run: Workids Count: " + workIdGroups.size());
         for (int i = 0; i < workIdGroups.size(); i++) {
             checkWorkInfos(workIdGroups.get(i));
         }
