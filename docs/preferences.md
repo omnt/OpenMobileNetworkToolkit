@@ -92,7 +92,7 @@ _Section to set Credentials for MQTT._
 
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
-| **mqtt_host** | MQTT-Broker Address | MQTT Broker Address | `tcp://192.168.213.89:1883` |
+| **mqtt_host** | MQTT-Broker Address | MQTT Broker Address | `192.168.213.89:1883` |
 | **mqtt_client_username** | MQTT Client Username | MQTT Username | `USERNAME` |
 | **mqtt_client_password** | MQTT Client Password | MQTT Client Password. | `PASSWORD` |
 
