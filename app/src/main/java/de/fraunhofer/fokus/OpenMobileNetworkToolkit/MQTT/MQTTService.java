@@ -9,6 +9,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -20,6 +21,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -29,19 +31,27 @@ import androidx.work.WorkInfo;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 
+import com.hivemq.client.mqtt.MqttClientState;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
+import com.hivemq.client.mqtt.lifecycle.MqttClientConnectedContext;
+import com.hivemq.client.mqtt.lifecycle.MqttClientDisconnectedContext;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.CustomEventListener;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.Handler.Iperf3Handler;
@@ -77,31 +87,104 @@ public class MQTTService extends Service {
         mqttSP = spg.getSharedPreference(SPType.MQTT);
         mqttSP.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
             if(key == null) return;
-            if (key.equals("mqtt_host")) {
-                Log.d(TAG, "MQTT Host update: " + sharedPreferences.getString("mqtt_host", ""));
-                client.disconnect();
-                createClient();
-                createNotification();
+            isEnabled = sharedPreferences.getBoolean("enable_mqtt", false);
+            switch (key){
+                case "mqtt_host":
+                    if(!isEnabled) return;
+                    Log.d(TAG, "mqtt_host: " + sharedPreferences.getString("mqtt_host", ""));
+                    disconnectClient();
+                    createClient();
+                    createNotification();
+                    break;
+                case "enable_mqtt":
+                    Log.d(TAG, "enable_mqtt: " + isEnabled);
+                    if(!isEnabled && client != null){
+                        this.onDestroy();
+                    }
+                    break;
             }
+
         });
     }
-
-    public void createClient(){
-        String addressString = mqttSP.getString("mqtt_host", "localhost:1883");
-        String host = null;
-        int port = -1;
+    private boolean isValidUrl(String addressString) {
         try {
-            host = addressString.split(":")[0];
-            port = Integer.parseInt(addressString.split(":")[1]);
+            new java.net.URL(addressString);
+            return true;
         } catch (Exception e) {
-            Log.e(TAG, "createClient: Invalid address string: " + addressString);
+            return false;
+        }
+    }
+
+    private boolean isProtocolIpPort(String addressString) {
+        // Example: mqtt://192.168.1.1:1883
+        String regex = "^[\\d.]+:\\d+$";
+        return addressString.matches(regex);
+    }
+
+
+    public String mQTTClientStateToString(MqttClientState state) {
+        switch (state) {
+            case CONNECTED:
+                return "Connected";
+            case CONNECTING:
+                return "Connecting";
+            case DISCONNECTED:
+                return "Disconnected";
+            case DISCONNECTED_RECONNECT:
+                return "Disconnected_Reconnecting";
+            case CONNECTING_RECONNECT:
+                return "Connecting_Reconnecting";
+            default:
+                return "Unknown";
+        }
+    }
+
+
+    public void createClient() {
+        String addressString = mqttSP.getString("mqtt_host", "");
+        Log.d(TAG, "createClient: creating client...");
+        if (addressString.isBlank()) {
+            Log.e(TAG, "createClient: MQTT Host is empty");
+            spg.getSharedPreference(SPType.MQTT).edit().putBoolean("enable_mqtt", false).apply();
+            client = null;
             return;
         }
-        if(host == null || port == -1){
-            Log.e(TAG, "createClient: Invalid address string: " + addressString);
+
+        if (!isValidUrl(addressString) && !isProtocolIpPort(addressString)) {
+            Log.e(TAG, "createClient: MQTT Host is not a valid URL or IP:Port");
+            Toast.makeText(context, "MQTT Host is not a valid URL or IP:Port", Toast.LENGTH_SHORT).show();
+            spg.getSharedPreference(SPType.MQTT).edit().putBoolean("enable_mqtt", false).apply();
+            client = null;
             return;
         }
-        InetSocketAddress address = new InetSocketAddress(host, port);
+
+        String host;
+        int port;
+
+        try {
+            if (isProtocolIpPort(addressString)) {
+                // Case: raw host:port
+                String[] hostPort = addressString.split(":");
+                host = hostPort[0];
+                port = Integer.parseInt(hostPort[1]);
+            } else {
+                // Case: URL with scheme
+                URI uri = new URI(addressString);
+                host = uri.getHost();
+                port = uri.getPort() == -1 ? 1883 : uri.getPort(); // default MQTT port
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "createClient: Invalid MQTT address", e);
+            spg.getSharedPreference(SPType.MQTT).edit().putBoolean("enable_mqtt", false).apply();
+            client = null;
+            return;
+        }
+
+        InetSocketAddress address = InetSocketAddress.createUnresolved(host, port);
+        if(client != null){
+            disconnectClient();
+            client = null;
+        }
         client = Mqtt5Client.builder()
                 .identifier(deviceName)
                 .serverAddress(address)
@@ -109,30 +192,35 @@ public class MQTTService extends Service {
                 .initialDelay(5, TimeUnit.SECONDS)
                 .maxDelay(30, TimeUnit.SECONDS)
                 .applyAutomaticReconnect()
-                .addConnectedListener(context -> {
-                    Log.i(TAG, "createClient: Connected to MQTT server");
-                    createNotification();
+                .addConnectedListener(ctx -> {
+                    Log.i(TAG, "addConnectedListener: Connected to MQTT server");
+                    createNotification(null, ctx);
                     publishToTopic(String.format("device/%s/status", deviceName), "1", false);
+                    Log.d(TAG, "addConnectedListener: "+mQTTClientStateToString(client.getState()));
                 })
-                .addDisconnectedListener(context -> {
-                    Log.i(TAG, "createClient: Disconnected from MQTT server");
-                    createNotification();
+                .addDisconnectedListener(ctx -> {
+                    Log.i(TAG, "addDisconnectedListener: Disconnected from MQTT server");
+                    createNotification(ctx, null);
+
                 })
                 .willPublish()
-                    .topic(String.format("device/%s/status", deviceName))
-                    .qos(MqttQos.EXACTLY_ONCE)
-                    .payload("0".getBytes())
-                    .retain(true)
-                    .payloadFormatIndicator(Mqtt5PayloadFormatIndicator.UTF_8)
-                    .contentType("text/plain")
-                    .noMessageExpiry()
-                    .applyWillPublish()
+                .topic(String.format("device/%s/status", deviceName))
+                .qos(MqttQos.EXACTLY_ONCE)
+                .payload("0".getBytes())
+                .retain(true)
+                .payloadFormatIndicator(Mqtt5PayloadFormatIndicator.UTF_8)
+                .contentType("text/plain")
+                .noMessageExpiry()
+                .applyWillPublish()
                 .buildAsync();
-
-        Log.i(TAG, "createClient: Client created with address: " + addressString);
+        Log.i(TAG, "createClient: Client created with address: " + host + ":" + port);
     }
 
-    private void createNotification(){
+    private void createNotification() {
+        createNotification(null, null);
+    }
+    private void createNotification(MqttClientDisconnectedContext mqttClientDisconnectedContext,
+                                    MqttClientConnectedContext mqttClientConnectedContext) {
         StringBuilder s = new StringBuilder();
         String address = spg.getSharedPreference(SPType.MQTT).getString("mqtt_host", "None");
         if(address.equals("None")){
@@ -140,6 +228,11 @@ public class MQTTService extends Service {
         } else {
             s.append("Host: ").append(address).append("\n");
             s.append("State: ").append(client.getState().toString()).append("\n");
+            if(mqttClientDisconnectedContext != null){
+                if(mqttClientDisconnectedContext.getCause() != null){
+                    s.append("Cause: ").append(mqttClientDisconnectedContext.getCause().getMessage()).append("\n");
+                }
+            }
         }
         builder.setStyle(new NotificationCompat.BigTextStyle()
                 .bigText(s));
@@ -149,9 +242,21 @@ public class MQTTService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate: Creating MQTTService");
         nm = getSystemService(NotificationManager.class);
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "OMNT_notification_channel",
+                    "OMNT MQTT Service",
+                    NotificationManager.IMPORTANCE_MAX
+            );
+            nm.createNotificationChannel(channel);
+        }
+        setupSharedPreferences();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // create notification
             builder = new NotificationCompat.Builder(this, "OMNT_notification_channel")
@@ -184,19 +289,33 @@ public class MQTTService extends Service {
                 .retain(retain)
                 .send();
     }
-
+    private boolean isConnected(){
+        if(client == null){
+            Log.e(TAG, "isConnected: Client is null");
+            return false;
+        }
+        return client.getState().isConnected();
+    }
     public void disconnectClient(){
-        CompletableFuture<Void> disconnect = client.disconnect();
-        disconnect.whenComplete((aVoid, throwable) -> {
-            if(throwable != null){
-                Log.e(TAG, "disconnectClient: Error disconnecting from MQTT server: " + throwable.getMessage());
-            } else {
-                Log.i(TAG, "disconnectClient: Disconnected from MQTT server");
-            }
-        });
+        Log.d(TAG, "disconnectClient: starting to disconnect client....");
+        if(isConnected()){
+
+            CompletableFuture<Void> disconnect = client.disconnect();
+            disconnect.whenComplete((aVoid, throwable) -> {
+                if(throwable != null){
+                    Log.e(TAG, "disconnectClient: Error disconnecting from MQTT server: " + throwable.getMessage());
+                } else {
+                    Log.i(TAG, "disconnectClient: Disconnected from MQTT server");
+                }
+
+            });
+        }
+        client = null;
+        nm.cancel(3);
     }
 
     public  void connectClient(){
+        Log.d(TAG, "connectClient: Connecting to MQTT server...");
 
         CompletableFuture<Mqtt5ConnAck> connAck = client.connectWith()
                 .keepAlive(1)
@@ -435,16 +554,21 @@ public class MQTTService extends Service {
         subsribetoTopic(String.format("device/%s/#", deviceName));
     }
 
+    public void onDestroy(){
+        disconnectClient();
+        client = null;
+        Log.d(TAG, "onDestroy: Destroying MQTTService");
+        super.onDestroy();
+
+    }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: Start MQTT service");
+        Log.d(TAG, "onStartCommand: Start MQTTservice");
         context = getApplicationContext();
-        mqttSP = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.MQTT);
         deviceName = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.MAIN).getString("device_name", "null").strip();
         startForeground(3, builder.build());
-        setupSharedPreferences();
         createClient();
         if(client == null){
             Log.e(TAG, "onStartCommand: Client is null");
