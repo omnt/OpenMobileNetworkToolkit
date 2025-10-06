@@ -34,6 +34,9 @@ public class PingHandler extends Handler {
     private ArrayList<OneTimeWorkRequest> toLineProtocolWorkRequests;
     private ArrayList<OneTimeWorkRequest> uploadWorkRequests;
 
+    public PingHandler(Context context) {
+        super(context);
+    }
 
 
     @Override
@@ -51,10 +54,10 @@ public class PingHandler extends Handler {
             if(!testType.equals("ping")) continue;
             JSONObject params = test.getJSONObject("params");
 
-            PingParameter pingParameter = new PingParameter(params, testUUID);
+            PingParameter pingParameter = new PingParameter(super.getRootFilePath(), params, testUUID);
             if(pingParameter == null) continue;
             PingInput pingInput = new PingInput(pingParameter, testUUID, sequenceUUID, measurementUUUID,campaignUUID);
-            File logFile = new File(pingInput.getParameter().getLogfile());
+            File logFile = new File(pingInput.getParameter().getRawLogFilePath());
             if(logFile.exists()) {
                 logFile.delete();
             }

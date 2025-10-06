@@ -20,14 +20,20 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.LifecycleService;
+import androidx.lifecycle.Observer;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.WorkQuery;
+import androidx.work.WorkRequest;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 
@@ -62,7 +68,7 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.RemoteWorkInfoChecker;
 
-public class MQTTService extends Service {
+public class MQTTService extends LifecycleService {
     private static final String TAG = "MQTTService";
     private Context context;
     private SharedPreferences mqttSP;
@@ -79,6 +85,7 @@ public class MQTTService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return null;
     }
 
@@ -492,7 +499,7 @@ public class MQTTService extends Service {
 
         if(topic.contains("/ping/command")){
             Log.d(TAG, "handleConfigMessage: Ping Command: " + payload);
-            pingHandler = new PingHandler();
+            pingHandler = new PingHandler(this.context);
             try {
                 pingHandler.parsePayload(payload);
             } catch (Exception e) {
@@ -518,6 +525,7 @@ public class MQTTService extends Service {
         if(topic.contains("/sequence/enable")){
             Log.d(TAG, "handleConfigMessage: Enable Sequence: " + payload);
             setEnabled(parseBoolean(payload));
+
             return;
         }
 
@@ -555,6 +563,8 @@ public class MQTTService extends Service {
     }
 
     public void onDestroy(){
+        if(iperf3Handler != null) iperf3Handler.disableSequence(context);
+        if(pingHandler!= null) pingHandler.disableSequence(context);
         disconnectClient();
         client = null;
         Log.d(TAG, "onDestroy: Destroying MQTTService");
@@ -583,58 +593,55 @@ public class MQTTService extends Service {
     }
 
     private void executeWork() {
-        new Runnable(){
-            @Override
-            public void run() {
-                if (iperf3Handler != null && isEnabled) {
-                    iperf3Handler.enableSequence();
-                } else {
-                    Log.d(TAG, "executeWork: Iperf3 Handler is either null or not enabled");
-                }
-            }
-        }.run();
-        new Runnable(){
-            @Override
-            public void run() {
-                if (pingHandler != null && isEnabled) {
-                    pingHandler.enableSequence();
-                } else {
-                    Log.d(TAG, "executeWork: Ping Handler is either null or not enabled");
-                }
-            }
-        }.run();
+        Log.d(TAG, "executeWork: starting to execute Workers...");
 
-        CustomEventListener listenerIperf3 = workInfos -> {
-            Log.d(TAG, "onChange: Iperf3 WorkInfo changed");
-            for (WorkInfo info : workInfos.values()) {
-                WorkInfo.State state = info.getState();
-                Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
-                Data data = info.getOutputData();
-                Log.i(TAG, "onChange: "+data.toString());
 
-                publishToTopic("device/"+deviceName+"/campaign/status/iperf3", state.toString(), false);
-            }
+        if (pingHandler != null) {
+            registerWorkInfoChecker(pingHandler.getExecutorWorkRequests(context), "ping/executor");
+            registerWorkInfoChecker(pingHandler.getToLineProtocolWorkRequests(context), "ping/toLineProtocol");
+            registerWorkInfoChecker(pingHandler.getUploadWorkRequests(context), "ping/uploader");
+        }
+        if (iperf3Handler != null) {
+            registerWorkInfoChecker(iperf3Handler.getExecutorWorkRequests(context), "iperf3/executor");
+            registerWorkInfoChecker(iperf3Handler.getMonitorWorkRequests(context), "iperf3/monitor");
+            registerWorkInfoChecker(iperf3Handler.getToLineProtocolWorkRequests(context), "iperf3/toLineProtocol");
+            registerWorkInfoChecker(iperf3Handler.getUploadWorkRequests(context), "iperf3/uploader");
+        }
 
-        };
+        if (iperf3Handler != null && isEnabled) {
+            iperf3Handler.enableSequence();
+        } else {
+            Log.d(TAG, "executeWork: Iperf3 Handler is either null or not enabled");
+        }
 
-        CustomEventListener listenerPing = workInfos -> {
-            Log.d(TAG, "onChange: Ping WorkInfo changed");
-            for (WorkInfo info : workInfos.values()) {
-                WorkInfo.State state = info.getState();
-                Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
-                Data data = info.getOutputData();
-                Log.i(TAG, "onChange: "+data.toString());
+        if (pingHandler != null && isEnabled) {
+            pingHandler.enableSequence();
+        } else {
+            Log.d(TAG, "executeWork: Ping Handler is either null or not enabled");
+        }
 
-                publishToTopic("device/"+deviceName+"/campaign/status/ping", state.toString(), false);
-            }
-
-        };
-//        startWorkInfoChecker(RemoteWorkManager.getInstance(context), pingHandler.getExecutorWorkRequests(context), listenerPing);
-        startWorkInfoChecker(RemoteWorkManager.getInstance(context), iperf3Handler.getExecutorWorkRequests(context), listenerIperf3);
+        Log.d(TAG, "executeWork: Starting WorkInfoCheckers...");
 
     }
 
+    private void registerWorkInfoChecker(ArrayList<OneTimeWorkRequest> workRequests, String statusTopicSuffix) {
+        CustomEventListener listener = workInfos -> {
+            Log.d(TAG, "onChange: WorkInfo changed for " + statusTopicSuffix);
+            for (WorkInfo info : workInfos.values()) {
+                WorkInfo.State state = info.getState();
+                Data data = info.getOutputData();
+                Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
+                Log.i(TAG, "onChange: " + data.toString());
+                publishToTopic("device/" + deviceName + "/campaign/status/" + statusTopicSuffix, state.toString(), false);
+            }
+        };
+        startWorkInfoChecker(RemoteWorkManager.getInstance(context), workRequests, listener);
+
+    }
+
+
     private void startWorkInfoChecker(RemoteWorkManager remoteWorkManager, ArrayList<OneTimeWorkRequest> workRequests, CustomEventListener listener) {
+
         ArrayList<UUID> workIdGroups = new ArrayList<>();
         for (OneTimeWorkRequest workRequest : workRequests) {
             workIdGroups.add(workRequest.getId());
@@ -645,7 +652,10 @@ public class MQTTService extends Service {
     }
 
     private void setEnabled(boolean isEnabled) {
+        Log.d(TAG, "setEnabled: isEnabled="+isEnabled);
+        
         this.isEnabled = isEnabled;
+
         executeWork();
     }
 }

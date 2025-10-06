@@ -13,7 +13,9 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleService;
 import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
 import androidx.work.multiprocess.RemoteWorkManager;
 
@@ -36,14 +38,13 @@ public class RemoteWorkInfoChecker implements Runnable {
     private boolean isDone = false;
     private final Executor executor;
     private CustomEventListener listener;
-
     private int workCount = 0;
+
     public RemoteWorkInfoChecker(RemoteWorkManager remoteWorkManager, ArrayList<UUID> workIdGroups) {
         this.remoteWorkManager = remoteWorkManager;
         this.workIdGroups = workIdGroups;
         this.executor = Runnable::run;
     }
-
 
     private void update(WorkInfo workInfo) {
         workInfors.put(workInfo.getId(), workInfo);
@@ -76,8 +77,9 @@ public class RemoteWorkInfoChecker implements Runnable {
     private void isAllWorkDone() {
         for (WorkInfo info : workInfors.values()) {
             WorkInfo.State state = info.getState();
-            isDone = (state != WorkInfo.State.RUNNING) && (state != WorkInfo.State.ENQUEUED);
+            isDone = (state != WorkInfo.State.RUNNING) && (state != WorkInfo.State.ENQUEUED) && (state != WorkInfo.State.BLOCKED);
         }
+//        if(workInfors.isEmpty()) isDone = true;
     }
 
     @Override

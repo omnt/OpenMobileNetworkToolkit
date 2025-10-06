@@ -9,6 +9,7 @@
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class PingService extends Service {
     public static final String PING_LAST_UUID = "ping_last_uuid";
     private SharedPreferencesGrouper spg;
     private WorkManager workManager;
+    private Context context;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -57,7 +59,7 @@ public class PingService extends Service {
     private void startWorker(String command) {
         String uuid = UUID.randomUUID().toString();
 
-        PingParameter pingParameter = new PingParameter(command, uuid);
+        PingParameter pingParameter = new PingParameter(this.context.getFilesDir().getAbsolutePath(), command, uuid);
         PingInput pingInput = new PingInput(pingParameter, uuid);
         String gson = new Gson().toJson(pingInput, PingInput.class);
         Data data = new Data.Builder()
@@ -140,8 +142,9 @@ public class PingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Start ping service");
-        spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
-        workManager = WorkManager.getInstance(getApplicationContext());
+        this.context = getApplicationContext();
+        spg = SharedPreferencesGrouper.getInstance(this.context);
+        workManager = WorkManager.getInstance(this.context);
         if(intent == null){
             Log.d(TAG, "onStartCommand: Intent is null, stopping service");
             workManager.cancelAllWorkByTag(PingWorker.TAG);

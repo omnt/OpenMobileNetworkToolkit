@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Parameter;
 
-public class Inputs implements Parcelable {
+public class Inputs {
 
 
     public static final String INPUT = "input";
@@ -40,18 +40,6 @@ public class Inputs implements Parcelable {
     private String measurementUUID;
     private Parameter parameter;
 
-
-    public static final Creator<Inputs> CREATOR = new Creator<Inputs>() {
-        @Override
-        public Inputs createFromParcel(Parcel in) {
-            return new Inputs(in);
-        }
-
-        @Override
-        public Inputs[] newArray(int size) {
-            return new Inputs[size];
-        }
-    };
 
     public String getTestUUID() {
         return testUUID;
@@ -81,14 +69,6 @@ public class Inputs implements Parcelable {
     public String getMeasurementUUID() {
         return measurementUUID;
     }
-    protected Inputs(Parcel in) {
-        timestamp = (Timestamp) in.readSerializable();
-        campaignUUID = in.readString();
-        sequenceUUID = in.readString();
-        measurementUUID = in.readString();
-        testUUID = in.readString();
-        parameter = in.readParcelable(Parameter.class.getClassLoader());
-    }
 
     public Inputs(String campaignUUID, String sequenceUUID, String measurementUUID, String testUUID, Parameter parameter) {
         this.timestamp = new Timestamp(System.currentTimeMillis());
@@ -101,21 +81,6 @@ public class Inputs implements Parcelable {
 
     public Parameter getParameter() {
         return parameter;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeSerializable(timestamp);
-        dest.writeString(campaignUUID);
-        dest.writeString(sequenceUUID);
-        dest.writeString(measurementUUID);
-        dest.writeString(testUUID);
-        dest.writeParcelable(parameter, flags);
     }
 
     public Data.Builder getInputAsDataBuilder(int i, String packageName) {

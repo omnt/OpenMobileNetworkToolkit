@@ -11,6 +11,7 @@ package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker;
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -28,18 +29,11 @@ import androidx.work.WorkerParameters;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
@@ -66,7 +60,7 @@ public class PingWorker extends Worker {
     private final int FOREGROUND_SERVICE_TYPE = FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
     private final Context ct;
     private NotificationManager notificationManager;
-    private final String channelId = "OMNT_notification_channel";
+    private final String channelId = "OMNT_notification_channel_ping_worker";
     private NotificationCompat.Builder notificationBuilder;
     private double rtt; // round-trip time
     private PingInput pingInput;
@@ -74,28 +68,53 @@ public class PingWorker extends Worker {
     public PingWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         ct = context;
-
         // Retrieve the PingInput from the Worker's input data.
         String pingInputString = getInputData().getString(PingInput.INPUT);
         pingInput = new Gson().fromJson(pingInputString, PingInput.class);
+        Log.d(TAG, "PingWorker: writing to file "+pingInput.getPingParameter().getRawLogFilePath());
 
+
+        createNotificationChannel();
         int notificationNumber = getInputData().getInt(PingInput.NOTIFICATIONUMBER, 0);
         notificationID += notificationNumber;
 
         notificationManager = (NotificationManager) ct.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(ct, channelId);
 
-        File rawPath = new File(PingParameter.rawDirPath);
+        File rawPath = new File(pingInput.getPingParameter().getRawDirPath());
+
         if(!rawPath.exists()){
             if(!rawPath.mkdirs()){
-                Log.e(TAG, "Error creating rawDirPath directory: " + PingParameter.rawDirPath);
+                Log.e(TAG, "Error creating rawDirPath directory: " + pingInput.getPingParameter().getRawDirPath());
             }
         }
+
+        if(pingInput == null){
+            Log.e(TAG, "PingInput is null");
+            return;
+        }
+
 
 
 
         setForegroundAsync(createForegroundInfo(""));
     }
+
+    // Add this method to PingWorker
+    private void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationManager manager = (NotificationManager) ct.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    "Ping Worker Channel",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("Notifications for PingWorker foreground service");
+            manager.createNotificationChannel(channel);
+        }
+    }
+
+
 
     private ForegroundInfo createForegroundInfo(String progress) {
         Intent intent = new Intent(this.ct, MainActivity.class);
@@ -154,7 +173,14 @@ public class PingWorker extends Worker {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            FileOutputStream pingStream = new FileOutputStream(pingInput.getPingParameter().getLogfile(), true);
+            File logFile = new File(pingInput.getPingParameter().getRawLogFilePath());
+            if(!logFile.exists()){
+                logFile.createNewFile();
+            } else {
+                logFile.delete();
+                logFile.createNewFile();
+            }
+            FileOutputStream pingStream = new FileOutputStream(pingInput.getPingParameter().getRawLogFilePath(), true);
             PingParser pingParser = new PingParser();
             String line;
 

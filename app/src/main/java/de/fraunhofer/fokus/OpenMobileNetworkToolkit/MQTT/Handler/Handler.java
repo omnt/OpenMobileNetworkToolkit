@@ -29,9 +29,14 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 
 abstract public class Handler {
     private final String TAG = "Handler";
+    private String rootFilePath;
     abstract public void parsePayload(String payload) throws JSONException;
 
-    public Handler() {
+    public Handler(Context context) {
+       rootFilePath = context.getFilesDir().getAbsolutePath();
+    }
+    public String getRootFilePath() {
+        return rootFilePath;
     }
     abstract public ArrayList<OneTimeWorkRequest> getExecutorWorkRequests(Context context);
 

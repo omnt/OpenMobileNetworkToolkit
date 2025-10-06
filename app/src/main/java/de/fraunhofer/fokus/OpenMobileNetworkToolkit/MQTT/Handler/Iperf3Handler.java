@@ -12,9 +12,8 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
+import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 import androidx.work.multiprocess.RemoteWorkContinuation;
 import androidx.work.multiprocess.RemoteWorkManager;
 
@@ -28,7 +27,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResult;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3RunResultDao;
@@ -61,7 +59,7 @@ public class Iperf3Handler extends Handler {
             if(!testType.equals("iperf3")) continue;
             JSONObject params = test.getJSONObject("params");
 
-            Iperf3Parameter iperf3Parameter = new Iperf3Parameter(params, testUUID);
+            Iperf3Parameter iperf3Parameter = new Iperf3Parameter(super.getRootFilePath(), params, testUUID);
             if(iperf3Parameter == null) continue;
             Iperf3Input iperf3Input = new Iperf3Input(iperf3Parameter, testUUID, sequenceUUID, measurementUUUID,campaignUUID);
             iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
@@ -69,7 +67,7 @@ public class Iperf3Handler extends Handler {
 
             Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3Input.getTestUUID(), -100, false, iperf3Input, new java.sql.Timestamp(System.currentTimeMillis()));
             iperf3RunResultDao.insert(iperf3RunResult);
-            File logFile = new File(iperf3Input.getParameter().getLogfile());
+            File logFile = new File(iperf3Input.getParameter().getRawLogFilePath());
             if(logFile.exists()) {
                 logFile.delete();
             }
@@ -85,7 +83,7 @@ public class Iperf3Handler extends Handler {
         return testUUIDs;
     }
     public Iperf3Handler(Context context) {
-        super();
+        super(context);
         iperf3RunResultDao = Iperf3ResultsDataBase.getDatabase(context).iperf3RunResultDao();
     }
     @Override

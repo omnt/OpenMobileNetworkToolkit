@@ -25,10 +25,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.Worker.PingWorker;
 public class PingInput extends Inputs {
     private PingParameter pingParameter;
 
-    protected PingInput(Parcel in) {
-        super(in);
-
-    }
     public PingInput(PingParameter pingParameter, String testUUID){
         super(testUUID, "","","", pingParameter);
         this.pingParameter = pingParameter;
@@ -43,11 +39,6 @@ public class PingInput extends Inputs {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        super.writeToParcel(dest, flags);
-    }
-
-    @Override
     public Data.Builder getInputAsDataBuilder(int i, String packageName) {
         Data.Builder data = new Data.Builder();
         Gson gson = new Gson();
@@ -59,23 +50,6 @@ public class PingInput extends Inputs {
     public PingParameter getPingParameter() {
         return pingParameter;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<PingInput> CREATOR = new Creator<PingInput>() {
-        @Override
-        public PingInput createFromParcel(Parcel in) {
-            return new PingInput(in);
-        }
-
-        @Override
-        public PingInput[] newArray(int size) {
-            return new PingInput[size];
-        }
-    };
 
 
     @Override

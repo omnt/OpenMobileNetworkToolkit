@@ -103,6 +103,10 @@ public class InfluxdbConnection {
             flush();
             try {
                 Log.d(TAG, "disconnect: Closing Influx write API");
+                if(writeApi == null) {
+                    Log.d(TAG, "disconnect: writeApi is null");
+                    return;
+                }
                 writeApi.close();
                 writeApi = null;
             } catch (com.influxdb.exceptions.InfluxException e) {

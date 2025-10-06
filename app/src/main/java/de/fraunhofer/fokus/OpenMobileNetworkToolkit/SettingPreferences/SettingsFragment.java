@@ -82,9 +82,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 button.setEnabled(true);
                 button.setOnPreferenceClickListener(preference -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        GlobalVars.getInstance().getTm().rebootModem();
                         Toast.makeText(getActivity(), "rebooting modem",
                                 Toast.LENGTH_SHORT).show();
-                        GlobalVars.getInstance().getTm().rebootModem();
+
                     }
                     return true;
                 });

@@ -24,40 +24,30 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DeviceInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.InfluxdbConnection;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.PingInput;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.PingParameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.LINEType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PacketLossLine;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.PingInformation;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Ping.PingInformations.RTTLine;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 
 public class PingToLineProtocolWorker extends Worker {
     public static final String TAG = "PingToLineProtocolWorker";
-    InfluxdbConnection influx;
-    private SharedPreferencesGrouper spg;
-
-    private final DeviceInformation di = GlobalVars.getInstance().get_dp().getDeviceInformation();
     private PingInput pingInput;
     public PingToLineProtocolWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         Gson gson = new Gson();
         String iperf3InputString = getInputData().getString(PingInput.INPUT);
         pingInput = gson.fromJson(iperf3InputString, PingInput.class);
-        spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
 
-        File lineProtocolDirPath = new File(PingParameter.lineProtocolDirPath);
+        File lineProtocolDirPath = new File(pingInput.getPingParameter().getLineProtocolDirPath());
         if(!lineProtocolDirPath.exists()){
             if(!lineProtocolDirPath.mkdirs()){
-                Log.e(TAG, "Error creating lineProtocolDirPath directory: " + PingParameter.lineProtocolDirPath);
+                Log.e(TAG, "Error creating lineProtocolDirPath directory: " + pingInput.getPingParameter().getLineProtocolDirPath());
             }
         }
     }
@@ -81,7 +71,7 @@ public class PingToLineProtocolWorker extends Worker {
     @Override
     public Result doWork() {
         Data.Builder output = new Data.Builder().putBoolean("pingUpload", false);
-        File myObj = new File(pingInput.getPingParameter().getLogfile());
+        File myObj = new File(pingInput.getPingParameter().getRawLogFilePath());
         Scanner scanner = null;
         try {
             scanner = new Scanner(myObj);
@@ -112,7 +102,7 @@ public class PingToLineProtocolWorker extends Worker {
             pingInformations.add(pi);
         }
         scanner.close();
-        File lineprotocolfile = new File(pingInput.getPingParameter().getLineProtocolFile());
+        File lineprotocolfile = new File(pingInput.getPingParameter().getLineProtocolFilePath());
         if(lineprotocolfile.exists()){
             lineprotocolfile.delete();
             try {
@@ -124,7 +114,7 @@ public class PingToLineProtocolWorker extends Worker {
         }
         FileOutputStream pingStream = null;
         try {
-            pingStream = new FileOutputStream(pingInput.getPingParameter().getLineProtocolFile(), true);
+            pingStream = new FileOutputStream(pingInput.getPingParameter().getLineProtocolFilePath(), true);
         } catch (FileNotFoundException e) {
             Log.d(TAG, "doWork: " + e.toString());
             Log.e(TAG, "doWork: Could not create FileOutputStream");
@@ -136,6 +126,11 @@ public class PingToLineProtocolWorker extends Worker {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     point.addTags(GlobalVars.getInstance().get_dp().getTagsMap());
                 }
+                if(!pingInput.getSequenceUUID().isEmpty()) point.addField("sequenceUUID", pingInput.getSequenceUUID());
+                if(!pingInput.getTestUUID().isEmpty()) point.addField("testUUID", pingInput.getTestUUID());
+                if(!pingInput.getMeasurementUUID().isEmpty())point.addField("measurementUUID", pingInput.getMeasurementUUID());
+                if(!pingInput.getCampaignUUID().isEmpty()) point.addField("campaignUUID", pingInput.getCampaignUUID());
+
                 pingStream.write((point.toLineProtocol() + "\n").getBytes());
 
             } catch (IOException e) {

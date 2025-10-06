@@ -44,34 +44,7 @@ public class Iperf3Input extends Inputs {
     public static final String IPERF3UUID = "iPerf3UUID";
 
     private Iperf3Parameter iperf3Parameter;
-    protected Iperf3Input(Parcel in) {
-        super(in);
-        iperf3Parameter = in.readParcelable(Iperf3Parameter.class.getClassLoader());
-    }
 
-
-    public static final Creator<Iperf3Input> CREATOR = new Creator<>() {
-        @Override
-        public Iperf3Input createFromParcel(Parcel in) {
-            return new Iperf3Input(in);
-        }
-
-        @Override
-        public Iperf3Input[] newArray(int size) {
-            return new Iperf3Input[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel parcel, int i) {
-        super.writeToParcel(parcel, i);
-//        parcel.writeParcelable(iperf3Parameter, i);
-    }
     public Iperf3Input(Iperf3Parameter iperf3Parameter, String testUUID) {
         this(iperf3Parameter, testUUID, "", "", "");
     }
@@ -132,7 +105,7 @@ public class Iperf3Input extends Inputs {
                 break;
         }
 
-        return new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
+        OneTimeWorkRequest oneTimeWorkRequest = new OneTimeWorkRequest.Builder(Iperf3ExecutorWorker.class)
                 .addTag(super.getTestUUID())
                 .addTag(super.getMeasurementUUID())
                 .addTag(super.getSequenceUUID())
@@ -141,6 +114,10 @@ public class Iperf3Input extends Inputs {
                 .addTag(getParameter().getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i, packageName, serviceName).build())
                 .build();
+
+        Log.d(TAG, "getWorkRequestExecutor: created oneTimeWorkRequest with ID "+oneTimeWorkRequest.getId());
+        return oneTimeWorkRequest;
+
     }
 
     @Override

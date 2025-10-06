@@ -295,7 +295,7 @@ public class Iperf3Fragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_iperf3_input, container, false);
         // Initialize the TextView
         String iperf3UUID = UUID.randomUUID().toString();
-        Iperf3Parameter iperf3Parameter = new Iperf3Parameter(iperf3UUID);
+        Iperf3Parameter iperf3Parameter = new Iperf3Parameter(getContext().getFilesDir().getAbsolutePath(), iperf3UUID);
         iperf3Input = new Iperf3Input(iperf3Parameter, "");
         sendBtn = view.findViewById(R.id.iperf3_send);
         spg = SharedPreferencesGrouper.getInstance(ct);
@@ -311,8 +311,8 @@ public class Iperf3Fragment extends Fragment {
                 iperf3Input.getParameter().updatePaths();
                 iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
-                File logFile = new File(iperf3Input.getParameter().getLogfile());
-                File rawPath = new File(Iperf3Parameter.rawDirPath);
+                File logFile = new File(iperf3Input.getParameter().getRawLogFilePath());
+                File rawPath = new File(iperf3Input.getParameter().getRawDirPath());
 
                 if(!rawPath.exists()) {
                     rawPath.mkdirs();
