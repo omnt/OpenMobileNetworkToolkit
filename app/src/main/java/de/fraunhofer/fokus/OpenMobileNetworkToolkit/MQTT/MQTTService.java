@@ -47,6 +47,7 @@ import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PayloadFormatIndicator;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -575,6 +576,7 @@ public class MQTTService extends LifecycleService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         Log.d(TAG, "onStartCommand: Start MQTTservice");
         context = getApplicationContext();
         deviceName = SharedPreferencesGrouper.getInstance(context).getSharedPreference(SPType.MAIN).getString("device_name", "null").strip();
@@ -632,12 +634,30 @@ public class MQTTService extends LifecycleService {
                 Data data = info.getOutputData();
                 Log.d(TAG, "onChange: WorkInfo: " + info.getTags() + " State: " + state);
                 Log.i(TAG, "onChange: " + data.toString());
-                publishToTopic("device/" + deviceName + "/campaign/status/" + statusTopicSuffix, state.toString(), false);
+                HashMap<String, String> map = new HashMap<>();
+                map.put("state", state.toString());
+
+                addIfPresent(data, map, "error");
+                addIfPresent(data, map, "testUUID");
+                addIfPresent(data, map, "measurementUUID");
+                addIfPresent(data, map, "sequenceUUID");
+                addIfPresent(data, map, "campaignUUID");
+                addIfPresent(data, map, "exception");
+                addIfPresent(data, map, "type");
+
+                publishToTopic("device/" + deviceName + "/campaign/status/" + statusTopicSuffix, new JSONObject(map).toString(), false);
             }
         };
         startWorkInfoChecker(RemoteWorkManager.getInstance(context), workRequests, listener);
-
     }
+
+    private void addIfPresent(Data data, HashMap<String, String> map, String key) {
+        String value = data.getString(key);
+        if (value != null) {
+            map.put(key, value);
+        }
+    }
+
 
 
     private void startWorkInfoChecker(RemoteWorkManager remoteWorkManager, ArrayList<OneTimeWorkRequest> workRequests, CustomEventListener listener) {
@@ -645,6 +665,7 @@ public class MQTTService extends LifecycleService {
         ArrayList<UUID> workIdGroups = new ArrayList<>();
         for (OneTimeWorkRequest workRequest : workRequests) {
             workIdGroups.add(workRequest.getId());
+            Log.d(TAG, "startWorkInfoChecker: workRequest ID: " + workRequest.getId());
         }
         RemoteWorkInfoChecker remoteWorkInfoChecker = new RemoteWorkInfoChecker(remoteWorkManager, workIdGroups);
         remoteWorkInfoChecker.setListener(listener);

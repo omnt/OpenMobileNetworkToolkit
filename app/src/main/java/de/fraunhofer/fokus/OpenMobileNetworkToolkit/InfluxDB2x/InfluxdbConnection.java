@@ -64,7 +64,7 @@ public class InfluxdbConnection {
                 .flushInterval(1000)
                 .backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST)
                 .bufferLimit(100000)
-                .jitterInterval(10)
+                .jitterInterval(500)
                 .retryInterval(500)
                 .exponentialBase(4)
                 .build());

@@ -25,6 +25,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Database.RunResult.Iperf3ResultsDataBase;
@@ -130,28 +133,23 @@ public class Iperf3Handler extends Handler {
         if(iperf3Inputs.isEmpty()) {
             Log.e(TAG, "No iperf3 tests to run");
             return;
-        };
+        }
 
-        ArrayList<ArrayList<OneTimeWorkRequest>> workRequestss = new ArrayList<>();
         RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(context);
-        for(Iperf3Input iperf3Input: iperf3Inputs){
-            remoteWorkManager.cancelAllWorkByTag(iperf3Input.getTestUUID());
-            ArrayList<OneTimeWorkRequest> workRequests = new ArrayList<>();
-            int i = iperf3Inputs.indexOf(iperf3Input);
-            workRequests.add(iperf3Input.getWorkRequestExecutor(i, context.getPackageName()));
-            workRequests.add(iperf3Input.getWorkRequestMonitor(i, context.getPackageName()));
-            workRequests.add(iperf3Input.getWorkRequestLineProtocol(i, context.getPackageName()));
-            workRequests.add(iperf3Input.getWorkRequestUpload(i, context.getPackageName()));
-            workRequestss.add(workRequests);
-            Log.d(TAG, "enableSequence: workRequests size: "+workRequests.size());
-        }
 
-
-        Log.d(TAG, "enableSequence: workRequestss size: "+workRequestss.size());
-        for(ArrayList<OneTimeWorkRequest> workRequests: workRequestss){
-            RemoteWorkContinuation remoteWorkContinuation = remoteWorkManager.beginWith(workRequests.subList(0, 2)).then(workRequests.get(2)).then(workRequests.get(3));
+        IntStream.range(0, this.getExecutorWorkRequests(context).size()).forEach(i -> {
+            List<OneTimeWorkRequest> executorAndMonitor = new ArrayList<>();
+            executorAndMonitor.add(this.getExecutorWorkRequests(context).get(i));
+            executorAndMonitor.add(this.getMonitorWorkRequests(context).get(i));
+            RemoteWorkContinuation remoteWorkContinuation = remoteWorkManager
+                    .beginWith(executorAndMonitor)
+                    .then(List.of(this.getToLineProtocolWorkRequests(context).get(i)))
+                    .then(List.of(this.getUploadWorkRequests(context).get(i)));
             continuations.add(remoteWorkContinuation);
-        }
+        });
+
+
+
         Log.d(TAG, "enableSequence: continuations size: "+continuations.size());
     }
 

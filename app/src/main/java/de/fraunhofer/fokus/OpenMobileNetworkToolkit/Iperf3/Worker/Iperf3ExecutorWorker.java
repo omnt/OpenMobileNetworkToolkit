@@ -63,6 +63,7 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
 
     private Iperf3ResultsDataBase db;
     private Iperf3RunResultDao iperf3RunResultDao;
+    private Data.Builder dataBuilder = new Data.Builder();
 
     public Iperf3ExecutorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -81,6 +82,10 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
         nm = context.getSystemService(NotificationManager.class);
         setupNotificationChannel();
         setupNotificationBuilder(context);
+        dataBuilder.putString("testUUID", iperf3Input.getTestUUID())
+                .putString("measurementUUID", iperf3Input.getMeasurementUUID())
+                .putString("sequenceUUID", iperf3Input.getSequenceUUID())
+                .putString("campaignUUID", iperf3Input.getCampaignUUID());
     }
 
     private void setupNotificationChannel() {
@@ -130,7 +135,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
                 logFile.createNewFile();
             } catch (Exception e) {
                 Log.e(TAG, "startRemoteWork: " + e);
-                return completer.set(Result.failure());
+                dataBuilder.putString("exception", "Logfile could not be created");
+                return completer.set(Result.failure(dataBuilder.build()));
             }
 
             RemoteViews notificationLayout = new RemoteViews(
@@ -153,16 +159,13 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
 
             iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), result);
 
-            Data.Builder output = new Data.Builder()
-                    .putInt("result", result)
-                    .putString("testUUID", iperf3Input.getTestUUID());
-
+            dataBuilder.putInt("result", result);
             if (result == 0) {
                 Log.d(TAG, "startRemoteWork: iperf3Wrapper: success");
-                return completer.set(Result.success(output.build()));
+                return completer.set(Result.success(dataBuilder.build()));
             } else {
                 Log.d(TAG, "startRemoteWork: iperf3Wrapper: failure");
-                return completer.set(Result.failure(output.build()));
+                return completer.set(Result.failure(dataBuilder.build()));
             }
         });
     }

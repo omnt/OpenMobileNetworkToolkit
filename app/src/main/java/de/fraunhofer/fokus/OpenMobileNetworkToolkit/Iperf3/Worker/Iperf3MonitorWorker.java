@@ -91,6 +91,9 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     private MetricCalculator metricCalculatorUL;
     private MetricCalculator metricCalculatorDL;
 
+    private Data.Builder dataBuilder = new Data.Builder();
+
+
     public Iperf3MonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         this.context = context;
@@ -127,6 +130,10 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
         this.pathToFile = iperf3Input.getParameter().getRawLogFilePath();
         this.file = new File(this.pathToFile);
         Log.d(TAG, "Iperf3MonitorWorker: pathToFile: " + this.pathToFile);
+        dataBuilder.putString("testUUID", iperf3Input.getTestUUID())
+                .putString("measurementUUID", iperf3Input.getMeasurementUUID())
+                .putString("sequenceUUID", iperf3Input.getSequenceUUID())
+                .putString("campaignUUID", iperf3Input.getCampaignUUID());
     }
 
     private void setupNotificationChannel() {
@@ -204,7 +211,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                             Log.d(TAG, "run: parsing event failed");
                             break;
                         }
-
+                        Log.d(TAG, "startRemoteWork: following event: "+event);
                         switch (event) {
                             case "interval":
                                 handleIntervalEvent(obj);
@@ -214,7 +221,9 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                 break;
                             case "error":
                                 handleErrorEvent(obj);
-                                return completer.set(Result.success());
+                                dataBuilder.putString("error", iperf3RunResultDao.getError(iperf3Input.getTestUUID()).toString());
+
+                                return completer.set(Result.failure(dataBuilder.build()));
                             case "end":
                                 Log.d(TAG, "parse: End");
                                 break;
@@ -228,11 +237,12 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                 } catch (Exception e) {
                     Log.d(TAG, "run: error reading file: " + e);
                     cleaupNotification();
-                    return completer.set(Result.failure());
+                    dataBuilder.putString("exception", e.toString());
+                    return completer.set(Result.failure(dataBuilder.build()));
                 }
             }
             cleaupNotification();
-            return completer.set(Result.success());
+            return completer.set(Result.success(dataBuilder.build()));
         });
     }
 
@@ -240,7 +250,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
         try {
             Start start = new Start();
             start.parseStart(obj.getJSONObject("data"));
-            setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
+            setProgressAsync(dataBuilder.putString("start", start.toString()).build());
             iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), start.toString());
         } catch (Exception e) {
             Log.e(TAG, "parse: Start event failed", e);
@@ -282,7 +292,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
             iperf3RunResultDao.updateMetricDL(iperf3Input.getTestUUID(), metricCalculatorDL);
             iperf3RunResultDao.updateMetricUL(iperf3Input.getTestUUID(), metricCalculatorUL);
 
-            setProgressAsync(new Data.Builder().putString("interval", interval.toString()).build());
+            setProgressAsync(dataBuilder.putString("interval", interval.toString()).build());
             updateNotification(notificationLayout);
 
             Intervals intervals = iperf3RunResultDao.getIntervals(iperf3Input.getTestUUID());
@@ -301,7 +311,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
             String errorString = obj.getString("data");
             error.parse(errorString);
             Log.d(TAG, "startRemoteWork: got error! " + error);
-            setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
+            setProgressAsync(dataBuilder.putString("error", error.toString()).build());
             iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
             iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -1);
         } catch (Exception e) {
