@@ -176,6 +176,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
             try {
+                Thread.sleep(2000);
                 br = new BufferedReader(new FileReader(file));
                 br.ready();
             } catch (IOException ex) {
@@ -194,6 +195,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
 
                 try {
                     String line;
+
                     while ((line = br.readLine()) != null) {
                         JSONObject obj;
                         try {

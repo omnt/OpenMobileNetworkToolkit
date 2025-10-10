@@ -97,6 +97,24 @@ public class Iperf3Parameter extends Parameter {
     public Iperf3Parameter(String rootPath, String testUUID){
         this(rootPath, new JSONObject(), testUUID);
     }
+
+    public void setDirectionFlags() {
+        switch (this.direction) {
+            case UP:
+                this.reverse = false;
+                this.bidir = false;
+                break;
+            case DOWN:
+                this.reverse = true;
+                this.bidir = false;
+                break;
+            case BIDIR:
+                this.bidir = true;
+                this.reverse = false;
+                break;
+        }
+    }
+
     public Iperf3Parameter(String rootPath, JSONObject jsonObject, String testUUID) {
 
         super(ParameterType.IPERF3,
@@ -151,6 +169,8 @@ public class Iperf3Parameter extends Parameter {
             String direction = jsonObject.getString(DIRECTION);
             Log.d(TAG, "Iperf3Parameter: direction: "+direction);
             this.direction = Iperf3Direction.valueOf(direction.toUpperCase().trim());
+            setDirectionFlags();
+
         } catch (JSONException e) {
             this.direction = Iperf3Direction.UP;
             Log.d(TAG, "direction not set.");
@@ -1336,11 +1356,9 @@ public class Iperf3Parameter extends Parameter {
         if (direction != null) {
             switch (direction) {
                 case DOWN:
-                    setReverse(true);
                     command.add("--reverse");
                     break;
                 case BIDIR:
-                    setBidir(true);
                     command.add("--bidir");
                     break;
                 default:

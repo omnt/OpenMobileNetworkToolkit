@@ -70,7 +70,8 @@ public class Inputs {
         return measurementUUID;
     }
 
-    public Inputs(String campaignUUID, String sequenceUUID, String measurementUUID, String testUUID, Parameter parameter) {
+
+    public Inputs(String testUUID, String sequenceUUID, String measurementUUID, String campaignUUID, Parameter parameter) {
         this.timestamp = new Timestamp(System.currentTimeMillis());
         this.campaignUUID = campaignUUID;
         this.sequenceUUID = sequenceUUID;

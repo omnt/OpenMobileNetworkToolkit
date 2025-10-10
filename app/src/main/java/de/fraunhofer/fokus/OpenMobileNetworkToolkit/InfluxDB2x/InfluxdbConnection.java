@@ -60,12 +60,12 @@ public class InfluxdbConnection {
         try {
             //influxDBClient = InfluxDBClientFactory.create(url, this.token, org, bucket);
             writeApi = influxDBClient.makeWriteApi(WriteOptions.builder()
-                .batchSize(1000)
+                .batchSize(2000)
                 .flushInterval(1000)
                 .backpressureStrategy(BackpressureOverflowStrategy.DROP_OLDEST)
                 .bufferLimit(100000)
-                .jitterInterval(500)
-                .retryInterval(500)
+                .jitterInterval(100)
+                .retryInterval(2000)
                 .exponentialBase(4)
                 .build());
             writeApi.listenEvents(BackpressureEvent.class, value -> Log.d(TAG, "open_write_api: Could not write to InfluxDBv2 due to backpressure"));

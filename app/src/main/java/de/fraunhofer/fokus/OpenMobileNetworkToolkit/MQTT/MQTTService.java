@@ -644,6 +644,7 @@ public class MQTTService extends LifecycleService {
                 addIfPresent(data, map, "campaignUUID");
                 addIfPresent(data, map, "exception");
                 addIfPresent(data, map, "type");
+                addIfPresent(data, map, "result");
 
                 publishToTopic("device/" + deviceName + "/campaign/status/" + statusTopicSuffix, new JSONObject(map).toString(), false);
             }
