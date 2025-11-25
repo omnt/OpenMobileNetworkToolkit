@@ -77,8 +77,8 @@ public class Iperf3ExecutorWorker extends RemoteListenableWorker {
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
             Log.d(TAG, "startRemoteWork: tags: "+this.getTags());
-            File logFile = new File(iperf3Input.getParameter().getLogfile());
-            File rawPath = new File(Iperf3Parameter.rawDirPath);
+            File logFile = new File(iperf3Input.getParameter().getRawLogFilePath());
+            File rawPath = new File(iperf3Input.getParameter().getRawDirPath());
 
             if(!rawPath.exists()) {
                 rawPath.mkdirs();

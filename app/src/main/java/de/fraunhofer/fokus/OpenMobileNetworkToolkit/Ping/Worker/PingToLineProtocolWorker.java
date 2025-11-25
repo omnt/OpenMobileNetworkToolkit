@@ -54,10 +54,10 @@ public class PingToLineProtocolWorker extends Worker {
         pingInput = gson.fromJson(iperf3InputString, PingInput.class);
         spg = SharedPreferencesGrouper.getInstance(getApplicationContext());
 
-        File lineProtocolDirPath = new File(PingParameter.lineProtocolDirPath);
+        File lineProtocolDirPath = new File(pingInput.getParameter().getLineProtocolDirPath());
         if(!lineProtocolDirPath.exists()){
             if(!lineProtocolDirPath.mkdirs()){
-                Log.e(TAG, "Error creating lineProtocolDirPath directory: " + PingParameter.lineProtocolDirPath);
+                Log.e(TAG, "Error creating lineProtocolDirPath directory: " + pingInput.getParameter().getLineProtocolDirPath());
             }
         }
     }
@@ -81,7 +81,7 @@ public class PingToLineProtocolWorker extends Worker {
     @Override
     public Result doWork() {
         Data.Builder output = new Data.Builder().putBoolean("pingUpload", false);
-        File myObj = new File(pingInput.getPingParameter().getLogfile());
+        File myObj = new File(pingInput.getPingParameter().getLineProtocolFilePath());
         Scanner scanner = null;
         try {
             scanner = new Scanner(myObj);
@@ -112,7 +112,7 @@ public class PingToLineProtocolWorker extends Worker {
             pingInformations.add(pi);
         }
         scanner.close();
-        File lineprotocolfile = new File(pingInput.getPingParameter().getLineProtocolFile());
+        File lineprotocolfile = new File(pingInput.getPingParameter().getLineProtocolFilePath());
         if(lineprotocolfile.exists()){
             lineprotocolfile.delete();
             try {
@@ -124,7 +124,7 @@ public class PingToLineProtocolWorker extends Worker {
         }
         FileOutputStream pingStream = null;
         try {
-            pingStream = new FileOutputStream(pingInput.getPingParameter().getLineProtocolFile(), true);
+            pingStream = new FileOutputStream(pingInput.getPingParameter().getLineProtocolFilePath(), true);
         } catch (FileNotFoundException e) {
             Log.d(TAG, "doWork: " + e.toString());
             Log.e(TAG, "doWork: Could not create FileOutputStream");

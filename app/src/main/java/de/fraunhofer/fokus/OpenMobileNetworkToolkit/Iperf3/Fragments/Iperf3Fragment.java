@@ -311,8 +311,8 @@ public class Iperf3Fragment extends Fragment {
                 iperf3Input.getParameter().updatePaths();
                 iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
-                File logFile = new File(iperf3Input.getParameter().getLogfile());
-                File rawPath = new File(Iperf3Parameter.rawDirPath);
+                File logFile = new File(iperf3Input.getParameter().getRawLogFilePath());
+                File rawPath = new File(iperf3Input.getParameter().getRawDirPath());
 
                 if(!rawPath.exists()) {
                     rawPath.mkdirs();

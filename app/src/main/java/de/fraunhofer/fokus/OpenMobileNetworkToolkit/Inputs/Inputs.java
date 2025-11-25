@@ -115,7 +115,6 @@ public class Inputs implements Parcelable {
         dest.writeString(sequenceUUID);
         dest.writeString(measurementUUID);
         dest.writeString(testUUID);
-        dest.writeParcelable(parameter, flags);
     }
 
     public Data.Builder getInputAsDataBuilder(int i, String packageName) {
