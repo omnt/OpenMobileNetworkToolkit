@@ -12,53 +12,64 @@ import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Parameter implements Parcelable {
-    public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-    private String lineProtocolFile;
-    private String logfile;
+public class Parameter {
+    private ParameterType parameterType;
+    public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/omnt";
+    private String rawDirPath;
+    private String lineProtocolDirPath;
+    private String lineProtocolFilePath;
+    private String rawLogFilePath;
     protected Parameter(Parcel in) {
-        lineProtocolFile = in.readString();
-        logfile = in.readString();
+        lineProtocolFilePath = in.readString();
+        rawLogFilePath = in.readString();
     }
 
-    public Parameter(String logfile, String lineProtocolFile) {
-        this.logfile = logfile;
-        this.lineProtocolFile = lineProtocolFile;
+    public Parameter(ParameterType type,
+                     String testUUID) {
+        this.parameterType = type;
+        this.rawDirPath = rootPath + "/" + this.parameterType.toString().toLowerCase() + "/raw";
+        this.lineProtocolDirPath = rootPath + "/" + this.parameterType.toString().toLowerCase() + "/lineprotocol";
+        this.rawLogFilePath = this.rawDirPath + "/" + testUUID + ".log";
+        this.lineProtocolFilePath = this.lineProtocolDirPath + "/" + testUUID + ".lp";
     }
 
-    public static final Creator<Parameter> CREATOR = new Creator<Parameter>() {
-        @Override
-        public Parameter createFromParcel(Parcel in) {
-            return new Parameter(in);
-        }
-
-        @Override
-        public Parameter[] newArray(int size) {
-            return new Parameter[size];
-        }
-    };
-
-    public String getLineProtocolFile() {
-        return lineProtocolFile;
+    public ParameterType getParameterType() {
+        return parameterType;
     }
 
-    public String getLogfile() {
-        return logfile;
+    public String getRootPath() {
+        return rootPath;
     }
 
-    public int describeContents() {
-        return 0;
+    public String getRawDirPath() {
+        return rawDirPath;
     }
 
-    public void writeToParcel(android.os.Parcel dest, int flags) {
-        dest.writeString(lineProtocolFile);
-        dest.writeString(logfile);
-    }
-    public void setLineProtocolFile(String lineProtocolFile) {
-        this.lineProtocolFile = lineProtocolFile;
+    public void setRawDirPath(String rawDirPath) {
+        this.rawDirPath = rawDirPath;
     }
 
-    public void setLogfile(String logfile) {
-        this.logfile = logfile;
+    public String getLineProtocolDirPath() {
+        return lineProtocolDirPath;
+    }
+
+    public void setLineProtocolDirPath(String lineProtocolDirPath) {
+        this.lineProtocolDirPath = lineProtocolDirPath;
+    }
+
+    public String getLineProtocolFilePath() {
+        return lineProtocolFilePath;
+    }
+
+    public void setLineProtocolFilePath(String lineProtocolFilePath) {
+        this.lineProtocolFilePath = lineProtocolFilePath;
+    }
+
+    public String getRawLogFilePath() {
+        return rawLogFilePath;
+    }
+
+    public void setRawLogFilePath(String rawLogFilePath) {
+        this.rawLogFilePath = rawLogFilePath;
     }
 }

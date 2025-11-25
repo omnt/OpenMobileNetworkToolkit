@@ -8,9 +8,7 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter;
 
-import android.os.Environment;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -24,8 +22,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Iperf3Parameter extends Parameter {
-    public static final String rawDirPath = rootPath+"/omnt/iperf3/raw/";
-    public static final String lineProtocolDirPath = rootPath+"/omnt/iperf3/lineprotocol/";
+
     public static final String HOST = "host";
     public static final String PORT = "port";
     public static final String BITRATE = "bitrate";
@@ -66,7 +63,6 @@ public class Iperf3Parameter extends Parameter {
     public static final String RSAPRIVATEKEYPATH = "rsaPrivateKeyPath";
     public static final String IDLETIMEOUT = "idleTimeout";
     public static final String SERVERBITRATELIMIT = "serverBitrateLimit";
-
     public static final String SERVER = "server";
     public static final String CLIENT = "client";
     public static final String DAEMON = "daemon";
@@ -94,332 +90,35 @@ public class Iperf3Parameter extends Parameter {
 
     private static final String TAG = "Iperf3Parameter";
 
-
-    protected Iperf3Parameter(Parcel in) {
-        super(in);
-        host = in.readString();
-        iPerf3UUID = in.readString();
-        port = in.readInt();
-        interval = in.readDouble();
-        bitrate = in.readString();
-        length = in.readInt();
-        pidfile = in.readString();
-        file = in.readString();
-        affinity = in.readString();
-        bind = in.readString();
-        bindDev = in.readString();
-        byte tmpVerbose = in.readByte();
-        verbose = tmpVerbose == 0 ? null : tmpVerbose == 1;
-        byte tmpJson = in.readByte();
-        json = tmpJson == 0 ? null : tmpJson == 1;
-        byte tmpJsonStream = in.readByte();
-        jsonStream = tmpJsonStream == 0 ? null : tmpJsonStream == 1;
-        byte tmpForceflush = in.readByte();
-        forceflush = tmpForceflush == 0 ? null : tmpForceflush == 1;
-        timestamps = in.readString();
-        if (in.readByte() == 0) {
-            rcvTimeout = null;
-        } else {
-            rcvTimeout = in.readInt();
-        }
-        if (in.readByte() == 0) {
-            sndTimeout = null;
-        } else {
-            sndTimeout = in.readInt();
-        }
-        if (in.readByte() == 0) {
-            debug = null;
-        } else {
-            debug = in.readInt();
-        }
-        byte tmpVersion = in.readByte();
-        version = tmpVersion == 0 ? null : tmpVersion == 1;
-        byte tmpHelp = in.readByte();
-        help = tmpHelp == 0 ? null : tmpHelp == 1;
-        byte tmpDaemon = in.readByte();
-        daemon = tmpDaemon == 0 ? null : tmpDaemon == 1;
-        byte tmpOneOff = in.readByte();
-        oneOff = tmpOneOff == 0 ? null : tmpOneOff == 1;
-        serverBitrateLimit = in.readString();
-        if (in.readByte() == 0) {
-            idleTimeout = null;
-        } else {
-            idleTimeout = in.readInt();
-        }
-        rsaPrivateKeyPath = in.readString();
-        authorizedUsersPath = in.readString();
-        if (in.readByte() == 0) {
-            timeSkewThreshold = null;
-        } else {
-            timeSkewThreshold = in.readInt();
-        }
-        byte tmpUsePkcs1Padding = in.readByte();
-        usePkcs1Padding = tmpUsePkcs1Padding == 0 ? null : tmpUsePkcs1Padding == 1;
-        byte tmpSctp = in.readByte();
-        sctp = tmpSctp == 0 ? null : tmpSctp == 1;
-        xbind = in.readString();
-        if (in.readByte() == 0) {
-            nstreams = null;
-        } else {
-            nstreams = in.readInt();
-        }
-        if (in.readByte() == 0) {
-            connectTimeout = null;
-        } else {
-            connectTimeout = in.readInt();
-        }
-        pacingTimer = in.readString();
-        fqRate = in.readString();
-        if (in.readByte() == 0) {
-            time = null;
-        } else {
-            time = in.readInt();
-        }
-        bytes = in.readString();
-        blockcount = in.readString();
-        if (in.readByte() == 0) {
-            cport = null;
-        } else {
-            cport = in.readInt();
-        }
-        if (in.readByte() == 0) {
-            parallel = null;
-        } else {
-            parallel = in.readInt();
-        }
-        byte tmpReverse = in.readByte();
-        reverse = tmpReverse == 0 ? null : tmpReverse == 1;
-        byte tmpBidir = in.readByte();
-        bidir = tmpBidir == 0 ? null : tmpBidir == 1;
-        window = in.readString();
-        congestion = in.readString();
-        if (in.readByte() == 0) {
-            setMss = null;
-        } else {
-            setMss = in.readInt();
-        }
-        byte tmpNoDelay = in.readByte();
-        noDelay = tmpNoDelay == 0 ? null : tmpNoDelay == 1;
-        byte tmpVersion4 = in.readByte();
-        version4 = tmpVersion4 == 0 ? null : tmpVersion4 == 1;
-        byte tmpVersion6 = in.readByte();
-        version6 = tmpVersion6 == 0 ? null : tmpVersion6 == 1;
-        if (in.readByte() == 0) {
-            tos = null;
-        } else {
-            tos = in.readInt();
-        }
-        dscp = in.readString();
-        if (in.readByte() == 0) {
-            flowlabel = null;
-        } else {
-            flowlabel = in.readInt();
-        }
-        byte tmpZerocopy = in.readByte();
-        zerocopy = tmpZerocopy == 0 ? null : tmpZerocopy == 1;
-        if (in.readByte() == 0) {
-            omit = null;
-        } else {
-            omit = in.readInt();
-        }
-        title = in.readString();
-        extraData = in.readString();
-        byte tmpGetServerOutput = in.readByte();
-        getServerOutput = tmpGetServerOutput == 0 ? null : tmpGetServerOutput == 1;
-        byte tmpUdpCounters64bit = in.readByte();
-        udpCounters64bit = tmpUdpCounters64bit == 0 ? null : tmpUdpCounters64bit == 1;
-        byte tmpRepeatingPayload = in.readByte();
-        repeatingPayload = tmpRepeatingPayload == 0 ? null : tmpRepeatingPayload == 1;
-        byte tmpDontFragment = in.readByte();
-        dontFragment = tmpDontFragment == 0 ? null : tmpDontFragment == 1;
-        username = in.readString();
-        rsaPublicKeyPath = in.readString();
-    }
-
-    public static final Creator<Iperf3Parameter> CREATOR = new Creator<Iperf3Parameter>() {
-        @Override
-        public Iperf3Parameter createFromParcel(Parcel in) {
-            return new Iperf3Parameter(in);
-        }
-
-        @Override
-        public Iperf3Parameter[] newArray(int size) {
-            return new Iperf3Parameter[size];
-        }
-    };
-
-    public Iperf3Parameter(String ip,
-                           int port,
-                           String bitrate,
-                           int duration,
-                           double interval,
-                           String bytes,
-                           int streams,
-                           int cport,
-                           String testUUID,
-                           Iperf3Mode mode,
-                           Iperf3Protocol protocol,
-                           Iperf3Direction direction
-                           ) {
-
-        super(rawDirPath+testUUID+".txt", lineProtocolDirPath+testUUID+".txt");
-        this.testUUID = testUUID;
-        this.host = ip;
-        this.port = port;
-        this.bitrate = bitrate;
-        this.time = duration;
-        this.interval = interval;
-        this.bytes = bytes;
-        this.nstreams = streams;
-        this.cport = cport;
-        this.mode = mode;
-        this.direction = direction;
-        this.protocol = protocol;
-
-    }
-
-    public Iperf3Parameter(String iPerf3UUID){
-        super(rawDirPath+iPerf3UUID+".txt", lineProtocolDirPath+iPerf3UUID+".txt");
-    }
-    public Iperf3Parameter(String ip,
-                           String iPerf3UUID,
-                           Iperf3Protocol protocol,
-                           int port,
-                           double interval,
-                           String bitrate,
-                           int length,
-                           Iperf3Mode mode,
-                           Iperf3Direction direction,
-                           String pidfile,
-                           String file,
-                           String affinity,
-                           String bind,
-                           String bindDev,
-                           Boolean verbose,
-                           Boolean json,
-                           Boolean jsonStream,
-                           String logfile,
-                           Boolean forceflush,
-                           String timestamps,
-                           Integer rcvTimeout,
-                           Integer sndTimeout,
-                           Integer debug,
-                           Boolean version,
-                           Boolean help,
-                           Boolean daemon,
-                           Boolean oneOff,
-                           String serverBitrateLimit,
-                           Integer idleTimeout,
-                           String rsaPrivateKeyPath,
-                           String authorizedUsersPath,
-                           Integer timeSkewThreshold,
-                           Boolean usePkcs1Padding,
-                           Boolean sctp,
-                           String xbind,
-                           Integer nstreams,
-                           Integer connectTimeout,
-                           String pacingTimer,
-                           String fqRate,
-                           Integer time,
-                           String bytes,
-                           String blockcount,
-                           Integer cport,
-                           Integer parallel,
-                           Boolean reverse,
-                           Boolean bidir,
-                           String window,
-                           String congestion,
-                           Integer setMss,
-                           Boolean noDelay,
-                           Boolean version4,
-                           Boolean version6,
-                           Integer tos,
-                           String dscp,
-                           Integer flowlabel,
-                           Boolean zerocopy,
-                           Integer omit,
-                           String title,
-                           String extraData,
-                           Boolean getServerOutput,
-                           Boolean udpCounters64bit,
-                           Boolean repeatingPayload,
-                           Boolean dontFragment,
-                           String username,
-                           String rsaPublicKeyPath) {
-        super(rawDirPath+iPerf3UUID+".txt", lineProtocolDirPath+iPerf3UUID+".txt");
-        this.host = ip;
-        this.iPerf3UUID = iPerf3UUID;
-        this.protocol = protocol;
-        this.port = port;
-        this.interval = interval;
-        this.bitrate = bitrate;
-        this.length = length;
-        this.mode = mode;
-        this.direction = direction;
-        this.pidfile = pidfile;
-        this.file = file;
-        this.affinity = affinity;
-        this.bind = bind;
-        this.bindDev = bindDev;
-        this.verbose = verbose;
-        this.json = json;
-        this.jsonStream = jsonStream;
-        this.forceflush = forceflush;
-        this.timestamps = timestamps;
-        this.rcvTimeout = rcvTimeout;
-        this.sndTimeout = sndTimeout;
-        this.debug = debug;
-        this.version = version;
-        this.help = help;
-        this.daemon = daemon;
-        this.oneOff = oneOff;
-        this.serverBitrateLimit = serverBitrateLimit;
-        this.idleTimeout = idleTimeout;
-        this.rsaPrivateKeyPath = rsaPrivateKeyPath;
-        this.authorizedUsersPath = authorizedUsersPath;
-        this.timeSkewThreshold = timeSkewThreshold;
-        this.usePkcs1Padding = usePkcs1Padding;
-        this.sctp = sctp;
-        this.xbind = xbind;
-        this.nstreams = nstreams;
-        this.connectTimeout = connectTimeout;
-        this.pacingTimer = pacingTimer;
-        this.fqRate = fqRate;
-        this.time = time;
-        this.bytes = bytes;
-        this.blockcount = blockcount;
-        this.cport = cport;
-        this.parallel = parallel;
-        this.reverse = reverse;
-        this.bidir = bidir;
-        this.window = window;
-        this.congestion = congestion;
-        this.setMss = setMss;
-        this.noDelay = noDelay;
-        this.version4 = version4;
-        this.version6 = version6;
-        this.tos = tos;
-        this.dscp = dscp;
-        this.flowlabel = flowlabel;
-        this.zerocopy = zerocopy;
-        this.omit = omit;
-        this.title = title;
-        this.extraData = extraData;
-        this.getServerOutput = getServerOutput;
-        this.udpCounters64bit = udpCounters64bit;
-        this.repeatingPayload = repeatingPayload;
-        this.dontFragment = dontFragment;
-        this.username = username;
-        this.rsaPublicKeyPath = rsaPublicKeyPath;
-    }
-
     public void updatePaths(){
-        super.setLogfile(rawDirPath+testUUID+".txt");
-        super.setLineProtocolFile(lineProtocolDirPath+testUUID+".txt");
+        super.setRawLogFilePath(super.getRawDirPath()+"/"+testUUID+".json");
+        super.setLineProtocolFilePath(super.getLineProtocolDirPath()+"/"+testUUID+".lp");
     }
-    public Iperf3Parameter(JSONObject jsonObject, String testUUID) {
-        super(rawDirPath+testUUID+".txt", lineProtocolDirPath+testUUID+".txt");
+    public Iperf3Parameter(String testUUID){
+        this(new JSONObject(), testUUID);
+    }
 
+    public void setDirectionFlags() {
+        switch (this.direction) {
+            case UP:
+                this.reverse = false;
+                this.bidir = false;
+                break;
+            case DOWN:
+                this.reverse = true;
+                this.bidir = false;
+                break;
+            case BIDIR:
+                this.bidir = true;
+                this.reverse = false;
+                break;
+        }
+    }
+
+    public Iperf3Parameter(JSONObject jsonObject, String testUUID) {
+
+        super(ParameterType.IPERF3,
+                testUUID);
         this.testUUID = testUUID;
         this.jsonStream = true;
 
@@ -469,6 +168,8 @@ public class Iperf3Parameter extends Parameter {
             String direction = jsonObject.getString(DIRECTION);
             Log.d(TAG, "Iperf3Parameter: direction: "+direction);
             this.direction = Iperf3Direction.valueOf(direction.toUpperCase().trim());
+            setDirectionFlags();
+
         } catch (JSONException e) {
             this.direction = Iperf3Direction.UP;
             Log.d(TAG, "direction not set.");
@@ -755,83 +456,11 @@ public class Iperf3Parameter extends Parameter {
             Log.d(TAG, "title not set.");
         }
         try {
-            Files.createDirectories(Paths.get(rawDirPath));
-            Files.createDirectories(Paths.get(lineProtocolDirPath));
+            Files.createDirectories(Paths.get(super.getRawDirPath()));
+            Files.createDirectories(Paths.get(super.getLineProtocolDirPath()));
         } catch (IOException e) {
             Log.d(TAG, "Could not create directories.");
         }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeString(host);
-        dest.writeString(iPerf3UUID);
-        dest.writeInt(port);
-        dest.writeDouble(interval);
-        dest.writeString(bitrate);
-        dest.writeInt(length);
-        dest.writeString(mode.name());
-        dest.writeString(direction.name());
-        dest.writeString(pidfile);
-        dest.writeString(file);
-        dest.writeString(affinity);
-        dest.writeString(bind);
-        dest.writeString(bindDev);
-        dest.writeBoolean(verbose);
-        dest.writeBoolean(json);
-        dest.writeBoolean(jsonStream);
-        dest.writeBoolean(forceflush);
-        dest.writeString(timestamps);
-        dest.writeInt(rcvTimeout);
-        dest.writeInt(sndTimeout);
-        dest.writeInt(debug);
-        dest.writeBoolean(version);
-        dest.writeBoolean(help);
-        dest.writeBoolean(daemon);
-        dest.writeBoolean(oneOff);
-        dest.writeString(serverBitrateLimit);
-        dest.writeInt(idleTimeout);
-        dest.writeString(rsaPrivateKeyPath);
-        dest.writeString(authorizedUsersPath);
-        dest.writeInt(timeSkewThreshold);
-        dest.writeBoolean(usePkcs1Padding);
-        dest.writeBoolean(sctp);
-        dest.writeString(xbind);
-        dest.writeInt(nstreams);
-        dest.writeInt(connectTimeout);
-        dest.writeString(pacingTimer);
-        dest.writeString(fqRate);
-        dest.writeInt(time);
-        dest.writeString(bytes);
-        dest.writeString(blockcount);
-        dest.writeInt(cport);
-        dest.writeInt(parallel);
-        dest.writeBoolean(reverse);
-        dest.writeBoolean(bidir);
-        dest.writeString(window);
-        dest.writeString(congestion);
-        dest.writeInt(setMss);
-        dest.writeBoolean(noDelay);
-        dest.writeBoolean(version4);
-        dest.writeBoolean(version6);
-        dest.writeInt(tos);
-        dest.writeString(dscp);
-        dest.writeInt(flowlabel);
-        dest.writeBoolean(zerocopy);
-        dest.writeInt(omit);
-        dest.writeString(title);
-        dest.writeString(extraData);
-        dest.writeBoolean(getServerOutput);
-        dest.writeBoolean(udpCounters64bit);
-        dest.writeBoolean(repeatingPayload);
-        dest.writeBoolean(dontFragment);
-        dest.writeString(username);
-        dest.writeString(rsaPublicKeyPath);
     }
 
     public String getHost() {
@@ -1810,7 +1439,7 @@ public class Iperf3Parameter extends Parameter {
         command.add("--json-stream");
         command.add("--forceflush");
         command.add("--logfile");
-        command.add(super.getLogfile());
+        command.add(super.getRawLogFilePath());
 
 
 

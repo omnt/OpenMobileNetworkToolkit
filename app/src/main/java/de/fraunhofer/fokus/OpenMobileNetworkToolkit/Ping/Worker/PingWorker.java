@@ -85,10 +85,10 @@ public class PingWorker extends Worker {
         notificationManager = (NotificationManager) ct.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationBuilder = new NotificationCompat.Builder(ct, channelId);
 
-        File rawPath = new File(PingParameter.rawDirPath);
+        File rawPath = new File(pingInput.getParameter().getRawDirPath());
         if(!rawPath.exists()){
             if(!rawPath.mkdirs()){
-                Log.e(TAG, "Error creating rawDirPath directory: " + PingParameter.rawDirPath);
+                Log.e(TAG, "Error creating rawDirPath directory: " + pingInput.getParameter().getRawDirPath());
             }
         }
 
@@ -154,7 +154,7 @@ public class PingWorker extends Worker {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            FileOutputStream pingStream = new FileOutputStream(pingInput.getPingParameter().getLogfile(), true);
+            FileOutputStream pingStream = new FileOutputStream(pingInput.getPingParameter().getRawLogFilePath(), true);
             PingParser pingParser = new PingParser();
             String line;
 

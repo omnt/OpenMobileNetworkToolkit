@@ -65,17 +65,17 @@ public class InfluxDB2xUploadWorker extends Worker {
         }
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader(input.getParameter().getLineProtocolFile()));
+            br = new BufferedReader(new FileReader(input.getParameter().getLineProtocolFilePath()));
         } catch (FileNotFoundException | NullPointerException e) {
             Log.d(TAG,e.toString());
             return Result.failure(output);
         }
         List<String> points = br.lines().collect(Collectors.toList());
         try {
-            Log.d(TAG, String.format("doWork: uploading %s", input.getParameter().getLineProtocolFile()));
+            Log.d(TAG, String.format("doWork: uploading %s", input.getParameter().getLineProtocolFilePath()));
             influx.writeRecords(points);
         } catch (IOException e) {
-            Log.d(TAG, String.format("doWork: upload of %s failed!", input.getParameter().getLineProtocolFile()));
+            Log.d(TAG, String.format("doWork: upload of %s failed!", input.getParameter().getLineProtocolFilePath()));
             return Result.failure(output);
         }
 

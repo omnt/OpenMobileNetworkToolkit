@@ -63,7 +63,7 @@ public class Iperf3Handler extends Handler {
 
             Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3Input.getTestUUID(), -100, false, iperf3Input, new java.sql.Timestamp(System.currentTimeMillis()));
             iperf3RunResultDao.insert(iperf3RunResult);
-            File logFile = new File(iperf3Input.getParameter().getLogfile());
+            File logFile = new File(iperf3Input.getParameter().getRawLogFilePath());
             if(logFile.exists()) {
                 logFile.delete();
             }

@@ -48,7 +48,7 @@ public class PingHandler extends Handler {
             PingParameter pingParameter = new PingParameter(params, testUUID);
             if(pingParameter == null) continue;
             PingInput pingInput = new PingInput(pingParameter, testUUID, sequenceUUID, measurementUUUID,campaignUUID);
-            File logFile = new File(pingInput.getParameter().getLogfile());
+            File logFile = new File(pingInput.getParameter().getLineProtocolFilePath());
             if(logFile.exists()) {
                 logFile.delete();
             }

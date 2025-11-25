@@ -111,7 +111,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
         notificationLayout.setViewVisibility(R.id.notification_direction, GONE);
         setForegroundAsync(createForegroundInfo(notificationLayout));
 
-        this.pathToFile = iperf3Input.getParameter().getLogfile();
+        this.pathToFile = iperf3Input.getParameter().getRawLogFilePath();
         Log.d(TAG, "Iperf3MonitorWorker: pathToFile: "+this.pathToFile);
         this.file = new File(this.pathToFile);
     }
