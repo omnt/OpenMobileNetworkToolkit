@@ -295,7 +295,7 @@ public class Iperf3Fragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_iperf3_input, container, false);
         // Initialize the TextView
         String iperf3UUID = UUID.randomUUID().toString();
-        Iperf3Parameter iperf3Parameter = new Iperf3Parameter(getContext().getFilesDir().getAbsolutePath(), iperf3UUID);
+        Iperf3Parameter iperf3Parameter = new Iperf3Parameter(iperf3UUID);
         iperf3Input = new Iperf3Input(iperf3Parameter, "");
         sendBtn = view.findViewById(R.id.iperf3_send);
         spg = SharedPreferencesGrouper.getInstance(ct);

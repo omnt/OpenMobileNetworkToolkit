@@ -105,9 +105,8 @@ public class PingParameter extends Parameter {
         }
 
     }
-    public PingParameter(String rootPath, String stringParameter, String  testUUID) {
+    public PingParameter(String stringParameter, String  testUUID) {
         super(ParameterType.PING,
-                rootPath,
                 testUUID);
         this.testUUID = testUUID;
         String[] parts = stringParameter.split(" ");
@@ -134,9 +133,8 @@ public class PingParameter extends Parameter {
         }
     }
 
-    public PingParameter(String rootPath,JSONObject parameter, String  testUUID) {
+    public PingParameter(JSONObject parameter, String  testUUID) {
         super(ParameterType.PING,
-                rootPath,
                 testUUID);
         this.testUUID = testUUID;
         try {

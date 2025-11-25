@@ -59,7 +59,7 @@ public class PingService extends Service {
     private void startWorker(String command) {
         String uuid = UUID.randomUUID().toString();
 
-        PingParameter pingParameter = new PingParameter(this.context.getFilesDir().getAbsolutePath(), command, uuid);
+        PingParameter pingParameter = new PingParameter(command, uuid);
         PingInput pingInput = new PingInput(pingParameter, uuid);
         String gson = new Gson().toJson(pingInput, PingInput.class);
         Data data = new Data.Builder()

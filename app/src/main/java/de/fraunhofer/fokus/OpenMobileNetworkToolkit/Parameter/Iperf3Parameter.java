@@ -94,8 +94,8 @@ public class Iperf3Parameter extends Parameter {
         super.setRawLogFilePath(super.getRawDirPath()+"/"+testUUID+".json");
         super.setLineProtocolFilePath(super.getLineProtocolDirPath()+"/"+testUUID+".lp");
     }
-    public Iperf3Parameter(String rootPath, String testUUID){
-        this(rootPath, new JSONObject(), testUUID);
+    public Iperf3Parameter(String testUUID){
+        this(new JSONObject(), testUUID);
     }
 
     public void setDirectionFlags() {
@@ -115,10 +115,9 @@ public class Iperf3Parameter extends Parameter {
         }
     }
 
-    public Iperf3Parameter(String rootPath, JSONObject jsonObject, String testUUID) {
+    public Iperf3Parameter(JSONObject jsonObject, String testUUID) {
 
         super(ParameterType.IPERF3,
-                rootPath,
                 testUUID);
         this.testUUID = testUUID;
         this.jsonStream = true;

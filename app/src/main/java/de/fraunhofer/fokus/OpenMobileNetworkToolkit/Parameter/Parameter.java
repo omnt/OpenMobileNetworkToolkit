@@ -8,12 +8,13 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter;
 
+import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Parameter {
     private ParameterType parameterType;
-    private String rootPath;
+    public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath()+"/omnt";
     private String rawDirPath;
     private String lineProtocolDirPath;
     private String lineProtocolFilePath;
@@ -24,12 +25,10 @@ public class Parameter {
     }
 
     public Parameter(ParameterType type,
-                     String rootPath,
                      String testUUID) {
         this.parameterType = type;
-        this.rootPath = rootPath;
-        this.rawDirPath = this.rootPath + "/" + type.toString() + "/raw";
-        this.lineProtocolDirPath = this.rootPath + "/" + type.toString() + "/line_protocol";
+        this.rawDirPath = rootPath + "/" + this.parameterType.toString().toLowerCase() + "/raw";
+        this.lineProtocolDirPath = rootPath + "/" + this.parameterType.toString().toLowerCase() + "/lineprotocol";
         this.rawLogFilePath = this.rawDirPath + "/" + testUUID + ".log";
         this.lineProtocolFilePath = this.lineProtocolDirPath + "/" + testUUID + ".lp";
     }

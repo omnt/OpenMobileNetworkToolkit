@@ -62,7 +62,7 @@ public class Iperf3Handler extends Handler {
             if(!testType.equals("iperf3")) continue;
             JSONObject params = test.getJSONObject("params");
 
-            Iperf3Parameter iperf3Parameter = new Iperf3Parameter(super.getRootFilePath(), params, testUUID);
+            Iperf3Parameter iperf3Parameter = new Iperf3Parameter(params, testUUID);
             if(iperf3Parameter == null) continue;
             Iperf3Input iperf3Input = new Iperf3Input(iperf3Parameter, testUUID, sequenceUUID, measurementUUUID,campaignUUID);
             iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
