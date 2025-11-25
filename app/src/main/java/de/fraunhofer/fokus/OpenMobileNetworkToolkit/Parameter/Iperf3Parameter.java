@@ -24,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Iperf3Parameter extends Parameter {
-    public static final String rootPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
     public static final String rawDirPath = rootPath+"/omnt/iperf3/raw/";
     public static final String lineProtocolDirPath = rootPath+"/omnt/iperf3/lineprotocol/";
     public static final String HOST = "host";
