@@ -136,6 +136,11 @@ public class PingToLineProtocolWorker extends Worker {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     point.addTags(GlobalVars.getInstance().get_dp().getTagsMap());
                 }
+                if(!pingInput.getSequenceUUID().isEmpty()) point.addTag("sequenceUUID", pingInput.getSequenceUUID());
+                if(!pingInput.getTestUUID().isEmpty()) point.addTag("testUUID", pingInput.getTestUUID());
+                if(!pingInput.getMeasurementUUID().isEmpty())point.addTag("measurementUUID", pingInput.getMeasurementUUID());
+                if(!pingInput.getCampaignUUID().isEmpty()) point.addTag("campaignUUID", pingInput.getCampaignUUID());
+
                 pingStream.write((point.toLineProtocol() + "\n").getBytes());
 
             } catch (IOException e) {
