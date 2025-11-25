@@ -121,7 +121,7 @@
     <string name="mqtt_client_password">MQTT Client Password</string>
     <string name="mqtt_host_dialog_title">MQTT-Broker Address, including Port</string>
     <string name="mqtt_host">MQTT-Broker Address</string>
-    <string name="mqtt_host_hint">tcp://192.168.213.89:1883</string>
+    <string name="mqtt_host_hint">192.168.213.89:1883</string>
     <string name="mqtt_service_running">MQTT Service</string>
 
 
