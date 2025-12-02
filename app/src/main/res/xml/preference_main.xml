@@ -64,7 +64,7 @@
     <ListPreference
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:defaultValue="1"
+        android:defaultValue="99999"
         android:title="Set subscription (SIM)"
         app:dialogTitle="Subscription to be used by OMNT"
         app:icon="@drawable/sim_card"

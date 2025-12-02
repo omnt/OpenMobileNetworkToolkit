@@ -86,7 +86,6 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreference
  */
 public class DataProvider extends TelephonyCallback implements LocationListener, TelephonyCallback.CellInfoListener, TelephonyCallback.PhysicalChannelConfigListener, TelephonyCallback.SignalStrengthsListener {
     private static final String TAG = "DataProvider";
-    private final Context ct;
     private final boolean permission_phone_state;
     private final DeviceInformation di = new DeviceInformation();
     private final BatteryInformation bi = new BatteryInformation();
@@ -107,7 +106,9 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     // Time stamp, should be updated on each update of internal data caches
     private long ts = System.currentTimeMillis();
 
-    @SuppressLint("ObsoleteSdkInt")
+    private final Context ct;
+
+    @SuppressLint("MissingPermission")
     public DataProvider(Context context) {
         GlobalVars gv = GlobalVars.getInstance();
         ct = context;
@@ -120,30 +121,22 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
             sm = (SubscriptionManager) ct.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         }
 
-        // We need location permission otherwise logging is useless
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
-            if (lm.isLocationEnabled()) {
-                Log.d(TAG, "Location Provider " + lm.getProviders(true));
-                li = new LocationInformation(); // empty LocationInformation to be filled by callback
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    lm.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, this);
-                    Location loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
-                    if (loc != null) {
-                        onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER)));
-                    }
-                } else {
-                    lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                    onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.GPS_PROVIDER)));
-                }
-            } else {
-                Log.d(TAG, "GPS is disabled");
-                // todo use same popup as in main activity
+        lm = (LocationManager) ct.getSystemService(Context.LOCATION_SERVICE);
+        if (lm.isLocationEnabled()) {
+            Log.d(TAG, "Location Provider " + lm.getProviders(true));
+            li = new LocationInformation(); // empty LocationInformation to be filled by callback
+
+            lm.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, this);
+            Location loc = lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER);
+            if (loc != null) {
+                onLocationChanged(Objects.requireNonNull(lm.getLastKnownLocation(LocationManager.FUSED_PROVIDER)));
             }
+
         } else {
-            Log.d(TAG, "No Location Permissions");
-            // todo we need to handle this in more details as we can't do logging without it
+            Log.d(TAG, "GPS is disabled");
+            // todo use same popup as in main activity
         }
+
 
         locationCallback = new LocationCallback() {
             @Override
@@ -154,17 +147,14 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
 
         startLocationUpdates();
         registerWiFiCallback();
-
-        // initialize internal state
-        refreshAll();
     }
 
     /**
-     * Update the current Telephony Manager reference e.g. after subscription change
-     * @param tm new Telephony Manager reference
+     * Update the current Telephony Manager reference e.g. after subscription change via GlobalVars
      */
-    public void setTm(TelephonyManager tm) {
-        this.tm = tm;
+    public void syncTelephonyManager() {
+        GlobalVars gv = GlobalVars.getInstance();
+        this.tm = gv.getTm();
     }
 
     /**
@@ -329,8 +319,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
      *
      * @param list is the list of currently visible cells.
      */
-    @SuppressLint("ObsoleteSdkInt")
-    @Override
     public void onCellInfoChanged(@NonNull List<CellInfo> list) {
         updateTimestamp();
         long ts_ = ts;
@@ -448,7 +436,7 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
     public List<CellInfo> getAllCellInfo() {
         List<CellInfo> cellInfo;
         if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Access Fine Location permission missing");
+            Log.e(TAG, "Access Fine Location permission missing");
             cellInfo = new ArrayList<>();
         } else {
             cellInfo = tm.getAllCellInfo();
@@ -781,21 +769,12 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
      *
      * @return List of SubscriptionIno
      */
-    @SuppressLint("ObsoleteSdkInt")
     public List<SubscriptionInfo> getSubscriptions() {
-        List<SubscriptionInfo> subscriptions = new ArrayList<>();
         ArrayList<SubscriptionInfo> activeSubscriptions = new ArrayList<>();
-
-        if (Build.VERSION.SDK_INT >= 30) {
-            subscriptions.addAll(sm.getCompleteActiveSubscriptionInfoList());
-        } else {
-            if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                List<SubscriptionInfo> subscriptions_ = sm.getActiveSubscriptionInfoList();
-                if (subscriptions_ != null) {
-                    subscriptions.addAll(subscriptions_);
-                }
-            }
+        if (ActivityCompat.checkSelfPermission(ct, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            return activeSubscriptions;
         }
+        List<SubscriptionInfo> subscriptions = new ArrayList<>(sm.getCompleteActiveSubscriptionInfoList());
         for (SubscriptionInfo info : Objects.requireNonNull(subscriptions)) {
             if (tm.getSimState(info.getSimSlotIndex()) == TelephonyManager.SIM_STATE_READY) {
                 activeSubscriptions.add(info);
@@ -814,7 +793,6 @@ public class DataProvider extends TelephonyCallback implements LocationListener,
         refreshNetworkInformation();
         refreshBatteryInfo();
         refreshNetworkInterfaceInformation();
-        onCellInfoChanged(getAllCellInfo());
 
         SignalStrength ss = tm.getSignalStrength();
         // if the phone is not connected and we missed the update on tis we clear our internal cache

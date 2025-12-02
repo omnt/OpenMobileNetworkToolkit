@@ -130,86 +130,6 @@
         ]
     },
     {
-        "setting": "main",
-        "categories": [
-            {
-                "name": "home_screen_settings",
-                "preferences": [
-                    {
-                        "key": "show_neighbour_cells",
-                        "value": null,
-                        "type": "boolean"
-                    }
-                ]
-            },
-            {
-                "name": "notification_settings",
-                "preferences": [
-                    {
-                        "key": "enable_radio_notification",
-                        "value": null,
-                        "type": "boolean"
-                    }
-                ]
-            },
-            {
-                "name": "app_settings",
-                "preferences": [
-                    {
-                        "key": "device_name",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
-                        "key": "select_subscription",
-                        "value": null,
-                        "type": "string"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "setting": "mqtt",
-        "categories": [
-            {
-                "name": "mqtt_service",
-                "preferences": [
-                    {
-                        "key": "enable_mqtt",
-                        "value": null,
-                        "type": "boolean"
-                    },
-                    {
-                        "key": "enable_mqtt_on_boot",
-                        "value": null,
-                        "type": "boolean"
-                    }
-                ]
-            },
-            {
-                "name": "mqtt_credentials",
-                "preferences": [
-                    {
-                        "key": "mqtt_host",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
-                        "key": "mqtt_client_username",
-                        "value": null,
-                        "type": "string"
-                    },
-                    {
-                        "key": "mqtt_client_password",
-                        "value": null,
-                        "type": "string"
-                    }
-                ]
-            }
-        ]
-    },
-    {
         "setting": "mobile_network",
         "categories": [
             {
@@ -510,10 +430,90 @@
         ]
     },
     {
+        "setting": "mqtt",
+        "categories": [
+            {
+                "name": "mqtt_service",
+                "preferences": [
+                    {
+                        "key": "enable_mqtt",
+                        "value": null,
+                        "type": "boolean"
+                    },
+                    {
+                        "key": "enable_mqtt_on_boot",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "mqtt_credentials",
+                "preferences": [
+                    {
+                        "key": "mqtt_host",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "mqtt_client_username",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "mqtt_client_password",
+                        "value": null,
+                        "type": "string"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "setting": "main",
+        "categories": [
+            {
+                "name": "home_screen_settings",
+                "preferences": [
+                    {
+                        "key": "show_neighbour_cells",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "notification_settings",
+                "preferences": [
+                    {
+                        "key": "enable_radio_notification",
+                        "value": null,
+                        "type": "boolean"
+                    }
+                ]
+            },
+            {
+                "name": "app_settings",
+                "preferences": [
+                    {
+                        "key": "device_name",
+                        "value": null,
+                        "type": "string"
+                    },
+                    {
+                        "key": "select_subscription",
+                        "value": null,
+                        "type": "string"
+                    }
+                ]
+            }
+        ]
+    },
+    {
         "metadata": {
             "version": "0.7",
             "code": 7,
-            "gitHash": "377044e"
+            "gitHash": "4690531"
         }
     }
 ]
