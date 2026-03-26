@@ -190,7 +190,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         if(!path.exists()){
             path.mkdirs();
         }
-        File iperf3File = new File(iperf3Input.getParameter().getLineProtocolDirPath());
+        File iperf3File = new File(iperf3Input.getParameter().getLineProtocolFilePath());
         if (!iperf3File.exists()) {
             try {
                 iperf3File.createNewFile();
@@ -201,7 +201,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
 
         FileOutputStream iperf3Stream = null;
         try {
-            iperf3Stream = new FileOutputStream(iperf3Input.getParameter().getLineProtocolDirPath(), true);
+            iperf3Stream = new FileOutputStream(iperf3Input.getParameter().getLineProtocolFilePath(), true);
         } catch (FileNotFoundException e) {
             Toast.makeText(getApplicationContext(), "logfile not created", Toast.LENGTH_SHORT).show();
             Log.d(TAG,e.toString());
