@@ -49,53 +49,6 @@ _This configures a remote InfluxDB instance to log data to._
 | **influx_battery_data** | Log battery information | This will log BatteryInformation data to InfluxDB. Like BatteryLevel and Charging Status. | `false` |
 | **influx_ip_address_data** | Log IP addresses | This will log IPAddressInformation data to InfluxDB. Like IPv4 and IPv6 addresses, and the interface name. | `false` |
 
-## Main
-
-### Home screen settings
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **show_neighbour_cells** | Show neighbour cells | Shows neighbour cells only when connected to a network and is announced by the network. | `false` |
-
-### Notification settings
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **enable_radio_notification** | Enable Cell Notification | Serving Cell Parameter: PCI, RSRP... | `false` |
-
-### App settings
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **device_name** | Unique Device Name | Set unique device name. | `OMNT0001` |
-| **log_settings** | Logging | Configure the Logging Parameter. |  |
-| **mobile_network_settings** | Mobile Network | Configure Mobile Network Settings, only if the App has Carrier Permissions. |  |
-| **select_subscription** | Set subscription (SIM) |  | `1` |
-| **reset_modem** | Reboot Modem | Reboots the modem, only possible when OMNT has Carrier Permissions. |  |
-| **mqtt_settings** | MQTT Settings | Configure MQTT for OMNT. |  |
-| **shared_preferences_io** | Config | Import/Export Config of OMNT. |  |
-
-## Mqtt
-
-### MQTT Service
-
-_Enables MQTT Services for OMNT._
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **enable_mqtt** | Enable | Enable MQTT | `false` |
-| **enable_mqtt_on_boot** | Start on boot | Enable MQTT on boot | `false` |
-
-### MQTT Credentials
-
-_Section to set Credentials for MQTT._
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **mqtt_host** | MQTT-Broker Address | MQTT Broker Address | `192.168.213.89:1883` |
-| **mqtt_client_username** | MQTT Client Username | MQTT Username | `USERNAME` |
-| **mqtt_client_password** | MQTT Client Password | MQTT Client Password. | `PASSWORD` |
-
 ## Mobile network
 
 ### Radio Settings
@@ -185,4 +138,51 @@ _Applied on SIM / network change_
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
 | **switch_KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL** | DISPLAY_HD_AUDIO_PROPERTY_BOOL |  | `false` |
+
+## Mqtt
+
+### MQTT Service
+
+_Enables MQTT Services for OMNT._
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **enable_mqtt** | Enable | Enable MQTT | `false` |
+| **enable_mqtt_on_boot** | Start on boot | Enable MQTT on boot | `false` |
+
+### MQTT Credentials
+
+_Section to set Credentials for MQTT._
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **mqtt_host** | MQTT-Broker Address | MQTT Broker Address | `192.168.213.89:1883` |
+| **mqtt_client_username** | MQTT Client Username | MQTT Username | `USERNAME` |
+| **mqtt_client_password** | MQTT Client Password | MQTT Client Password. | `PASSWORD` |
+
+## Main
+
+### Home screen settings
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **show_neighbour_cells** | Show neighbour cells | Shows neighbour cells only when connected to a network and is announced by the network. | `false` |
+
+### Notification settings
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **enable_radio_notification** | Enable Cell Notification | Serving Cell Parameter: PCI, RSRP... | `false` |
+
+### App settings
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **device_name** | Unique Device Name | Set unique device name. | `OMNT0001` |
+| **log_settings** | Logging | Configure the Logging Parameter. |  |
+| **mobile_network_settings** | Mobile Network | Configure Mobile Network Settings, only if the App has Carrier Permissions. |  |
+| **select_subscription** | Set subscription (SIM) |  | `99999` |
+| **reset_modem** | Reboot Modem | Reboots the modem, only possible when OMNT has Carrier Permissions. |  |
+| **mqtt_settings** | MQTT Settings | Configure MQTT for OMNT. |  |
+| **shared_preferences_io** | Config | Import/Export Config of OMNT. |  |
 

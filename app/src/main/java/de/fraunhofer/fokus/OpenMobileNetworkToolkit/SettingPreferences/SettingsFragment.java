@@ -56,6 +56,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     entries.add(info.getDisplayName().toString());
                     entryValues.add(String.valueOf(info.getSubscriptionId()));
                 }
+                if(subscriptions.size() > 1) {
+                    entries.add("All subscriptions");
+                    entryValues.add("99999");
+                }
                 CharSequence[] entries_char = entries.toArray(new CharSequence[0]);
                 CharSequence[] entryValues_char = entryValues.toArray(new CharSequence[0]);
                 sub_select.setEntries(entries_char);

@@ -8,6 +8,9 @@
 
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit;
 
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars.INVALID_SUBSCRIPTION_ID;
+import static de.fraunhofer.fokus.OpenMobileNetworkToolkit.GlobalVars.MULTIPLE_SUBSCRIPTIONS_SELECTED_ID;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -37,7 +40,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
@@ -51,9 +57,16 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Executors;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.DataProvider;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.DataProvider.NetworkCallback;
@@ -61,10 +74,12 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MQTT.MQTTService;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.WorkProfile.WorkProfileActivity;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.util.DirectExecutor;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     private static final String TAG = "MainActivity";
     public TelephonyManager tm;
+    private Map<Integer, TelephonyManager> telephonyManagers;
     public PackageManager pm;
     public DataProvider dp;
     public SharedPreferencesGrouper spg;
@@ -76,33 +91,74 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     NavController navController;
     private Handler requestCellInfoUpdateHandler;
     private GlobalVars gv;
-    /**
-     * Runnable to handle Cell Info Updates
-     */
-    private final Runnable requestCellInfoUpdate = new Runnable() {
-        @SuppressLint("MissingPermission") // we check them already in the Main activity
-        @Override
-        public void run() {
-            if (gv.isPermission_fine_location()) {
-                tm.requestCellInfoUpdate(Executors.newSingleThreadExecutor(), new TelephonyManager.CellInfoCallback() {
-                    @Override
-                    public void onCellInfo(@NonNull List<CellInfo> list) {
-                        dp.onCellInfoChanged(list);
-                    }
-                });
-            }
-            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(spg.getSharedPreference(SPType.LOGGING).getString("logging_interval", "1000")));
-        }
+
+    private static final String[] BASE_PERMISSIONS = new String[]{
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
     };
+
+    private String[] finalRequiredPermissions;
+
+    private final ActivityResultLauncher<String[]> requestMultiplePermissionsLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), permissionsMap -> {
+
+                boolean allGranted = true;
+
+                for (String permission : finalRequiredPermissions) {
+                    Boolean isGranted = permissionsMap.get(permission);
+                    if (isGranted == null || !isGranted) {
+                        allGranted = false;
+                    }
+                }
+                if (allGranted) {
+                    init();
+                }
+            });
+
+
     private Context context;
+
+    /**
+     * Checks if all permissions in the provided array are currently granted.
+     * @param permissions The array of permissions to check.
+     * @return True if all permissions are granted, false otherwise.
+     */
+    private boolean hasAllPermissions(String[] permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void buildRequiredPermissionsList() {
+        List<String> permissions = new ArrayList<>(Arrays.asList(BASE_PERMISSIONS));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS);
+        }
+
+        // Convert the List back to an array
+        finalRequiredPermissions = permissions.toArray(new String[0]);
+    }
 
     @SuppressLint("ObsoleteSdkInt")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // check and request permissions from the user
-        requestPermission();
+        buildRequiredPermissionsList();
+        if (hasAllPermissions(finalRequiredPermissions)) {
+            init();
+        } else {
+            requestMultiplePermissionsLauncher.launch(finalRequiredPermissions);
+        }
+    }
 
+    void init() {
         // initialize variables we need later on
         context = getApplicationContext();
         gv = GlobalVars.getInstance();
@@ -148,35 +204,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             gv.setTm(tm);
             dp = new DataProvider(this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !dp.getSubscriptions().isEmpty()) {
-                // make sure the subscription in the app settings exists in the current subscription list.
-                // if it is not in the subscription list change it to the first one of the current list
-                boolean valid_subscription = false;
-                String pref_subscription_str = spg.getSharedPreference(SPType.MAIN).getString("select_subscription","99999");
-                for (SubscriptionInfo info : dp.getSubscriptions()) {
-                    if (Integer.parseInt(pref_subscription_str) == info.getSubscriptionId()) {
-                        valid_subscription = true;
-                        break;
-                    }
-                }
-                if (!valid_subscription) {
-                    spg.getSharedPreference(SPType.MAIN).edit().putString("select_subscription", String.valueOf(dp.getSubscriptions().iterator().next().getSubscriptionId())).apply();
-                }
-                // switch the telephony manager to a new one according to the app settings
-                tm = tm.createForSubscriptionId(Integer.parseInt(spg.getSharedPreference(SPType.MAIN).getString("select_subscription", "0")));
-
-                // update reference to tm
-                gv.setTm(tm);
-                dp.setTm(tm);
-            }
-
-            gv.setSm((SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE));
-            cp = tm.hasCarrierPrivileges();
-            gv.setCarrier_permissions(cp);
-            if (cp) {
-                gv.setCcm((CarrierConfigManager) getSystemService(Context.CARRIER_CONFIG_SERVICE));
-            }
-        } //todo this will go very wrong on android devices without telephony api, maybe show warning and exit?
+            updateTelephonyManagers();
+        }
+        //todo this will go very wrong on android devices without telephony api, maybe show warning and exit?
 
         gv.set_dp(dp);
 
@@ -197,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         .show();
             }
         }
-
         initHandlerAndHandlerThread();
 
         loggingServiceIntent = new Intent(this, LoggingService.class);
@@ -273,13 +302,94 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         if (target != null && target.equals("PingFragment")) {
             navController.navigate(R.id.ping_fragment);
         }
-
-
-
-
-
         getAppSignature();
         gv.setGit_hash(getString(R.string.git_hash));
+        dp.refreshAll();
+    }
+
+    private int getSelectedSubId() {
+        return Integer.parseInt(spg.getSharedPreference(SPType.MAIN).getString(
+                "select_subscription",
+                String.valueOf(GlobalVars.MULTIPLE_SUBSCRIPTIONS_SELECTED_ID)
+        ));
+    }
+
+    @RequiresPermission(Manifest.permission.READ_PHONE_STATE)
+    private void handleMultipleSubscription(List<SubscriptionInfo> subscriptions) {
+        SubscriptionManager sm = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        for (SubscriptionInfo info : subscriptions) {
+            int subId = info.getSubscriptionId();
+            telephonyManagers.put(subId, tm.createForSubscriptionId(subId));
+
+        }
+        for (int i = 0; i <= 1; i++) {
+            // tm still required for carrier screen, reboot modem, special numbers for dial.
+            // Made it compatible to try and use first subscription in the list.
+            SubscriptionInfo subInfo = sm.getActiveSubscriptionInfoForSimSlotIndex(i);
+            if (subInfo == null) {
+                continue;
+            }
+            int subId = subInfo.getSubscriptionId();
+            if (subId != INVALID_SUBSCRIPTION_ID) {
+                tm = tm.createForSubscriptionId(subId);
+                break;
+            }
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.READ_PHONE_STATE)
+    private void handleSingleSubscription(int selectedSubId, List<SubscriptionInfo> subscriptions) {
+        boolean isValid = subscriptions.stream()
+                .anyMatch(info -> info.getSubscriptionId() == selectedSubId);
+        // backup mechanism to find first subscription from the list if selected subId is not valid
+        if (!isValid) {
+            subscriptions.stream()
+                    .findFirst() // Get the first element as an Optional
+                    .ifPresent(firstInfo -> {
+                                int fallbackId = firstInfo.getSubscriptionId();
+                                tm = tm.createForSubscriptionId(fallbackId);
+                                telephonyManagers.put(fallbackId, tm.createForSubscriptionId(fallbackId));
+                                spg.getSharedPreference(SPType.MAIN).edit()
+                                        .putString("select_subscription", String.valueOf(fallbackId))
+                                        .apply();
+                            }
+                    );
+        } else {
+            tm = tm.createForSubscriptionId(selectedSubId);
+            telephonyManagers.put(selectedSubId, tm.createForSubscriptionId(selectedSubId));
+        }
+    }
+
+    @RequiresPermission(Manifest.permission.READ_PHONE_STATE)
+    private void updateTelephonyManagers() {
+        List<SubscriptionInfo> subscriptions = dp.getSubscriptions();
+        telephonyManagers = new HashMap<>();
+
+        if (subscriptions.isEmpty()) return;
+
+        // make sure the subscription in the app settings exists in the current subscription list.
+        // if it is not in the subscription list change it to the first one of the current list
+        int selectedSubId = getSelectedSubId();
+        if(selectedSubId == MULTIPLE_SUBSCRIPTIONS_SELECTED_ID) {
+            handleMultipleSubscription(subscriptions);
+        } else {
+            handleSingleSubscription(selectedSubId, subscriptions);
+        }
+        // update reference to tm
+        gv.setTm(tm);
+        dp.syncTelephonyManager();
+        SubscriptionManager sm = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
+        gv.setSm(sm);
+
+        setCarrierConfig();
+    }
+
+    private void setCarrierConfig() {
+        cp = tm.hasCarrierPrivileges();
+        gv.setCarrier_permissions(cp);
+        if (cp) {
+            gv.setCcm((CarrierConfigManager) getSystemService(Context.CARRIER_CONFIG_SERVICE));
+        }
     }
 
     /**
@@ -323,64 +433,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         return hexString.toString();
     }
 
-    /**
-     * Check and request permission the app needs to access APIs and so on
-     */
-    private void requestPermission() {
-        List<String> permissions = new ArrayList<>();
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting READ_PHONE_STATE Permission");
-            permissions.add(Manifest.permission.READ_PHONE_STATE);
-        } else {
-            Log.d(TAG, "Got READ_PHONE_STATE Permission");
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting COARSE_LOCATION Permission");
-            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        } else {
-            Log.d(TAG, "Got COARSE_LOCATION_LOCATION Permission");
-        }
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting FINE_LOCATION Permission");
-            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        } else {
-            Log.d(TAG, "Got FINE_LOCATION Permission");
-        }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_WIFI_STATE) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Requesting WIFI_STATE Permission");
-            permissions.add(Manifest.permission.ACCESS_WIFI_STATE);
-        } else {
-            Log.d(TAG, "Got WIFI_STATE Permission");
-        }
-
-        // on android 13 an newer we need to ask for permission to show the notification
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Requesting POST_NOTIFICATIONS Permission");
-                permissions.add(Manifest.permission.POST_NOTIFICATIONS);
-            } else {
-                Log.d(TAG, "Got POST_NOTIFICATIONS Permission");
-            }
-        }
-
-        // we can only request background after fine location. If that has failed on the first try we need to check again
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION Permission");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 3);
-            } else {
-                Log.d(TAG, "Got ACCESS_BACKGROUND_LOCATION Permission");
-            }
-        }
-
-
-        if (!permissions.isEmpty()) {
-            String[] perms = permissions.toArray(new String[0]);
-            ActivityCompat.requestPermissions(this, perms, 1337);
-        }
-    }
 
     /**
      * @param i      The request code passed in by the callback
@@ -543,6 +596,87 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
         return true;
     }
+
+    @SuppressLint("MissingPermission") // we check them already in the Main activity
+    private void syncTelephonyManagers() {
+        int selectedSubId = getSelectedSubId();
+        Set<Integer> currentSubIds = telephonyManagers.keySet();
+        int totalManagers = currentSubIds.size();
+        boolean needsUpdate = (selectedSubId != MULTIPLE_SUBSCRIPTIONS_SELECTED_ID && totalManagers > 1) ||
+                (totalManagers == 1 && currentSubIds.stream().anyMatch(sub -> sub != selectedSubId));
+
+        if (needsUpdate) {
+            updateTelephonyManagers();
+        }
+    }
+
+    @SuppressLint("MissingPermission") // we check them already in the Main activity
+    private void sendCellInfo(Map<Integer, List<CellInfo>> cellInfoBySubId) {
+        List<CellInfo> mergedList = cellInfoBySubId.keySet().stream()
+                .flatMap(subId -> {
+                    List<CellInfo> subList = cellInfoBySubId.get(subId);
+                    return subList != null ? subList.stream() : Stream.empty();
+                })
+                .collect(Collectors.toList());
+//        // Post the final list to the main thread using a lambda
+        new Handler(context.getMainLooper()).post(() -> dp.onCellInfoChanged(mergedList));
+    }
+
+    @SuppressLint("MissingPermission") // we check them already in the Main activity
+    private void requestCellInfoUpdateFromManagers() {
+        final Set<Integer> subIds = telephonyManagers.keySet();
+        final int totalManagers = subIds.size();
+
+        // Concurrent map to safely collect results from multiple threads/callbacks
+        final Map<Integer, List<CellInfo>> cellInfoBySubId = new ConcurrentHashMap<>();
+        final AtomicInteger completedRequests = new AtomicInteger(0);
+
+        for (int subId : subIds) {
+
+            TelephonyManager telephonyManager = telephonyManagers.get(subId);
+            if (telephonyManager == null) {
+                throw new IllegalStateException("No TelephonyManager found for subId: " + subId);
+            }
+
+            telephonyManager.requestCellInfoUpdate(new DirectExecutor(), new TelephonyManager.CellInfoCallback() {
+                @Override
+                public void onCellInfo(@NonNull List<CellInfo> list) {
+                    cellInfoBySubId.put(subId, list);
+
+                    if (completedRequests.incrementAndGet() == totalManagers) {
+                        sendCellInfo(cellInfoBySubId);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Runnable to handle Cell Info Updates
+     */
+    private final Runnable requestCellInfoUpdate = new Runnable() {
+        @SuppressLint("MissingPermission") // we check them already in the Main activity
+        @Override
+        public void run() {
+            if (!gv.isPermission_fine_location()) {
+                scheduleUpdate();
+                return;
+            }
+            syncTelephonyManagers();
+
+            if (!telephonyManagers.isEmpty()) {
+                requestCellInfoUpdateFromManagers();
+            }
+
+            scheduleUpdate();
+        }
+
+
+        private void scheduleUpdate() {
+            requestCellInfoUpdateHandler.postDelayed(this, Integer.parseInt(spg.getSharedPreference(SPType.LOGGING).getString("logging_interval", "1000")));
+        }
+
+    };
 
     private void initHandlerAndHandlerThread() {
         HandlerThread requestCellInfoUpdateHandlerThread = new HandlerThread("RequestCellInfoUpdateHandlerThread");

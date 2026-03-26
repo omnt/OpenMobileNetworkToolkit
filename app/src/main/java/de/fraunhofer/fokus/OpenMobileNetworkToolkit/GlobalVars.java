@@ -40,6 +40,10 @@ public class GlobalVars {
     public final int[] WCDMA_ECNO_Threasholds = {-24,-14,-6,1};
     public final int[] WCDMA_RSCP_Threasholds = {-115,-105,-95,-85};
 
+    // Predefined values for "select_subscription" preference
+    public static int MULTIPLE_SUBSCRIPTIONS_SELECTED_ID = 99999;
+    public static int INVALID_SUBSCRIPTION_ID = -1;
+
     public static final String INFLUX_WRITE_STATUS = "influxdb_write_status";
     private static GlobalVars instance;
     ImageView log_status;
