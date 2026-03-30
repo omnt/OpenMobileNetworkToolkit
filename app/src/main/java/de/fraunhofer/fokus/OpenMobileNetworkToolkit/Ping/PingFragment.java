@@ -286,26 +286,23 @@ public class PingFragment extends Fragment {
         toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             Log.d(TAG, "onButtonChecked: " + checkedId);
             if (!isChecked) return;
-            switch (checkedId) {
-                case R.id.ping_start:
-                    v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
-                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", true).apply();
-                    Intent startIntent = new Intent(ct, PingService.class);
-                    startIntent.putExtra(PingService.PING_INTENT_COMMAND, input.getText().toString());
-                    startIntent.putExtra(PingService.PING_INTENT_ENABLE, true);
-                    ct.startService(startIntent);
-                    rttMetric.getMetricCalculator().resetMetric();
-                    packetLossMetric.getMetricCalculator().resetMetric();
-                    break;
-                case R.id.ping_stop:
-                    v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
-                    v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
-                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
-                    Intent stopIntent = new Intent(ct, PingService.class);
-                    stopIntent.putExtra(PingService.PING_INTENT_ENABLE, false);
-                    ct.startService(stopIntent);
-                    break;
+            if (checkedId == R.id.ping_start) {
+                v.findViewById(R.id.ping_start).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
+                v.findViewById(R.id.ping_stop).setBackgroundColor(Color.TRANSPARENT);
+                spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", true).apply();
+                Intent startIntent = new Intent(ct, PingService.class);
+                startIntent.putExtra(PingService.PING_INTENT_COMMAND, input.getText().toString());
+                startIntent.putExtra(PingService.PING_INTENT_ENABLE, true);
+                ct.startService(startIntent);
+                rttMetric.getMetricCalculator().resetMetric();
+                packetLossMetric.getMetricCalculator().resetMetric();
+            } else if (checkedId == R.id.ping_stop) {
+                v.findViewById(R.id.ping_start).setBackgroundColor(Color.TRANSPARENT);
+                v.findViewById(R.id.ping_stop).setBackgroundColor(ct.getResources().getColor(R.color.purple_500, null));
+                spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
+                Intent stopIntent = new Intent(ct, PingService.class);
+                stopIntent.putExtra(PingService.PING_INTENT_ENABLE, false);
+                ct.startService(stopIntent);
             }
 
         });

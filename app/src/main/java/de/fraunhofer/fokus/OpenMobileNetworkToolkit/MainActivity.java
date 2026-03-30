@@ -467,40 +467,33 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.about:
-                navController.navigate(R.id.about_fragment);
-                break;
-            case R.id.slicingSetup:
-                navController.navigate(R.id.fragment_slicingsetup);
-                break;
-            case R.id.iperf3:
-                navController.navigate(R.id.fragment_iperf3_input);
-                break;
-            case R.id.settings:
-                navController.navigate(R.id.settingsFragment);
-                break;
-            case R.id.workprofilemanagement:
-                Intent work_profile = new Intent(this, WorkProfileActivity.class);
-                startActivity(work_profile);
-            case R.id.special_codes:
-                navController.navigate(R.id.specialCodesFragment);
-                break;
-            case R.id.subscriptions:
-                navController.navigate(R.id.subscriptionsFragment);
-                break;
-            case R.id.ping:
-                navController.navigate(R.id.ping_fragment);
-                break;
-            case R.id.carrier_settings_button:
-                navController.navigate(R.id.carrierSettingsFragment);
-                break;
-            case R.id.btn_exit:
-                this.finish();
-                System.exit(0);
-            case R.id.btn_home:
-                navController.navigate(R.id.HomeFragment);
-                break;
+        int itemId = item.getItemId();
+        if (itemId == R.id.about) {
+            navController.navigate(R.id.about_fragment);
+        } else if (itemId == R.id.slicingSetup) {
+            navController.navigate(R.id.fragment_slicingsetup);
+        } else if (itemId == R.id.iperf3) {
+            navController.navigate(R.id.fragment_iperf3_input);
+        } else if (itemId == R.id.settings) {
+            navController.navigate(R.id.settingsFragment);
+        } else if (itemId == R.id.workprofilemanagement) {
+            Intent work_profile = new Intent(this, WorkProfileActivity.class);
+            startActivity(work_profile);
+
+            navController.navigate(R.id.specialCodesFragment);
+        } else if (itemId == R.id.special_codes) {
+            navController.navigate(R.id.specialCodesFragment);
+        } else if (itemId == R.id.subscriptions) {
+            navController.navigate(R.id.subscriptionsFragment);
+        } else if (itemId == R.id.ping) {
+            navController.navigate(R.id.ping_fragment);
+        } else if (itemId == R.id.carrier_settings_button) {
+            navController.navigate(R.id.carrierSettingsFragment);
+        } else if (itemId == R.id.btn_exit) {
+            this.finish();
+            System.exit(0);
+        } else if (itemId == R.id.btn_home) {
+            navController.navigate(R.id.HomeFragment);
         }
         return super.onOptionsItemSelected(item);
     }

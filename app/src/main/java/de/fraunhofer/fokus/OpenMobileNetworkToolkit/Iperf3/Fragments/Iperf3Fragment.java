@@ -429,13 +429,10 @@ public class Iperf3Fragment extends Fragment {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
                 if (isChecked) {
-                    switch (checkedId) {
-                        case R.id.iperf3_client_button:
-                            updateModeState(modeClient, modeServer, Iperf3Parameter.Iperf3Mode.CLIENT);
-                            break;
-                        case R.id.iperf3_server_button:
-                            updateModeState(modeServer, modeClient, Iperf3Parameter.Iperf3Mode.SERVER);
-                            break;
+                    if (checkedId == R.id.iperf3_client_button) {
+                        updateModeState(modeClient, modeServer, Iperf3Parameter.Iperf3Mode.CLIENT);
+                    } else if (checkedId == R.id.iperf3_server_button) {
+                        updateModeState(modeServer, modeClient, Iperf3Parameter.Iperf3Mode.SERVER);
                     }
                 }
             }
@@ -444,13 +441,10 @@ public class Iperf3Fragment extends Fragment {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
                 if (isChecked) {
-                    switch (checkedId) {
-                        case R.id.iperf3_tcp_button:
-                            updateProtocolState(protocolTCP, protocolUDP, Iperf3Parameter.Iperf3Protocol.TCP);
-                            break;
-                        case R.id.iperf3_udp_button:
-                            updateProtocolState(protocolUDP, protocolTCP, Iperf3Parameter.Iperf3Protocol.UDP);
-                            break;
+                    if (checkedId == R.id.iperf3_tcp_button) {
+                        updateProtocolState(protocolTCP, protocolUDP, Iperf3Parameter.Iperf3Protocol.TCP);
+                    } else if (checkedId == R.id.iperf3_udp_button) {
+                        updateProtocolState(protocolUDP, protocolTCP, Iperf3Parameter.Iperf3Protocol.UDP);
                     }
                 }
             }
@@ -459,16 +453,12 @@ public class Iperf3Fragment extends Fragment {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
                 if (isChecked) {
-                    switch (checkedId) {
-                        case R.id.iperf3_upload_button:
-                            updateDirectionState(directionUp, directionDown, directonBidir, Iperf3Parameter.Iperf3Direction.UP);
-                            break;
-                        case R.id.iperf3_download_button:
-                            updateDirectionState(directionDown, directionUp, directonBidir, Iperf3Parameter.Iperf3Direction.DOWN);
-                            break;
-                        case R.id.iperf3_bidir_button:
-                            updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Parameter.Iperf3Direction.BIDIR);
-                            break;
+                    if (checkedId == R.id.iperf3_upload_button) {
+                        updateDirectionState(directionUp, directionDown, directonBidir, Iperf3Parameter.Iperf3Direction.UP);
+                    } else if (checkedId == R.id.iperf3_download_button) {
+                        updateDirectionState(directionDown, directionUp, directonBidir, Iperf3Parameter.Iperf3Direction.DOWN);
+                    } else if (checkedId == R.id.iperf3_bidir_button) {
+                        updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Parameter.Iperf3Direction.BIDIR);
                     }
                 }
             }

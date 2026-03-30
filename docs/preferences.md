@@ -1,80 +1,5 @@
 # Preferences Documentation
 
-## Logging
-
-### Logging Service
-
-_This configures the logging Service of OMNT._
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **enable_logging** | Enable | Start / stop the logging service | `false` |
-| **start_logging_on_boot** | Start on boot | Start the logging service on device boot | `false` |
-| **logging_interval** | Interval | Logging interval in milliseconds | `1000` |
-
-### Local logging
-
-_This configures a local InfluxDB instance, running on the Device, to log data to. EXPERIMENTAL_
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **enable_local_influx_log** | InfluxDB log | Log to a local Influx 2.x database | `fals` |
-| **enable_local_file_log** | Log file | Log to a local file | `false` |
-
-### Remote logging
-
-_This configures a remote InfluxDB instance to log data to._
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **enable_influx** | InfluxDB log | Log to a remote Influx 2.x database | `false` |
-| **influx_URL** | InfluxDB instance URL / IP | Influx URL, it can either be http://IP:8086, https://IP:8086, or any hostname. | `http://IP:8086` |
-| **influx_org** | InfluxDB Organization | Influx ORG Name, or ID. | `ORG` |
-| **influx_token** | Influx Token | Influx TOKEN | `TOKEN` |
-| **influx_bucket** | InfluxDB bucket | Influx Bucket Name or ID. | `BUCKET_NAME` |
-
-### Logging content
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **fake_location** | Use fake location | Use a fake location for all measurements for testing / privacy reasons | `false` |
-| **measurement_name** | Measurement name |  | `omnt` |
-| **tags** | Tags | Comma separated list of tags |  |
-| **influx_network_data** | Log network information | This will log NetworkInformation to InfluxDB. Like NetworkOperatorName, SimOperatorName, DataNetworkType. | `false` |
-| **log_signal_data** | Log signal data | This will log SignalStrength to InfluxDB. Like RSRP, RSRQ from the SignalStrength API. | `false` |
-| **influx_cell_data** | Log cell information | This will log CellInformation to InfluxDB. Like CellId, MCC, MNC, PCI, but also RSRP, RSRQ from the CellInformation API. | `true` |
-| **log_neighbour_cells** | Log neighbour cells | This will log neighbour CellInformation data to InfluxDB. Like CellId, MCC, MNC, PCI, but also RSRP, RSRQ from the CellInformation API. | `false` |
-| **influx_throughput_data** | Log throughput information | This will log InterfaceThroughput data to InfluxDB. Like download and upload throughput, what the phone thinks what is currently possible. | `false` |
-| **log_wifi_data** | Log WiFi information | This will log WifiInformation data to InfluxDB. Like SSID, BSSID, RSSI, Frequency, LinkSpeed, and WifiStandard. | `false` |
-| **influx_battery_data** | Log battery information | This will log BatteryInformation data to InfluxDB. Like BatteryLevel and Charging Status. | `false` |
-| **influx_ip_address_data** | Log IP addresses | This will log IPAddressInformation data to InfluxDB. Like IPv4 and IPv6 addresses, and the interface name. | `false` |
-
-## Main
-
-### Home screen settings
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **show_neighbour_cells** | Show neighbour cells | Shows neighbour cells only when connected to a network and is announced by the network. | `false` |
-
-### Notification settings
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **enable_radio_notification** | Enable Cell Notification | Serving Cell Parameter: PCI, RSRP... | `false` |
-
-### App settings
-
-| Key | Title | Summary | Default Value |
-| --- | ----- | ------- | ------------- |
-| **device_name** | Unique Device Name | Set unique device name. | `OMNT0001` |
-| **log_settings** | Logging | Configure the Logging Parameter. |  |
-| **mobile_network_settings** | Mobile Network | Configure Mobile Network Settings, only if the App has Carrier Permissions. |  |
-| **select_subscription** | Set subscription (SIM) |  | `1` |
-| **reset_modem** | Reboot Modem | Reboots the modem, only possible when OMNT has Carrier Permissions. |  |
-| **mqtt_settings** | MQTT Settings | Configure MQTT for OMNT. |  |
-| **shared_preferences_io** | Config | Import/Export Config of OMNT. |  |
-
 ## Mqtt
 
 ### MQTT Service
@@ -185,4 +110,79 @@ _Applied on SIM / network change_
 | Key | Title | Summary | Default Value |
 | --- | ----- | ------- | ------------- |
 | **switch_KEY_DISPLAY_HD_AUDIO_PROPERTY_BOOL** | DISPLAY_HD_AUDIO_PROPERTY_BOOL |  | `false` |
+
+## Main
+
+### Home screen settings
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **show_neighbour_cells** | Show neighbour cells | Shows neighbour cells only when connected to a network and is announced by the network. | `false` |
+
+### Notification settings
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **enable_radio_notification** | Enable Cell Notification | Serving Cell Parameter: PCI, RSRP... | `false` |
+
+### App settings
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **device_name** | Unique Device Name | Set unique device name. | `OMNT0001` |
+| **log_settings** | Logging | Configure the Logging Parameter. |  |
+| **mobile_network_settings** | Mobile Network | Configure Mobile Network Settings, only if the App has Carrier Permissions. |  |
+| **select_subscription** | Set subscription (SIM) |  | `1` |
+| **reset_modem** | Reboot Modem | Reboots the modem, only possible when OMNT has Carrier Permissions. |  |
+| **mqtt_settings** | MQTT Settings | Configure MQTT for OMNT. |  |
+| **shared_preferences_io** | Config | Import/Export Config of OMNT. |  |
+
+## Logging
+
+### Logging Service
+
+_This configures the logging Service of OMNT._
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **enable_logging** | Enable | Start / stop the logging service | `false` |
+| **start_logging_on_boot** | Start on boot | Start the logging service on device boot | `false` |
+| **logging_interval** | Interval | Logging interval in milliseconds | `1000` |
+
+### Local logging
+
+_This configures a local InfluxDB instance, running on the Device, to log data to. EXPERIMENTAL_
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **enable_local_influx_log** | InfluxDB log | Log to a local Influx 2.x database | `fals` |
+| **enable_local_file_log** | Log file | Log to a local file | `false` |
+
+### Remote logging
+
+_This configures a remote InfluxDB instance to log data to._
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **enable_influx** | InfluxDB log | Log to a remote Influx 2.x database | `false` |
+| **influx_URL** | InfluxDB instance URL / IP | Influx URL, it can either be http://IP:8086, https://IP:8086, or any hostname. | `http://IP:8086` |
+| **influx_org** | InfluxDB Organization | Influx ORG Name, or ID. | `ORG` |
+| **influx_token** | Influx Token | Influx TOKEN | `TOKEN` |
+| **influx_bucket** | InfluxDB bucket | Influx Bucket Name or ID. | `BUCKET_NAME` |
+
+### Logging content
+
+| Key | Title | Summary | Default Value |
+| --- | ----- | ------- | ------------- |
+| **fake_location** | Use fake location | Use a fake location for all measurements for testing / privacy reasons | `false` |
+| **measurement_name** | Measurement name |  | `omnt` |
+| **tags** | Tags | Comma separated list of tags |  |
+| **influx_network_data** | Log network information | This will log NetworkInformation to InfluxDB. Like NetworkOperatorName, SimOperatorName, DataNetworkType. | `false` |
+| **log_signal_data** | Log signal data | This will log SignalStrength to InfluxDB. Like RSRP, RSRQ from the SignalStrength API. | `false` |
+| **influx_cell_data** | Log cell information | This will log CellInformation to InfluxDB. Like CellId, MCC, MNC, PCI, but also RSRP, RSRQ from the CellInformation API. | `true` |
+| **log_neighbour_cells** | Log neighbour cells | This will log neighbour CellInformation data to InfluxDB. Like CellId, MCC, MNC, PCI, but also RSRP, RSRQ from the CellInformation API. | `false` |
+| **influx_throughput_data** | Log throughput information | This will log InterfaceThroughput data to InfluxDB. Like download and upload throughput, what the phone thinks what is currently possible. | `false` |
+| **log_wifi_data** | Log WiFi information | This will log WifiInformation data to InfluxDB. Like SSID, BSSID, RSSI, Frequency, LinkSpeed, and WifiStandard. | `false` |
+| **influx_battery_data** | Log battery information | This will log BatteryInformation data to InfluxDB. Like BatteryLevel and Charging Status. | `false` |
+| **influx_ip_address_data** | Log IP addresses | This will log IPAddressInformation data to InfluxDB. Like IPv4 and IPv6 addresses, and the interface name. | `false` |
 

@@ -106,32 +106,27 @@ public class SpecialCodesFragment extends Fragment {
     private void buttonHandler(View view) {
         if (cp) {
             try {
-                switch (view.getId()) {
-                    case R.id.bt_android_testing:
-                        tm.sendDialerSpecialCode("4636");
-                        break;
-                    case R.id.bt_android_ims:
-                        tm.sendDialerSpecialCode("0702");
-                        break;
-                    case R.id.bt_mediatek_ims:
-                        tm.sendDialerSpecialCode("3646633");
-                        break;
-                    case R.id.bt_sony_service:
-                        tm.sendDialerSpecialCode("7378423");
-                        break;
-                    case R.id.bt_nokia_enable_SA:
-                        tm.sendDialerSpecialCode("5555");
-                        break;
-                    case R.id.bt_samsung_ims:
-                        tm.sendDialerSpecialCode("467");
-                        break;
-                    case R.id.bt_huawei_projects:
-                        tm.sendDialerSpecialCode("2846579");
-                        break;
-                    case R.id.bt_xiaomi:
-                        tm.sendDialerSpecialCode("726633");
-                    case R.id.bt_custom_special_code:
-                        tm.sendDialerSpecialCode(special_code.getText().toString());
+                int id = view.getId();
+                if (id == R.id.bt_android_testing) {
+                    tm.sendDialerSpecialCode("4636");
+                } else if (id == R.id.bt_android_ims) {
+                    tm.sendDialerSpecialCode("0702");
+                } else if (id == R.id.bt_mediatek_ims) {
+                    tm.sendDialerSpecialCode("3646633");
+                } else if (id == R.id.bt_sony_service) {
+                    tm.sendDialerSpecialCode("7378423");
+                } else if (id == R.id.bt_nokia_enable_SA) {
+                    tm.sendDialerSpecialCode("5555");
+                } else if (id == R.id.bt_samsung_ims) {
+                    tm.sendDialerSpecialCode("467");
+                } else if (id == R.id.bt_huawei_projects) {
+                    tm.sendDialerSpecialCode("2846579");
+                } else if (id == R.id.bt_xiaomi) {
+                    tm.sendDialerSpecialCode("726633");
+
+                    tm.sendDialerSpecialCode(special_code.getText().toString());
+                } else if (id == R.id.bt_custom_special_code) {
+                    tm.sendDialerSpecialCode(special_code.getText().toString());
                 }
             } catch (Exception e) {
                 Toast.makeText(getContext(),

@@ -91,24 +91,16 @@ public class BasicManagedProfileFragment extends Fragment implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.enable_forwarding: {
-                enableForwarding();
-                break;
-            }
-            case R.id.disable_forwarding: {
-                disableForwarding();
-                break;
-            }
-            case R.id.send_intent: {
-                sendIntent();
-                break;
-            }
-            case R.id.remove_profile: {
-                mButtonRemoveProfile.setEnabled(false);
-                removeProfile();
-                break;
-            }
+        int id = v.getId();
+        if (id == R.id.enable_forwarding) {
+            enableForwarding();
+        } else if (id == R.id.disable_forwarding) {
+            disableForwarding();
+        } else if (id == R.id.send_intent) {
+            sendIntent();
+        } else if (id == R.id.remove_profile) {
+            mButtonRemoveProfile.setEnabled(false);
+            removeProfile();
         }
     }
 
