@@ -14,7 +14,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="40dp">
+        android:clipToPadding="false"
+        android:paddingBottom="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,217 +23,323 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Iperf3 Configuration"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"
+                android:textColor="?attr/colorPrimary" />
+
+            <!-- Connection Settings -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_weight="1"
-                app:cardCornerRadius="4dp"
-                app:cardElevation="2dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                android:backgroundTint="?attr/colorSurfaceVariant"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="8dp">
+                    android:padding="16dp">
 
-                    <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Connection"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.7" />
 
-                        <com.google.android.material.textfield.TextInputEditText
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:hint="Target IP / Host"
+                        app:startIconDrawable="@drawable/baseline_exit_to_app_24">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/iperf3_ip"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="IP Address"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:inputType="textUri" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/iperf3TextInputLayout"
-                        android:layout_marginBottom="4dp">
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Port">
 
-                        <com.google.android.material.textfield.TextInputEditText
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/iperf3_port"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="Port"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/iperf3TextInputLayout"
-                        app:suffixText="Mb">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/iperf3_bandwidth"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="Bandwidth"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/iperf3TextInputLayout"
-                        app:suffixText="s">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/iperf3_duration"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="Duration"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/iperf3TextInputLayout"
-                        app:suffixText="s">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/iperf3_interval"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="Interval"
-                            android:inputType="numberDecimal" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/iperf3_bytes"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="Bytes"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/iperf3_parallel"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="Streams"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout style="@style/iperf3TextInputLayout">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/iperf3_cport"
-                            style="@style/iperf3TextInputEditText"
-                            android:hint="Client Port"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:inputType="number" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
+            <!-- Test Parameters -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.4"
-                android:orientation="vertical"
-                android:padding="4dp"
-                android:weightSum="3">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                android:backgroundTint="?attr/colorSurfaceVariant"
+                app:strokeWidth="0dp">
 
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/iperf3_mode_toggle_group"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="12dp"
-                    android:layout_weight="1"
-                    app:singleSelection="true">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iperf3_client_button"
-                        style="@style/CustomUnifiedButton"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Client" />
+                        android:text="Parameters"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"
+                        android:alpha="0.7" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iperf3_server_button"
-                        style="@style/CustomUnifiedButton"
-                        android:layout_width="0dp"
+                    <GridLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Server" />
+                        android:columnCount="2"
+                        android:alignmentMode="alignMargins">
 
-                </com.google.android.material.button.MaterialButtonToggleGroup>
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_marginEnd="4dp"
+                            android:layout_marginBottom="8dp"
+                            android:hint="Duration"
+                            app:suffixText="s">
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/iperf3_duration"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/iperf3_protocol_toggle_group"
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginBottom="8dp"
+                            android:hint="Parallel"
+                            app:suffixText="str">
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/iperf3_parallel"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_marginEnd="4dp"
+                            android:layout_marginBottom="8dp"
+                            android:hint="Bandwidth"
+                            app:suffixText="Mb">
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/iperf3_bandwidth"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginBottom="8dp"
+                            android:hint="Interval"
+                            app:suffixText="s">
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/iperf3_interval"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </GridLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="Bytes limit">
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/iperf3_bytes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Client Port">
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/iperf3_cport"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Mode & Protocol -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                android:backgroundTint="?attr/colorSurfaceVariant"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="12dp"
-                    android:layout_weight="1"
-                    app:singleSelection="true">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iperf3_tcp_button"
-                        style="@style/CustomUnifiedButton"
-                        android:layout_width="0dp"
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/iperf3_mode_toggle_group"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="TCP" />
+                        android:layout_marginBottom="12dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_client_button"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Client" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_server_button"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Server" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iperf3_udp_button"
-                        style="@style/CustomUnifiedButton"
-                        android:layout_width="0dp"
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/iperf3_protocol_toggle_group"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="UDP" />
+                        android:layout_marginBottom="12dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_tcp_button"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="TCP" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_udp_button"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="UDP" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                <com.google.android.material.button.MaterialButtonToggleGroup
-                    android:id="@+id/iperf3_direction_toggle_group"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="12dp"
-                    android:layout_weight="1"
-                    app:singleSelection="true">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iperf3_download_button"
-                        style="@style/CustomUnifiedButton"
-                        android:layout_width="0dp"
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/iperf3_direction_toggle_group"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Download" />
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_download_button"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Down" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_upload_button"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Up" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_bidir_button"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Bidir" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iperf3_upload_button"
-                        style="@style/CustomUnifiedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Upload" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/iperf3_bidir_button"
-                        style="@style/CustomUnifiedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="BiDir" />
-
-                </com.google.android.material.button.MaterialButtonToggleGroup>
-
-            </LinearLayout>
-
+            <!-- Action buttons -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/iperf3_send"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/execute_iperf_command" />
+                android:layout_height="56dp"
+                android:text="Start Iperf3 Test"
+                app:cornerRadius="28dp"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/iperf3_stop"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Stop Current Test"
+                android:visibility="gone"
+                app:cornerRadius="28dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                style="@style/Widget.Material3.Button.TonalButton"
+                app:backgroundTint="?attr/colorErrorContainer"
+                android:textColor="?attr/colorError" />
+
         </LinearLayout>
     </ScrollView>
 
+    <!-- Results Bottom Sheet -->
     <FrameLayout
         android:id="@+id/standard_bottom_sheet"
-        style="@style/Widget.Material3.BottomSheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        android:background="?attr/colorSurface"
+        app:shapeAppearanceLargeComponent="@style/ShapeAppearance.Material3.LargeComponent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -240,20 +347,25 @@
 
             <com.google.android.material.bottomsheet.BottomSheetDragHandleView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
-            <LinearLayout
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:text="Live Results"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="8dp"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/runners_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </androidx.recyclerview.widget.RecyclerView>
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp" />
 
+        </LinearLayout>
     </FrameLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
