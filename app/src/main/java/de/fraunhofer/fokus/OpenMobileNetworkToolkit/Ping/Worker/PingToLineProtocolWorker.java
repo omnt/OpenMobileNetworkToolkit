@@ -81,7 +81,7 @@ public class PingToLineProtocolWorker extends Worker {
     @Override
     public Result doWork() {
         Data.Builder output = new Data.Builder().putBoolean("pingUpload", false);
-        File myObj = new File(pingInput.getPingParameter().getLineProtocolFilePath());
+        File myObj = new File(pingInput.getPingParameter().getRawLogFilePath());
         Scanner scanner = null;
         try {
             scanner = new Scanner(myObj);
