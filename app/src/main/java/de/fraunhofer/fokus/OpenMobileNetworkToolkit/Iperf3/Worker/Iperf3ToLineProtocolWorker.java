@@ -186,7 +186,7 @@ public class Iperf3ToLineProtocolWorker extends Worker {
             }
 
         }
-        File path = new File(iperf3Input.getParameter().getRawDirPath());
+        File path = new File(iperf3Input.getParameter().getLineProtocolDirPath());
         if(!path.exists()){
             path.mkdirs();
         }
