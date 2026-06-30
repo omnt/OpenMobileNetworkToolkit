@@ -125,7 +125,6 @@ public class PingFragment extends Fragment {
         input.setEnabled(!ping_running);
     }
 
-
     private void checkLastUUID(String uuidStr) {
         if (uuidStr == null || !isAdded() || getView() == null) return;
 
@@ -180,8 +179,15 @@ public class PingFragment extends Fragment {
                     rttMetric.getMetricCalculator().resetMetric();
                     packetLossMetric.getMetricCalculator().resetMetric();
                     packetLossMetric.setVisibility(GONE);
-                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
-                    toggleGroup.check(R.id.ping_stop);
+
+                    if(spg.getSharedPreference(SPType.PING).getBoolean("repeat_ping", false)){
+                        Log.d(TAG, "registerObserver: Repeating ping");
+                        spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", true).apply();
+                    } else {
+                        spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
+                        toggleGroup.check(R.id.ping_stop);
+                    }
+
                     break;
                 case CANCELLED:
 //                    workInfoLiveData.removeObserver(observer);  // Optionally clean up
@@ -206,7 +212,6 @@ public class PingFragment extends Fragment {
         Log.d(TAG, "onResume: PingFragment resumed");
         spg.getSharedPreference(SPType.PING).registerOnSharedPreferenceChangeListener(listener);
         checkLastUUID(spg.getSharedPreference(SPType.PING).getString(PingService.PING_LAST_UUID, null));
-
     }
 
     @Override
@@ -227,12 +232,10 @@ public class PingFragment extends Fragment {
                 String uuidStr = sharedPreferences.getString(PingService.PING_LAST_UUID, null);
                 Log.d(TAG, "registerObserver: lastUUID changed "+uuidStr);
                 checkLastUUID(uuidStr);
-
             }
         };
 
         spg.getSharedPreference(SPType.PING).registerOnSharedPreferenceChangeListener(listener);
-
         checkLastUUID(spg.getSharedPreference(SPType.PING).getString(PingService.PING_LAST_UUID, null));
     }
 
