@@ -125,7 +125,6 @@ public class PingFragment extends Fragment {
         input.setEnabled(!ping_running);
     }
 
-
     private void checkLastUUID(String uuidStr) {
         if (uuidStr == null || !isAdded() || getView() == null) return;
 
@@ -180,8 +179,15 @@ public class PingFragment extends Fragment {
                     rttMetric.getMetricCalculator().resetMetric();
                     packetLossMetric.getMetricCalculator().resetMetric();
                     packetLossMetric.setVisibility(GONE);
-                    spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
-                    toggleGroup.check(R.id.ping_stop);
+
+                    if(spg.getSharedPreference(SPType.PING).getBoolean("repeat_ping", false)){
+                        Log.d(TAG, "registerObserver: Repeating ping");
+                        spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", true).apply();
+                    } else {
+                        spg.getSharedPreference(SPType.PING).edit().putBoolean("ping_running", false).apply();
+                        toggleGroup.check(R.id.ping_stop);
+                    }
+
                     break;
                 case CANCELLED:
 //                    workInfoLiveData.removeObserver(observer);  // Optionally clean up
