@@ -1,3 +1,4 @@
+
 /*
  * SPDX-FileCopyrightText:  2025 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
  * SPDX-FileCopyrightText: 2025 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
@@ -12,10 +13,14 @@ import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.LinearLayout.VERTICAL;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -38,11 +43,13 @@ public class MetricView extends CardView {
         super(context);
         init(context, null);
     }
+
     public MetricView(MetricCalculator metricCalculator, Context context) {
         super(context);
-        init(context, null);
         this.metricCalculator = metricCalculator;
+        init(context, null);
     }
+
     public MetricView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
@@ -54,117 +61,133 @@ public class MetricView extends CardView {
     }
 
     private void init(Context context, @Nullable AttributeSet attrs) {
-        // You may want to customize view via XML attributes if needed.
-    }
+        setRadius(dpToPx(16));
+        setCardElevation(0);
+        setPreventCornerOverlap(true);
 
-    public void setup(String title) {
+        int bgColor = getThemeColor(R.attr.colorSurfaceVariant, 0xFFF0F0F0);
+        setCardBackgroundColor(bgColor);
 
-        removeAllViews();
-        LinearLayout cardView = new LinearLayout(getContext());
-        cardView.setOrientation(VERTICAL);
-
-        directionName = new TextView(getContext());
-        directionName.setText(title);
-        directionName.setTextAppearance(R.style.Base_TextAppearance_AppCompat_Light_Widget_PopupMenu_Large);
-        directionName.setTextColor(getContext().getColor(R.color.material_dynamic_secondary100));
-        cardView.addView(directionName);
-
-        LinearLayout cardViewResult = new LinearLayout(getContext());
-        cardViewResult.setOrientation(HORIZONTAL);
-        cardViewResult.setLayoutParams(new LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.WRAP_CONTENT
-        ));
-
-        mean = createTile("mean", 0, 10);
-        median = createTile("median", 10, 10);
-        max = createTile("max", 10, 10);
-        min = createTile("min", 10, 10);
-        last = createTile("last", 10, 0);
-
-        cardViewResult.addView(mean);
-        cardViewResult.addView(median);
-        cardViewResult.addView(max);
-        cardViewResult.addView(min);
-        cardViewResult.addView(last);
-
-        cardView.addView(cardViewResult);
-        addView(cardView);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT
         );
-        cardView.setPadding(20, 20, 20 ,20);
-
-
-        GradientDrawable gd = new GradientDrawable();
-        gd.setColor(getContext().getColor( R.color.material_dynamic_secondary30));
-        gd.setCornerRadius(10);
-//        gd.setStroke(2, 0xFF000000);
-        this.setBackground(gd);
-
-        params.setMargins(20 , 10, 20, 10);
+        int m8 = dpToPx(8);
+        params.setMargins(0, m8, 0, m8);
         this.setLayoutParams(params);
     }
 
-    private LinearLayout createTile(String key, int marginLeft, int marginRight) {
+    private int dpToPx(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics());
+    }
+
+    private int getThemeColor(int attr, int fallback) {
+        TypedValue typedValue = new TypedValue();
+        if (getContext().getTheme().resolveAttribute(attr, typedValue, true)) {
+            return typedValue.data;
+        }
+        return fallback;
+    }
+
+    public void setup(String title) {
+        removeAllViews();
+
+        LinearLayout mainLayout = new LinearLayout(getContext());
+        mainLayout.setOrientation(VERTICAL);
+        int p16 = dpToPx(16);
+        mainLayout.setPadding(p16, p16, p16, p16);
+        mainLayout.setLayoutParams(new FrameLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
+        ));
+
+        directionName = new TextView(getContext());
+        directionName.setText(title.toUpperCase());
+        directionName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        directionName.setLetterSpacing(0.05f);
+        directionName.setTypeface(Typeface.create("sans-serif-black", Typeface.NORMAL));
+        directionName.setTextColor(getThemeColor(R.attr.colorPrimary, Color.BLUE));
+        directionName.setPadding(0, 0, 0, dpToPx(12));
+        mainLayout.addView(directionName);
+
+        LinearLayout statsLayout = new LinearLayout(getContext());
+        statsLayout.setOrientation(HORIZONTAL);
+        statsLayout.setGravity(Gravity.CENTER_VERTICAL);
+        statsLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT
+        ));
+
+        mean = createTile("AVG");
+        median = createTile("MED");
+        max = createTile("MAX");
+        min = createTile("MIN");
+        last = createTile("CUR");
+
+        statsLayout.addView(mean);
+        statsLayout.addView(median);
+        statsLayout.addView(max);
+        statsLayout.addView(min);
+        statsLayout.addView(last);
+
+        mainLayout.addView(statsLayout);
+        addView(mainLayout);
+    }
+
+    private LinearLayout createTile(String label) {
         Context ct = getContext();
         LinearLayout ll = new LinearLayout(ct);
         ll.setOrientation(VERTICAL);
         ll.setGravity(Gravity.CENTER);
 
-        GradientDrawable gd = new GradientDrawable();
-        gd.setColor(ct.getColor(R.color.material_dynamic_primary100));
-        gd.setCornerRadius(10);
-        gd.setStroke(2, 0xFF000000);
-        ll.setBackground(gd);
-
-        LinearLayout.LayoutParams tileParams = new LinearLayout.LayoutParams(200, 150);
-        tileParams.weight = 1;
-        tileParams.setMargins(marginLeft, 10, marginRight, 10);
+        LinearLayout.LayoutParams tileParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f);
         ll.setLayoutParams(tileParams);
 
-        TextView keyView = new TextView(ct);
-        keyView.setGravity(Gravity.CENTER);
-        keyView.setText(key);
-        LinearLayout.LayoutParams keyViewParams = new LinearLayout.LayoutParams(200, 0);
-        keyViewParams.weight = 1;
-        keyViewParams.setMargins(0, 0, 0, 10);
-        keyView.setLayoutParams(keyViewParams);
-        keyView.setTypeface(null, Typeface.BOLD);
-        keyView.setTextAppearance(R.style.Base_TextAppearance_AppCompat_Medium);
-        keyView.setTextColor(ct.getColor(R.color.material_dynamic_primary10));
-        keyView.setGravity(Gravity.CENTER);
-
+        TextView labelView = new TextView(ct);
+        labelView.setText(label);
+        labelView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
+        labelView.setAlpha(0.7f);
+        labelView.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        labelView.setTextColor(getThemeColor(R.attr.colorOnSurfaceVariant, Color.GRAY));
+        labelView.setGravity(Gravity.CENTER);
 
         TextView valueView = new TextView(ct);
+        valueView.setText("0.0");
+        valueView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        valueView.setTypeface(Typeface.DEFAULT_BOLD);
+        valueView.setTextColor(getThemeColor(R.attr.colorOnSurface, Color.BLACK));
         valueView.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams valueViewParams = new LinearLayout.LayoutParams(200, 0);
-        valueViewParams.weight = 1;
-        valueView.setLayoutParams(valueViewParams);
-        valueView.setTextAppearance(R.style.TextAppearance_AppCompat_Small);
-        valueView.setTextColor(ct.getColor(R.color.material_dynamic_primary10));
+        valueView.setPadding(0, dpToPx(4), 0, 0);
 
-
-        ll.addView(keyView);
+        ll.addView(labelView);
         ll.addView(valueView);
         return ll;
     }
 
     public void update(Double value) {
         if (metricCalculator == null) return;
-
         metricCalculator.update(value);
         update();
     }
 
-    public void update(){
+    public void update() {
+        if (metricCalculator == null || mean == null) return;
         metricCalculator.calcAll();
-        ((TextView) mean.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMean()));
-        ((TextView) median.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMedian()));
-        ((TextView) max.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMax()));
-        ((TextView) min.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getMin()));
-        ((TextView) last.getChildAt(1)).setText(metricCalculator.getFormattedString(metricCalculator.getLast()));
+        updateTextView(mean, metricCalculator.getMean());
+        updateTextView(median, metricCalculator.getMedian());
+        updateTextView(max, metricCalculator.getMax());
+        updateTextView(min, metricCalculator.getMin());
+        updateTextView(last, metricCalculator.getLast());
+    }
+
+    private void updateTextView(LinearLayout container, double value) {
+        if (container != null && container.getChildCount() > 1) {
+            View child = container.getChildAt(1);
+            if (child instanceof TextView) {
+                TextView tv = (TextView) child;
+                tv.setText(metricCalculator.getFormattedString(value));
+            }
+        }
     }
 
     public void setMetricCalculator(MetricCalculator metricCalculator) {

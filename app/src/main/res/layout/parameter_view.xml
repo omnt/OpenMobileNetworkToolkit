@@ -1,29 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  SPDX-FileCopyrightText: 2025 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2025 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
+  ~  SPDX-FileCopyrightText: 2025 Fraunhofer FOKUS
+  ~
+  ~  SPDX-License-Identifier: BSD-3-Clause-Clear
+  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    app:layout_alignSelf="center"
-    app:layout_flexBasisPercent="50%"
     android:padding="4dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:strokeColor="?attr/colorPrimaryInverse"
-        app:strokeWidth="3dp"
-        app:cardBackgroundColor="@android:color/transparent"
-        app:shapeAppearance="?attr/shapeAppearanceCornerExtraLarge"
-        >
-        <TextView
+        app:cardBackgroundColor="?attr/colorSurfaceVariant"
+        app:cardElevation="0dp"
+        app:contentPaddingLeft="8dp"
+        app:contentPaddingRight="8dp"
+        app:contentPaddingTop="4dp"
+        app:contentPaddingBottom="4dp"
+        app:shapeAppearance="?attr/shapeAppearanceCornerMedium"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/text_parameter"
-            android:text="@string/Parameter"
-            android:textAppearance="?attr/textAppearanceCaption"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-            android:textColor="@color/design_default_color_on_primary"
-            android:padding="10dp"/>
+            <TextView
+                android:id="@+id/parameter_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Label"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:layout_marginEnd="4dp"/>
+
+            <TextView
+                android:id="@+id/text_parameter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Value"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
+                android:textColor="?android:attr/textColorPrimary"/>
+
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

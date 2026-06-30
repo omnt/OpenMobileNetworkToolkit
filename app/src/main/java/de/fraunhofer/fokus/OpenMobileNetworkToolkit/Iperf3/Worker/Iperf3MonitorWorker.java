@@ -7,6 +7,8 @@
  *  SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
+// Iperf3MonitorWorker.java - Updated with stop flag support
+
 package de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker;
 
 import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
@@ -76,7 +78,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     private BufferedReader br = null;
     private String pathToFile;
     private File file;
-    private boolean isStopped;
+    private boolean isStopped = false;
 
     private RemoteViews notificationLayout;
     private FileObserver fileObserver;
@@ -84,7 +86,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
     MetricCalculator metricCalculatorUL;
     MetricCalculator metricCalculatorDL;
 
-    public Iperf3MonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams){
+    public Iperf3MonitorWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
         Gson gson = new Gson();
         this.context = context;
@@ -112,17 +114,14 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
         setForegroundAsync(createForegroundInfo(notificationLayout));
 
         this.pathToFile = iperf3Input.getParameter().getRawLogFilePath();
-        Log.d(TAG, "Iperf3MonitorWorker: pathToFile: "+this.pathToFile);
+        Log.d(TAG, "Iperf3MonitorWorker: pathToFile: " + this.pathToFile);
         this.file = new File(this.pathToFile);
     }
-
 
     @NonNull
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
-
-
             setForegroundAsync(createForegroundInfo(notificationLayout));
             try {
                 br = new BufferedReader(new FileReader(file));
@@ -130,17 +129,21 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
             } catch (IOException ex) {
                 Log.d(TAG, "Iperf3MonitorWorker: file not found!" + ex);
             }
-            Log.d(TAG, "doWork: starting "+this.getClass().getCanonicalName());
+
+            Log.d(TAG, "doWork: starting " + this.getClass().getCanonicalName());
             Timestamp starTtime = new Timestamp(iperf3RunResultDao.getTimestampFromUid(iperf3Input.getTestUUID()));
-            while(true){
+
+            while (!isStopped) {
                 Timestamp newTimestamp = new java.sql.Timestamp(System.currentTimeMillis());
                 long deltaInMillis = Math.abs(newTimestamp.getTime() - starTtime.getTime());
-                if(deltaInMillis > iperf3Input.getParameter().getTime()*1000){
+                if (deltaInMillis > iperf3Input.getParameter().getTime() * 1000) {
+                    Log.d(TAG, "startRemoteWork: test duration reached, exiting");
                     break;
                 }
+
                 String line = null;
                 try {
-                    while ((line = br.readLine()) != null) {
+                    while ((line = br.readLine()) != null && !isStopped) {
                         JSONObject obj = null;
                         try {
                             obj = new JSONObject(line);
@@ -166,20 +169,17 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                 } catch (JSONException e) {
                                     Log.e(TAG, "parse: getting start failed");
                                     Log.d(TAG, "parse: " + e);
-
                                 }
                                 try {
                                     start.parseStart(startData);
                                 } catch (JSONException e) {
                                     Log.e(TAG, "parse: parsing start failed");
                                     Log.d(TAG, "parse: " + e);
-
                                 }
                                 setProgressAsync(new Data.Builder().putString("start", start.toString()).build());
                                 iperf3RunResultDao.updateStart(iperf3Input.getTestUUID(), start.toString());
-
-
                                 break;
+
                             case "interval":
                                 Log.d(TAG, "parse: Interval");
                                 Interval interval = new Interval();
@@ -189,16 +189,13 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                 } catch (JSONException e) {
                                     Log.e(TAG, "run: getting interval failed");
                                     Log.d(TAG, "parse: " + e);
-
                                 }
                                 try {
                                     interval.parse(intervalData);
                                 } catch (JSONException e) {
                                     Log.e(TAG, "run: parsing interval failed");
                                     Log.d(TAG, "parse: " + e);
-
                                 }
-
 
                                 Log.d(TAG, "Read Thread: interval: " + interval.toString());
                                 if (interval.getSum().getSender()) {
@@ -207,14 +204,13 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                     metricCalculatorDL.update(interval.getSum().getBits_per_second());
                                 }
 
-                                String megabitPerSecond = String.valueOf( Math.round(interval.getSum().getBits_per_second() / 1e6));
+                                String megabitPerSecond = String.valueOf(Math.round(interval.getSum().getBits_per_second() / 1e6));
                                 metricCalculatorUL.update(interval.getSum().getBits_per_second());
                                 notificationLayout.setTextViewText(R.id.notification_title, String.format("iPerf3 %s:%s", iperf3Input.getParameter().getHost(), iperf3Input.getParameter().getPort()));
                                 notificationLayout.setTextViewText(R.id.notification_throughput, String.format("Throughput: %s Mbit/s", megabitPerSecond));
                                 notificationLayout.setTextViewText(R.id.notification_direction, String.format("Direction: %s", interval.getSum().getSumType()));
                                 notificationLayout.setViewVisibility(R.id.notification_throughput, VISIBLE);
                                 notificationLayout.setViewVisibility(R.id.notification_direction, VISIBLE);
-
 
                                 if (interval.getSumBidirReverse() != null) {
                                     notificationLayout.setViewVisibility(R.id.notification_bidir_throughput, VISIBLE);
@@ -238,15 +234,11 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                 _intervals.addInterval(interval);
                                 iperf3RunResultDao.updateIntervals(iperf3Input.getTestUUID(), _intervals);
                                 break;
+
                             case "end":
                                 Log.d(TAG, "parse: End");
-                                //todo
-                                //End end = new End();
-                                //JSONObject endData = obj.getJSONObject("data");
-                                //end.parseEnd(endData);
-                                //support.firePropertyChange("interval", null, end);
-
                                 break;
+
                             case "error":
                                 Log.d(TAG, "parse: Error");
                                 de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error error = new Error();
@@ -261,7 +253,7 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                 }
                                 try {
                                     error.parse(errorString);
-                                    Log.d(TAG, "startRemoteWork: got error!"+error);
+                                    Log.d(TAG, "startRemoteWork: got error!" + error);
                                     setProgressAsync(new Data.Builder().putString("error", error.toString()).build());
                                     iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), error);
                                 } catch (JSONException e) {
@@ -269,34 +261,40 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
                                     Log.d(TAG, "parse: " + e);
                                     break;
                                 }
-
                                 return completer.set(Result.success());
+
                             default:
                                 Log.d(TAG, "parse: Unknown event");
                                 break;
                         }
                         Thread.sleep((long) (iperf3Input.getParameter().getInterval() * 1001));
-
                     }
-                } catch (Exception e){
-                    Log.d(TAG, "run: error reading file: "+e);
-
+                } catch (Exception e) {
+                    Log.d(TAG, "run: error reading file: " + e);
                 }
             }
 
-
-
-
-
-
-
-           return completer.set(Result.success());
+            Log.d(TAG, "startRemoteWork: monitor exiting, isStopped=" + isStopped);
+            if (isStopped) {
+                iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), -1);
+                de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error stopError = new de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.JSON.Error();
+                stopError.setError("User Terminated");
+                iperf3RunResultDao.updateError(iperf3Input.getTestUUID(), stopError);
+            } else {
+                 iperf3RunResultDao.updateResult(iperf3Input.getTestUUID(), 0);
+            }
+            return completer.set(Result.success());
         });
     }
 
+    @Override
+    public void onStopped() {
+        super.onStopped();
+        Log.d(TAG, "onStopped: Setting stop flag");
+        isStopped = true;
+    }
+
     private ForegroundInfo createForegroundInfo(RemoteViews notificationLayout) {
-
-
         notification = notificationBuilder
                 .setSmallIcon(R.mipmap.ic_launcher_foreground)
                 .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
@@ -309,8 +307,4 @@ public class Iperf3MonitorWorker extends RemoteListenableWorker {
 
         return new ForegroundInfo(notificationID, notification, FOREGROUND_SERVICE_TYPE);
     }
-
-
-
-
 }

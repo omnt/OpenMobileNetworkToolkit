@@ -1,3 +1,4 @@
+
 /*
  * SPDX-FileCopyrightText:  2025 Peter Hasse <peter.hasse@fokus.fraunhofer.de>
  * SPDX-FileCopyrightText: 2025 Johann Hackler <johann.hackler@fokus.fraunhofer.de>
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -36,6 +38,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -43,6 +46,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -63,20 +67,29 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
 
 public class Iperf3Fragment extends Fragment {
 
+    private static final String TAG = "Iperf3Fragment";
     private static final String ARG_POSITION = "position";
+    private static final int POLLING_INTERVAL_MS = 500;
+    private static final int DB_WRITE_DELAY_MS = 1000;
+    private static final int MAX_HISTORY = 4;
+
+    // Core data
     private Iperf3Input iperf3Input;
     private Context ct;
-    private MaterialButton sendBtn;
-    private View view;
-    private TextInputEditText ip;
-    private TextInputEditText port;
-    private TextInputEditText bitrate;
-    private TextInputEditText duration;
-    private TextInputEditText interval;
-    private TextInputEditText bytes;
-    private TextInputEditText parallel;
-    private TextInputEditText cport;
+    private String currentTestUUID;
 
+    // UI Components
+    private View view;
+    private MaterialButton sendBtn;
+    private MaterialButton stopBtn;
+    private MaterialAutoCompleteTextView ip;
+    private MaterialAutoCompleteTextView port;
+    private MaterialAutoCompleteTextView bitrate;
+    private MaterialAutoCompleteTextView duration;
+    private MaterialAutoCompleteTextView interval;
+    private MaterialAutoCompleteTextView bytes;
+    private MaterialAutoCompleteTextView parallel;
+    private MaterialAutoCompleteTextView cport;
 
     private MaterialButtonToggleGroup mode;
     private MaterialButtonToggleGroup protocol;
@@ -89,167 +102,144 @@ public class Iperf3Fragment extends Fragment {
     private MaterialButton directionUp;
     private MaterialButton directionDown;
     private MaterialButton directonBidir;
-    private Handler handler;
-    private RecyclerView recyclerView;
-    private SharedPreferencesGrouper spg;
 
-    private String TAG = "Iperf3CardFragment";
-    private String uuid;
+    private RecyclerView recyclerView;
+    private BottomSheetBehavior bottomSheetBehavior;
+    private FloatingActionButton fab;
+
+    // Database and adapters
     private Iperf3RecyclerViewAdapter adapter;
     private Iperf3RunResultDao iperf3RunResultDao;
     private Iperf3ResultsDataBase iperf3ResultsDataBase;
-    private BottomSheetBehavior bottomSheetBehavior;
-    private FloatingActionButton fab;
+    private SharedPreferencesGrouper spg;
+
+    // Handler
+    private Handler handler;
+    private Runnable monitoringRunnable;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.ct = requireContext();
+        setupBackPressedHandler();
+    }
+
+    /**     * Setup back pressed handler to navigate home     */
+    private void setupBackPressedHandler() {
         NavController navController = NavHostFragment.findNavController(this);
-        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 navController.navigate(R.id.HomeFragment);
             }
         };
         requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
-
     }
 
-    /**
-     * Create a text watcher
-     * @param consumer
-     * @param name
-     * @return
-     */
-    private TextWatcher createTextWatcher(Consumer<String> consumer, String name) {
+    /**     * Create a text watcher for input fields     */
+    private TextWatcher createTextWatcher(Consumer<String> consumer, String prefKey) {
         return new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                consumer.accept(s.toString());
+                spg.getSharedPreference(SPType.IPERF3).edit().putString(prefKey, s.toString()).apply();
             }
 
             @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                consumer.accept(charSequence.toString());
-                spg.getSharedPreference(SPType.IPERF3).edit().putString(name, charSequence.toString()).apply();
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
+            public void afterTextChanged(Editable s) {}
         };
     }
 
-    /**
-     * Set up the text watchers
-     */
+    /**     * Setup text watchers for all input fields     */
     private void setupTextWatchers() {
-        ip.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setHost(s), Iperf3Parameter.HOST));
-        port.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setPort(Integer.parseInt("0"+s)), Iperf3Parameter.PORT));
-        bitrate.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setBandwidth(s), Iperf3Parameter.BITRATE));
-        duration.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setTime(Integer.parseInt("0"+s)), Iperf3Parameter.TIME));
-        interval.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setInterval(Double.parseDouble("0"+s)), Iperf3Parameter.INTERVAL));
-        bytes.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setBytes(s), Iperf3Parameter.BYTES));
-        parallel.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setParallel(Integer.parseInt("0"+s)), Iperf3Parameter.PARALLEL));
-        cport.addTextChangedListener(createTextWatcher(s -> iperf3Input.getParameter().setCport(Integer.parseInt("0"+s) ), Iperf3Parameter.CPORT));
+        ip.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setHost(s),
+                Iperf3Parameter.HOST));
+        port.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setPort(Integer.parseInt("0" + s)),
+                Iperf3Parameter.PORT));
+        bitrate.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setBandwidth(s),
+                Iperf3Parameter.BITRATE));
+        duration.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setTime(Integer.parseInt("0" + s)),
+                Iperf3Parameter.TIME));
+        interval.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setInterval(Double.parseDouble("0" + s)),
+                Iperf3Parameter.INTERVAL));
+        bytes.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setBytes(s),
+                Iperf3Parameter.BYTES));
+        parallel.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setParallel(Integer.parseInt("0" + s)),
+                Iperf3Parameter.PARALLEL));
+        cport.addTextChangedListener(createTextWatcher(
+                s -> iperf3Input.getParameter().setCport(Integer.parseInt("0" + s)),
+                Iperf3Parameter.CPORT));
     }
 
-    /**
-     * Set the text from the shared preferences
-     * @param editText
-     * @param key
-     */
-    private void setTextFromSharedPreferences(TextInputEditText editText, String key) {
+    private void saveHistory(String key, String value) {
+        if (value == null || value.isEmpty()) return;
+        String historyKey = key + "_history";
+        String historyStr = spg.getSharedPreference(SPType.IPERF3).getString(historyKey, "");
+        List<String> history = new ArrayList<>(Arrays.asList(historyStr.split(",")));
+        history.remove("");
+        history.remove(value);
+        history.add(0, value);
+        if (history.size() > MAX_HISTORY) {
+            history = history.subList(0, MAX_HISTORY);
+        }
+        spg.getSharedPreference(SPType.IPERF3).edit().putString(historyKey, String.join(",", history)).apply();
+    }
+
+    private void loadHistory(MaterialAutoCompleteTextView textView, String key) {
+        String historyKey = key + "_history";
+        String historyStr = spg.getSharedPreference(SPType.IPERF3).getString(historyKey, "");
+        if (!historyStr.isEmpty()) {
+            String[] history = historyStr.split(",");
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, history);
+            textView.setAdapter(adapter);
+            textView.setThreshold(0);
+        }
+    }
+
+    private void saveAllHistories() {
+        saveHistory(Iperf3Parameter.HOST, ip.getText().toString());
+        saveHistory(Iperf3Parameter.PORT, port.getText().toString());
+        saveHistory(Iperf3Parameter.BITRATE, bitrate.getText().toString());
+        saveHistory(Iperf3Parameter.TIME, duration.getText().toString());
+        saveHistory(Iperf3Parameter.INTERVAL, interval.getText().toString());
+        saveHistory(Iperf3Parameter.BYTES, bytes.getText().toString());
+        saveHistory(Iperf3Parameter.PARALLEL, parallel.getText().toString());
+        saveHistory(Iperf3Parameter.CPORT, cport.getText().toString());
+
+        // Reload histories to update adapters
+        loadAllHistories();
+    }
+
+    private void loadAllHistories() {
+        loadHistory(ip, Iperf3Parameter.HOST);
+        loadHistory(port, Iperf3Parameter.PORT);
+        loadHistory(bitrate, Iperf3Parameter.BITRATE);
+        loadHistory(duration, Iperf3Parameter.TIME);
+        loadHistory(interval, Iperf3Parameter.INTERVAL);
+        loadHistory(bytes, Iperf3Parameter.BYTES);
+        loadHistory(parallel, Iperf3Parameter.PARALLEL);
+        loadHistory(cport, Iperf3Parameter.CPORT);
+    }
+
+    /**     * Set text from shared preferences for a specific field     */
+    private void setTextFromSharedPreferences(MaterialAutoCompleteTextView editText, String key) {
         if (spg.getSharedPreference(SPType.IPERF3).contains(key)) {
-            editText.setText(spg.getSharedPreference(SPType.IPERF3).getString(key, ""));
+            editText.setText(spg.getSharedPreference(SPType.IPERF3).getString(key, ""), false);
         }
     }
 
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
-
-            WorkQuery workQuery = WorkQuery.Builder
-                    .fromTags(Arrays.asList(iperf3Input.getTestUUID()))
-                    .build();
-            ListenableFuture<List<WorkInfo>> foobar = remoteWorkManager.getWorkInfos(workQuery);
-            Futures.addCallback(
-                    foobar,
-                    new FutureCallback<>() {
-                        public void onSuccess(List<WorkInfo> result) {
-
-                            for (WorkInfo workInfo : result) {
-                                Log.d(TAG, "onSuccess: workInfoTags: "+ workInfo.getTags());
-                                Log.d(TAG, "onSuccess workInfo State: " + workInfo.getState());
-                                Log.d(TAG, "onSuccess workInfo isFinished: " + workInfo.getState().isFinished());
-
-                                if (workInfo.getTags().contains(Iperf3MonitorWorker.class.getCanonicalName())) {
-                                    Log.d(TAG, "onSuccess: "+Iperf3MonitorWorker.class.getName()+" in state"+workInfo.getState());
-                                    switch (workInfo.getState()) {
-                                        case SUCCEEDED:
-                                            adapter.notifyDataSetChanged();
-                                            break;
-                                        case CANCELLED:
-                                        case FAILED:
-                                            try {
-                                                Log.d(TAG, "onSuccess: going sleeping");
-                                                Thread.sleep(1000); //todo handle better, is needed because write to db is to slow
-                                                Log.d(TAG, "onSuccess: "+iperf3RunResultDao.getRunResult(uuid).error);
-                                                Log.d(TAG, "onSuccess: woke up");
-                                            } catch (InterruptedException e) {
-
-                                            }
-                                            adapter.notifyDataSetChanged();
-                                            break;
-                                        case BLOCKED:
-                                        case ENQUEUED:
-                                        case RUNNING:
-                                            adapter.notifyDataSetChanged();
-                                            handler.postDelayed(runnable, 500);
-                                            break;
-                                    }
-                                } else if(workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())){
-                                    Log.d(TAG, "onSuccess: "+Iperf3ExecutorWorker.class.getName()+" in state"+workInfo.getState());
-                                    switch (workInfo.getState()) {
-                                        case SUCCEEDED:
-                                            adapter.notifyDataSetChanged();
-                                            break;
-                                        case CANCELLED:
-                                        case FAILED:
-                                            iperf3RunResultDao.updateResult(uuid, -1);
-                                            remoteWorkManager.cancelAllWorkByTag(iperf3Input.getTestUUID());
-                                            adapter.notifyDataSetChanged();
-                                            break;
-                                        case BLOCKED:
-                                        case ENQUEUED:
-                                        case RUNNING:
-                                            String line = workInfo.getProgress().getString("interval");
-                                            Log.d(TAG, "onSuccess: "+line);
-                                            adapter.notifyDataSetChanged();
-
-                                            break;
-                                    }
-                                }
-                            }
-                            adapter.notifyDataSetChanged();
-                        }
-
-                        public void onFailure(@NonNull Throwable thrown) {
-                            // handle failure
-                        }
-                    },
-                    getContext().getMainExecutor()
-            );
-
-        }
-    };
-
-    /**
-     * Set the texts from the shared preferences
-     */
-    private void setTextsFromSharedPreferences(){
+    /**     * Load all text fields from shared preferences     */
+    private void loadPreferences() {
         setTextFromSharedPreferences(ip, Iperf3Parameter.HOST);
         setTextFromSharedPreferences(port, Iperf3Parameter.PORT);
         setTextFromSharedPreferences(bitrate, Iperf3Parameter.BITRATE);
@@ -260,151 +250,409 @@ public class Iperf3Fragment extends Fragment {
         setTextFromSharedPreferences(cport, Iperf3Parameter.CPORT);
     }
 
-    private void setupBottomSheet(){
-        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.standard_bottom_sheet));
+    /**     * Setup button listeners     */
+    private void setupButtonListeners() {
+        sendBtn.setOnClickListener(v -> startTest());
+        stopBtn.setOnClickListener(v -> stopCurrentTest());
+    }
+
+    /**
+     * Update button visibility based on test state
+     */
+    private void updateActionButtons(boolean isTestRunning) {
+        if (isTestRunning) {
+            sendBtn.setVisibility(View.GONE);
+            stopBtn.setVisibility(View.VISIBLE);
+            stopBtn.setEnabled(true);
+            stopBtn.setAlpha(1.0f);
+        } else {
+            sendBtn.setVisibility(View.VISIBLE);
+            stopBtn.setVisibility(View.GONE);
+            stopBtn.setEnabled(false);
+            stopBtn.setAlpha(0.5f);
+        }
+    }
+
+    private void startTest() {
+        saveAllHistories();
+        currentTestUUID = UUID.randomUUID().toString();
+        iperf3Input.setTestUUID(currentTestUUID);
+        iperf3Input.getParameter().setTestUUID(currentTestUUID);
+        iperf3Input.getParameter().updatePaths();
+        iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
+        createLogFile();
+        executeTest();
+        insertTestRecord();
+        startMonitoring();
+
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        updateActionButtons(true);  // Show stop button, hide send button
+    }
+
+    /**     * Create log file and directories     */
+    private void createLogFile() {
+        File logFile = new File(iperf3Input.getParameter().getRawLogFilePath());
+        File rawPath = new File(iperf3Input.getParameter().getRawDirPath());
+
+        if (!rawPath.exists()) {
+            rawPath.mkdirs();
+        }
+        try {
+            logFile.createNewFile();
+            Log.d(TAG, "Created file: " + logFile);
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating file: ", e);
+        }
+    }
+
+    /**     * Execute the Iperf3 test     */
+    private void executeTest() {
+        Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
+        iperf3Executor.execute();
+        Log.d(TAG, "Test duration: " + iperf3Input.getParameter().getTime() + "s");
+    }
+
+    /**     * Insert test record into database     */
+    private void insertTestRecord() {
+        Iperf3RunResult iperf3RunResult = new Iperf3RunResult(
+                iperf3Input.getTestUUID(),
+                -100,
+                false,
+                iperf3Input,
+                new Timestamp(System.currentTimeMillis())
+        );
+        iperf3RunResultDao.insert(iperf3RunResult);
+    }
+
+    /**     * Start monitoring test progress     */
+    private void startMonitoring() {
+        monitoringRunnable = createMonitoringRunnable();
+        handler.post(monitoringRunnable);
+    }
+
+    /**     * Create a runnable for monitoring test progress     */
+    private Runnable createMonitoringRunnable() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                queryAndUpdateTestStatus();
+            }
+        };
+    }
+
+    /**     * Query work status and update UI     */
+    private void queryAndUpdateTestStatus() {
+        if (currentTestUUID == null) return;
+        RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
+        WorkQuery workQuery = WorkQuery.Builder
+                .fromTags(Arrays.asList(currentTestUUID))
+                .build();
+
+        ListenableFuture<List<WorkInfo>> workInfoFuture = remoteWorkManager.getWorkInfos(workQuery);
+        Futures.addCallback(
+                workInfoFuture,
+                new FutureCallback<List<WorkInfo>>() {
+                    @Override
+                    public void onSuccess(List<WorkInfo> result) {
+                        handleWorkUpdates(result);
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Throwable t) {
+                        Log.e(TAG, "Error querying work info: ", t);
+                    }
+                },
+                getContext().getMainExecutor()
+        );
+    }
+
+    /**     * Handle work status updates     */
+    private void handleWorkUpdates(List<WorkInfo> workInfoList) {
+        if (workInfoList == null || workInfoList.isEmpty()) {
+            if (currentTestUUID != null) {
+                testFinished();
+            }
+            return;
+        }
+        
+        boolean allFinished = true;
+        for (WorkInfo workInfo : workInfoList) {
+            if (!workInfo.getState().isFinished()) {
+                allFinished = false;
+            }
+            if (workInfo.getTags().contains(Iperf3MonitorWorker.class.getCanonicalName())) {
+                handleMonitorWorkerUpdate(workInfo);
+            } else if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
+                handleExecutorWorkerUpdate(workInfo);
+            }
+        }
+        
+        if (allFinished) {
+            testFinished();
+        } else {
+            scheduleNextCheck();
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    /**     * Handle monitor worker status update     */
+    private void handleMonitorWorkerUpdate(WorkInfo workInfo) {
+        Log.d(TAG, "Monitor worker state: " + workInfo.getState());
+
+        switch (workInfo.getState()) {
+            case CANCELLED:
+            case FAILED:
+                handleTestCompletion();
+                break;
+        }
+    }
+
+    /**     * Handle executor worker status update     */
+    private void handleExecutorWorkerUpdate(WorkInfo workInfo) {
+        Log.d(TAG, "Executor worker state: " + workInfo.getState());
+
+        switch (workInfo.getState()) {
+            case CANCELLED:
+            case FAILED:
+                markTestFailed();
+                break;
+            case RUNNING:
+                String progressLine = workInfo.getProgress().getString("interval");
+                Log.d(TAG, "Progress: " + progressLine);
+                break;
+        }
+    }
+
+    /**     * Handle test completion with database write delay     */
+    private void handleTestCompletion() {
+        try {
+            Thread.sleep(DB_WRITE_DELAY_MS);
+            Iperf3RunResult result = iperf3RunResultDao.getRunResult(currentTestUUID);
+            if (result != null) {
+                Log.d(TAG, "Test result error: " + result.error);
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Interrupted while waiting for DB write: ", e);
+        } finally {
+            testFinished();
+        }
+    }
+
+    /**     * Mark test as failed in database     */
+    private void markTestFailed() {
+        iperf3RunResultDao.updateResult(currentTestUUID, -1);
+        RemoteWorkManager.getInstance(ct).cancelAllWorkByTag(currentTestUUID);
+        testFinished();
+    }
+
+    /**     * Schedule next monitoring check     */
+    private void scheduleNextCheck() {
+        if (handler != null && monitoringRunnable != null && currentTestUUID != null) {
+            handler.removeCallbacks(monitoringRunnable);
+            handler.postDelayed(monitoringRunnable, POLLING_INTERVAL_MS);
+        }
+    }
+
+    /**     * Stop the current test     */
+    private void stopCurrentTest() {
+        if (currentTestUUID == null) {
+            Log.w(TAG, "No test running to stop");
+            return;
+        }
+
+        Log.d(TAG, "Stopping test: " + currentTestUUID);
+        RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
+        remoteWorkManager.cancelAllWorkByTag(currentTestUUID);
+
+        iperf3RunResultDao.updateResult(currentTestUUID, -1);
+
+        stopMonitoring();
+        testFinished();
+        adapter.notifyDataSetChanged();
+    }
+
+    /**     * Stop monitoring     */
+    private void stopMonitoring() {
+        if (handler != null && monitoringRunnable != null) {
+            handler.removeCallbacks(monitoringRunnable);
+        }
+    }
+
+    /**     * Called when test finishes (success, failure, or manual stop)     */
+    private void testFinished() {
+        updateActionButtons(false);  // Show send button, hide stop button
+        currentTestUUID = null;
+    }
+
+    /**     * Enable/disable send button     */
+    private void enableSendButton(boolean enabled) {
+        sendBtn.setEnabled(enabled);
+        sendBtn.setAlpha(enabled ? 1.0f : 0.5f);
+    }
+
+    /**     * Enable/disable stop button     */
+    private void enableStopButton(boolean enabled) {
+        stopBtn.setEnabled(enabled);
+        stopBtn.setAlpha(enabled ? 1.0f : 0.5f);
+    }
+
+    /**     * Setup UI components     */
+    private void setupUIComponents(View rootView) {
+        sendBtn = rootView.findViewById(R.id.iperf3_send);
+        stopBtn = rootView.findViewById(R.id.iperf3_stop); // Ensure this button exists in layout
+
+        ip = rootView.findViewById(R.id.iperf3_ip);
+        port = rootView.findViewById(R.id.iperf3_port);
+        bitrate = rootView.findViewById(R.id.iperf3_bandwidth);
+        duration = rootView.findViewById(R.id.iperf3_duration);
+        interval = rootView.findViewById(R.id.iperf3_interval);
+        bytes = rootView.findViewById(R.id.iperf3_bytes);
+        parallel = rootView.findViewById(R.id.iperf3_parallel);
+        cport = rootView.findViewById(R.id.iperf3_cport);
+
+        mode = rootView.findViewById(R.id.iperf3_mode_toggle_group);
+        protocol = rootView.findViewById(R.id.iperf3_protocol_toggle_group);
+        direction = rootView.findViewById(R.id.iperf3_direction_toggle_group);
+
+        modeClient = rootView.findViewById(R.id.iperf3_client_button);
+        modeServer = rootView.findViewById(R.id.iperf3_server_button);
+        protocolTCP = rootView.findViewById(R.id.iperf3_tcp_button);
+        protocolUDP = rootView.findViewById(R.id.iperf3_udp_button);
+        directionDown = rootView.findViewById(R.id.iperf3_download_button);
+        directionUp = rootView.findViewById(R.id.iperf3_upload_button);
+        directonBidir = rootView.findViewById(R.id.iperf3_bidir_button);
+
+        recyclerView = rootView.findViewById(R.id.runners_list);
+    }
+
+    /**     * Setup bottom sheet     */
+    private void setupBottomSheet(View rootView) {
+        bottomSheetBehavior = BottomSheetBehavior.from(rootView.findViewById(R.id.standard_bottom_sheet));
         bottomSheetBehavior.setPeekHeight(16);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         bottomSheetBehavior.setHideable(false);
-
     }
-    private void setupDatabase(){
+
+    /**     * Setup database     */
+    private void setupDatabase() {
         iperf3ResultsDataBase = Iperf3ResultsDataBase.getDatabase(ct);
         iperf3RunResultDao = iperf3ResultsDataBase.iperf3RunResultDao();
     }
-    private void setupRecyclerView(){
-        LinearLayoutManager linearLayoutManager =
-                new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
 
-        recyclerView = view.findViewById(R.id.runners_list);
+    /**     * Setup recycler view     */
+    private void setupRecyclerView() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         adapter = new Iperf3RecyclerViewAdapter(fab);
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onChanged() {
                 super.onChanged();
-                Log.d(TAG, "onChanged: "+adapter.getSelectedUUID());
+                Log.d(TAG, "Selected UUID: " + adapter.getSelectedUUID());
             }
         });
-
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setLayoutManager(layoutManager);
+        
+        // Observe all results to trigger updates
+        iperf3RunResultDao.getAll().observe(getViewLifecycleOwner(), results -> {
+            adapter.notifyDataSetChanged();
+        });
     }
 
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_iperf3_input, container, false);
-        // Initialize the TextView
-        String iperf3UUID = UUID.randomUUID().toString();
-        Iperf3Parameter iperf3Parameter = new Iperf3Parameter(iperf3UUID);
-        iperf3Input = new Iperf3Input(iperf3Parameter, "");
-        sendBtn = view.findViewById(R.id.iperf3_send);
-        spg = SharedPreferencesGrouper.getInstance(ct);
-        handler = new Handler(Looper.getMainLooper());
-
-        setupBottomSheet();
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                uuid = UUID.randomUUID().toString();
-                iperf3Input.setTestUUID(uuid);
-                iperf3Input.getParameter().setTestUUID(uuid);
-                iperf3Input.getParameter().updatePaths();
-                iperf3Input.setTimestamp(new Timestamp(System.currentTimeMillis()));
-
-                File logFile = new File(iperf3Input.getParameter().getRawLogFilePath());
-                File rawPath = new File(iperf3Input.getParameter().getRawDirPath());
-
-                if(!rawPath.exists()) {
-                    rawPath.mkdirs();
+    /**     * Setup toggle group listeners     */
+    private void setupToggleGroupListeners() {
+        mode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.iperf3_client_button) {
+                    updateModeState(modeClient, modeServer, Iperf3Parameter.Iperf3Mode.CLIENT);
+                } else if (checkedId == R.id.iperf3_server_button) {
+                    updateModeState(modeServer, modeClient, Iperf3Parameter.Iperf3Mode.SERVER);
                 }
-                try {
-                    logFile.createNewFile();
-                    Log.d(TAG, "onClick: created File: "+logFile.toString());
-                } catch (Exception e) {
-                    Log.d(TAG, "startRemoteWork: "+e);
-                }
-
-
-
-                Iperf3Executor iperf3Executor = new Iperf3Executor(iperf3Input, getContext());
-                iperf3Executor.execute();
-                Log.d(TAG, "onClick: "+iperf3Input.getParameter().getTime());
-
-
-                Iperf3RunResult iperf3RunResult = new Iperf3RunResult(iperf3Input.getTestUUID(), -100, false, iperf3Input, new java.sql.Timestamp(System.currentTimeMillis()));
-                iperf3RunResultDao.insert(iperf3RunResult);
-
-                handler.post(runnable); // start the first execution
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                adapter.notifyDataSetChanged();
-
             }
         });
-        //fab = view.findViewById(R.id.iperf3_influx_upload_button);
-        ip = view.findViewById(R.id.iperf3_ip);
-        port = view.findViewById(R.id.iperf3_port);
-        bitrate = view.findViewById(R.id.iperf3_bandwidth);
-        duration = view.findViewById(R.id.iperf3_duration);
-        interval = view.findViewById(R.id.iperf3_interval);
-        bytes = view.findViewById(R.id.iperf3_bytes);
-        parallel = view.findViewById(R.id.iperf3_parallel);
-        cport = view.findViewById(R.id.iperf3_cport);
 
+        protocol.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.iperf3_tcp_button) {
+                    updateProtocolState(protocolTCP, protocolUDP, Iperf3Parameter.Iperf3Protocol.TCP);
+                } else if (checkedId == R.id.iperf3_udp_button) {
+                    updateProtocolState(protocolUDP, protocolTCP, Iperf3Parameter.Iperf3Protocol.UDP);
+                }
+            }
+        });
 
-        mode = view.findViewById(R.id.iperf3_mode_toggle_group);
-        protocol = view.findViewById(R.id.iperf3_protocol_toggle_group);
-        direction = view.findViewById(R.id.iperf3_direction_toggle_group);
+        direction.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (isChecked) {
+                if (checkedId == R.id.iperf3_upload_button) {
+                    updateDirectionState(directionUp, directionDown, directonBidir, Iperf3Parameter.Iperf3Direction.UP);
+                } else if (checkedId == R.id.iperf3_download_button) {
+                    updateDirectionState(directionDown, directionUp, directonBidir, Iperf3Parameter.Iperf3Direction.DOWN);
+                } else if (checkedId == R.id.iperf3_bidir_button) {
+                    updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Parameter.Iperf3Direction.BIDIR);
+                }
+            }
+        });
+    }
 
-        modeClient = view.findViewById(R.id.iperf3_client_button);
-        modeServer = view.findViewById(R.id.iperf3_server_button);
-
-        protocolTCP = view.findViewById(R.id.iperf3_tcp_button);
-        protocolUDP = view.findViewById(R.id.iperf3_udp_button);
-
-        directionDown = view.findViewById(R.id.iperf3_download_button);
-        directionUp = view.findViewById(R.id.iperf3_upload_button);
-        directonBidir = view.findViewById(R.id.iperf3_bidir_button);
-
-        setupTextWatchers();
-        setTextsFromSharedPreferences();
+    /**     * Load saved mode state     */
+    private void loadModeState() {
         try {
-            switch (Iperf3Parameter.Iperf3Mode.valueOf(spg.getSharedPreference(SPType.IPERF3).getString(Iperf3Parameter.MODE, String.valueOf(Iperf3Parameter.Iperf3Mode.UNDEFINED)))){
+            Iperf3Parameter.Iperf3Mode savedMode = Iperf3Parameter.Iperf3Mode.valueOf(
+                    spg.getSharedPreference(SPType.IPERF3)
+                            .getString(Iperf3Parameter.MODE, Iperf3Parameter.Iperf3Mode.UNDEFINED.toString())
+            );
+            switch (savedMode) {
                 case CLIENT:
                     updateModeState(modeClient, modeServer, Iperf3Parameter.Iperf3Mode.CLIENT);
                     break;
                 case SERVER:
                     updateModeState(modeServer, modeClient, Iperf3Parameter.Iperf3Mode.SERVER);
                     break;
-                case UNDEFINED:
                 default:
                     modeClient.setBackgroundColor(Color.TRANSPARENT);
                     modeServer.setBackgroundColor(Color.TRANSPARENT);
-                    spg.getSharedPreference(SPType.IPERF3).edit().putString(Iperf3Parameter.MODE, Iperf3Parameter.Iperf3Mode.UNDEFINED.toString()).apply();
-                    break;
+                    spg.getSharedPreference(SPType.IPERF3).edit()
+                            .putString(Iperf3Parameter.MODE, Iperf3Parameter.Iperf3Mode.UNDEFINED.toString()).apply();
             }
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "onCreateView: ", e);
+            Log.e(TAG, "Error loading mode state: ", e);
         }
+    }
+
+    /**     * Load saved protocol state     */
+    private void loadProtocolState() {
         try {
-            switch (Iperf3Parameter.Iperf3Protocol.valueOf(spg.getSharedPreference(SPType.IPERF3).getString(Iperf3Parameter.PROTOCOL, Iperf3Parameter.Iperf3Protocol.UNDEFINED.toString()))){
+            Iperf3Parameter.Iperf3Protocol savedProtocol = Iperf3Parameter.Iperf3Protocol.valueOf(
+                    spg.getSharedPreference(SPType.IPERF3)
+                            .getString(Iperf3Parameter.PROTOCOL, Iperf3Parameter.Iperf3Protocol.UNDEFINED.toString())
+            );
+            switch (savedProtocol) {
                 case TCP:
                     updateProtocolState(protocolTCP, protocolUDP, Iperf3Parameter.Iperf3Protocol.TCP);
                     break;
                 case UDP:
                     updateProtocolState(protocolUDP, protocolTCP, Iperf3Parameter.Iperf3Protocol.UDP);
                     break;
-                case UNDEFINED:
                 default:
                     protocolTCP.setBackgroundColor(Color.TRANSPARENT);
                     protocolUDP.setBackgroundColor(Color.TRANSPARENT);
-                    spg.getSharedPreference(SPType.IPERF3).edit().putString(Iperf3Parameter.PROTOCOL, Iperf3Parameter.Iperf3Protocol.UNDEFINED.toString()).apply();
-                    break;
+                    spg.getSharedPreference(SPType.IPERF3).edit()
+                            .putString(Iperf3Parameter.PROTOCOL, Iperf3Parameter.Iperf3Protocol.UNDEFINED.toString()).apply();
             }
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "onCreateView: ", e);
+            Log.e(TAG, "Error loading protocol state: ", e);
         }
+    }
+
+    /**     * Load saved direction state     */
+    private void loadDirectionState() {
         try {
-            switch (Iperf3Parameter.Iperf3Direction.valueOf(spg.getSharedPreference(SPType.IPERF3).getString(Iperf3Parameter.DIRECTION, Iperf3Parameter.Iperf3Direction.UNDEFINED.toString()))) {
+            Iperf3Parameter.Iperf3Direction savedDirection = Iperf3Parameter.Iperf3Direction.valueOf(
+                    spg.getSharedPreference(SPType.IPERF3)
+                            .getString(Iperf3Parameter.DIRECTION, Iperf3Parameter.Iperf3Direction.UNDEFINED.toString())
+            );
+            switch (savedDirection) {
                 case UP:
                     updateDirectionState(directionUp, directionDown, directonBidir, Iperf3Parameter.Iperf3Direction.UP);
                     break;
@@ -414,59 +662,89 @@ public class Iperf3Fragment extends Fragment {
                 case BIDIR:
                     updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Parameter.Iperf3Direction.BIDIR);
                     break;
-                case UNDEFINED:
                 default:
                     directionUp.setBackgroundColor(Color.TRANSPARENT);
                     directionDown.setBackgroundColor(Color.TRANSPARENT);
                     directonBidir.setBackgroundColor(Color.TRANSPARENT);
-                    break;
             }
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "onCreateView: ", e);
+            Log.e(TAG, "Error loading direction state: ", e);
         }
+    }
 
-        mode.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
-            @Override
-            public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-                if (isChecked) {
-                    if (checkedId == R.id.iperf3_client_button) {
-                        updateModeState(modeClient, modeServer, Iperf3Parameter.Iperf3Mode.CLIENT);
-                    } else if (checkedId == R.id.iperf3_server_button) {
-                        updateModeState(modeServer, modeClient, Iperf3Parameter.Iperf3Mode.SERVER);
-                    }
-                }
-            }
-        });
-        protocol.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
-            @Override
-            public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-                if (isChecked) {
-                    if (checkedId == R.id.iperf3_tcp_button) {
-                        updateProtocolState(protocolTCP, protocolUDP, Iperf3Parameter.Iperf3Protocol.TCP);
-                    } else if (checkedId == R.id.iperf3_udp_button) {
-                        updateProtocolState(protocolUDP, protocolTCP, Iperf3Parameter.Iperf3Protocol.UDP);
-                    }
-                }
-            }
-        });
-        direction.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
-            @Override
-            public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-                if (isChecked) {
-                    if (checkedId == R.id.iperf3_upload_button) {
-                        updateDirectionState(directionUp, directionDown, directonBidir, Iperf3Parameter.Iperf3Direction.UP);
-                    } else if (checkedId == R.id.iperf3_download_button) {
-                        updateDirectionState(directionDown, directionUp, directonBidir, Iperf3Parameter.Iperf3Direction.DOWN);
-                    } else if (checkedId == R.id.iperf3_bidir_button) {
-                        updateDirectionState(directonBidir, directionUp, directionDown, Iperf3Parameter.Iperf3Direction.BIDIR);
-                    }
-                }
-            }
-        });
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_iperf3_input, container, false);
+
+        // Initialize core components
+        initializeCoreComponents();
+        setupUIComponents(view);
         setupDatabase();
-        setupBottomSheet();
+        setupBottomSheet(view);
         setupRecyclerView();
+
+        // Load preferences and state
+        setupTextWatchers();
+        loadPreferences();
+        loadModeState();
+        loadProtocolState();
+        loadDirectionState();
+        loadAllHistories();
+
+        // Setup listeners
+        setupButtonListeners();
+        setupToggleGroupListeners();
+
+        // Check for running tests
+        checkForRunningTests();
+
         return view;
+    }
+
+    private void checkForRunningTests() {
+        RemoteWorkManager remoteWorkManager = RemoteWorkManager.getInstance(ct);
+        WorkQuery workQuery = WorkQuery.Builder
+                .fromStates(Arrays.asList(WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED))
+                .build();
+
+        ListenableFuture<List<WorkInfo>> workInfoFuture = remoteWorkManager.getWorkInfos(workQuery);
+        Futures.addCallback(
+                workInfoFuture,
+                new FutureCallback<List<WorkInfo>>() {
+                    @Override
+                    public void onSuccess(List<WorkInfo> result) {
+                        for (WorkInfo workInfo : result) {
+                            if (workInfo.getTags().contains(Iperf3ExecutorWorker.class.getCanonicalName())) {
+                                // Extract the test UUID from tags (it was added as a tag during startTest)
+                                for (String tag : workInfo.getTags()) {
+                                    if (tag.length() == 36) { // Simple check for UUID string length
+                                        currentTestUUID = tag;
+                                        startMonitoring();
+                                        updateActionButtons(true);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Throwable t) {
+                        Log.e(TAG, "Error checking for running tests: ", t);
+                    }
+                },
+                getContext().getMainExecutor()
+        );
+    }
+
+    /**     * Initialize core components     */
+    private void initializeCoreComponents() {
+        String iperf3UUID = UUID.randomUUID().toString();
+        Iperf3Parameter iperf3Parameter = new Iperf3Parameter(iperf3UUID);
+        iperf3Input = new Iperf3Input(iperf3Parameter, "");
+        spg = SharedPreferencesGrouper.getInstance(ct);
+        handler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -474,32 +752,41 @@ public class Iperf3Fragment extends Fragment {
         super.onResume();
         view.requestLayout();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        handler.removeCallbacks(runnable);
+        stopMonitoring();
     }
 
-
-    private void updateModeState(MaterialButton activeButton, MaterialButton inactiveButton, Iperf3Parameter.Iperf3Mode protocol) {
+    /**     * Update mode button state     */
+    private void updateModeState(MaterialButton activeButton, MaterialButton inactiveButton,
+                                 Iperf3Parameter.Iperf3Mode modeValue) {
         activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
         inactiveButton.setBackgroundColor(Color.TRANSPARENT);
-        iperf3Input.getParameter().setMode(protocol);
-        spg.getSharedPreference(SPType.IPERF3).edit().putString(Iperf3Parameter.MODE, protocol.toString()).apply();
+        iperf3Input.getParameter().setMode(modeValue);
+        spg.getSharedPreference(SPType.IPERF3).edit()
+                .putString(Iperf3Parameter.MODE, modeValue.toString()).apply();
     }
 
-    private void updateProtocolState(MaterialButton activeButton, MaterialButton inactiveButton, Iperf3Parameter.Iperf3Protocol protocol) {
+    /**     * Update protocol button state     */
+    private void updateProtocolState(MaterialButton activeButton, MaterialButton inactiveButton,
+                                     Iperf3Parameter.Iperf3Protocol protocolValue) {
         activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
         inactiveButton.setBackgroundColor(Color.TRANSPARENT);
-        iperf3Input.getParameter().setProtocol(protocol);
-        spg.getSharedPreference(SPType.IPERF3).edit().putString(Iperf3Parameter.PROTOCOL, protocol.toString()).apply();
+        iperf3Input.getParameter().setProtocol(protocolValue);
+        spg.getSharedPreference(SPType.IPERF3).edit()
+                .putString(Iperf3Parameter.PROTOCOL, protocolValue.toString()).apply();
     }
 
-    private void updateDirectionState(MaterialButton activeButton, MaterialButton inactiveButton1, MaterialButton inactiveButton2, Iperf3Parameter.Iperf3Direction direction) {
+    /**     * Update direction button state     */
+    private void updateDirectionState(MaterialButton activeButton, MaterialButton inactiveButton1,
+                                      MaterialButton inactiveButton2, Iperf3Parameter.Iperf3Direction directionValue) {
         activeButton.setBackgroundColor(getResources().getColor(R.color.purple_500, null));
         inactiveButton1.setBackgroundColor(Color.TRANSPARENT);
         inactiveButton2.setBackgroundColor(Color.TRANSPARENT);
-        iperf3Input.getParameter().setDirection(direction);
-        spg.getSharedPreference(SPType.IPERF3).edit().putString(Iperf3Parameter.DIRECTION, direction.toString()).apply();
+        iperf3Input.getParameter().setDirection(directionValue);
+        spg.getSharedPreference(SPType.IPERF3).edit()
+                .putString(Iperf3Parameter.DIRECTION, directionValue.toString()).apply();
     }
 }
