@@ -7,7 +7,7 @@
 plugins {
     id 'com.android.application'
     id 'androidx.navigation.safeargs'
-    id("org.spdx.sbom") version "0.10.0"
+    id("org.spdx.sbom") version "0.11.0"
 }
 
 def keystoreProperties = new Properties()
@@ -118,7 +118,7 @@ spdxSbom {
             configurations = ['releaseRuntimeClasspath']
             scm {
                 uri.set("https://github.com/omnt/OpenMobileNetworkToolkit")
-                revision.set("0.6")
+                revision.set("0.7")
             }
             document {
                 name.set("OpenMobileNetworkToolkit")
