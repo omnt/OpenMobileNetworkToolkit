@@ -75,7 +75,7 @@ public class PingService extends Service {
                 .build();
 
         spg.getSharedPreference(SPType.PING).edit().putString(PING_LAST_UUID, pingWR.getId().toString()).apply();
-        registerObserver(command);
+
         WorkContinuation workContinuation = workManager.beginWith(pingWR).then(pingToLineProtocolWR);
         if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)){
             OneTimeWorkRequest influxDB2xUploadWorker = new OneTimeWorkRequest.Builder(InfluxDB2xUploadWorker.class)
@@ -86,6 +86,7 @@ public class PingService extends Service {
             workContinuation = workContinuation.then(influxDB2xUploadWorker);
         }
         workContinuation.enqueue();
+        registerObserver(command);
 
     }
     private void stopWorker(){

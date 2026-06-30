@@ -206,7 +206,6 @@ public class PingFragment extends Fragment {
         Log.d(TAG, "onResume: PingFragment resumed");
         spg.getSharedPreference(SPType.PING).registerOnSharedPreferenceChangeListener(listener);
         checkLastUUID(spg.getSharedPreference(SPType.PING).getString(PingService.PING_LAST_UUID, null));
-
     }
 
     @Override
@@ -227,12 +226,10 @@ public class PingFragment extends Fragment {
                 String uuidStr = sharedPreferences.getString(PingService.PING_LAST_UUID, null);
                 Log.d(TAG, "registerObserver: lastUUID changed "+uuidStr);
                 checkLastUUID(uuidStr);
-
             }
         };
 
         spg.getSharedPreference(SPType.PING).registerOnSharedPreferenceChangeListener(listener);
-
         checkLastUUID(spg.getSharedPreference(SPType.PING).getString(PingService.PING_LAST_UUID, null));
     }
 

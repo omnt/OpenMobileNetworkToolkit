@@ -214,7 +214,7 @@ public class PingWorker extends Worker {
 
 
 
-            Thread.sleep(200); // Sleep so that the Observer can process the last lines
+            Thread.sleep(1000); // Sleep so that the Observer can process the last lines
         } catch (IOException e) {
             Log.e(TAG, "Error while executing ping command: " + e.toString());
             return Result.failure(output.putString(REASON, "Error while executing ping command.").build());
