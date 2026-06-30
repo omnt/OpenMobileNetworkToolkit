@@ -15,7 +15,7 @@ jobs:
     environment: ngni-omnt
     steps:
       - name: Checkout Branch ${{ github.ref }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Get Latest iPerf
         run: |
           wget -O jniLibs.zip https://github.com/omnt/iperf/releases/latest/download/jniLibs
