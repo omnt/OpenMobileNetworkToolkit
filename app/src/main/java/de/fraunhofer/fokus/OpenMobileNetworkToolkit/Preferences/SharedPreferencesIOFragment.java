@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -35,6 +36,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,6 +50,7 @@ import java.util.Map;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.ClearPreferencesFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.MultiSelectDialogFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.R;
+import de.fraunhofer.fokus.OpenMobileNetworkToolkit.ScannerFragment;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.SettingPreferences.ClearPreferencesListener;
 
 import org.json.JSONArray;
@@ -59,6 +63,7 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
     private Uri uri;
     private LinearLayout mainLayout;
     private ScrollView scrollView;
+    private ImageButton qrButton;
 
     private final ActivityResultLauncher<Intent> exportPreferencesLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -109,6 +114,19 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getParentFragmentManager().setFragmentResultListener("qr_scan_request", this, (requestKey, bundle) -> {
+            String scannedText = bundle.getString("scanned_qr");
+            if (scannedText != null) {
+                Log.d("OriginalFragment", "Got scanned QR: " + scannedText);
+                clearConfig();
+                importPreferenceFromText(scannedText);
+            }
+        });
+    }
+
     private void clearConfig() {
         ClearPreferencesFragment fragment = new ClearPreferencesFragment();
         fragment.setClearPreferencesListener(this);
@@ -117,6 +135,16 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
 
 
     private void setupUI(View view) {
+
+        qrButton = view.findViewById(R.id.fragment_shared_preferences_io_button_scan_qr_code);
+        qrButton.setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(this);
+            navController.navigate(R.id.fragment_scanner);
+
+        });
+
+
+
         mainLayout = view.findViewById(R.id.fragment_shared_preferences_io);
 
         Button exportButton = createButton("Export Config", v -> createFile());
@@ -210,7 +238,16 @@ public class SharedPreferencesIOFragment extends Fragment implements ClearPrefer
         return keys;
     }
 
-
+    private void importPreferenceFromText(String jsonString) {
+        try {
+            List<String> keys = getKeysFromJson(jsonString);
+            MultiSelectDialogFragment dialogFragment = getMultiSelectDialogFragment(jsonString, keys);
+            dialogFragment.show(getParentFragmentManager(), "multiSelectDialog");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to import Config", e);
+            showToast("Failed to import Config");
+        }
+    }
     private void importPreferencesFromFile(Uri uri) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(context.getContentResolver().openInputStream(uri)))) {
             StringBuilder stringBuilder = new StringBuilder();

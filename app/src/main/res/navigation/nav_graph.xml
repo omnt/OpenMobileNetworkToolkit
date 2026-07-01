@@ -55,7 +55,13 @@
             app:destination="@id/workProfileActivity" />
 
     </fragment>
+    <fragment
+        android:id="@+id/fragment_scanner"
+        android:label="ScannerFragment"
+        android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.ScannerFragment"
+        tools:layout="@layout/fragment_scanner">
 
+    </fragment>
     <fragment
         android:id="@+id/about_fragment"
         android:name="de.fraunhofer.fokus.OpenMobileNetworkToolkit.AboutFragment"
