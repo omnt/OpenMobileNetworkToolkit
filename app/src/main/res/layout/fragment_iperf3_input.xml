@@ -7,15 +7,17 @@
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/iperf3_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/iperf3_scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="80dp">
+        android:paddingBottom="96dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,319 +28,571 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Iperf3 Configuration"
+                android:layout_marginBottom="16dp"
+                android:text="iPerf3"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="24sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp"
-                android:textColor="?attr/colorPrimary" />
-
-            <!-- Connection Settings -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                android:backgroundTint="?attr/colorSurfaceVariant"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Connection"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp"
-                        android:alpha="0.7" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:hint="Target IP / Host"
-                        app:startIconDrawable="@drawable/baseline_exit_to_app_24">
-
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/iperf3_ip"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textUri" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Port">
-
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/iperf3_port"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Test Parameters -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                android:backgroundTint="?attr/colorSurfaceVariant"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Parameters"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="12dp"
-                        android:alpha="0.7" />
-
-                    <GridLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:columnCount="2"
-                        android:alignmentMode="alignMargins">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_marginEnd="4dp"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Duration"
-                            app:suffixText="s">
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/iperf3_duration"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="number" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Parallel"
-                            app:suffixText="str">
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/iperf3_parallel"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="number" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_marginEnd="4dp"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Bandwidth"
-                            app:suffixText="Mb">
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/iperf3_bandwidth"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="number" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:layout_marginStart="4dp"
-                            android:layout_marginBottom="8dp"
-                            android:hint="Interval"
-                            app:suffixText="s">
-                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                                android:id="@+id/iperf3_interval"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="numberDecimal" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                    </GridLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:hint="Bytes limit">
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/iperf3_bytes"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Client Port">
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/iperf3_cport"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Mode & Protocol -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="0dp"
-                android:backgroundTint="?attr/colorSurfaceVariant"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/iperf3_mode_toggle_group"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/iperf3_client_button"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Client" />
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/iperf3_server_button"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Server" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/iperf3_protocol_toggle_group"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/iperf3_tcp_button"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="TCP" />
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/iperf3_udp_button"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="UDP" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/iperf3_direction_toggle_group"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/iperf3_download_button"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Down" />
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/iperf3_upload_button"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Up" />
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/iperf3_bidir_button"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Bidir" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Action buttons -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_send"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Start Iperf3 Test"
-                app:cornerRadius="28dp"
-                android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/iperf3_stop"
+            <!-- ============ Live panel: the current test (hidden when idle) ============ -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/iperf3_live_card"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Stop Current Test"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:visibility="gone"
-                app:cornerRadius="28dp"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                style="@style/Widget.Material3.Button.TonalButton"
-                app:backgroundTint="?attr/colorErrorContainer"
-                android:textColor="?attr/colorError" />
+                app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/iperf3_live_status_icon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="8dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_iperf3_running" />
+
+                        <TextView
+                            android:id="@+id/iperf3_live_status"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="CONNECTING"
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="?attr/colorOnPrimaryContainer"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/iperf3_live_close"
+                            style="@style/Widget.Material3.Button.IconButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="Close"
+                            android:visibility="gone"
+                            app:icon="@drawable/ic_iperf3_close"
+                            app:iconTint="?attr/colorOnPrimaryContainer" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/iperf3_live_target"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:alpha="0.8"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnPrimaryContainer" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/iperf3_live_ul_box"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="UPLOAD"
+                                android:textAppearance="?attr/textAppearanceLabelSmall"
+                                android:textColor="?attr/colorPrimary"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="true"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/iperf3_live_ul"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="–"
+                                    android:textColor="?attr/colorOnPrimaryContainer"
+                                    android:textSize="34sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="Mbit/s"
+                                    android:textAppearance="?attr/textAppearanceBodySmall"
+                                    android:textColor="?attr/colorOnPrimaryContainer" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/iperf3_live_ul_mean"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:alpha="0.8"
+                                android:textAppearance="?attr/textAppearanceBodySmall"
+                                android:textColor="?attr/colorOnPrimaryContainer" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/iperf3_live_dl_box"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="DOWNLOAD"
+                                android:textAppearance="?attr/textAppearanceLabelSmall"
+                                android:textColor="?attr/colorTertiary"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:baselineAligned="true"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/iperf3_live_dl"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="–"
+                                    android:textColor="?attr/colorOnPrimaryContainer"
+                                    android:textSize="34sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="Mbit/s"
+                                    android:textAppearance="?attr/textAppearanceBodySmall"
+                                    android:textColor="?attr/colorOnPrimaryContainer" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/iperf3_live_dl_mean"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:alpha="0.8"
+                                android:textAppearance="?attr/textAppearanceBodySmall"
+                                android:textColor="?attr/colorOnPrimaryContainer" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Iperf3SparklineView
+                        android:id="@+id/iperf3_live_chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:layout_marginTop="12dp" />
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/iperf3_live_progress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:indeterminate="true"
+                        app:trackCornerRadius="3dp"
+                        app:trackThickness="6dp" />
+
+                    <TextView
+                        android:id="@+id/iperf3_live_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:alpha="0.8"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnPrimaryContainer" />
+
+                    <TextView
+                        android:id="@+id/iperf3_live_error"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorError"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/iperf3_stop"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="12dp"
+                        android:text="Stop test"
+                        android:textColor="?attr/colorOnErrorContainer"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="?attr/colorErrorContainer"
+                        app:cornerRadius="28dp"
+                        app:icon="@drawable/ic_iperf3_stop"
+                        app:iconTint="?attr/colorOnErrorContainer" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ============ Form (hidden while a test runs) ============ -->
+            <LinearLayout
+                android:id="@+id/iperf3_form"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="?attr/colorSurfaceVariant"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/iperf3_ip_layout"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:hint="iperf3 server (IP or host)"
+                            app:startIconDrawable="@drawable/baseline_exit_to_app_24">
+
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/iperf3_ip"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textUri" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:id="@+id/iperf3_direction_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:alpha="0.7"
+                            android:text="Direction"
+                            android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/iperf3_direction_toggle_group"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            app:selectionRequired="true"
+                            app:singleSelection="true">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/iperf3_upload_button"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Up" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/iperf3_download_button"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Down" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/iperf3_bidir_button"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Both" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                        <LinearLayout
+                            android:id="@+id/iperf3_protocol_duration_row"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButtonToggleGroup
+                                android:id="@+id/iperf3_protocol_toggle_group"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:layout_weight="1"
+                                app:selectionRequired="true"
+                                app:singleSelection="true">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/iperf3_tcp_button"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="TCP" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/iperf3_udp_button"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="UDP" />
+                            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/iperf3_duration_layout"
+                                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:hint="Duration"
+                                app:placeholderText="10"
+                                app:suffixText="s">
+
+                                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                    android:id="@+id/iperf3_duration"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <!-- Advanced: collapsed by default -->
+                        <LinearLayout
+                            android:id="@+id/iperf3_advanced_header"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:minHeight="48dp"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Advanced"
+                                    android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+                                <TextView
+                                    android:id="@+id/iperf3_advanced_summary"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:alpha="0.7"
+                                    android:ellipsize="end"
+                                    android:maxLines="1"
+                                    android:textAppearance="?attr/textAppearanceBodySmall" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:id="@+id/iperf3_advanced_chevron"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_iperf3_expand_more" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/iperf3_advanced"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <com.google.android.material.button.MaterialButtonToggleGroup
+                                android:id="@+id/iperf3_mode_toggle_group"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:selectionRequired="true"
+                                app:singleSelection="true">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/iperf3_client_button"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Client" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/iperf3_server_button"
+                                    style="@style/Widget.Material3.Button.OutlinedButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Server" />
+                            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                            <GridLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:alignmentMode="alignMargins"
+                                android:columnCount="2">
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/iperf3_port_layout"
+                                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_columnWeight="1"
+                                    android:layout_marginEnd="4dp"
+                                    android:layout_marginBottom="8dp"
+                                    android:hint="Port"
+                                    app:placeholderText="5201">
+
+                                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                        android:id="@+id/iperf3_port"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="number" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/iperf3_parallel_layout"
+                                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_columnWeight="1"
+                                    android:layout_marginStart="4dp"
+                                    android:layout_marginBottom="8dp"
+                                    android:hint="Parallel streams"
+                                    app:placeholderText="1">
+
+                                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                        android:id="@+id/iperf3_parallel"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="number" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/iperf3_bandwidth_layout"
+                                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_columnWeight="1"
+                                    android:layout_marginEnd="4dp"
+                                    android:layout_marginBottom="8dp"
+                                    android:hint="Bandwidth"
+                                    app:suffixText="Mbit/s">
+
+                                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                        android:id="@+id/iperf3_bandwidth"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="number" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/iperf3_interval_layout"
+                                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_columnWeight="1"
+                                    android:layout_marginStart="4dp"
+                                    android:layout_marginBottom="8dp"
+                                    android:hint="Report interval"
+                                    app:placeholderText="1"
+                                    app:suffixText="s">
+
+                                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                        android:id="@+id/iperf3_interval"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="numberDecimal" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/iperf3_bytes_layout"
+                                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_columnWeight="1"
+                                    android:layout_marginEnd="4dp"
+                                    android:hint="Bytes limit"
+                                    app:helperText="e.g. 100M, 1G"
+                                    app:placeholderText="100M">
+
+                                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                        android:id="@+id/iperf3_bytes"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="textCapCharacters|textNoSuggestions" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/iperf3_cport_layout"
+                                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_columnWeight="1"
+                                    android:layout_marginStart="4dp"
+                                    android:hint="Client port">
+
+                                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                        android:id="@+id/iperf3_cport"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:inputType="number" />
+                                </com.google.android.material.textfield.TextInputLayout>
+                            </GridLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/iperf3_send"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="Start test"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="28dp"
+                    app:icon="@drawable/ic_iperf3_play" />
+            </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Results Bottom Sheet -->
+    <!-- ============ History (bottom sheet) ============ -->
     <FrameLayout
         android:id="@+id/standard_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        android:background="?attr/colorSurface"
-        app:shapeAppearanceLargeComponent="@style/ShapeAppearance.Material3.LargeComponent">
+        android:background="?attr/colorSurfaceContainerLow"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -349,14 +603,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/iperf3_history_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Live Results"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:paddingHorizontal="16dp"
-                android:paddingBottom="8dp"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="History"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/iperf3_history_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.7"
+                    android:textAppearance="?attr/textAppearanceBodyMedium" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/iperf3_history_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0.7"
+                android:gravity="center"
+                android:padding="32dp"
+                android:text="No tests yet.\nEnter an iperf3 server above and tap Start test."
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/runners_list"
@@ -364,8 +645,6 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingBottom="16dp" />
-
         </LinearLayout>
     </FrameLayout>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

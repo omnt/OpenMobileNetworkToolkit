@@ -26,7 +26,8 @@ import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Metric.MetricCalculator;
 
 @Dao
 public interface Iperf3RunResultDao {
-    @Query("SELECT * FROM iperf3_result_database")
+    /** All runs, newest first (display order). Room runs the query off the main thread. */
+    @Query("SELECT * FROM iperf3_result_database ORDER BY timestamp DESC")
     LiveData<List<Iperf3RunResult>> getAll();
 
     @Query("SELECT uid FROM iperf3_result_database ORDER BY timestamp DESC")
@@ -67,6 +68,10 @@ public interface Iperf3RunResultDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Iperf3RunResult iperf3RunResult);
+
+    /** Removes a run from the history (raw and line protocol files are kept). */
+    @Query("DELETE FROM iperf3_result_database WHERE uid = :uid")
+    void delete(String uid);
 
     @Query("SELECT metricDL FROM iperf3_result_database WHERE uid = :uid")
     @TypeConverters({MetricConverter.class})

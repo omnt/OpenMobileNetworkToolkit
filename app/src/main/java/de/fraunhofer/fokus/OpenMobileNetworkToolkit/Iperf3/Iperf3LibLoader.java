@@ -20,13 +20,14 @@ Iperf3LibLoader {
     private static final String TAG = "Iperf3LibLoader";
 
     private static final List<String> IPERF_LIBRARIES = List.of(
-        "iperf3.10.1",
-        "iperf3.11",
-        "iperf3.12",
-        "iperf3.15",
-        "iperf3.16",
-        "iperf3.17.1",
-        "iperf3.18"
+//        "iperf3.10.1",
+//        "iperf3.11",
+//        "iperf3.12",
+//        "iperf3.15",
+//        "iperf3.16",
+//        "iperf3.17.1",
+//        "iperf3.18",
+        "iperf3"
     );
 
     public static synchronized void load() {
