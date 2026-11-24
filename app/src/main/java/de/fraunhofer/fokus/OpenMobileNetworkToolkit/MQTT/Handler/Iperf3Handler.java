@@ -92,11 +92,8 @@ public class Iperf3Handler extends Handler {
     }
     @Override
     public ArrayList<OneTimeWorkRequest> getMonitorWorkRequests(Context context) {
-        ArrayList<OneTimeWorkRequest> monitorWorkRequests = new ArrayList<>();
-        for(Iperf3Input iperf3Input : iperf3Inputs) {
-            monitorWorkRequests.add(iperf3Input.getWorkRequestMonitor(iperf3Inputs.indexOf(iperf3Input), context.getPackageName()));
-        }
-        return monitorWorkRequests;
+        // iPerf3 needs no monitor worker: the executor streams iperf3's events itself.
+        return new ArrayList<>();
     }
 
 
@@ -135,7 +132,6 @@ public class Iperf3Handler extends Handler {
             ArrayList<OneTimeWorkRequest> workRequests = new ArrayList<>();
             int i = iperf3Inputs.indexOf(iperf3Input);
             workRequests.add(iperf3Input.getWorkRequestExecutor(i, context.getPackageName()));
-            workRequests.add(iperf3Input.getWorkRequestMonitor(i, context.getPackageName()));
             workRequests.add(iperf3Input.getWorkRequestLineProtocol(i, context.getPackageName()));
             workRequests.add(iperf3Input.getWorkRequestUpload(i, context.getPackageName()));
             workRequestss.add(workRequests);
@@ -145,7 +141,7 @@ public class Iperf3Handler extends Handler {
 
         Log.d(TAG, "enableSequence: workRequestss size: "+workRequestss.size());
         for(ArrayList<OneTimeWorkRequest> workRequests: workRequestss){
-            RemoteWorkContinuation remoteWorkContinuation = remoteWorkManager.beginWith(workRequests.subList(0, 2)).then(workRequests.get(2)).then(workRequests.get(3));
+            RemoteWorkContinuation remoteWorkContinuation = remoteWorkManager.beginWith(workRequests.get(0)).then(workRequests.get(1)).then(workRequests.get(2));
             continuations.add(remoteWorkContinuation);
         }
         Log.d(TAG, "enableSequence: continuations size: "+continuations.size());

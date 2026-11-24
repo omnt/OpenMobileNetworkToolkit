@@ -18,14 +18,11 @@ import androidx.work.multiprocess.RemoteWorkContinuation;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 
-import java.util.Arrays;
 
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.InfluxDB2x.Worker.InfluxDB2xUploadWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Inputs.Iperf3Input;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerOne;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerOne;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3MonitorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ToLineProtocolWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SPType;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Preferences.SharedPreferencesGrouper;
@@ -55,10 +52,6 @@ public class Iperf3Executor {
                 .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName(), Iperf3ServiceWorkerOne.class.getName()).build())
                 .addTag(iperf3Input.getTestUUID())
                 .build();
-        OneTimeWorkRequest iperf3MonitorWorker = new OneTimeWorkRequest.Builder(Iperf3MonitorWorker.class)
-                .setInputData(iperf3Input.getInputAsDataBuilder(0, context.getPackageName(), Iperf3MonitorServiceWorkerOne.class.getName()).build())
-                .addTag(iperf3Input.getTestUUID())
-                .build();
         OneTimeWorkRequest iPerf3ToLineProtocolWorker = new OneTimeWorkRequest.Builder(Iperf3ToLineProtocolWorker.class)
                 .setInputData(iperf3Input.getInputAsDataBuilder(0).build())
                 .addTag(iperf3Input.getTestUUID())
@@ -69,7 +62,7 @@ public class Iperf3Executor {
                 .build();
 
 
-        this.remoteWorkContinuation = this.remoteWorkManager.beginWith(Arrays.asList(iperf3ExecutorWorker, iperf3MonitorWorker)).then(iPerf3ToLineProtocolWorker);
+        this.remoteWorkContinuation = this.remoteWorkManager.beginWith(iperf3ExecutorWorker).then(iPerf3ToLineProtocolWorker);
         if(spg.getSharedPreference(SPType.LOGGING).getBoolean("enable_influx", false)){
             this.remoteWorkContinuation = remoteWorkContinuation.then(influxDB2xUploadWorker);
         }

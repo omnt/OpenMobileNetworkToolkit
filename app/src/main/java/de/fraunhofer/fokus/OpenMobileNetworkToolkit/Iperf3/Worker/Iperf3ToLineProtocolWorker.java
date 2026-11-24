@@ -92,6 +92,11 @@ public class Iperf3ToLineProtocolWorker extends Worker {
         Data output = new Data.Builder().putBoolean("iperf3_upload", false).build();
 
         Iperf3RunResult iperf3RunResult = iperf3RunResultDao.getRunResult(iperf3Input.getTestUUID());
+        if (iperf3RunResult == null || iperf3RunResult.start == null) {
+            // iperf3 never got as far as its "start" event (e.g. connect failed): nothing to convert.
+            Log.d(TAG, "doWork: no start event for " + iperf3Input.getTestUUID() + ", skipping line protocol");
+            return Result.success(output);
+        }
 
         long timestamp = Integer.toUnsignedLong( iperf3RunResult.start.getTimestamp().getTimesecs())*1000;
         Log.d(TAG, "doWork: "+timestamp);

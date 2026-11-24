@@ -79,6 +79,18 @@ public class MetricCalculator {
 
     }
 
+    /**
+     * Sets precomputed values (e.g. a live summary streamed from another process) without the
+     * underlying samples. calcAll() leaves them untouched as long as no samples are added.
+     */
+    public void setSnapshot(double last, double mean, double median, double min, double max) {
+        this.last = last;
+        this.mean = mean;
+        this.median = median;
+        this.min = min;
+        this.max = max;
+    }
+
     public void update(Double value) {
         this.meanList.add(value);
         this.last = value;

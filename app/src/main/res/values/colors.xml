@@ -24,4 +24,6 @@
     <color name="radio_red">#ff8989</color>
     <color name="radio_green">#a9ff68</color>
 
+    <!-- iPerf3: status of a finished test (night variant in values-night/colors.xml) -->
+    <color name="iperf3_success">#FF2E7D32</color>
 </resources>

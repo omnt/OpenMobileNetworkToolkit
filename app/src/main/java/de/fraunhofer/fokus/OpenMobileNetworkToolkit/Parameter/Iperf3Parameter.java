@@ -54,6 +54,7 @@ public class Iperf3Parameter extends Parameter {
     public static final String FQRATE = "fqRate";
     public static final String PACINGTIMER = "pacingTimer";
     public static final String CONNECTTIMEOUT = "connectTimeout";
+    public static final int DEFAULT_CONNECT_TIMEOUT_MS = 2000;
     public static final String UDP = "udp";
     public static final String XBIND = "xbind";
     public static final String SCTP = "sctp";
@@ -99,7 +100,7 @@ public class Iperf3Parameter extends Parameter {
     }
 
     public void setDirectionFlags() {
-        switch (this.direction) {
+        switch (getDirection()) {
             case UP:
                 this.reverse = false;
                 this.bidir = false;
@@ -594,7 +595,8 @@ public class Iperf3Parameter extends Parameter {
     }
 
     public Iperf3Protocol getProtocol() {
-        return protocol;
+        // Gson (Room converter) bypasses field initializers, so this can be null for stored runs.
+        return (protocol != null) ? protocol : Iperf3Protocol.UNDEFINED;
     }
 
     /**
@@ -647,7 +649,8 @@ public class Iperf3Parameter extends Parameter {
     }
 
     public Iperf3Mode getMode() {
-        return mode;
+        // Gson (Room converter) bypasses field initializers, so this can be null for stored runs.
+        return (mode != null) ? mode : Iperf3Mode.UNDEFINED;
     }
 
     /**
@@ -660,7 +663,8 @@ public class Iperf3Parameter extends Parameter {
 
 
     public Iperf3Direction getDirection() {
-        return direction;
+        // Gson (Room converter) bypasses field initializers, so this can be null for stored runs.
+        return (direction != null) ? direction : Iperf3Direction.UNDEFINED;
     }
 
     public void setDirection(Iperf3Direction direction) {
@@ -1313,6 +1317,11 @@ public class Iperf3Parameter extends Parameter {
         if (connectTimeout != null && connectTimeout > 0) {
             command.add("--connect-timeout");
             command.add(String.valueOf(connectTimeout));
+        } else if (getMode() == Iperf3Mode.CLIENT) {
+            // Without this, an unreachable server blocks for the OS TCP timeout (~2 min)
+            // with no output, so the UI sits in RUNNING with nothing to show.
+            command.add("--connect-timeout");
+            command.add(String.valueOf(DEFAULT_CONNECT_TIMEOUT_MS));
         }
         if (bitrate != null && !bitrate.trim().isEmpty()) {
             command.add("-b");
@@ -1326,7 +1335,8 @@ public class Iperf3Parameter extends Parameter {
             command.add("--fq-rate");
             command.add(fqRate);
         }
-        if (time > 0) {
+        // iperf3 accepts only one end condition: a bytes limit (-n) replaces the duration.
+        if (time > 0 && (bytes == null || bytes.trim().isEmpty())) {
             command.add("-t");
             command.add(String.valueOf(time));
         }
@@ -1435,15 +1445,68 @@ public class Iperf3Parameter extends Parameter {
             command.add(rsaPublicKeyPath);
         }
 
-        // Always add these extra fixed options.
+        // Always add these extra fixed options. --json-stream is how the app receives the
+        // results (via libiperf's JSON callback); the app writes the raw log file
+        // (getRawLogFilePath()) itself from those events, so no --logfile.
         command.add("--json-stream");
         command.add("--forceflush");
-        command.add("--logfile");
-        command.add(super.getRawLogFilePath());
 
 
 
-        return command.toArray(new String[0]);
+        return dropOptionsOfOtherRole(command).toArray(new String[0]);
+    }
+
+    /*
+     * Options iperf3 (3.22, iperf_parse_arguments) accepts only as client or only as server; the
+     * other role rejects the whole command line ("some option you are trying to set is client
+     * only"). Value: whether the option takes an argument. Spelled as getInputAsCommand() adds them.
+     */
+    private static final java.util.Map<String, Boolean> CLIENT_ONLY_OPTIONS = java.util.Map.ofEntries(
+            java.util.Map.entry("-u", false), java.util.Map.entry("--sctp", false),
+            java.util.Map.entry("--nstreams", true), java.util.Map.entry("-b", true),
+            java.util.Map.entry("--pacing-timer", true), java.util.Map.entry("--fq-rate", true),
+            java.util.Map.entry("-t", true), java.util.Map.entry("-n", true),
+            java.util.Map.entry("-k", true), java.util.Map.entry("-l", true),
+            java.util.Map.entry("-P", true), java.util.Map.entry("--reverse", false),
+            java.util.Map.entry("--bidir", false), java.util.Map.entry("-w", true),
+            java.util.Map.entry("-C", true), java.util.Map.entry("-M", true),
+            java.util.Map.entry("-N", false), java.util.Map.entry("-S", true),
+            java.util.Map.entry("--dscp", true), java.util.Map.entry("-L", true),
+            java.util.Map.entry("-Z", false), java.util.Map.entry("-O", true),
+            java.util.Map.entry("-T", true), java.util.Map.entry("-A", true),
+            java.util.Map.entry("--extra-data", true), java.util.Map.entry("--get-server-output", false),
+            java.util.Map.entry("--udp-counters-64bit", false), java.util.Map.entry("--repeating-payload", false),
+            java.util.Map.entry("--dont-fragment", false), java.util.Map.entry("--username", true),
+            java.util.Map.entry("--rsa-public-key-path", true), java.util.Map.entry("--connect-timeout", true),
+            java.util.Map.entry("--no-fq-socket-pacing", false), java.util.Map.entry("--skip-rx-copy", false));
+    private static final java.util.Map<String, Boolean> SERVER_ONLY_OPTIONS = java.util.Map.ofEntries(
+            java.util.Map.entry("-D", false), java.util.Map.entry("-1", false),
+            java.util.Map.entry("--server-bitrate-limit", true), java.util.Map.entry("--idle-timeout", true),
+            java.util.Map.entry("--rsa-private-key-path", true), java.util.Map.entry("--time-skew-threshold", true),
+            java.util.Map.entry("--use-pkcs1-padding", false), java.util.Map.entry("--server-max-duration", true));
+
+    /**
+     * Removes the options the chosen mode does not accept. The parameter object keeps client
+     * settings while it is switched to server mode (and vice versa), e.g. from the UI form.
+     */
+    private ArrayList<String> dropOptionsOfOtherRole(ArrayList<String> command) {
+        java.util.Map<String, Boolean> drop;
+        switch (getMode()) {
+            case SERVER: drop = CLIENT_ONLY_OPTIONS; break;
+            case CLIENT: drop = SERVER_ONLY_OPTIONS; break;
+            default: return command;
+        }
+        ArrayList<String> kept = new ArrayList<>(command.size());
+        for (int i = 0; i < command.size(); i++) {
+            Boolean hasArgument = drop.get(command.get(i));
+            if (hasArgument == null) {
+                kept.add(command.get(i));
+            } else {
+                Log.d(TAG, "getInputAsCommand: dropping " + command.get(i) + " (not valid in " + getMode() + " mode)");
+                if (hasArgument) i++; // skip its value too
+            }
+        }
+        return kept;
     }
 
 }

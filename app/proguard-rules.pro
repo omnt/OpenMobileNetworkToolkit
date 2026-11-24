@@ -161,3 +161,9 @@
 -dontwarn sun.security.x509.X500Name
 -dontwarn sun.security.x509.X509CertImpl
 -dontwarn sun.security.x509.X509CertInfo
+
+# libiperf3.so (omnt/iperf) calls back into the iPerf3 executor worker via JNI.
+-keepclassmembers class de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3ExecutorWorker {
+    native <methods>;
+    private void onIperf3Event(byte[]);
+}

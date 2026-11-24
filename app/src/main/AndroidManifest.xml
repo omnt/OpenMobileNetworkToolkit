@@ -65,23 +65,6 @@
             android:name=".Iperf3.Service.Executor.Iperf3ServiceWorkerFour"
             android:exported="false"
             android:process=":iperf3Worker4" />
-
-        <service
-            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerOne"
-            android:exported="false"
-            android:process=":iperf3MonitorWorker1" />
-        <service
-            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerTwo"
-            android:exported="false"
-            android:process=":iperf3MonitorWorker2" />
-        <service
-            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerThree"
-            android:exported="false"
-            android:process=":iperf3MonitorWorker3" />
-        <service
-            android:name=".Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerFour"
-            android:exported="false"
-            android:process=":iperf3MonitorWorker4" />
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

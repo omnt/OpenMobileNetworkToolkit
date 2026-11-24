@@ -23,11 +23,6 @@ import androidx.work.OneTimeWorkRequest;
 import com.google.gson.GsonBuilder;
 
 
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerFour;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerOne;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerThree;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Monitor.Iperf3MonitorServiceWorkerTwo;
-import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Worker.Iperf3MonitorWorker;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Parameter.Iperf3Parameter;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerFour;
 import de.fraunhofer.fokus.OpenMobileNetworkToolkit.Iperf3.Service.Executor.Iperf3ServiceWorkerThree;
@@ -138,34 +133,6 @@ public class Iperf3Input extends Inputs {
                 .addTag(super.getSequenceUUID())
                 .addTag(super.getCampaignUUID())
                 .addTag(Iperf3ExecutorWorker.TAG)
-                .addTag(getParameter().getiPerf3UUID())
-                .setInputData(getInputAsDataBuilder(i, packageName, serviceName).build())
-                .build();
-    }
-
-    @Override
-    public OneTimeWorkRequest getWorkRequestMonitor(int i, String packageName) {
-        String serviceName = "";
-        switch (i){
-            case 0:
-                serviceName = Iperf3MonitorServiceWorkerOne.class.getName();
-                break;
-            case 1:
-                serviceName = Iperf3MonitorServiceWorkerTwo.class.getName();
-                break;
-            case 2:
-                serviceName = Iperf3MonitorServiceWorkerThree.class.getName();
-                break;
-            case 3:
-                serviceName = Iperf3MonitorServiceWorkerFour.class.getName();
-                break;
-        }
-        return new OneTimeWorkRequest.Builder(Iperf3MonitorWorker.class)
-                .addTag(super.getTestUUID())
-                .addTag(super.getMeasurementUUID())
-                .addTag(super.getSequenceUUID())
-                .addTag(super.getCampaignUUID())
-                .addTag(Iperf3MonitorWorker.TAG)
                 .addTag(getParameter().getiPerf3UUID())
                 .setInputData(getInputAsDataBuilder(i, packageName, serviceName).build())
                 .build();

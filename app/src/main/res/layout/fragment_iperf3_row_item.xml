@@ -6,101 +6,172 @@
   ~
   ~  SPDX-License-Identifier: BSD-3-Clause-Clear
   -->
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- One test in the history: a summary line, expandable (tap) to the details. -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginVertical="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    android:backgroundTint="?attr/colorSurface">
+    app:cardElevation="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
-        <RelativeLayout
+        <!-- Summary (always visible) -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/iperf3_status_badge"
+            <ImageView
+                android:id="@+id/iperf3_status_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_iperf3_success" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/iperf3_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+                <TextView
+                    android:id="@+id/iperf3_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.7"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="?attr/textAppearanceBodySmall" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="2dp"
-                android:text="RUNNING"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
-        </RelativeLayout>
+                android:layout_marginStart="8dp"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/iperf3_status_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/iperf3_result_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iperf3_expand_chevron"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="4dp"
+                android:alpha="0.6"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_iperf3_expand_more" />
+        </LinearLayout>
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_indicator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:trackThickness="6dp"
-            app:trackCornerRadius="3dp"
-            app:indicatorColor="?attr/colorPrimary"
-            app:trackColor="?attr/colorSurfaceVariant" />
-
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/parameter_iperf3_fl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:flexWrap="wrap"
-            android:layout_marginBottom="12dp">
-            <!-- Parameters will be added here dynamically -->
-        </com.google.android.flexbox.FlexboxLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?android:attr/listDivider"
-            android:layout_marginBottom="12dp" />
-
-        <LinearLayout
-            android:id="@+id/metrics_iperf3_ll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <!-- Metrics will be added here dynamically -->
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            android:gravity="end">
+            android:visibility="gone"
+            app:trackColor="?attr/colorSurfaceVariant"
+            app:trackCornerRadius="3dp"
+            app:trackThickness="4dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/rerun_btn"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
+        <!-- Error, also on the collapsed card -->
+        <TextView
+            android:id="@+id/iperf3_error_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorError"
+            android:visibility="gone" />
+
+        <!-- Details (tap to expand) -->
+        <LinearLayout
+            android:id="@+id/iperf3_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/parameter_iperf3_fl"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="RERUN"
-                app:icon="@drawable/baseline_exit_to_app_24"
-                android:visibility="gone" />
+                android:layout_marginBottom="8dp"
+                app:flexWrap="wrap" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/close_btn"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/metrics_iperf3_ll"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/baseline_exit_to_app_24"
-                android:visibility="gone" />
+                android:orientation="vertical" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/iperf3_copy_btn"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Command"
+                    app:icon="@drawable/ic_iperf3_copy" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/iperf3_delete_btn"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delete"
+                    app:icon="@drawable/ic_iperf3_delete" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/iperf3_rerun_btn"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Rerun"
+                    app:icon="@drawable/ic_iperf3_replay" />
+            </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>
